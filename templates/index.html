@@ -1354,10 +1354,12 @@
         }
 
         .slot-free-title {
-            font-size: 14px;
+            font-size: 14.5px;
             font-weight: 700;
             color: #34d399;
             letter-spacing: 0.01em;
+            line-height: 1.35;
+            text-transform: uppercase;
         }
 
         .slot-free-tag {
@@ -1369,6 +1371,8 @@
             font-size: 11px;
             font-weight: 600;
             letter-spacing: 0.01em;
+            display: inline-flex;
+            align-items: center;
         }
 
         .day-free-body {
@@ -2554,10 +2558,12 @@
                                     <span>${b.start} - ${b.finish}</span>
                                 </div>
                                 <div class="slot-details">
-                                    <div class="slot-free-row">
-                                        <span class="status-dot"></span>
-                                        <span class="slot-free-title">Sala Vacía</span>
-                                        <span class="slot-free-tag">Disponible</span>
+                                    <div class="slot-course-row">
+                                        <span class="slot-free-title">SALA VACÍA</span>
+                                        <span class="slot-free-tag">
+                                            <span class="status-dot" style="margin-right: 5px;"></span>
+                                            Disponible
+                                        </span>
                                     </div>
                                 </div>
                             </div>
