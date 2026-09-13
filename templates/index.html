@@ -830,6 +830,102 @@
             text-shadow: 0 0 10px rgba(52, 211, 153, 0.35);
         }
 
+        /* Tarjeta de Ramos por Semestre (Malla Curricular - Acento Índigo / Violeta) */
+        .item-card.malla {
+            background: linear-gradient(180deg, rgba(99, 102, 241, 0.08) 0%, rgba(15, 23, 42, 0.72) 100%);
+            border-color: rgba(129, 140, 248, 0.24);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(165, 180, 252, 0.16);
+        }
+
+        .item-card.malla::before {
+            background: linear-gradient(90deg, transparent, rgba(129, 140, 248, 0.75), transparent);
+        }
+
+        .item-card.malla:hover {
+            border-color: rgba(129, 140, 248, 0.6);
+            background: linear-gradient(180deg, rgba(99, 102, 241, 0.16) 0%, rgba(15, 23, 42, 0.88) 100%);
+            box-shadow: 0 10px 24px -4px rgba(99, 102, 241, 0.3), inset 0 1px 0 rgba(165, 180, 252, 0.35);
+        }
+
+        .item-card.malla:hover::before {
+            background: linear-gradient(90deg, transparent, #818cf8, transparent);
+            box-shadow: 0 0 8px #818cf8;
+        }
+
+        .item-card.malla .room-pill {
+            background: rgba(99, 102, 241, 0.14);
+            color: #a5b4fc;
+            border-color: rgba(129, 140, 248, 0.3);
+        }
+
+        .item-card.malla .room-pill:hover {
+            background: rgba(99, 102, 241, 0.25);
+            border-color: rgba(129, 140, 248, 0.55);
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+        }
+
+        .item-card.malla .status-dot.occ {
+            background: #818cf8;
+            box-shadow: 0 0 6px #6366f1;
+            animation: pulseDotMalla 2.2s infinite ease-in-out;
+        }
+
+        @keyframes pulseDotMalla {
+            0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 6px #6366f1; }
+            50% { opacity: 0.6; transform: scale(0.85); box-shadow: 0 0 2px #6366f1; }
+        }
+
+        .section-pill {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(99, 102, 241, 0.18);
+            color: #c7d2fe;
+            border: 1px solid rgba(129, 140, 248, 0.32);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .time-pill.malla-time {
+            color: #a5b4fc;
+            background: rgba(99, 102, 241, 0.08);
+            border-color: rgba(129, 140, 248, 0.22);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .item-card.malla:hover .course-name {
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(129, 140, 248, 0.35);
+        }
+
+        .btn-filter-ramo {
+            margin-top: 6px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-sub);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            width: fit-content;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-filter-ramo:hover {
+            color: #ffffff;
+            background: rgba(99, 102, 241, 0.2);
+            border-color: rgba(129, 140, 248, 0.4);
+        }
+
         .item-top {
             display: flex;
             justify-content: space-between;
@@ -1392,6 +1488,13 @@
                 </svg>
                 <span>Horario por Sala</span>
             </button>
+            <button type="button" class="tab-btn" onclick="cambiarTab('tab-malla', this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                    <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                </svg>
+                <span>Ramos por Semestre</span>
+            </button>
         </nav>
     </div>
 
@@ -1616,6 +1719,66 @@
             <div class="empty-state">Escribe o selecciona una sala del listado superior para consultar su calendario de clases.</div>
         </div>
     </section>
+
+    <!-- TAB 5: RAMOS POR SEMESTRE (MALLA CURRICULAR ICIT) -->
+    <section id="tab-malla" class="panel">
+        <div class="control-card">
+            <div class="filter-header-row">
+                <div>
+                    <span class="status-pill" style="margin-bottom: 6px; display: inline-flex;">
+                        <span class="pulse-dot" style="background:#818cf8; box-shadow: 0 0 6px #6366f1;"></span>
+                        <span style="font-weight: 700;">Ingeniería Civil en Informática y Telecomunicaciones</span>
+                    </span>
+                    <div class="filter-header-title">Malla Curricular y Secciones por Semestre</div>
+                </div>
+                <span style="font-size: 12px; color: var(--text-muted);">Compara horarios y salas entre secciones para asistir a otras</span>
+            </div>
+
+            <!-- Selector de Semestre -->
+            <div class="control-group">
+                <div class="section-label">Seleccionar Semestre</div>
+                <div class="pill-bar" id="bar-malla-semestre">
+                    <button type="button" class="pill-btn" data-sem="1" onclick="setMallaSemestre('1', this)">Semestre I</button>
+                    <button type="button" class="pill-btn" data-sem="2" onclick="setMallaSemestre('2', this)">Semestre II</button>
+                    <button type="button" class="pill-btn" data-sem="3" onclick="setMallaSemestre('3', this)">Semestre III</button>
+                    <button type="button" class="pill-btn" data-sem="4" onclick="setMallaSemestre('4', this)">Semestre IV</button>
+                    <button type="button" class="pill-btn" data-sem="5" onclick="setMallaSemestre('5', this)">Semestre V</button>
+                    <button type="button" class="pill-btn" data-sem="6" onclick="setMallaSemestre('6', this)">Semestre VI</button>
+                    <button type="button" class="pill-btn" data-sem="7" onclick="setMallaSemestre('7', this)">Semestre VII</button>
+                    <button type="button" class="pill-btn active" data-sem="8" onclick="setMallaSemestre('8', this)">Semestre VIII</button>
+                    <button type="button" class="pill-btn" data-sem="9" onclick="setMallaSemestre('9', this)">Semestre IX</button>
+                    <button type="button" class="pill-btn" data-sem="10" onclick="setMallaSemestre('10', this)">Semestre X</button>
+                    <button type="button" class="pill-btn" data-sem="11" onclick="setMallaSemestre('11', this)">Semestre XI</button>
+                </div>
+            </div>
+
+            <!-- Selector de Día -->
+            <div class="control-group">
+                <div class="section-label">Filtrar por Día</div>
+                <div class="pill-bar" id="bar-malla-dia">
+                    <button type="button" class="pill-btn active" data-dia="" onclick="setMallaDia('', this)">Todos los días</button>
+                    <button type="button" class="pill-btn" data-dia="hoy" onclick="setMallaDia('hoy', this)">Hoy</button>
+                    <button type="button" class="pill-btn" data-dia="1" onclick="setMallaDia('1', this)">Lunes</button>
+                    <button type="button" class="pill-btn" data-dia="2" onclick="setMallaDia('2', this)">Martes</button>
+                    <button type="button" class="pill-btn" data-dia="3" onclick="setMallaDia('3', this)">Miércoles</button>
+                    <button type="button" class="pill-btn" data-dia="4" onclick="setMallaDia('4', this)">Jueves</button>
+                    <button type="button" class="pill-btn" data-dia="5" onclick="setMallaDia('5', this)">Viernes</button>
+                </div>
+            </div>
+
+            <!-- Filtro dinámico de Ramos del Semestre -->
+            <div class="control-group" style="margin-bottom: 0;">
+                <div class="section-label">Filtrar por Asignatura del Semestre</div>
+                <div class="pill-bar" id="bar-malla-ramos">
+                    <button type="button" class="pill-btn active" onclick="setMallaRamo('', this)">Todos los ramos</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="cards-grid" id="malla-results-grid">
+            <div class="empty-state">Cargando secciones del semestre...</div>
+        </div>
+    </section>
 </div>
 
 <script>
@@ -1625,6 +1788,9 @@
         hora: '{{ sel.hora }}' || '8:30:00',
         profDia: '',
         ramoDia: '',
+        mallaSemestre: '8',
+        mallaDia: '',
+        mallaRamo: '',
         salaDia: '',
         salaActiva: ''
     };
@@ -1636,12 +1802,17 @@
         return (d >= 1 && d <= 5) ? d : 1;
     }
 
+    let mallaLoadedOnce = false;
+
     function cambiarTab(panelId, btn) {
         document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
         btn.classList.add('active');
         const target = document.getElementById(panelId);
         if (target) target.classList.add('active');
+        if (panelId === 'tab-malla' && !mallaLoadedOnce) {
+            cargarClasesMalla(true);
+        }
     }
 
     function setFacultadPill(val, btn) {
@@ -1936,6 +2107,104 @@
                 container.innerHTML = '<div class="empty-state">Error al consultar datos de asignaturas.</div>';
             }
         }, 180);
+    }
+
+    let mallaRamosCache = [];
+
+    function setMallaSemestre(sem, btn) {
+        document.querySelectorAll('#bar-malla-semestre .pill-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        state.mallaSemestre = sem;
+        state.mallaRamo = '';
+        cargarClasesMalla(true);
+    }
+
+    function setMallaDia(diaVal, btn) {
+        document.querySelectorAll('#bar-malla-dia .pill-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        state.mallaDia = diaVal === 'hoy' ? String(obtenerDiaActualNumero()) : diaVal;
+        cargarClasesMalla(false);
+    }
+
+    function setMallaRamo(ramoVal, btn) {
+        document.querySelectorAll('#bar-malla-ramos .pill-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        state.mallaRamo = ramoVal;
+        cargarClasesMalla(false);
+    }
+
+    function filtrarSoloEsteRamo(ramoNombre) {
+        state.mallaRamo = ramoNombre;
+        document.querySelectorAll('#bar-malla-ramos .pill-btn').forEach(b => {
+            b.classList.toggle('active', b.dataset.ramo === ramoNombre);
+        });
+        cargarClasesMalla(false);
+        const topEl = document.getElementById('bar-malla-ramos');
+        if (topEl) topEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    async function cargarClasesMalla(refrescarChips = false) {
+        mallaLoadedOnce = true;
+        const container = document.getElementById('malla-results-grid');
+        if (!container) return;
+        
+        container.innerHTML = '<div class="empty-state">Consultando clases y secciones del semestre...</div>';
+
+        try {
+            const semParam = `semestre=${encodeURIComponent(state.mallaSemestre)}`;
+            const diaParam = state.mallaDia ? `&dia=${encodeURIComponent(state.mallaDia)}` : '';
+            const ramoParam = state.mallaRamo ? `&ramo=${encodeURIComponent(state.mallaRamo)}` : '';
+            const resp = await fetch(`/api/malla?${semParam}${diaParam}${ramoParam}`);
+            const data = await resp.json();
+
+            // Actualizar chips de ramos del semestre si se requiere
+            if (refrescarChips || !mallaRamosCache.length) {
+                mallaRamosCache = data.ramos_del_semestre || [];
+                const chipsContainer = document.getElementById('bar-malla-ramos');
+                if (chipsContainer) {
+                    let chipsHtml = `<button type="button" class="pill-btn ${!state.mallaRamo ? 'active' : ''}" data-ramo="" onclick="setMallaRamo('', this)">Todos los ramos (${mallaRamosCache.length})</button>`;
+                    mallaRamosCache.forEach(r => {
+                        const isAct = state.mallaRamo === r;
+                        chipsHtml += `<button type="button" class="pill-btn ${isAct ? 'active' : ''}" data-ramo="${r}" onclick="setMallaRamo('${r}', this)">${r}</button>`;
+                    });
+                    chipsContainer.innerHTML = chipsHtml;
+                }
+            }
+
+            if (!data.clases || data.clases.length === 0) {
+                const diaTxt = state.mallaDia ? ' para el día seleccionado' : '';
+                const ramoTxt = state.mallaRamo ? ` de "${state.mallaRamo}"` : '';
+                container.innerHTML = `<div class="empty-state">No se registraron clases programadas en ${data.semestre_nombre}${ramoTxt}${diaTxt}.</div>`;
+                return;
+            }
+
+            container.innerHTML = data.clases.map(c => `
+                <div class="item-card malla">
+                    <div class="item-top">
+                        <span class="room-pill" onclick="verHorarioDirecto('${c.sala}')" title="Ver horario completo de la sala ${c.sala}">
+                            <span class="status-dot occ"></span>
+                            <span>${c.sala}</span>
+                        </span>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span class="section-pill">Sección ${c.seccion}</span>
+                            <span class="time-pill malla-time">${c.dia} ${c.hora_inicio} - ${c.hora_termino}</span>
+                        </div>
+                    </div>
+                    <div class="course-name">${c.ramo_malla}</div>
+                    <div class="item-meta">
+                        <div>Profesor: <strong>${c.profe}</strong></div>
+                        <span>Asignatura Oficial: ${c.curso_oficial} • Cód: ${c.codigo}</span>
+                        <button type="button" class="btn-filter-ramo" onclick="filtrarSoloEsteRamo('${c.ramo_malla}')" title="Ver todas las secciones de esta asignatura">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            <span>Ver todas las secciones de este ramo</span>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        } catch (e) {
+            container.innerHTML = '<div class="empty-state">Error al cargar información de la malla.</div>';
+            console.error(e);
+        }
     }
 
     let subFiltroSugeridas = 'TODAS';

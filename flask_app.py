@@ -359,6 +359,171 @@ def buscar_curso(query, dia_filtro=None):
     resultados.sort(key=lambda x: (x['curso'], x['dia_numero'], to_minutes(x['hora_inicio'])))
     return resultados
 
+MALLA_ICIT = {
+    1: {
+        "nombre": "Semestre I",
+        "ramos": [
+            {"nombre": "Álgebra y Geometría", "keywords": ["algebra y geometria", "introduccion al algebra"]},
+            {"nombre": "Cálculo I", "keywords": ["introduccion al calculo", "calculo i"]},
+            {"nombre": "Química", "keywords": ["quimica"]},
+            {"nombre": "Programación", "keywords": ["programacion"]},
+            {"nombre": "Comunicación para la Ingeniería", "keywords": ["comunicacion para la ingenieria", "habilidades"]}
+        ]
+    },
+    2: {
+        "nombre": "Semestre II",
+        "ramos": [
+            {"nombre": "Álgebra Lineal", "keywords": ["algebra lineal"]},
+            {"nombre": "Cálculo II", "keywords": ["calculo diferencial e integral"]},
+            {"nombre": "Mecánica", "keywords": ["mecanica"]},
+            {"nombre": "Programación Avanzada", "keywords": ["programacion avanzada"]}
+        ]
+    },
+    3: {
+        "nombre": "Semestre III",
+        "ramos": [
+            {"nombre": "Ecuaciones Diferenciales", "keywords": ["ecuaciones diferenciales"]},
+            {"nombre": "Cálculo III", "keywords": ["calculo iii"]},
+            {"nombre": "Calor y Ondas", "keywords": ["calor y ondas"]},
+            {"nombre": "Estructuras de Datos y Algoritmos", "keywords": ["estructuras de datos", "estructura de datos"]},
+            {"nombre": "Redes de Datos", "keywords": ["redes de datos"]}
+        ]
+    },
+    4: {
+        "nombre": "Semestre IV",
+        "ramos": [
+            {"nombre": "Probabilidades y Estadísticas", "keywords": ["probabilidades y estadistica", "probabilidades y estadisticas"]},
+            {"nombre": "Electrónica y Electrotecnia", "keywords": ["electronica y electrotecnia"]},
+            {"nombre": "Electricidad y Magnetismo", "keywords": ["electricidad y magnetismo"]},
+            {"nombre": "Bases de Datos", "keywords": ["bases de datos"]},
+            {"nombre": "Desarrollo Web y Móvil", "keywords": ["desarrollo web"]},
+            {"nombre": "Inglés I", "keywords": ["ingles i"]}
+        ]
+    },
+    5: {
+        "nombre": "Semestre V",
+        "ramos": [
+            {"nombre": "Optimización", "keywords": ["optimizacion"]},
+            {"nombre": "Taller de Redes y Servicios", "keywords": ["taller de redes"]},
+            {"nombre": "Proyecto en TICs I", "keywords": ["proyecto en tics i", "proyecto tic i"]},
+            {"nombre": "Bases de Datos Avanzadas", "keywords": ["bases de datos avanzadas"]},
+            {"nombre": "Inglés II", "keywords": ["ingles ii"]}
+        ]
+    },
+    6: {
+        "nombre": "Semestre VI",
+        "ramos": [
+            {"nombre": "Contabilidad y Costos", "keywords": ["contabilidad y costos"]},
+            {"nombre": "Arquitectura y Organización de Computadores", "keywords": ["arquitectura y organiz"]},
+            {"nombre": "Señales y Sistemas", "keywords": ["senales y sistemas"]},
+            {"nombre": "Sistemas Operativos", "keywords": ["sistemas operativos"]},
+            {"nombre": "Inglés III", "keywords": ["ingles iii"]}
+        ]
+    },
+    7: {
+        "nombre": "Semestre VII",
+        "ramos": [
+            {"nombre": "Gestión Organizacional", "keywords": ["gestion organizacional"]},
+            {"nombre": "Sistemas Distribuidos", "keywords": ["sistemas distribuidos"]},
+            {"nombre": "Comunicaciones Digitales", "keywords": ["comunicaciones digitales"]},
+            {"nombre": "Ingeniería de Software", "keywords": ["ingenieria de software"]}
+        ]
+    },
+    8: {
+        "nombre": "Semestre VIII",
+        "ramos": [
+            {"nombre": "Introducción a la Economía", "keywords": ["introduccion  a la economia", "introduccion a la economia", "microeconomia"]},
+            {"nombre": "Tecnologías Inalámbricas", "keywords": ["tecnologias inalambricas"]},
+            {"nombre": "Criptografía y Seguridad de Redes", "keywords": ["criptografia y seguridad en redes", "criptografia"]},
+            {"nombre": "Inteligencia Artificial", "keywords": ["inteligencia artificial"]},
+            {"nombre": "Evaluación de Proyectos TIC", "keywords": ["evaluacion de proyectos tic"]}
+        ]
+    },
+    9: {
+        "nombre": "Semestre IX",
+        "ramos": [
+            {"nombre": "Arquitecturas Emergentes", "keywords": ["arquitecturas emergentes"]},
+            {"nombre": "Arquitectura de Software", "keywords": ["arquitectura de software"]},
+            {"nombre": "Data Science", "keywords": ["data science"]}
+        ]
+    },
+    10: {
+        "nombre": "Semestre X",
+        "ramos": [
+            {"nombre": "Proyecto en TICs II", "keywords": ["proyecto en tics ii", "proyecto tic ii"]}
+        ]
+    },
+    11: {
+        "nombre": "Semestre XI",
+        "ramos": [
+            {"nombre": "Actividad de Titulación", "keywords": ["titulacion", "memoria"]}
+        ]
+    }
+}
+
+def obtener_clases_malla(semestre=8, dia_filtro=None, ramo_filtro=None):
+    sem_info = MALLA_ICIT.get(int(semestre))
+    if not sem_info:
+        return []
+    
+    clases = dm.get_classes()
+    resultados = []
+    
+    dia_int = None
+    if dia_filtro:
+        d_str = str(dia_filtro).strip().lower()
+        if d_str == 'hoy':
+            now = datetime.datetime.now()
+            d_val = now.weekday() + 1
+            dia_int = d_val if d_val <= 5 else 1
+        elif d_str.isdigit() and 1 <= int(d_str) <= 7:
+            dia_int = int(d_str)
+
+    ramo_q = normalize_str(ramo_filtro) if ramo_filtro else None
+
+    for c in clases:
+        n = c.get('node', {})
+        curso_oficial = n.get('course', '')
+        curso_norm = normalize_str(curso_oficial)
+        
+        matched_ramo = None
+        for r in sem_info['ramos']:
+            if any(k in curso_norm for k in r['keywords']):
+                matched_ramo = r['nombre']
+                break
+                
+        if not matched_ramo:
+            continue
+            
+        if ramo_q and ramo_q not in normalize_str(matched_ramo):
+            continue
+            
+        if dia_int is not None and n.get('day') != dia_int:
+            continue
+
+        resultados.append({
+            'ramo_malla': matched_ramo,
+            'curso_oficial': curso_oficial,
+            'seccion': n.get('section', '-'),
+            'codigo': n.get('code', '-'),
+            'dia': nombre_dia(n.get('day')),
+            'dia_numero': n.get('day'),
+            'hora_inicio': format_time(n.get('start', '')),
+            'hora_termino': format_time(n.get('finish', '')),
+            'sala': n.get('place', '-'),
+            'profe': n.get('teacher', 'No informado')
+        })
+
+    def sort_key_malla(item):
+        try:
+            sec_num = int(str(item['seccion']).strip())
+        except ValueError:
+            sec_num = 999
+        return (item['ramo_malla'], sec_num, item['dia_numero'], to_minutes(item['hora_inicio']))
+
+    resultados.sort(key=sort_key_malla)
+    return resultados
+
 def horario_de_sala(nombre_sala):
     clases = dm.get_classes()
     nombre_clean = (nombre_sala or "").strip().upper()
@@ -545,6 +710,33 @@ def api_horario_sala(nombre_sala):
     return jsonify({
         "sala": nombre_sala.upper(),
         "horario": horario
+    })
+
+@app.route("/api/malla", methods=["GET"])
+def api_malla():
+    semestre = request.args.get("semestre", "8")
+    dia = request.args.get("dia", "").strip()
+    ramo = request.args.get("ramo", "").strip()
+
+    try:
+        sem_num = int(semestre)
+    except ValueError:
+        sem_num = 8
+
+    sem_info = MALLA_ICIT.get(sem_num, MALLA_ICIT[8])
+    clases_malla = obtener_clases_malla(sem_num, dia_filtro=dia, ramo_filtro=ramo)
+    semestres_disponibles = [{"numero": k, "nombre": v["nombre"]} for k, v in sorted(MALLA_ICIT.items())]
+
+    return jsonify({
+        "semestre": sem_num,
+        "semestre_nombre": sem_info["nombre"],
+        "carrera": "Ingeniería Civil en Informática y Telecomunicaciones",
+        "semestres_disponibles": semestres_disponibles,
+        "ramos_del_semestre": [r["nombre"] for r in sem_info["ramos"]],
+        "dia_filtro": dia,
+        "ramo_filtro": ramo,
+        "total_clases": len(clases_malla),
+        "clases": clases_malla
     })
 
 if __name__ == "__main__":
