@@ -941,102 +941,6 @@
             text-transform: uppercase;
             letter-spacing: 0.04em;
         }
-
-        /* GRID BALANCEADO PARA FILTRO DE RAMOS DEL SEMESTRE (SIN HUECOS VACÍOS) */
-        #bar-malla-ramos {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            width: 100%;
-        }
-
-        #bar-malla-ramos .pill-btn {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 10px 14px;
-            min-height: 48px;
-            white-space: normal;
-            line-height: 1.28;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 600;
-            background: rgba(15, 23, 42, 0.75);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: #94a3b8;
-            backdrop-filter: blur(12px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        #bar-malla-ramos .pill-btn:hover {
-            border-color: rgba(56, 189, 248, 0.6);
-            color: #ffffff;
-            background: rgba(14, 165, 233, 0.15);
-            box-shadow: 0 6px 18px rgba(14, 165, 233, 0.22);
-            transform: translateY(-2px);
-        }
-
-        #bar-malla-ramos .pill-btn.active {
-            background: linear-gradient(135deg, rgba(14, 165, 233, 0.28) 0%, rgba(2, 132, 199, 0.16) 100%);
-            border-color: #38bdf8;
-            color: #38bdf8;
-            font-weight: 700;
-            box-shadow: 0 0 18px rgba(56, 189, 248, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-            transform: translateY(-1px);
-        }
-
-        /* HOVER CIAN PARA TARJETAS EN PESTAÑA MALLA */
-        #tab-malla .item-card:hover {
-            border-color: rgba(56, 189, 248, 0.6);
-            background: linear-gradient(180deg, rgba(14, 165, 233, 0.16) 0%, rgba(15, 23, 42, 0.88) 100%);
-            box-shadow: 0 10px 24px -4px rgba(14, 165, 233, 0.3), inset 0 1px 0 rgba(56, 189, 248, 0.35);
-        }
-
-        #tab-malla .item-card:hover::before {
-            background: linear-gradient(90deg, transparent, #38bdf8, transparent);
-            box-shadow: 0 0 8px #38bdf8;
-        }
-
-        #tab-malla .item-card:hover .course-name {
-            color: #ffffff;
-            text-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
-        }
-
-        #tab-malla .item-card .room-pill {
-            background: rgba(14, 165, 233, 0.12);
-            color: #38bdf8;
-            border-color: rgba(56, 189, 248, 0.28);
-        }
-
-        #tab-malla .item-card .room-pill:hover {
-            background: rgba(14, 165, 233, 0.25);
-            border-color: rgba(56, 189, 248, 0.6);
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
-        }
-
-        #tab-malla .item-card .status-dot.occ {
-            background: #38bdf8;
-            box-shadow: 0 0 6px #0ea5e9;
-        }
-
-        @media (max-width: 900px) {
-            #bar-malla-ramos {
-                grid-template-columns: repeat(2, 1fr) !important;
-            }
-        }
-
-        @media (max-width: 580px) {
-            #bar-malla-ramos {
-                grid-template-columns: 1fr !important;
-            }
-            #bar-malla-ramos .pill-btn {
-                grid-column: auto !important;
-            }
-        }
-
         .item-top {
             display: flex;
             justify-content: space-between;
@@ -2340,18 +2244,7 @@
                 mallaRamosCache = data.ramos_del_semestre || [];
                 const chipsContainer = document.getElementById('bar-malla-ramos');
                 if (chipsContainer) {
-                    const totalBtns = mallaRamosCache.length + 1;
-                    if (totalBtns === 6) {
-                        chipsContainer.style.gridTemplateColumns = 'repeat(3, 1fr)';
-                    } else if (totalBtns === 4 || totalBtns === 2) {
-                        chipsContainer.style.gridTemplateColumns = 'repeat(2, 1fr)';
-                    } else if (totalBtns === 5) {
-                        chipsContainer.style.gridTemplateColumns = 'repeat(2, 1fr)';
-                    } else {
-                        chipsContainer.style.gridTemplateColumns = 'repeat(auto-fit, minmax(240px, 1fr))';
-                    }
-
-                    let chipsHtml = `<button type="button" class="pill-btn ${!state.mallaRamo ? 'active' : ''}" ${totalBtns === 5 ? 'style="grid-column: 1 / -1;"' : ''} data-ramo="" onclick="setMallaRamo('', this)">Todos los ramos (${mallaRamosCache.length})</button>`;
+                    let chipsHtml = `<button type="button" class="pill-btn ${!state.mallaRamo ? 'active' : ''}" data-ramo="" onclick="setMallaRamo('', this)">Todos los ramos (${mallaRamosCache.length})</button>`;
                     mallaRamosCache.forEach(r => {
                         const isAct = state.mallaRamo === r;
                         chipsHtml += `<button type="button" class="pill-btn ${isAct ? 'active' : ''}" data-ramo="${r}" onclick="setMallaRamo('${r}', this)">${r}</button>`;
