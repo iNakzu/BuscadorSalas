@@ -199,42 +199,84 @@
         }
 
         /* TABS DE NAVEGACIÓN */
-        .tabs {
+        /* TABS DE NAVEGACIÓN (REDISEÑO MODERNO MINIMALISTA TIPO SEGMENTED GLASS DOCK) */
+        .tabs-wrapper {
             display: flex;
-            gap: 8px;
+            margin-bottom: 26px;
             overflow-x: auto;
-            margin-bottom: 24px;
             scrollbar-width: none;
+            padding: 2px 0;
         }
-        .tabs::-webkit-scrollbar { display: none; }
+        .tabs-wrapper::-webkit-scrollbar { display: none; }
+
+        .tabs {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 9999px;
+            padding: 5px;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            max-width: 100%;
+        }
 
         .tab-btn {
+            position: relative;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            padding: 10px 18px;
-            border-radius: 999px;
+            background: transparent;
+            border: 1px solid transparent;
+            color: #94a3b8;
+            padding: 9px 18px;
+            border-radius: 9999px;
             font-size: 13.5px;
             font-weight: 600;
+            letter-spacing: 0.01em;
             cursor: pointer;
             white-space: nowrap;
-            transition: all 0.2s ease;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            user-select: none;
+        }
+
+        .tab-btn svg {
+            flex-shrink: 0;
+            transition: all 0.22s ease;
+            opacity: 0.75;
         }
 
         .tab-btn:hover {
-            color: var(--text-main);
-            background: var(--surface-hover);
-            border-color: rgba(255, 255, 255, 0.15);
+            color: #f8fafc;
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.08);
+            transform: translateY(-1px);
+        }
+
+        .tab-btn:hover svg {
+            opacity: 1;
+            transform: scale(1.08);
         }
 
         .tab-btn.active {
-            background: linear-gradient(135deg, var(--brand-from), var(--accent));
             color: #ffffff;
-            border-color: transparent;
-            box-shadow: 0 4px 18px rgba(59, 130, 246, 0.35);
+            font-weight: 700;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.95) 0%, rgba(14, 165, 233, 0.92) 100%);
+            border-color: rgba(125, 211, 252, 0.45);
+            box-shadow: 0 6px 20px -3px rgba(14, 165, 233, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .tab-btn.active svg {
+            opacity: 1;
+            color: #ffffff;
+            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.6));
+        }
+
+        .tab-btn:active {
+            transform: translateY(0);
         }
 
         /* PANELES */
@@ -725,6 +767,67 @@
             display: inline-flex;
             align-items: center;
             gap: 5px;
+        }
+
+        .item-card.ramo .status-dot.occ {
+            background: #38bdf8;
+            box-shadow: 0 0 6px #0ea5e9;
+            animation: pulseDotRamo 2.2s infinite ease-in-out;
+        }
+
+        @keyframes pulseDotRamo {
+            0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 6px #0ea5e9; }
+            50% { opacity: 0.6; transform: scale(0.85); box-shadow: 0 0 2px #0ea5e9; }
+        }
+
+        /* Tarjeta de Salas Libres (Mismo tamaño y estructura que las salas ocupadas) */
+        .item-card.free {
+            background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(15, 23, 42, 0.72) 100%);
+            border-color: rgba(16, 185, 129, 0.24);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(52, 211, 153, 0.16);
+            cursor: pointer;
+        }
+
+        .item-card.free::before {
+            background: linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.75), transparent);
+        }
+
+        .item-card.free:hover {
+            border-color: rgba(52, 211, 153, 0.6);
+            background: linear-gradient(180deg, rgba(16, 185, 129, 0.16) 0%, rgba(15, 23, 42, 0.88) 100%);
+            box-shadow: 0 10px 24px -4px rgba(16, 185, 129, 0.3), inset 0 1px 0 rgba(52, 211, 153, 0.35);
+        }
+
+        .item-card.free:hover::before {
+            background: linear-gradient(90deg, transparent, #34d399, transparent);
+            box-shadow: 0 0 8px #34d399;
+        }
+
+        .item-card.free .room-pill {
+            background: rgba(16, 185, 129, 0.14);
+            color: #34d399;
+            border-color: rgba(52, 211, 153, 0.3);
+        }
+
+        .item-card.free .room-pill:hover {
+            background: rgba(16, 185, 129, 0.25);
+            border-color: rgba(52, 211, 153, 0.55);
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+        }
+
+        .item-card.free .time-pill {
+            color: #34d399;
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(52, 211, 153, 0.25);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .item-card.free:hover .course-name {
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(52, 211, 153, 0.35);
         }
 
         .item-top {
@@ -1254,21 +1357,43 @@
         </div>
     </header>
 
-    <!-- PESTAÑAS -->
-    <nav class="tabs" aria-label="Navegación principal">
-        <button type="button" class="tab-btn active" onclick="cambiarTab('tab-salas', this)">
-            Salas Disponibles
-        </button>
-        <button type="button" class="tab-btn" onclick="cambiarTab('tab-profes', this)">
-            Buscar Profesor
-        </button>
-        <button type="button" class="tab-btn" onclick="cambiarTab('tab-ramos', this)">
-            Buscar Ramo
-        </button>
-        <button type="button" class="tab-btn" onclick="cambiarTab('tab-horario', this)">
-            Horario por Sala
-        </button>
-    </nav>
+    <!-- PESTAÑAS (REDISEÑADAS: DOCK FLOTANTE CON ICONOS Y TEXTOS ACTUALIZADOS) -->
+    <div class="tabs-wrapper">
+        <nav class="tabs" aria-label="Navegación principal">
+            <button type="button" class="tab-btn active" onclick="cambiarTab('tab-salas', this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                <span>Salas Disponibles</span>
+            </button>
+            <button type="button" class="tab-btn" onclick="cambiarTab('tab-profes', this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <span>Buscar por Profesor</span>
+            </button>
+            <button type="button" class="tab-btn" onclick="cambiarTab('tab-ramos', this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+                <span>Buscar por Ramo</span>
+            </button>
+            <button type="button" class="tab-btn" onclick="cambiarTab('tab-horario', this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span>Horario por Sala</span>
+            </button>
+        </nav>
+    </div>
 
     <!-- TAB 1: SALAS DISPONIBLES Y OCUPADAS -->
     <section id="tab-salas" class="panel active">
@@ -1331,25 +1456,27 @@
             </div>
         </div>
 
-        <!-- Salas Libres (Verde) -->
+        <!-- Salas Libres (Verde - Mismo tamaño y estructura que las salas ocupadas) -->
         <div class="group-title" style="color: #34d399;">Salas Disponibles (Libres)</div>
-        <div class="rooms-grid" id="grid-vacias">
+        <div class="cards-grid" id="grid-vacias">
             {% for s in vacias %}
             {% set vinfo = vacias_info.get(s) if vacias_info else None %}
-            <div class="room-card" onclick="verHorarioDirecto('{{ s }}')" title="Ver horario semanal de {{ s }}">
-                <div class="room-card-main">
-                    <div class="room-code">{{ s }}</div>
-                    <div class="room-status-badge">
+            <div class="item-card free" onclick="verHorarioDirecto('{{ s }}')" title="Ver horario semanal de {{ s }}">
+                <div class="item-top">
+                    <span class="room-pill free">
                         <span class="status-dot"></span>
-                        <span>Libre</span>
-                    </div>
+                        <span>{{ s }}</span>
+                    </span>
+                    <span class="time-pill free">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        <span>{{ vinfo.texto if (vinfo and vinfo.texto) else 'Libre' }}</span>
+                    </span>
                 </div>
-                {% if vinfo and vinfo.texto %}
-                <div class="room-time-indicator">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                    <span>{{ vinfo.texto }}</span>
+                <div class="course-name" style="color: #34d399;">SALA DISPONIBLE</div>
+                <div class="item-meta">
+                    <div>{% if vinfo and vinfo.proximo_curso %}Próxima clase: <strong>{{ vinfo.proximo_curso }}</strong>{% else %}Sin más clases programadas hoy{% endif %}</div>
+                    <span>{% if s.startswith('E441') %}Facultad de Ingeniería • Ejército 441{% elif s.startswith('V432') %}Facultad de Ingeniería • Vergara 432{% else %}Universidad Diego Portales{% endif %} • Click para ver horario</span>
                 </div>
-                {% endif %}
             </div>
             {% else %}
             <div class="empty-state">No se registraron salas libres para el criterio seleccionado.</div>
@@ -1366,7 +1493,7 @@
                         <span class="status-dot occ"></span>
                         <span>{{ s }}</span>
                     </span>
-                    <span class="time-pill">{{ info.horario }}{% if info.countdown %} • {{ info.countdown }}{% endif %}</span>
+                    <span class="time-pill">{{ info.horario }}</span>
                 </div>
                 <div class="course-name">{{ info.curso }}</div>
                 <div class="item-meta">
@@ -1582,21 +1709,27 @@
                 gridVacias.innerHTML = data.vacias.map(s => {
                     const vinfo = vaciasInfo[s];
                     const timeTxt = vinfo ? vinfo.texto : 'Libre';
+                    const isE441 = s.startsWith('E441');
+                    const isV432 = s.startsWith('V432');
+                    const campusTxt = isE441 ? 'Facultad de Ingeniería • Ejército 441' : (isV432 ? 'Facultad de Ingeniería • Vergara 432' : 'Universidad Diego Portales');
+                    const proxTxt = (vinfo && vinfo.proximo_curso) ? `Próxima clase: <strong>${vinfo.proximo_curso}</strong>` : 'Sin más clases programadas hoy';
+
                     return `
-                        <div class="room-card" onclick="verHorarioDirecto('${s}')" title="Ver horario semanal de ${s}">
-                            <div class="room-card-main">
-                                <div class="room-code">${s}</div>
-                                <div class="room-status-badge">
+                        <div class="item-card free" onclick="verHorarioDirecto('${s}')" title="Ver horario semanal de ${s}">
+                            <div class="item-top">
+                                <span class="room-pill free">
                                     <span class="status-dot"></span>
-                                    <span>Libre</span>
-                                </div>
+                                    <span>${s}</span>
+                                </span>
+                                <span class="time-pill free">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                                    <span>${timeTxt}</span>
+                                </span>
                             </div>
-                            <div class="room-time-indicator">
-                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg>
-                                <span>${timeTxt}</span>
+                            <div class="course-name" style="color: #34d399;">SALA DISPONIBLE</div>
+                            <div class="item-meta">
+                                <div>${proxTxt}</div>
+                                <span>${campusTxt} • Click para ver horario</span>
                             </div>
                         </div>
                     `;
@@ -1617,10 +1750,7 @@
                                     <span class="status-dot occ"></span>
                                     <span>${k}</span>
                                 </span>
-                                <div style="display:flex; align-items:center; gap:6px;">
-                                    <span class="time-pill">${info.horario}</span>
-                                    ${info.countdown ? `<span class="time-pill" style="color:var(--amber); background:var(--amber-bg); border-color:rgba(245,158,11,0.25);">${info.countdown}</span>` : ''}
-                                </div>
+                                <span class="time-pill">${info.horario}</span>
                             </div>
                             <div class="course-name">${info.curso}</div>
                             <div class="item-meta">

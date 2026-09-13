@@ -221,13 +221,6 @@ def obtener_salas(dia_numero, hora_exacta, filtro_facultad):
     for s, cl_list in clases_por_sala.items():
         for c in cl_list:
             if not (c['end_min'] <= b_start or c['start_min'] >= b_end):
-                countdown = ""
-                if is_today and c['start_min'] <= now_min < c['end_min']:
-                    rem = c['end_min'] - now_min
-                    countdown = f"Termina en {rem} min"
-                else:
-                    countdown = f"Hasta las {c['finish']}"
-
                 ocupadas_dict[s] = {
                     'sala': s,
                     'curso': c['course'],
@@ -238,8 +231,7 @@ def obtener_salas(dia_numero, hora_exacta, filtro_facultad):
                     'start': c['start'],
                     'finish': c['finish'],
                     'start_min': c['start_min'],
-                    'end_min': c['end_min'],
-                    'countdown': countdown
+                    'end_min': c['end_min']
                 }
                 break
 
@@ -252,19 +244,12 @@ def obtener_salas(dia_numero, hora_exacta, filtro_facultad):
         if futuras:
             prox = min(futuras, key=lambda x: x['start_min'])
             diff = prox['start_min'] - b_start
-            if diff >= 60:
-                hrs = diff // 60
-                mins = diff % 60
-                tiempo_str = f"{hrs}h {mins}m" if mins else f"{hrs}h"
-            else:
-                tiempo_str = f"{diff}m"
-
             vacias_info[s] = {
                 'proxima_hora': prox['start'],
                 'proximo_curso': prox['course'],
                 'minutos_hasta_proxima': diff,
                 'libre_todo_el_dia': False,
-                'texto': f"Libre hasta las {prox['start']} ({tiempo_str})"
+                'texto': f"Hasta las {prox['start']}"
             }
         else:
             vacias_info[s] = {
