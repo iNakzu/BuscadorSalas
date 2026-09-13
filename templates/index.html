@@ -1618,8 +1618,7 @@
             <div class="control-group">
                 <div class="section-label">Filtrar por Día</div>
                 <div class="pill-bar" id="bar-prof-dia">
-                    <button type="button" class="pill-btn active" data-dia="" onclick="setProfDia('', this)">Todos los días</button>
-                    <button type="button" class="pill-btn" data-dia="1" onclick="setProfDia('1', this)">Lunes</button>
+                    <button type="button" class="pill-btn active" data-dia="1" onclick="setProfDia('1', this)">Lunes</button>
                     <button type="button" class="pill-btn" data-dia="2" onclick="setProfDia('2', this)">Martes</button>
                     <button type="button" class="pill-btn" data-dia="3" onclick="setProfDia('3', this)">Miércoles</button>
                     <button type="button" class="pill-btn" data-dia="4" onclick="setProfDia('4', this)">Jueves</button>
@@ -1650,8 +1649,7 @@
             <div class="control-group">
                 <div class="section-label">Filtrar por Día</div>
                 <div class="pill-bar" id="bar-ramo-dia">
-                    <button type="button" class="pill-btn active" data-dia="" onclick="setRamoDia('', this)">Todos los días</button>
-                    <button type="button" class="pill-btn" data-dia="1" onclick="setRamoDia('1', this)">Lunes</button>
+                    <button type="button" class="pill-btn active" data-dia="1" onclick="setRamoDia('1', this)">Lunes</button>
                     <button type="button" class="pill-btn" data-dia="2" onclick="setRamoDia('2', this)">Martes</button>
                     <button type="button" class="pill-btn" data-dia="3" onclick="setRamoDia('3', this)">Miércoles</button>
                     <button type="button" class="pill-btn" data-dia="4" onclick="setRamoDia('4', this)">Jueves</button>
@@ -1682,8 +1680,7 @@
             <div class="control-group">
                 <div class="section-label">Filtrar Día en Sala</div>
                 <div class="pill-bar" id="bar-sala-dia">
-                    <button type="button" class="pill-btn active" data-dia="" onclick="setSalaDia('', this)">Toda la semana</button>
-                    <button type="button" class="pill-btn" data-dia="1" onclick="setSalaDia('1', this)">Lunes</button>
+                    <button type="button" class="pill-btn active" data-dia="1" onclick="setSalaDia('1', this)">Lunes</button>
                     <button type="button" class="pill-btn" data-dia="2" onclick="setSalaDia('2', this)">Martes</button>
                     <button type="button" class="pill-btn" data-dia="3" onclick="setSalaDia('3', this)">Miércoles</button>
                     <button type="button" class="pill-btn" data-dia="4" onclick="setSalaDia('4', this)">Jueves</button>
@@ -1751,8 +1748,7 @@
             <div class="control-group">
                 <div class="section-label">Filtrar por Día</div>
                 <div class="pill-bar" id="bar-malla-dia">
-                    <button type="button" class="pill-btn active" data-dia="" onclick="setMallaDia('', this)">Todos los días</button>
-                    <button type="button" class="pill-btn" data-dia="1" onclick="setMallaDia('1', this)">Lunes</button>
+                    <button type="button" class="pill-btn active" data-dia="1" onclick="setMallaDia('1', this)">Lunes</button>
                     <button type="button" class="pill-btn" data-dia="2" onclick="setMallaDia('2', this)">Martes</button>
                     <button type="button" class="pill-btn" data-dia="3" onclick="setMallaDia('3', this)">Miércoles</button>
                     <button type="button" class="pill-btn" data-dia="4" onclick="setMallaDia('4', this)">Jueves</button>
@@ -1780,12 +1776,12 @@
         facultad: 'INGENIERIA',
         dia: '{{ sel.dia }}' || '1',
         hora: '{{ sel.hora }}' || '8:30:00',
-        profDia: '',
-        ramoDia: '',
+        profDia: '1',
+        ramoDia: '1',
         mallaSemestre: '8',
-        mallaDia: '',
+        mallaDia: '1',
         mallaRamo: '',
-        salaDia: '',
+        salaDia: '1',
         salaActiva: ''
     };
 
@@ -1978,7 +1974,7 @@
     function setProfDia(diaVal, btn) {
         document.querySelectorAll('#bar-prof-dia .pill-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        state.profDia = diaVal === 'hoy' ? String(obtenerDiaActualNumero()) : diaVal;
+        state.profDia = diaVal;
         ejecutarBusquedaDocente();
     }
 
@@ -2041,7 +2037,7 @@
     function setRamoDia(diaVal, btn) {
         document.querySelectorAll('#bar-ramo-dia .pill-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        state.ramoDia = diaVal === 'hoy' ? String(obtenerDiaActualNumero()) : diaVal;
+        state.ramoDia = diaVal;
         ejecutarBusquedaRamo();
     }
 
@@ -2261,7 +2257,7 @@
     function setSalaDia(diaVal, btn) {
         document.querySelectorAll('#bar-sala-dia .pill-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        state.salaDia = diaVal === 'hoy' ? String(obtenerDiaActualNumero()) : diaVal;
+        state.salaDia = diaVal;
         if (state.salaActiva) {
             renderizarHorarioSala(state.salaActiva);
         }
