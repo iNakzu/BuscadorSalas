@@ -2296,9 +2296,17 @@
     }
 
     function setMallaRamo(ramoVal, btn) {
-        document.querySelectorAll('#bar-malla-ramos .pill-btn').forEach(b => b.classList.remove('active'));
-        if (btn) btn.classList.add('active');
-        state.mallaRamo = ramoVal;
+        if (ramoVal && btn && btn.classList.contains('active')) {
+            // Si ya está seleccionado, lo deseleccionamos y volvemos a "Todos los ramos"
+            state.mallaRamo = '';
+            document.querySelectorAll('#bar-malla-ramos .pill-btn').forEach(b => b.classList.remove('active'));
+            const todosBtn = document.querySelector('#bar-malla-ramos .pill-btn[data-ramo=""]');
+            if (todosBtn) todosBtn.classList.add('active');
+        } else {
+            document.querySelectorAll('#bar-malla-ramos .pill-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            state.mallaRamo = ramoVal;
+        }
         cargarClasesMalla(false);
     }
 
