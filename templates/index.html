@@ -469,7 +469,7 @@
         /* GRILLA Y CASILLAS DE SALAS LIBRES (VERDE REDISEÑADO) */
         .rooms-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 12px;
             margin-bottom: 28px;
         }
@@ -479,17 +479,37 @@
             background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(15, 23, 42, 0.72) 100%);
             border: 1px solid rgba(16, 185, 129, 0.24);
             border-radius: 12px;
-            padding: 13px 10px 12px;
-            text-align: center;
+            padding: 11px 13px 10px;
             cursor: pointer;
             transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
+            gap: 5px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(52, 211, 153, 0.16);
             overflow: hidden;
+        }
+
+        .room-card-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .room-time-indicator {
+            font-size: 11px;
+            font-weight: 600;
+            color: #6ee7b7;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            line-height: 1.2;
+            letter-spacing: 0.01em;
+            transition: color 0.18s ease;
+        }
+
+        .room-card:hover .room-time-indicator {
+            color: #a7f3d0;
         }
 
         .room-card::before {
@@ -661,6 +681,50 @@
         @keyframes pulseDotProf {
             0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 6px #9333ea; }
             50% { opacity: 0.6; transform: scale(0.85); box-shadow: 0 0 2px #9333ea; }
+        }
+
+        /* Tarjeta de Ramos / Asignaturas (Acento Cian Eléctrico / Zafiro) */
+        .item-card.ramo {
+            background: linear-gradient(180deg, rgba(14, 165, 233, 0.08) 0%, rgba(15, 23, 42, 0.72) 100%);
+            border-color: rgba(56, 189, 248, 0.24);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(56, 189, 248, 0.16);
+        }
+
+        .item-card.ramo::before {
+            background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.75), transparent);
+        }
+
+        .item-card.ramo:hover {
+            border-color: rgba(56, 189, 248, 0.6);
+            background: linear-gradient(180deg, rgba(14, 165, 233, 0.16) 0%, rgba(15, 23, 42, 0.88) 100%);
+            box-shadow: 0 10px 24px -4px rgba(14, 165, 233, 0.3), inset 0 1px 0 rgba(56, 189, 248, 0.35);
+        }
+
+        .item-card.ramo:hover::before {
+            background: linear-gradient(90deg, transparent, #38bdf8, transparent);
+            box-shadow: 0 0 8px #38bdf8;
+        }
+
+        .item-card.ramo .room-pill {
+            background: rgba(56, 189, 248, 0.12);
+            color: #38bdf8;
+            border-color: rgba(56, 189, 248, 0.28);
+        }
+
+        .item-card.ramo .room-pill:hover {
+            background: rgba(56, 189, 248, 0.22);
+            border-color: rgba(56, 189, 248, 0.55);
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+        }
+
+        .time-pill.ramo-time {
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.08);
+            border-color: rgba(56, 189, 248, 0.22);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .item-top {
@@ -1198,6 +1262,9 @@
         <button type="button" class="tab-btn" onclick="cambiarTab('tab-profes', this)">
             Buscar Profesor
         </button>
+        <button type="button" class="tab-btn" onclick="cambiarTab('tab-ramos', this)">
+            Buscar Ramo
+        </button>
         <button type="button" class="tab-btn" onclick="cambiarTab('tab-horario', this)">
             Horario por Sala
         </button>
@@ -1268,12 +1335,21 @@
         <div class="group-title" style="color: #34d399;">Salas Disponibles (Libres)</div>
         <div class="rooms-grid" id="grid-vacias">
             {% for s in vacias %}
-            <div class="room-card" onclick="verHorarioDirecto('{{ s }}')" title="Ver horario semanal">
-                <div class="room-code">{{ s }}</div>
-                <div class="room-status-badge">
-                    <span class="status-dot"></span>
-                    <span>Libre</span>
+            {% set vinfo = vacias_info.get(s) if vacias_info else None %}
+            <div class="room-card" onclick="verHorarioDirecto('{{ s }}')" title="Ver horario semanal de {{ s }}">
+                <div class="room-card-main">
+                    <div class="room-code">{{ s }}</div>
+                    <div class="room-status-badge">
+                        <span class="status-dot"></span>
+                        <span>Libre</span>
+                    </div>
                 </div>
+                {% if vinfo and vinfo.texto %}
+                <div class="room-time-indicator">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <span>{{ vinfo.texto }}</span>
+                </div>
+                {% endif %}
             </div>
             {% else %}
             <div class="empty-state">No se registraron salas libres para el criterio seleccionado.</div>
@@ -1290,7 +1366,7 @@
                         <span class="status-dot occ"></span>
                         <span>{{ s }}</span>
                     </span>
-                    <span class="time-pill">{{ info.horario }}</span>
+                    <span class="time-pill">{{ info.horario }}{% if info.countdown %} • {{ info.countdown }}{% endif %}</span>
                 </div>
                 <div class="course-name">{{ info.curso }}</div>
                 <div class="item-meta">
@@ -1334,6 +1410,39 @@
 
         <div class="cards-grid" id="prof-results-grid">
             <div class="empty-state">Ingresa el nombre del profesor y elige el día para ver sus clases y salas asignadas.</div>
+        </div>
+    </section>
+
+    <!-- TAB: BUSCAR RAMO / ASIGNATURA CON FILTRO DE DÍA -->
+    <section id="tab-ramos" class="panel">
+        <div class="control-card">
+            <!-- Barra de búsqueda con lupa para ramo -->
+            <div class="search-field">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="input-ramo-search" placeholder="Escribe el nombre del ramo (ej. Cálculo, Física, Redes) o código (ej. CIT2010)..." oninput="ejecutarBusquedaRamo()" autocomplete="off">
+                <button type="button" class="clear-btn" id="clear-ramo-btn" onclick="limpiarRamo()">&times;</button>
+            </div>
+
+            <!-- Selector de Día para el ramo -->
+            <div class="control-group">
+                <div class="section-label">Filtrar por Día</div>
+                <div class="pill-bar" id="bar-ramo-dia">
+                    <button type="button" class="pill-btn active" data-dia="" onclick="setRamoDia('', this)">Todos los días</button>
+                    <button type="button" class="pill-btn" data-dia="hoy" onclick="setRamoDia('hoy', this)">Hoy</button>
+                    <button type="button" class="pill-btn" data-dia="1" onclick="setRamoDia('1', this)">Lunes</button>
+                    <button type="button" class="pill-btn" data-dia="2" onclick="setRamoDia('2', this)">Martes</button>
+                    <button type="button" class="pill-btn" data-dia="3" onclick="setRamoDia('3', this)">Miércoles</button>
+                    <button type="button" class="pill-btn" data-dia="4" onclick="setRamoDia('4', this)">Jueves</button>
+                    <button type="button" class="pill-btn" data-dia="5" onclick="setRamoDia('5', this)">Viernes</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="cards-grid" id="ramo-results-grid">
+            <div class="empty-state">Ingresa el nombre o código de una asignatura para ver sus secciones, horarios y salas asignadas.</div>
         </div>
     </section>
 
@@ -1389,6 +1498,7 @@
         dia: '{{ sel.dia }}' || '1',
         hora: '{{ sel.hora }}' || '8:30:00',
         profDia: '',
+        ramoDia: '',
         salaDia: '',
         salaActiva: ''
     };
@@ -1468,15 +1578,29 @@
             if (data.vacias.length === 0) {
                 gridVacias.innerHTML = '<div class="empty-state">No se registraron salas libres para el criterio seleccionado.</div>';
             } else {
-                gridVacias.innerHTML = data.vacias.map(s => `
-                    <div class="room-card" onclick="verHorarioDirecto('${s}')" title="Ver horario semanal">
-                        <div class="room-code">${s}</div>
-                        <div class="room-status-badge">
-                            <span class="status-dot"></span>
-                            <span>Libre</span>
+                const vaciasInfo = data.vacias_info || {};
+                gridVacias.innerHTML = data.vacias.map(s => {
+                    const vinfo = vaciasInfo[s];
+                    const timeTxt = vinfo ? vinfo.texto : 'Libre';
+                    return `
+                        <div class="room-card" onclick="verHorarioDirecto('${s}')" title="Ver horario semanal de ${s}">
+                            <div class="room-card-main">
+                                <div class="room-code">${s}</div>
+                                <div class="room-status-badge">
+                                    <span class="status-dot"></span>
+                                    <span>Libre</span>
+                                </div>
+                            </div>
+                            <div class="room-time-indicator">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                                <span>${timeTxt}</span>
+                            </div>
                         </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             }
 
             const gridOcupadas = document.getElementById('grid-ocupadas');
@@ -1493,7 +1617,10 @@
                                     <span class="status-dot occ"></span>
                                     <span>${k}</span>
                                 </span>
-                                <span class="time-pill">${info.horario}</span>
+                                <div style="display:flex; align-items:center; gap:6px;">
+                                    <span class="time-pill">${info.horario}</span>
+                                    ${info.countdown ? `<span class="time-pill" style="color:var(--amber); background:var(--amber-bg); border-color:rgba(245,158,11,0.25);">${info.countdown}</span>` : ''}
+                                </div>
                             </div>
                             <div class="course-name">${info.curso}</div>
                             <div class="item-meta">
@@ -1616,6 +1743,72 @@
                 `).join('');
             } catch (e) {
                 container.innerHTML = '<div class="empty-state">Error al consultar datos del docente.</div>';
+            }
+        }, 180);
+    }
+
+    let debounceRamo = null;
+    function setRamoDia(diaVal, btn) {
+        document.querySelectorAll('#bar-ramo-dia .pill-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.ramoDia = diaVal === 'hoy' ? String(obtenerDiaActualNumero()) : diaVal;
+        ejecutarBusquedaRamo();
+    }
+
+    function limpiarRamo() {
+        const input = document.getElementById('input-ramo-search');
+        if (input) input.value = '';
+        const clearBtn = document.getElementById('clear-ramo-btn');
+        if (clearBtn) clearBtn.style.display = 'none';
+        ejecutarBusquedaRamo();
+    }
+
+    function ejecutarBusquedaRamo() {
+        const input = document.getElementById('input-ramo-search');
+        const q = input ? input.value.trim() : '';
+        const clearBtn = document.getElementById('clear-ramo-btn');
+        if (clearBtn) clearBtn.style.display = q.length > 0 ? 'inline-block' : 'none';
+
+        clearTimeout(debounceRamo);
+        debounceRamo = setTimeout(async () => {
+            const container = document.getElementById('ramo-results-grid');
+            if (!container) return;
+            if (q.length < 2) {
+                container.innerHTML = '<div class="empty-state">Ingresa el nombre de la asignatura o código (ej. Cálculo, CIT2010) para ver sus horarios y salas.</div>';
+                return;
+            }
+
+            container.innerHTML = '<div class="empty-state">Buscando asignaturas...</div>';
+            try {
+                const diaParam = state.ramoDia ? `&dia=${encodeURIComponent(state.ramoDia)}` : '';
+                const resp = await fetch(`/api/search?q=${encodeURIComponent(q)}${diaParam}`);
+                const data = await resp.json();
+                const lista = data.ramos || data.cursos || [];
+
+                if (lista.length === 0) {
+                    const diaMsg = state.ramoDia ? `para el día seleccionado` : '';
+                    container.innerHTML = `<div class="empty-state">No se registraron asignaturas para "${q}" ${diaMsg}.</div>`;
+                    return;
+                }
+
+                container.innerHTML = lista.map(r => `
+                    <div class="item-card ramo">
+                        <div class="item-top">
+                            <span class="room-pill" onclick="verHorarioDirecto('${r.sala}')" title="Ver horario de esta sala">
+                                <span class="status-dot occ"></span>
+                                <span>${r.sala}</span>
+                            </span>
+                            <span class="time-pill ramo-time">${r.dia} ${r.hora_inicio} - ${r.hora_termino}</span>
+                        </div>
+                        <div class="course-name">${r.curso}</div>
+                        <div class="item-meta">
+                            <div>Profesor: <strong>${r.profe}</strong></div>
+                            <span>Sección ${r.seccion} • Cód: ${r.codigo}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                container.innerHTML = '<div class="empty-state">Error al consultar datos de asignaturas.</div>';
             }
         }, 180);
     }
@@ -1821,7 +2014,7 @@
     }
 
     function verHorarioDirecto(sala) {
-        const tabBtn = document.querySelectorAll('.tab-btn')[2];
+        const tabBtn = document.querySelector('.tab-btn[onclick*="tab-horario"]');
         cambiarTab('tab-horario', tabBtn);
         seleccionarSala(sala);
         window.scrollTo({ top: 0, behavior: 'smooth' });

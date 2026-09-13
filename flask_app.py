@@ -176,8 +176,13 @@ def obtener_salas(dia_numero, hora_exacta, filtro_facultad):
     b_end = bloque_ref["end_min"]
     dia_int = int(dia_numero)
 
+    now = datetime.datetime.now()
+    now_min = now.hour * 60 + now.minute
+    is_today = (now.weekday() + 1 == dia_int)
+
     todas_las_salas = set()
     ocupadas_dict = {}
+    clases_por_sala = {}
 
     for clase in clases:
         nodo = clase.get('node', {})
@@ -190,31 +195,88 @@ def obtener_salas(dia_numero, hora_exacta, filtro_facultad):
 
         todas_las_salas.add(nombre_sala)
 
-        # Verificamos si la clase ocurre el día solicitado
         if nodo.get('day') == dia_int:
+            if nombre_sala not in clases_por_sala:
+                clases_por_sala[nombre_sala] = []
+
             start_str = nodo.get('start', '')
             finish_str = nodo.get('finish', '')
             c_start = to_minutes(start_str)
             c_finish = to_minutes(finish_str)
 
-            # Corregir anomalías en datos donde finish <= start
             if c_finish <= c_start:
                 c_finish = c_start + 80
 
-            # Verificación de solapamiento temporal: no (c_finish <= b_start or c_start >= b_end)
-            if not (c_finish <= b_start or c_start >= b_end):
-                ocupadas_dict[nombre_sala] = {
-                    'sala': nombre_sala,
-                    'curso': nodo.get('course', 'Sin curso'),
-                    'profe': nodo.get('teacher', 'No informado'),
-                    'seccion': nodo.get('section', '-'),
-                    'codigo': nodo.get('code', '-'),
-                    'horario': f"{format_time(start_str)} - {format_time(finish_str)}"
+            clases_por_sala[nombre_sala].append({
+                'start_min': c_start,
+                'end_min': c_finish,
+                'start': format_time(start_str),
+                'finish': format_time(finish_str),
+                'course': nodo.get('course', 'Sin curso'),
+                'teacher': nodo.get('teacher', 'No informado'),
+                'section': nodo.get('section', '-'),
+                'code': nodo.get('code', '-')
+            })
+
+    for s, cl_list in clases_por_sala.items():
+        for c in cl_list:
+            if not (c['end_min'] <= b_start or c['start_min'] >= b_end):
+                countdown = ""
+                if is_today and c['start_min'] <= now_min < c['end_min']:
+                    rem = c['end_min'] - now_min
+                    countdown = f"Termina en {rem} min"
+                else:
+                    countdown = f"Hasta las {c['finish']}"
+
+                ocupadas_dict[s] = {
+                    'sala': s,
+                    'curso': c['course'],
+                    'profe': c['teacher'],
+                    'seccion': c['section'],
+                    'codigo': c['code'],
+                    'horario': f"{c['start']} - {c['finish']}",
+                    'start': c['start'],
+                    'finish': c['finish'],
+                    'start_min': c['start_min'],
+                    'end_min': c['end_min'],
+                    'countdown': countdown
                 }
+                break
 
     vacias = sorted(list(todas_las_salas - set(ocupadas_dict.keys())))
+    vacias_info = {}
+
+    for s in vacias:
+        cl_list = clases_por_sala.get(s, [])
+        futuras = [c for c in cl_list if c['start_min'] >= b_start]
+        if futuras:
+            prox = min(futuras, key=lambda x: x['start_min'])
+            diff = prox['start_min'] - b_start
+            if diff >= 60:
+                hrs = diff // 60
+                mins = diff % 60
+                tiempo_str = f"{hrs}h {mins}m" if mins else f"{hrs}h"
+            else:
+                tiempo_str = f"{diff}m"
+
+            vacias_info[s] = {
+                'proxima_hora': prox['start'],
+                'proximo_curso': prox['course'],
+                'minutos_hasta_proxima': diff,
+                'libre_todo_el_dia': False,
+                'texto': f"Libre hasta las {prox['start']} ({tiempo_str})"
+            }
+        else:
+            vacias_info[s] = {
+                'proxima_hora': None,
+                'proximo_curso': None,
+                'minutos_hasta_proxima': None,
+                'libre_todo_el_dia': True,
+                'texto': "Libre el resto del día"
+            }
+
     ocupadas_ordenadas = dict(sorted(ocupadas_dict.items()))
-    return vacias, ocupadas_ordenadas
+    return vacias, ocupadas_ordenadas, vacias_info
 
 import unicodedata
 
@@ -266,10 +328,14 @@ def buscar_curso(query, dia_filtro=None):
         return []
 
     dia_int = None
-    if dia_filtro and str(dia_filtro).strip().isdigit():
-        d_val = int(dia_filtro)
-        if 1 <= d_val <= 7:
-            dia_int = d_val
+    if dia_filtro:
+        d_str = str(dia_filtro).strip().lower()
+        if d_str == 'hoy':
+            now = datetime.datetime.now()
+            d_val = now.weekday() + 1
+            dia_int = d_val if d_val <= 5 else 1
+        elif d_str.isdigit() and 1 <= int(d_str) <= 7:
+            dia_int = int(d_str)
 
     for clase in clases:
         nodo = clase.get('node', {})
@@ -378,18 +444,19 @@ def inicio():
             resultados_profe = buscar_profesor(seleccion['profe'])
         else:
             modo = "salas"
-            vacias, ocupadas = obtener_salas(seleccion['dia'], seleccion['hora'], seleccion['facultad'])
+            vacias, ocupadas, vacias_info = obtener_salas(seleccion['dia'], seleccion['hora'], seleccion['facultad'])
 
         busqueda_realizada = True
     else:
         # Consulta por defecto (automática al abrir la app)
-        vacias, ocupadas = obtener_salas(seleccion['dia'], seleccion['hora'], seleccion['facultad'])
+        vacias, ocupadas, vacias_info = obtener_salas(seleccion['dia'], seleccion['hora'], seleccion['facultad'])
         busqueda_realizada = True
 
     return render_template(
         "index.html",
         vacias=vacias,
         ocupadas=ocupadas,
+        vacias_info=vacias_info,
         resultados_profe=resultados_profe,
         busqueda_realizada=busqueda_realizada,
         sel=seleccion,
@@ -418,7 +485,7 @@ def api_salas():
     hora = request.args.get("hora", "8:30:00")
     facultad = request.args.get("facultad", "")
     
-    vacias, ocupadas = obtener_salas(dia, hora, facultad)
+    vacias, ocupadas, vacias_info = obtener_salas(dia, hora, facultad)
     return jsonify({
         "dia": int(dia),
         "dia_nombre": nombre_dia(dia),
@@ -427,6 +494,7 @@ def api_salas():
         "total_libres": len(vacias),
         "total_ocupadas": len(ocupadas),
         "vacias": vacias,
+        "vacias_info": vacias_info,
         "ocupadas": ocupadas
     })
 
@@ -434,7 +502,7 @@ def api_salas():
 def api_ahora():
     facultad = request.args.get("facultad", "INGENIERIA")
     dia_actual, bloque_actual, en_horario_valido, mensaje_horario = calcular_bloque_actual()
-    vacias, ocupadas = obtener_salas(dia_actual, bloque_actual['id'], facultad)
+    vacias, ocupadas, vacias_info = obtener_salas(dia_actual, bloque_actual['id'], facultad)
     
     return jsonify({
         "dia": dia_actual,
@@ -446,6 +514,7 @@ def api_ahora():
         "total_libres": len(vacias),
         "total_ocupadas": len(ocupadas),
         "vacias": vacias,
+        "vacias_info": vacias_info,
         "ocupadas": ocupadas
     })
 
@@ -463,9 +532,10 @@ def api_search():
     return jsonify({
         "query": q,
         "dia": dia,
-        "profesores": profes[:40],
-        "cursos": cursos[:40],
-        "salas": salas_coincidentes[:20]
+        "profesores": profes[:50],
+        "cursos": cursos[:60],
+        "ramos": cursos[:60],
+        "salas": salas_coincidentes[:25]
     })
 
 @app.route("/api/sala/<nombre_sala>", methods=["GET"])
