@@ -267,8 +267,17 @@ def obtener_salas(dia_numero, hora_exacta, filtro_facultad):
                 'texto': "Libre el resto del día"
             }
 
+    vacias_ordenadas = sorted(
+        vacias,
+        key=lambda s: (
+            0 if vacias_info[s]['libre_todo_el_dia'] else 1,
+            -(vacias_info[s]['minutos_hasta_proxima'] or 0),
+            s
+        )
+    )
+
     ocupadas_ordenadas = dict(sorted(ocupadas_dict.items()))
-    return vacias, ocupadas_ordenadas, vacias_info
+    return vacias_ordenadas, ocupadas_ordenadas, vacias_info
 
 import unicodedata
 
