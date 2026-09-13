@@ -1322,6 +1322,55 @@
             font-style: italic;
         }
 
+        /* Bloques sin clases: Sala Vacía */
+        .timetable-slot.slot-free {
+            background: rgba(16, 185, 129, 0.02);
+            border-left: 3px solid rgba(16, 185, 129, 0.25);
+        }
+
+        .timetable-slot.slot-free:hover {
+            background: rgba(16, 185, 129, 0.07);
+            border-left-color: #10b981;
+            padding-left: 20px;
+        }
+
+        .timetable-slot.slot-free .slot-time {
+            background: rgba(16, 185, 129, 0.07);
+            border-color: rgba(16, 185, 129, 0.22);
+            color: #34d399;
+        }
+
+        .timetable-slot.slot-free:hover .slot-time {
+            background: rgba(16, 185, 129, 0.16);
+            border-color: rgba(52, 211, 153, 0.45);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.25);
+        }
+
+        .slot-free-row {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .slot-free-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #34d399;
+            letter-spacing: 0.01em;
+        }
+
+        .slot-free-tag {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            color: #6ee7b7;
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+        }
+
         .day-free-body {
             padding: 16px 18px;
             display: flex;
@@ -2432,84 +2481,144 @@
             `;
 
             const diasAMostrar = state.salaDia ? [parseInt(state.salaDia)] : [1, 2, 3, 4, 5];
-            let tieneClases = false;
+
+            const bloquesEstandar = [
+                { start: "08:30", finish: "09:50" },
+                { start: "10:00", finish: "11:20" },
+                { start: "11:30", finish: "12:50" },
+                { start: "13:00", finish: "14:20" },
+                { start: "14:30", finish: "15:50" },
+                { start: "16:00", finish: "17:20" },
+                { start: "17:25", finish: "18:45" }
+            ];
+
+            const parseMin = (t) => {
+                if (!t) return -1;
+                const parts = t.split(':').map(Number);
+                return (parts[0] || 0) * 60 + (parts[1] || 0);
+            };
 
             for (let d of diasAMostrar) {
                 const clasesDia = data.horario[d] || [];
-                if (clasesDia.length > 0) {
-                    tieneClases = true;
-                    html += `
-                        <div class="timetable-day-card">
-                            <div class="timetable-day-head">
-                                <div class="day-title-group">
-                                    <span class="day-dot"></span>
-                                    <span class="day-name">${diasNombres[d]}</span>
+                const tieneClasesHoy = clasesDia.length > 0;
+                
+                const matchedClases = new Set();
+                let slotsHtml = '';
+
+                bloquesEstandar.forEach(b => {
+                    const bStart = parseMin(b.start);
+                    const bEnd = parseMin(b.finish);
+
+                    const clasesBloque = clasesDia.filter(c => {
+                        const cStart = parseMin(c.start);
+                        return (cStart >= bStart - 10 && cStart < bEnd - 10) || c.start === b.start;
+                    });
+
+                    if (clasesBloque.length > 0) {
+                        clasesBloque.forEach(c => {
+                            matchedClases.add(c);
+                            const hasTeacher = c.profe && c.profe.trim().length > 0 && c.profe.trim().toLowerCase() !== 'no informado';
+                            slotsHtml += `
+                                <div class="timetable-slot">
+                                    <div class="slot-time">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <polyline points="12 6 12 12 16 14"></polyline>
+                                        </svg>
+                                        <span>${c.start} - ${c.finish}</span>
+                                    </div>
+                                    <div class="slot-details">
+                                        <div class="slot-course-row">
+                                            <span class="slot-course-title">${c.curso}</span>
+                                            <span class="slot-meta-pill">Sec. ${c.seccion} • ${c.codigo}</span>
+                                        </div>
+                                        <div class="slot-teacher">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                                <circle cx="12" cy="7" r="4"></circle>
+                                            </svg>
+                                            <span>Profesor: ${hasTeacher ? `<strong>${c.profe.trim()}</strong>` : `<em class="teacher-empty">No informado</em>`}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <span class="day-count-badge">
+                            `;
+                        });
+                    } else {
+                        slotsHtml += `
+                            <div class="timetable-slot slot-free">
+                                <div class="slot-time">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                    </svg>
+                                    <span>${b.start} - ${b.finish}</span>
+                                </div>
+                                <div class="slot-details">
+                                    <div class="slot-free-row">
+                                        <span class="status-dot"></span>
+                                        <span class="slot-free-title">Sala Vacía</span>
+                                        <span class="slot-free-tag">Disponible</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+
+                // Clases fuera de bloques estándar si existieran
+                clasesDia.forEach(c => {
+                    if (!matchedClases.has(c)) {
+                        const hasTeacher = c.profe && c.profe.trim().length > 0 && c.profe.trim().toLowerCase() !== 'no informado';
+                        slotsHtml += `
+                            <div class="timetable-slot">
+                                <div class="slot-time">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                    </svg>
+                                    <span>${c.start} - ${c.finish}</span>
+                                </div>
+                                <div class="slot-details">
+                                    <div class="slot-course-row">
+                                        <span class="slot-course-title">${c.curso}</span>
+                                        <span class="slot-meta-pill">Sec. ${c.seccion} • ${c.codigo}</span>
+                                    </div>
+                                    <div class="slot-teacher">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                            <circle cx="12" cy="7" r="4"></circle>
+                                        </svg>
+                                        <span>Profesor: ${hasTeacher ? `<strong>${c.profe.trim()}</strong>` : `<em class="teacher-empty">No informado</em>`}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+
+                html += `
+                    <div class="timetable-day-card ${tieneClasesHoy ? '' : 'free-day'}">
+                        <div class="timetable-day-head">
+                            <div class="day-title-group">
+                                <span class="day-dot ${tieneClasesHoy ? '' : 'free'}"></span>
+                                <span class="day-name">${diasNombres[d]}</span>
+                            </div>
+                            <span class="day-count-badge ${tieneClasesHoy ? '' : 'free'}">
+                                ${tieneClasesHoy ? `
                                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                         <circle cx="12" cy="12" r="10"></circle>
                                         <polyline points="12 6 12 12 16 14"></polyline>
                                     </svg>
                                     ${clasesDia.length} ${clasesDia.length === 1 ? 'clase' : 'clases'}
-                                </span>
-                            </div>
-                            ${clasesDia.map(c => {
-                                const hasTeacher = c.profe && c.profe.trim().length > 0;
-                                return `
-                                    <div class="timetable-slot">
-                                        <div class="slot-time">
-                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                                <circle cx="12" cy="12" r="10"></circle>
-                                                <polyline points="12 6 12 12 16 14"></polyline>
-                                            </svg>
-                                            <span>${c.start} - ${c.finish}</span>
-                                        </div>
-                                        <div class="slot-details">
-                                            <div class="slot-course-row">
-                                                <span class="slot-course-title">${c.curso}</span>
-                                                <span class="slot-meta-pill">Sec. ${c.seccion} • ${c.codigo}</span>
-                                            </div>
-                                            <div class="slot-teacher">
-                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                                    <circle cx="12" cy="7" r="4"></circle>
-                                                </svg>
-                                                <span>Profesor: ${hasTeacher ? `<strong>${c.profe.trim()}</strong>` : `<em class="teacher-empty">No informado</em>`}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-                    `;
-                } else if (state.salaDia) {
-                    html += `
-                        <div class="timetable-day-card free-day">
-                            <div class="timetable-day-head">
-                                <div class="day-title-group">
-                                    <span class="day-dot free"></span>
-                                    <span class="day-name">${diasNombres[d]}</span>
-                                </div>
-                                <span class="day-count-badge free">
+                                ` : `
                                     <span class="status-dot"></span>
-                                    Libre
-                                </span>
-                            </div>
-                            <div class="day-free-body">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                                </svg>
-                                <span>Sala completamente libre sin clases programadas durante este día.</span>
-                            </div>
+                                    Libre (Sin clases)
+                                `}
+                            </span>
                         </div>
-                    `;
-                    tieneClases = true;
-                }
-            }
-
-            if (!tieneClases) {
-                html += '<div class="empty-state">Esta sala no registra clases en el período consultado.</div>';
+                        ${slotsHtml}
+                    </div>
+                `;
             }
 
             container.innerHTML = html;
