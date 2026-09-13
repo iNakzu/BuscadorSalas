@@ -425,22 +425,12 @@
             gap: 7px;
         }
 
-        #bar-malla-ramos {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 8px;
-        }
-
-        #bar-malla-ramos .pill-btn {
-            white-space: normal;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 40px;
-            padding: 8px 12px;
-            font-size: 12.5px;
-            line-height: 1.25;
+        .pill-row-break {
+            flex-basis: 100%;
+            width: 100%;
+            height: 0;
+            margin: 0;
+            padding: 0;
         }
 
         .pill-btn {
@@ -1473,9 +1463,6 @@
                 font-size: 13px;
                 gap: 6px;
             }
-            #bar-malla-ramos {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
             .cards-grid { grid-template-columns: 1fr; }
             .rooms-grid { grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); }
             .header-actions { width: 100%; justify-content: space-between; }
@@ -1484,12 +1471,6 @@
             .timetable-header-banner { flex-direction: column; align-items: flex-start; }
             .timetable-slot { flex-direction: column; align-items: flex-start; gap: 9px; }
             .slot-time { align-self: flex-start; }
-        }
-
-        @media (max-width: 480px) {
-            #bar-malla-ramos {
-                grid-template-columns: 1fr;
-            }
         }
     </style>
 </head>
@@ -2290,7 +2271,10 @@
                 const chipsContainer = document.getElementById('bar-malla-ramos');
                 if (chipsContainer) {
                     let chipsHtml = `<button type="button" class="pill-btn ${!state.mallaRamo ? 'active' : ''}" data-ramo="" onclick="setMallaRamo('', this)">Todos los ramos (${mallaRamosCache.length})</button>`;
-                    mallaRamosCache.forEach(r => {
+                    mallaRamosCache.forEach((r, idx) => {
+                        if (idx % 4 === 3) {
+                            chipsHtml += `<div class="pill-row-break"></div>`;
+                        }
                         const isAct = state.mallaRamo === r;
                         chipsHtml += `<button type="button" class="pill-btn ${isAct ? 'active' : ''}" data-ramo="${r}" onclick="setMallaRamo('${r}', this)">${r}</button>`;
                     });
