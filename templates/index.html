@@ -1475,7 +1475,6 @@
                 <div class="course-name" style="color: #34d399;">SALA DISPONIBLE</div>
                 <div class="item-meta">
                     <div>{% if vinfo and vinfo.proximo_curso %}Próxima clase: <strong>{{ vinfo.proximo_curso }}</strong>{% else %}Sin más clases programadas hoy{% endif %}</div>
-                    <span>{% if s.startswith('E441') %}Facultad de Ingeniería • Ejército 441{% elif s.startswith('V432') %}Facultad de Ingeniería • Vergara 432{% else %}Universidad Diego Portales{% endif %} • Click para ver horario</span>
                 </div>
             </div>
             {% else %}
@@ -1709,9 +1708,6 @@
                 gridVacias.innerHTML = data.vacias.map(s => {
                     const vinfo = vaciasInfo[s];
                     const timeTxt = vinfo ? vinfo.texto : 'Libre';
-                    const isE441 = s.startsWith('E441');
-                    const isV432 = s.startsWith('V432');
-                    const campusTxt = isE441 ? 'Facultad de Ingeniería • Ejército 441' : (isV432 ? 'Facultad de Ingeniería • Vergara 432' : 'Universidad Diego Portales');
                     const proxTxt = (vinfo && vinfo.proximo_curso) ? `Próxima clase: <strong>${vinfo.proximo_curso}</strong>` : 'Sin más clases programadas hoy';
 
                     return `
@@ -1729,7 +1725,6 @@
                             <div class="course-name" style="color: #34d399;">SALA DISPONIBLE</div>
                             <div class="item-meta">
                                 <div>${proxTxt}</div>
-                                <span>${campusTxt} • Click para ver horario</span>
                             </div>
                         </div>
                     `;
