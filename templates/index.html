@@ -1354,12 +1354,10 @@
         }
 
         .slot-free-title {
-            font-size: 14.5px;
+            font-size: 14px;
             font-weight: 700;
             color: #34d399;
             letter-spacing: 0.01em;
-            line-height: 1.35;
-            text-transform: uppercase;
         }
 
         .slot-free-tag {
@@ -1371,8 +1369,6 @@
             font-size: 11px;
             font-weight: 600;
             letter-spacing: 0.01em;
-            display: inline-flex;
-            align-items: center;
         }
 
         .day-free-body {
@@ -1730,6 +1726,20 @@
                     <button type="button" class="pill-btn" data-dia="5" onclick="setProfDia('5', this)">Viernes</button>
                 </div>
             </div>
+
+            <!-- Selector de Horario Opcional para Profesor (ninguno marcado por defecto) -->
+            <div class="control-group">
+                <div class="section-label">Filtrar por Bloque Horario (Opcional - Haz clic para activar o desactivar)</div>
+                <div class="pill-bar" id="bar-prof-hora">
+                    <button type="button" class="pill-btn" data-hora="08:30:00" onclick="setProfHora('08:30:00', this)">08:30 - 09:50</button>
+                    <button type="button" class="pill-btn" data-hora="10:00:00" onclick="setProfHora('10:00:00', this)">10:00 - 11:20</button>
+                    <button type="button" class="pill-btn" data-hora="11:30:00" onclick="setProfHora('11:30:00', this)">11:30 - 12:50</button>
+                    <button type="button" class="pill-btn" data-hora="13:00:00" onclick="setProfHora('13:00:00', this)">13:00 - 14:20</button>
+                    <button type="button" class="pill-btn" data-hora="14:30:00" onclick="setProfHora('14:30:00', this)">14:30 - 15:50</button>
+                    <button type="button" class="pill-btn" data-hora="16:00:00" onclick="setProfHora('16:00:00', this)">16:00 - 17:20</button>
+                    <button type="button" class="pill-btn" data-hora="17:25:00" onclick="setProfHora('17:25:00', this)">17:25 - 18:45</button>
+                </div>
+            </div>
         </div>
 
         <div class="cards-grid" id="prof-results-grid">
@@ -1759,6 +1769,20 @@
                     <button type="button" class="pill-btn" data-dia="3" onclick="setRamoDia('3', this)">Miércoles</button>
                     <button type="button" class="pill-btn" data-dia="4" onclick="setRamoDia('4', this)">Jueves</button>
                     <button type="button" class="pill-btn" data-dia="5" onclick="setRamoDia('5', this)">Viernes</button>
+                </div>
+            </div>
+
+            <!-- Selector de Horario Opcional para Ramo (ninguno marcado por defecto) -->
+            <div class="control-group">
+                <div class="section-label">Filtrar por Bloque Horario (Opcional - Haz clic para activar o desactivar)</div>
+                <div class="pill-bar" id="bar-ramo-hora">
+                    <button type="button" class="pill-btn" data-hora="08:30:00" onclick="setRamoHora('08:30:00', this)">08:30 - 09:50</button>
+                    <button type="button" class="pill-btn" data-hora="10:00:00" onclick="setRamoHora('10:00:00', this)">10:00 - 11:20</button>
+                    <button type="button" class="pill-btn" data-hora="11:30:00" onclick="setRamoHora('11:30:00', this)">11:30 - 12:50</button>
+                    <button type="button" class="pill-btn" data-hora="13:00:00" onclick="setRamoHora('13:00:00', this)">13:00 - 14:20</button>
+                    <button type="button" class="pill-btn" data-hora="14:30:00" onclick="setRamoHora('14:30:00', this)">14:30 - 15:50</button>
+                    <button type="button" class="pill-btn" data-hora="16:00:00" onclick="setRamoHora('16:00:00', this)">16:00 - 17:20</button>
+                    <button type="button" class="pill-btn" data-hora="17:25:00" onclick="setRamoHora('17:25:00', this)">17:25 - 18:45</button>
                 </div>
             </div>
         </div>
@@ -1897,10 +1921,12 @@
 <script>
     let state = {
         facultad: 'INGENIERIA',
-        dia: '{{ sel.dia }}' || '1',
-        hora: '{{ sel.hora }}' || '8:30:00',
+        dia: '1',
+        hora: '8:30:00',
         profDia: '1',
+        profHora: '',
         ramoDia: '1',
+        ramoHora: '',
         mallaSemestre: '8',
         mallaDia: '1',
         mallaHora: '',
@@ -2105,6 +2131,18 @@
         ejecutarBusquedaDocente();
     }
 
+    function setProfHora(horaVal, btn) {
+        if (btn.classList.contains('active')) {
+            btn.classList.remove('active');
+            state.profHora = '';
+        } else {
+            document.querySelectorAll('#bar-prof-hora .pill-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            state.profHora = horaVal;
+        }
+        ejecutarBusquedaDocente();
+    }
+
     function limpiarDocente() {
         const input = document.getElementById('input-prof-search');
         input.value = '';
@@ -2129,12 +2167,14 @@
             container.innerHTML = '<div class="empty-state">Buscando clases del docente...</div>';
             try {
                 const diaParam = state.profDia ? `&dia=${encodeURIComponent(state.profDia)}` : '';
-                const resp = await fetch(`/api/search?q=${encodeURIComponent(q)}${diaParam}`);
+                const horaParam = state.profHora ? `&hora=${encodeURIComponent(state.profHora)}` : '';
+                const resp = await fetch(`/api/search?q=${encodeURIComponent(q)}${diaParam}${horaParam}`);
                 const data = await resp.json();
 
                 if (!data.profesores || data.profesores.length === 0) {
                     const diaMsg = state.profDia ? `para el día seleccionado` : '';
-                    container.innerHTML = `<div class="empty-state">No se registraron clases para "${q}" ${diaMsg}.</div>`;
+                    const horaMsg = state.profHora ? ` en el horario seleccionado` : '';
+                    container.innerHTML = `<div class="empty-state">No se registraron clases para "${q}" ${diaMsg}${horaMsg}.</div>`;
                     return;
                 }
 
@@ -2168,6 +2208,18 @@
         ejecutarBusquedaRamo();
     }
 
+    function setRamoHora(horaVal, btn) {
+        if (btn.classList.contains('active')) {
+            btn.classList.remove('active');
+            state.ramoHora = '';
+        } else {
+            document.querySelectorAll('#bar-ramo-hora .pill-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            state.ramoHora = horaVal;
+        }
+        ejecutarBusquedaRamo();
+    }
+
     function limpiarRamo() {
         const input = document.getElementById('input-ramo-search');
         if (input) input.value = '';
@@ -2194,13 +2246,15 @@
             container.innerHTML = '<div class="empty-state">Buscando asignaturas...</div>';
             try {
                 const diaParam = state.ramoDia ? `&dia=${encodeURIComponent(state.ramoDia)}` : '';
-                const resp = await fetch(`/api/search?q=${encodeURIComponent(q)}${diaParam}`);
+                const horaParam = state.ramoHora ? `&hora=${encodeURIComponent(state.ramoHora)}` : '';
+                const resp = await fetch(`/api/search?q=${encodeURIComponent(q)}${diaParam}${horaParam}`);
                 const data = await resp.json();
                 const lista = data.ramos || data.cursos || [];
 
                 if (lista.length === 0) {
                     const diaMsg = state.ramoDia ? `para el día seleccionado` : '';
-                    container.innerHTML = `<div class="empty-state">No se registraron asignaturas para "${q}" ${diaMsg}.</div>`;
+                    const horaMsg = state.ramoHora ? ` en el horario seleccionado` : '';
+                    container.innerHTML = `<div class="empty-state">No se registraron asignaturas para "${q}" ${diaMsg}${horaMsg}.</div>`;
                     return;
                 }
 
@@ -2558,12 +2612,10 @@
                                     <span>${b.start} - ${b.finish}</span>
                                 </div>
                                 <div class="slot-details">
-                                    <div class="slot-course-row">
-                                        <span class="slot-free-title">SALA VACÍA</span>
-                                        <span class="slot-free-tag">
-                                            <span class="status-dot" style="margin-right: 5px;"></span>
-                                            Disponible
-                                        </span>
+                                    <div class="slot-free-row">
+                                        <span class="status-dot"></span>
+                                        <span class="slot-free-title">Sala Vacía</span>
+                                        <span class="slot-free-tag">Disponible</span>
                                     </div>
                                 </div>
                             </div>
