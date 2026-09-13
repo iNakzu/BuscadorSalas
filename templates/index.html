@@ -1,0 +1,1834 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Universidad Diego Portales • Disponibilidad de Salas</title>
+    <meta name="description" content="Consulta en tiempo real la disponibilidad de salas, horarios y docentes en la Universidad Diego Portales.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Diseño y colores originales aprobados */
+            --bg-base: #090d16;
+            --surface: rgba(22, 30, 49, 0.78);
+            --surface-hover: rgba(30, 41, 69, 0.88);
+            --surface-card: rgba(15, 23, 42, 0.75);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.18);
+            
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-sub: #64748b;
+            
+            --brand-from: #3b82f6;
+            --brand-to: #06b6d4;
+            --accent: #6366f1;
+            
+            --success: #10b981;
+            --success-bg: rgba(16, 185, 129, 0.12);
+            --success-border: rgba(16, 185, 129, 0.3);
+            
+            --danger: #f43f5e;
+            --danger-bg: rgba(244, 63, 94, 0.12);
+            --danger-border: rgba(244, 63, 94, 0.3);
+
+            --purple: #a855f7;
+            --purple-bg: rgba(168, 85, 247, 0.12);
+            
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 25px rgba(59, 130, 246, 0.25);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            scrollbar-width: thin;
+            scrollbar-color: #334155 transparent;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.14) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.14) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(6, 182, 212, 0.05) 0px, transparent 70%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 24px 16px 60px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* HEADER */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding-bottom: 22px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        .brand-meta h1 {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            background: linear-gradient(to right, #ffffff, #93c5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-meta p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 9px;
+            border-radius: 999px;
+            font-size: 11.5px;
+            font-weight: 600;
+            background: rgba(16, 185, 129, 0.12);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+        }
+
+        .pulse-dot {
+            width: 6px;
+            height: 6px;
+            background-color: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #10b981;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* RELOJ CON DÍA, MES Y NÚMERO */
+        .clock-widget {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            text-align: right;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+        }
+
+        .clock-date-line {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.02em;
+        }
+
+        .clock-time-line {
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #f8fafc;
+            font-variant-numeric: tabular-nums;
+            font-family: monospace;
+            margin-top: 1px;
+        }
+
+        .btn-sync {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 9px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-sync:hover {
+            border-color: var(--brand-from);
+            background: rgba(59, 130, 246, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .btn-sync.spinning svg {
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        /* TABS DE NAVEGACIÓN */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            margin-bottom: 24px;
+            scrollbar-width: none;
+        }
+        .tabs::-webkit-scrollbar { display: none; }
+
+        .tab-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 10px 18px;
+            border-radius: 999px;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+            background: var(--surface-hover);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--brand-from), var(--accent));
+            color: #ffffff;
+            border-color: transparent;
+            box-shadow: 0 4px 18px rgba(59, 130, 246, 0.35);
+        }
+
+        /* PANELES */
+        .panel {
+            display: none;
+            animation: fadeIn 0.2s ease forwards;
+        }
+        .panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* TARJETA DE CONTROL / FILTROS */
+        .control-card {
+            background: var(--surface);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 22px;
+            box-shadow: var(--shadow-card);
+        }
+
+        /* CABECERA CON BOTÓN BLOQUE ACTUAL */
+        .filter-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .filter-header-title {
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+
+        .btn-bloque-actual {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #ffffff;
+            border: none;
+            padding: 7px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 3px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-bloque-actual:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 16px rgba(16, 185, 129, 0.45);
+        }
+
+        .control-group {
+            margin-bottom: 18px;
+        }
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-label {
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--text-muted);
+            margin-bottom: 9px;
+        }
+
+        /* BARRA DE BÚSQUEDA TIPO LUPA */
+        .search-field {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 0 16px;
+            width: 100%;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .search-field:focus-within {
+            border-color: var(--brand-from);
+            box-shadow: var(--shadow-glow);
+            background: rgba(15, 23, 42, 0.98);
+        }
+
+        .search-field svg {
+            flex-shrink: 0;
+            color: var(--text-muted);
+        }
+
+        .search-field input {
+            flex: 1;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 13px 0 !important;
+            color: #ffffff !important;
+            font-size: 14px !important;
+            outline: none !important;
+            min-width: 0;
+        }
+
+        .search-field input::placeholder {
+            color: var(--text-sub);
+            font-size: 13.5px;
+        }
+
+        .search-field .clear-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 16px;
+            cursor: pointer;
+            padding: 4px;
+            display: none;
+        }
+        .search-field .clear-btn:hover {
+            color: #ffffff;
+        }
+
+        /* PASTILLAS SEGMENTADAS */
+        .pill-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .pill-btn {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 7px 13px;
+            border-radius: var(--radius-sm);
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            white-space: nowrap;
+        }
+
+        .pill-btn:hover {
+            color: var(--text-main);
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(30, 41, 69, 0.7);
+        }
+
+        .pill-btn.active {
+            background: rgba(59, 130, 246, 0.22);
+            border-color: var(--brand-from);
+            color: #93c5fd;
+            font-weight: 700;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.2);
+        }
+
+        /* ALERTA DE HORARIO NO LECTIVO */
+        .window-alert-banner {
+            display: none;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px 16px;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: var(--radius-md);
+            margin-bottom: 18px;
+            font-size: 13px;
+            color: #fde68a;
+            line-height: 1.4;
+        }
+
+        .window-alert-banner.show {
+            display: flex;
+        }
+
+        .window-alert-banner svg {
+            flex-shrink: 0;
+            color: #f59e0b;
+            margin-top: 1px;
+        }
+
+        /* BARRA DE MÉTRICAS */
+        .metrics-bar {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 12px 18px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+
+        .metric-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+        .metric-badge.free { color: #34d399; }
+        .metric-badge.occ { color: #fb7185; }
+
+        .group-title {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin: 22px 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* GRILLA Y CASILLAS DE SALAS LIBRES (VERDE REDISEÑADO) */
+        .rooms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .room-card {
+            position: relative;
+            background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(15, 23, 42, 0.72) 100%);
+            border: 1px solid rgba(16, 185, 129, 0.24);
+            border-radius: 12px;
+            padding: 13px 10px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(52, 211, 153, 0.16);
+            overflow: hidden;
+        }
+
+        .room-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 20%;
+            right: 20%;
+            height: 1.5px;
+            background: linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.75), transparent);
+            transition: all 0.25s ease;
+        }
+
+        .room-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(52, 211, 153, 0.6);
+            background: linear-gradient(180deg, rgba(16, 185, 129, 0.16) 0%, rgba(15, 23, 42, 0.88) 100%);
+            box-shadow: 0 10px 24px -4px rgba(16, 185, 129, 0.3), inset 0 1px 0 rgba(52, 211, 153, 0.35);
+        }
+
+        .room-card:hover::before {
+            left: 5%;
+            right: 5%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #34d399, transparent);
+            box-shadow: 0 0 8px #34d399;
+        }
+
+        .room-code {
+            font-size: 14px;
+            font-weight: 700;
+            color: #f8fafc;
+            letter-spacing: 0.02em;
+            transition: color 0.18s ease;
+        }
+
+        .room-card:hover .room-code {
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(52, 211, 153, 0.4);
+        }
+
+        .room-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #34d399;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(52, 211, 153, 0.24);
+            padding: 3px 9px;
+            border-radius: 20px;
+            line-height: 1;
+            letter-spacing: 0.01em;
+            transition: all 0.18s ease;
+        }
+
+        .room-card:hover .room-status-badge {
+            background: rgba(16, 185, 129, 0.22);
+            border-color: rgba(52, 211, 153, 0.45);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #34d399;
+            box-shadow: 0 0 6px #10b981;
+            display: inline-block;
+            animation: pulseDot 2.2s infinite ease-in-out;
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 6px #10b981; }
+            50% { opacity: 0.6; transform: scale(0.85); box-shadow: 0 0 2px #10b981; }
+        }
+
+        /* TARJETAS DE SALAS OCUPADAS (MISMO DISEÑO ELEGANTE QUE LAS VERDES) */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        .item-card {
+            position: relative;
+            background: linear-gradient(180deg, rgba(244, 63, 94, 0.08) 0%, rgba(15, 23, 42, 0.72) 100%);
+            border: 1px solid rgba(244, 63, 94, 0.24);
+            border-radius: 12px;
+            padding: 15px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(251, 113, 133, 0.16);
+        }
+
+        /* Línea de resplandor superior (igual a la casilla verde, en tono coral) */
+        .item-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 20%;
+            right: 20%;
+            height: 1.5px;
+            background: linear-gradient(90deg, transparent, rgba(251, 113, 133, 0.75), transparent);
+            transition: all 0.25s ease;
+        }
+
+        .item-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(251, 113, 133, 0.6);
+            background: linear-gradient(180deg, rgba(244, 63, 94, 0.16) 0%, rgba(15, 23, 42, 0.88) 100%);
+            box-shadow: 0 10px 24px -4px rgba(244, 63, 94, 0.3), inset 0 1px 0 rgba(251, 113, 133, 0.35);
+        }
+
+        .item-card:hover::before {
+            left: 5%;
+            right: 5%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #fb7185, transparent);
+            box-shadow: 0 0 8px #fb7185;
+        }
+
+        /* Tarjeta de profesores (mismo diseño, acento púrpura) */
+        .item-card.prof {
+            background: linear-gradient(180deg, rgba(168, 85, 247, 0.08) 0%, rgba(15, 23, 42, 0.72) 100%);
+            border-color: rgba(168, 85, 247, 0.24);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(192, 132, 252, 0.16);
+        }
+
+        .item-card.prof::before {
+            background: linear-gradient(90deg, transparent, rgba(192, 132, 252, 0.75), transparent);
+        }
+
+        .item-card.prof:hover {
+            border-color: rgba(192, 132, 252, 0.6);
+            background: linear-gradient(180deg, rgba(168, 85, 247, 0.16) 0%, rgba(15, 23, 42, 0.88) 100%);
+            box-shadow: 0 10px 24px -4px rgba(168, 85, 247, 0.3), inset 0 1px 0 rgba(192, 132, 252, 0.35);
+        }
+
+        .item-card.prof:hover::before {
+            background: linear-gradient(90deg, transparent, #c084fc, transparent);
+            box-shadow: 0 0 8px #c084fc;
+        }
+
+        /* Casilla de sala morada en la tarjeta del profesor (a tono con la casilla padre) */
+        .item-card.prof .room-pill {
+            background: rgba(168, 85, 247, 0.14);
+            color: #c084fc;
+            border-color: rgba(192, 132, 252, 0.3);
+        }
+
+        .item-card.prof .room-pill:hover {
+            background: rgba(168, 85, 247, 0.25);
+            border-color: rgba(192, 132, 252, 0.55);
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
+        }
+
+        .item-card.prof .status-dot.occ {
+            background: #c084fc;
+            box-shadow: 0 0 6px #9333ea;
+            animation: pulseDotProf 2.2s infinite ease-in-out;
+        }
+
+        @keyframes pulseDotProf {
+            0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 6px #9333ea; }
+            50% { opacity: 0.6; transform: scale(0.85); box-shadow: 0 0 2px #9333ea; }
+        }
+
+        .item-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .room-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(244, 63, 94, 0.12);
+            color: #fb7185;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 3.5px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(251, 113, 133, 0.24);
+            cursor: pointer;
+            transition: all 0.18s ease;
+            letter-spacing: 0.01em;
+            line-height: 1;
+        }
+        .room-pill:hover {
+            background: rgba(244, 63, 94, 0.22);
+            border-color: rgba(251, 113, 133, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .status-dot.occ {
+            background: #fb7185;
+            box-shadow: 0 0 6px #f43f5e;
+            animation: pulseDotOcc 2.2s infinite ease-in-out;
+        }
+
+        @keyframes pulseDotOcc {
+            0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 6px #f43f5e; }
+            50% { opacity: 0.6; transform: scale(0.85); box-shadow: 0 0 2px #f43f5e; }
+        }
+
+        .time-pill {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 3.5px 9px;
+            border-radius: 6px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .course-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #f8fafc;
+            line-height: 1.35;
+            letter-spacing: 0.01em;
+            transition: color 0.18s ease;
+        }
+
+        .item-card:hover .course-name {
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(251, 113, 133, 0.35);
+        }
+
+        .item-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            gap: 2.5px;
+            margin-top: 2px;
+        }
+
+        .item-meta strong {
+            color: #e2e8f0;
+            font-weight: 600;
+        }
+
+        /* ESTADO VACÍO */
+        .empty-state {
+            padding: 36px 20px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-sub);
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px dashed var(--border);
+            border-radius: var(--radius-md);
+            grid-column: 1 / -1;
+        }
+
+        /* HORARIO POR SALA: REDISEÑO MODERNO DE ALTA GAMA */
+        .timetable-header-banner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 16px 20px;
+            margin-bottom: 22px;
+            background: linear-gradient(135deg, rgba(22, 30, 49, 0.85) 0%, rgba(15, 23, 42, 0.9) 100%);
+            border: 1px solid rgba(56, 189, 248, 0.22);
+            border-radius: 14px;
+            box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(56, 189, 248, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .timetable-header-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #38bdf8 0%, #3b82f6 100%);
+            box-shadow: 0 0 10px #38bdf8;
+        }
+
+        .timetable-title-group {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .timetable-pill-tag {
+            font-size: 10px;
+            font-weight: 800;
+            color: #38bdf8;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .timetable-title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .timetable-room-indicator {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .timetable-room-indicator.e441 {
+            background: #38bdf8;
+            box-shadow: 0 0 8px #38bdf8;
+        }
+        .timetable-room-indicator.v432 {
+            background: #a855f7;
+            box-shadow: 0 0 8px #a855f7;
+        }
+
+        .timetable-room-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: 0.01em;
+            margin: 0;
+        }
+
+        .timetable-campus-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+        }
+
+        .timetable-day-card {
+            background: linear-gradient(180deg, rgba(22, 30, 49, 0.85) 0%, rgba(15, 23, 42, 0.9) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 14px;
+            margin-bottom: 18px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.35);
+            position: relative;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .timetable-day-card:hover {
+            border-color: rgba(56, 189, 248, 0.22);
+            box-shadow: 0 10px 28px -4px rgba(0, 0, 0, 0.45);
+        }
+
+        .timetable-day-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 15%;
+            right: 15%;
+            height: 1.5px;
+            background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.65), transparent);
+        }
+
+        .timetable-day-card.free-day {
+            border-color: rgba(16, 185, 129, 0.22);
+        }
+        .timetable-day-card.free-day::before {
+            background: linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.65), transparent);
+        }
+
+        .timetable-day-head {
+            background: rgba(13, 19, 33, 0.72);
+            padding: 13px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .day-title-group {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 0.01em;
+        }
+
+        .day-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #38bdf8;
+            box-shadow: 0 0 8px #0284c7;
+            display: inline-block;
+        }
+
+        .day-dot.free {
+            background: #34d399;
+            box-shadow: 0 0 8px #10b981;
+        }
+
+        .day-count-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(56, 189, 248, 0.12);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            padding: 3.5px 12px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+        }
+
+        .day-count-badge.free {
+            background: rgba(16, 185, 129, 0.12);
+            color: #34d399;
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .timetable-slot {
+            padding: 14px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-left: 3px solid transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            transition: background 0.18s ease, border-color 0.18s ease, padding 0.18s ease;
+        }
+
+        .timetable-slot:last-child {
+            border-bottom: none;
+        }
+
+        .timetable-slot:hover {
+            background: rgba(56, 189, 248, 0.04);
+            border-left-color: #38bdf8;
+            padding-left: 20px;
+        }
+
+        .slot-time {
+            background: rgba(56, 189, 248, 0.08);
+            border: 1px solid rgba(56, 189, 248, 0.22);
+            color: #38bdf8;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 124px;
+            justify-content: center;
+            flex-shrink: 0;
+            letter-spacing: 0.02em;
+            transition: all 0.18s ease;
+        }
+
+        .timetable-slot:hover .slot-time {
+            background: rgba(56, 189, 248, 0.16);
+            border-color: rgba(56, 189, 248, 0.45);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+        }
+
+        .slot-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+        }
+
+        .slot-course-row {
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 6px 10px;
+        }
+
+        .slot-course-title {
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #f8fafc;
+            letter-spacing: 0.01em;
+            line-height: 1.35;
+        }
+
+        .slot-meta-pill {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            color: #94a3b8;
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+        }
+
+        .slot-teacher {
+            font-size: 12px;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            line-height: 1.4;
+        }
+
+        .slot-teacher svg {
+            flex-shrink: 0;
+            opacity: 0.75;
+        }
+
+        .slot-teacher strong {
+            color: #e2e8f0;
+            font-weight: 600;
+        }
+
+        .slot-teacher .teacher-empty {
+            color: #64748b;
+            font-style: italic;
+        }
+
+        .day-free-body {
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: #34d399;
+            font-weight: 600;
+            background: rgba(16, 185, 129, 0.04);
+        }
+
+        /* BLOQUE REDISEÑADO: SALAS SUGERIDAS (ABIERTAS, SIN CASILLAS ENCERRADAS) */
+        .suggested-rooms-block {
+            margin: 22px 0 16px;
+        }
+
+        .suggested-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .building-switch {
+            display: flex;
+            gap: 6px;
+            background: rgba(15, 23, 42, 0.65);
+            padding: 4px;
+            border-radius: 9px;
+            border: 1px solid var(--border);
+        }
+
+        .switch-chip {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            font-size: 11.5px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.16s ease;
+        }
+
+        .switch-chip:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .switch-chip.active {
+            background: rgba(59, 130, 246, 0.2);
+            color: #93c5fd;
+            border-color: rgba(59, 130, 246, 0.45);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Nube abierta de salas: abierta en la página, sin casilla contenedora interior ni scrollbars */
+        .room-chips-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+            margin-bottom: 26px;
+            padding: 2px 0;
+        }
+
+        .room-chip {
+            background: rgba(22, 30, 49, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: #cbd5e1;
+            padding: 7px 14px;
+            font-size: 12.5px;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+        }
+
+        .room-chip:hover {
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.07);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px -2px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+        }
+
+        .room-chip:hover .chip-dot {
+            transform: scale(1.2);
+            filter: brightness(1.2);
+        }
+
+        .room-chip.active {
+            background: rgba(30, 41, 69, 0.95);
+            border-color: #38bdf8;
+            color: #ffffff;
+            font-weight: 700;
+            box-shadow: 0 0 14px rgba(56, 189, 248, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+            transform: translateY(-2px);
+        }
+
+        .room-chip.active:hover {
+            background: rgba(30, 41, 69, 1);
+            border-color: #7dd3fc;
+            box-shadow: 0 0 18px rgba(56, 189, 248, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .chip-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
+        .chip-dot.e441 {
+            background: #38bdf8;
+            box-shadow: 0 0 7px rgba(56, 189, 248, 0.9);
+        }
+
+        .chip-dot.v432 {
+            background: #a855f7;
+            box-shadow: 0 0 7px rgba(168, 85, 247, 0.9);
+        }
+
+        @media (max-width: 768px) {
+            .cards-grid { grid-template-columns: 1fr; }
+            .rooms-grid { grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); }
+            .header-actions { width: 100%; justify-content: space-between; }
+            .control-card { padding: 16px; }
+            .clock-widget { text-align: left; }
+            .timetable-header-banner { flex-direction: column; align-items: flex-start; }
+            .timetable-slot { flex-direction: column; align-items: flex-start; gap: 9px; }
+            .slot-time { align-self: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- HEADER -->
+    <header>
+        <div class="brand-meta">
+            <h1>Universidad Diego Portales</h1>
+            <p>
+                <span class="status-pill">
+                    <span class="pulse-dot"></span>
+                    <span id="label-sync-count">1.316 Clases</span>
+                </span>
+                <span>Disponibilidad de Salas y Horarios</span>
+            </p>
+        </div>
+    </header>
+
+    <!-- PESTAÑAS -->
+    <nav class="tabs" aria-label="Navegación principal">
+        <button type="button" class="tab-btn active" onclick="cambiarTab('tab-salas', this)">
+            Salas Disponibles
+        </button>
+        <button type="button" class="tab-btn" onclick="cambiarTab('tab-profes', this)">
+            Buscar Profesor
+        </button>
+        <button type="button" class="tab-btn" onclick="cambiarTab('tab-horario', this)">
+            Horario por Sala
+        </button>
+    </nav>
+
+    <!-- TAB 1: SALAS DISPONIBLES Y OCUPADAS -->
+    <section id="tab-salas" class="panel active">
+        <div class="control-card">
+            <!-- Cabecera de filtros con botón Bloque Actual en posición destacada -->
+            <div class="filter-header-row">
+                <div class="filter-header-title">Filtros de Búsqueda</div>
+                <button type="button" class="btn-bloque-actual" onclick="irABloqueActual()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span>Bloque Actual</span>
+                </button>
+            </div>
+
+            <!-- Banner de alerta si está fuera de ventana académica -->
+            <div class="window-alert-banner" id="banner-alerta-horario">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                <div id="texto-alerta-horario"></div>
+            </div>
+
+            <!-- Buscador de Edificio o Sala con Lupa -->
+            <div class="control-group">
+                <div class="section-label">Buscar por Edificio o Sala</div>
+                <div class="search-field">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" id="input-campus-search" placeholder="Escribe el edificio o código de sala (ej. E441, V432, E278, M253, S401)..." oninput="filtrarPorCampusTexto(this.value)" autocomplete="off">
+                    <button type="button" class="clear-btn" id="clear-campus-btn" onclick="limpiarCampusTexto()">&times;</button>
+                </div>
+            </div>
+
+            <!-- Selector de Día -->
+            <div class="control-group">
+                <div class="section-label">Día de la semana</div>
+                <div class="pill-bar" id="bar-dia">
+                    <button type="button" class="pill-btn {% if sel.dia == '1' %}active{% endif %}" data-val="1" onclick="setDia('1', this)">Lunes</button>
+                    <button type="button" class="pill-btn {% if sel.dia == '2' %}active{% endif %}" data-val="2" onclick="setDia('2', this)">Martes</button>
+                    <button type="button" class="pill-btn {% if sel.dia == '3' %}active{% endif %}" data-val="3" onclick="setDia('3', this)">Miércoles</button>
+                    <button type="button" class="pill-btn {% if sel.dia == '4' %}active{% endif %}" data-val="4" onclick="setDia('4', this)">Jueves</button>
+                    <button type="button" class="pill-btn {% if sel.dia == '5' %}active{% endif %}" data-val="5" onclick="setDia('5', this)">Viernes</button>
+                </div>
+            </div>
+
+            <!-- Selector de Bloque -->
+            <div class="control-group">
+                <div class="section-label">Bloque Horario</div>
+                <div class="pill-bar" id="bar-hora">
+                    {% for b in bloques %}
+                    <button type="button" class="pill-btn {% if sel.hora == b.id %}active{% endif %}" data-val="{{ b.id }}" onclick="setHora('{{ b.id }}', this)">{{ b.label }}</button>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Salas Libres (Verde) -->
+        <div class="group-title" style="color: #34d399;">Salas Disponibles (Libres)</div>
+        <div class="rooms-grid" id="grid-vacias">
+            {% for s in vacias %}
+            <div class="room-card" onclick="verHorarioDirecto('{{ s }}')" title="Ver horario semanal">
+                <div class="room-code">{{ s }}</div>
+                <div class="room-status-badge">
+                    <span class="status-dot"></span>
+                    <span>Libre</span>
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-state">No se registraron salas libres para el criterio seleccionado.</div>
+            {% endfor %}
+        </div>
+
+        <!-- Salas Ocupadas (Rojo/Coral) -->
+        <div class="group-title" style="color: #fb7185;">Salas Ocupadas (En Clase)</div>
+        <div class="cards-grid" id="grid-ocupadas">
+            {% for s, info in ocupadas.items() %}
+            <div class="item-card">
+                <div class="item-top">
+                    <span class="room-pill" onclick="verHorarioDirecto('{{ s }}')" title="Ver horario de esta sala">
+                        <span class="status-dot occ"></span>
+                        <span>{{ s }}</span>
+                    </span>
+                    <span class="time-pill">{{ info.horario }}</span>
+                </div>
+                <div class="course-name">{{ info.curso }}</div>
+                <div class="item-meta">
+                    <div>Profesor: <strong>{{ info.profe }}</strong></div>
+                    <span>Sección {{ info.seccion }} • Cód: {{ info.codigo }}</span>
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-state">No hay clases registradas en este bloque.</div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- TAB 2: BUSCAR PROFESOR CON FILTRO DE DÍA -->
+    <section id="tab-profes" class="panel">
+        <div class="control-card">
+            <!-- Barra de búsqueda con lupa -->
+            <div class="search-field">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="input-prof-search" placeholder="Escribe el nombre o apellido del profesor..." oninput="ejecutarBusquedaDocente()" autocomplete="off">
+                <button type="button" class="clear-btn" id="clear-prof-btn" onclick="limpiarDocente()">&times;</button>
+            </div>
+
+            <!-- Selector de Día -->
+            <div class="control-group">
+                <div class="section-label">Filtrar por Día</div>
+                <div class="pill-bar" id="bar-prof-dia">
+                    <button type="button" class="pill-btn active" data-dia="" onclick="setProfDia('', this)">Todos los días</button>
+                    <button type="button" class="pill-btn" data-dia="hoy" onclick="setProfDia('hoy', this)">Hoy</button>
+                    <button type="button" class="pill-btn" data-dia="1" onclick="setProfDia('1', this)">Lunes</button>
+                    <button type="button" class="pill-btn" data-dia="2" onclick="setProfDia('2', this)">Martes</button>
+                    <button type="button" class="pill-btn" data-dia="3" onclick="setProfDia('3', this)">Miércoles</button>
+                    <button type="button" class="pill-btn" data-dia="4" onclick="setProfDia('4', this)">Jueves</button>
+                    <button type="button" class="pill-btn" data-dia="5" onclick="setProfDia('5', this)">Viernes</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="cards-grid" id="prof-results-grid">
+            <div class="empty-state">Ingresa el nombre del profesor y elige el día para ver sus clases y salas asignadas.</div>
+        </div>
+    </section>
+
+    <!-- TAB 3: HORARIO POR SALA (BUSCADOR MANUAL) -->
+    <section id="tab-horario" class="panel">
+        <div class="control-card">
+            <!-- Buscador manual de sala -->
+            <div class="search-field">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="input-sala-search" placeholder="Escribe el código o número de sala (ej. E441, S401, V432, 101)..." oninput="filtrarSalasLista(this.value)" autocomplete="off">
+                <button type="button" class="clear-btn" id="clear-sala-btn" onclick="limpiarSalaInput()">&times;</button>
+            </div>
+
+            <!-- Filtro de Día para la sala -->
+            <div class="control-group">
+                <div class="section-label">Filtrar Día en Sala</div>
+                <div class="pill-bar" id="bar-sala-dia">
+                    <button type="button" class="pill-btn active" data-dia="" onclick="setSalaDia('', this)">Toda la semana</button>
+                    <button type="button" class="pill-btn" data-dia="hoy" onclick="setSalaDia('hoy', this)">Hoy</button>
+                    <button type="button" class="pill-btn" data-dia="1" onclick="setSalaDia('1', this)">Lunes</button>
+                    <button type="button" class="pill-btn" data-dia="2" onclick="setSalaDia('2', this)">Martes</button>
+                    <button type="button" class="pill-btn" data-dia="3" onclick="setSalaDia('3', this)">Miércoles</button>
+                    <button type="button" class="pill-btn" data-dia="4" onclick="setSalaDia('4', this)">Jueves</button>
+                    <button type="button" class="pill-btn" data-dia="5" onclick="setSalaDia('5', this)">Viernes</button>
+            </div>
+        </div>
+
+        <!-- Sugerencias de salas abiertas (Sin estar dentro de otra casilla) -->
+        <div class="suggested-rooms-block">
+            <div class="suggested-header">
+                <div class="group-title" style="color: #93c5fd; margin: 0;">Salas de Ingeniería (Ejército y Vergara)</div>
+                <div class="building-switch">
+                    <button type="button" class="switch-chip active" data-sub="TODAS" onclick="cambiarFiltroSugeridas('TODAS', this)">Todas (39)</button>
+                    <button type="button" class="switch-chip" data-sub="E441" onclick="cambiarFiltroSugeridas('E441', this)">Ejército 441 (23)</button>
+                    <button type="button" class="switch-chip" data-sub="V432" onclick="cambiarFiltroSugeridas('V432', this)">Vergara 432 (16)</button>
+                </div>
+            </div>
+            <div class="room-chips-cloud" id="chips-salas"></div>
+        </div>
+
+        <div id="timetable-display">
+            <div class="empty-state">Escribe o selecciona una sala del listado superior para consultar su calendario de clases.</div>
+        </div>
+    </section>
+</div>
+
+<script>
+    let state = {
+        facultad: 'INGENIERIA',
+        dia: '{{ sel.dia }}' || '1',
+        hora: '{{ sel.hora }}' || '8:30:00',
+        profDia: '',
+        salaDia: '',
+        salaActiva: ''
+    };
+
+    const TODAS_LAS_SALAS = {{ todas_las_salas | tojson }};
+
+    function obtenerDiaActualNumero() {
+        const d = new Date().getDay();
+        return (d >= 1 && d <= 5) ? d : 1;
+    }
+
+    function cambiarTab(panelId, btn) {
+        document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        const target = document.getElementById(panelId);
+        if (target) target.classList.add('active');
+    }
+
+    function setFacultadPill(val, btn) {
+        document.querySelectorAll('#bar-facultad .pill-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        const input = document.getElementById('input-campus-search');
+        if (input) input.value = '';
+        const clearBtn = document.getElementById('clear-campus-btn');
+        if (clearBtn) clearBtn.style.display = 'none';
+        state.facultad = val;
+        cargarSalas();
+    }
+
+    let debounceCampus = null;
+    function filtrarPorCampusTexto(val) {
+        const clearBtn = document.getElementById('clear-campus-btn');
+        if (clearBtn) clearBtn.style.display = val.length > 0 ? 'inline-block' : 'none';
+
+        clearTimeout(debounceCampus);
+        debounceCampus = setTimeout(() => {
+            state.facultad = val.trim() || 'INGENIERIA';
+            cargarSalas();
+        }, 180);
+    }
+
+    function limpiarCampusTexto() {
+        const input = document.getElementById('input-campus-search');
+        if (input) input.value = '';
+        const clearBtn = document.getElementById('clear-campus-btn');
+        if (clearBtn) clearBtn.style.display = 'none';
+        state.facultad = 'INGENIERIA';
+        cargarSalas();
+    }
+
+    function setDia(val, btn) {
+        document.querySelectorAll('#bar-dia .pill-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.dia = val;
+        cargarSalas();
+    }
+
+    function setHora(val, btn) {
+        document.querySelectorAll('#bar-hora .pill-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.hora = val;
+        cargarSalas();
+    }
+
+    async function cargarSalas() {
+        try {
+            const resp = await fetch(`/api/salas?dia=${state.dia}&hora=${encodeURIComponent(state.hora)}&facultad=${encodeURIComponent(state.facultad)}`);
+            const data = await resp.json();
+
+            const elLibres = document.getElementById('count-libres');
+            if (elLibres) elLibres.textContent = data.total_libres;
+            const elOcupadas = document.getElementById('count-ocupadas');
+            if (elOcupadas) elOcupadas.textContent = data.total_ocupadas;
+
+            const gridVacias = document.getElementById('grid-vacias');
+            if (data.vacias.length === 0) {
+                gridVacias.innerHTML = '<div class="empty-state">No se registraron salas libres para el criterio seleccionado.</div>';
+            } else {
+                gridVacias.innerHTML = data.vacias.map(s => `
+                    <div class="room-card" onclick="verHorarioDirecto('${s}')" title="Ver horario semanal">
+                        <div class="room-code">${s}</div>
+                        <div class="room-status-badge">
+                            <span class="status-dot"></span>
+                            <span>Libre</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            const gridOcupadas = document.getElementById('grid-ocupadas');
+            const keys = Object.keys(data.ocupadas);
+            if (keys.length === 0) {
+                gridOcupadas.innerHTML = '<div class="empty-state">No hay clases registradas en este bloque.</div>';
+            } else {
+                gridOcupadas.innerHTML = keys.map(k => {
+                    const info = data.ocupadas[k];
+                    return `
+                        <div class="item-card">
+                            <div class="item-top">
+                                <span class="room-pill" onclick="verHorarioDirecto('${k}')" title="Ver horario de esta sala">
+                                    <span class="status-dot occ"></span>
+                                    <span>${k}</span>
+                                </span>
+                                <span class="time-pill">${info.horario}</span>
+                            </div>
+                            <div class="course-name">${info.curso}</div>
+                            <div class="item-meta">
+                                <div>Profesor: <strong>${info.profe}</strong></div>
+                                <span>Sección ${info.seccion} • Cód: ${info.codigo}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    async function irABloqueActual() {
+        const banner = document.getElementById('banner-alerta-horario');
+        const alertaTxt = document.getElementById('texto-alerta-horario');
+        try {
+            const resp = await fetch(`/api/ahora?facultad=${encodeURIComponent(state.facultad)}`);
+            const data = await resp.json();
+            
+            state.dia = String(data.dia);
+            state.hora = data.bloque.id;
+
+            if (!data.en_horario_valido) {
+                alertaTxt.innerHTML = `<strong>Fuera de horario académico:</strong> ${data.mensaje_horario} Mostrando de referencia el primer bloque (${data.dia_nombre} ${data.bloque.label}).`;
+                banner.classList.add('show');
+            } else {
+                banner.classList.remove('show');
+            }
+
+            document.querySelectorAll('#bar-dia .pill-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.val === state.dia);
+            });
+            document.querySelectorAll('#bar-hora .pill-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.val === state.hora);
+            });
+
+            cargarSalas();
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    async function sincronizarDatos() {
+        const btn = document.getElementById('btn-sync');
+        if (btn) btn.classList.add('spinning');
+        try {
+            const resp = await fetch('/api/sync', { method: 'POST' });
+            const data = await resp.json();
+            if (btn) btn.classList.remove('spinning');
+            if (data.status) {
+                const lbl = document.getElementById('label-sync-count');
+                if (lbl) lbl.textContent = `${data.status.total_classes} Clases`;
+            }
+            cargarSalas();
+        } catch (e) {
+            if (btn) btn.classList.remove('spinning');
+            console.error(e);
+        }
+    }
+
+    let debounceProf = null;
+    function setProfDia(diaVal, btn) {
+        document.querySelectorAll('#bar-prof-dia .pill-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.profDia = diaVal === 'hoy' ? String(obtenerDiaActualNumero()) : diaVal;
+        ejecutarBusquedaDocente();
+    }
+
+    function limpiarDocente() {
+        const input = document.getElementById('input-prof-search');
+        input.value = '';
+        document.getElementById('clear-prof-btn').style.display = 'none';
+        ejecutarBusquedaDocente();
+    }
+
+    function ejecutarBusquedaDocente() {
+        const input = document.getElementById('input-prof-search');
+        const q = input.value.trim();
+        const clearBtn = document.getElementById('clear-prof-btn');
+        clearBtn.style.display = q.length > 0 ? 'inline-block' : 'none';
+
+        clearTimeout(debounceProf);
+        debounceProf = setTimeout(async () => {
+            const container = document.getElementById('prof-results-grid');
+            if (q.length < 2) {
+                container.innerHTML = '<div class="empty-state">Ingresa el nombre del profesor y elige el día para ver sus clases y salas asignadas.</div>';
+                return;
+            }
+
+            container.innerHTML = '<div class="empty-state">Buscando clases del docente...</div>';
+            try {
+                const diaParam = state.profDia ? `&dia=${encodeURIComponent(state.profDia)}` : '';
+                const resp = await fetch(`/api/search?q=${encodeURIComponent(q)}${diaParam}`);
+                const data = await resp.json();
+
+                if (!data.profesores || data.profesores.length === 0) {
+                    const diaMsg = state.profDia ? `para el día seleccionado` : '';
+                    container.innerHTML = `<div class="empty-state">No se registraron clases para "${q}" ${diaMsg}.</div>`;
+                    return;
+                }
+
+                container.innerHTML = data.profesores.map(p => `
+                    <div class="item-card prof">
+                        <div class="item-top">
+                            <span class="room-pill" onclick="verHorarioDirecto('${p.sala}')" title="Ver horario de esta sala">
+                                <span class="status-dot occ"></span>
+                                <span>${p.sala}</span>
+                            </span>
+                            <span class="time-pill" style="color:#c084fc; background: var(--purple-bg); border-color: rgba(168, 85, 247, 0.25);">${p.dia} ${p.hora_inicio} - ${p.hora_termino}</span>
+                        </div>
+                        <div class="course-name">${p.curso}</div>
+                        <div class="item-meta">
+                            <div>Profesor: <strong>${p.profe}</strong></div>
+                            <span>Sección ${p.seccion} • Cód: ${p.codigo}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                container.innerHTML = '<div class="empty-state">Error al consultar datos del docente.</div>';
+            }
+        }, 180);
+    }
+
+    let subFiltroSugeridas = 'TODAS';
+
+    function cambiarFiltroSugeridas(sub, btn) {
+        subFiltroSugeridas = sub;
+        document.querySelectorAll('.building-switch .switch-chip').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        const input = document.getElementById('input-sala-search');
+        filtrarSalasLista(input ? input.value : '');
+    }
+
+    function filtrarSalasLista(val) {
+        const input = document.getElementById('input-sala-search');
+        const q = (val || '').trim().toLowerCase();
+        const clearBtn = document.getElementById('clear-sala-btn');
+        if (clearBtn) clearBtn.style.display = q.length > 0 ? 'inline-block' : 'none';
+
+        const container = document.getElementById('chips-salas');
+        if (!container) return;
+
+        let listaBase;
+        if (q.length > 0) {
+            // Si el usuario escribe una búsqueda, busca en todo el catálogo de salas
+            listaBase = TODAS_LAS_SALAS.filter(s => s.toLowerCase().includes(q));
+        } else {
+            // Por defecto: Sugerencias exclusivas de Facultad de Ingeniería (Ejército E441 y Vergara V432)
+            listaBase = TODAS_LAS_SALAS.filter(s => s.startsWith('E441') || s.startsWith('V432'));
+            if (subFiltroSugeridas === 'E441') {
+                listaBase = listaBase.filter(s => s.startsWith('E441'));
+            } else if (subFiltroSugeridas === 'V432') {
+                listaBase = listaBase.filter(s => s.startsWith('V432'));
+            }
+        }
+
+        if (listaBase.length === 0) {
+            container.innerHTML = '<span style="font-size: 12.5px; color: var(--text-sub); padding: 8px;">No se encontraron salas coincidentes.</span>';
+            return;
+        }
+
+        container.innerHTML = listaBase.map(s => {
+            const isE441 = s.startsWith('E441');
+            const dotClass = isE441 ? 'chip-dot e441' : 'chip-dot v432';
+            const isActive = s === state.salaActiva;
+            return `
+                <button type="button" class="room-chip ${isActive ? 'active' : ''}" data-sala="${s}" onclick="seleccionarSala('${s}')" title="${isE441 ? 'Ejército 441' : 'Vergara 432'}">
+                    <span class="${dotClass}"></span>
+                    <span>${s}</span>
+                </button>
+            `;
+        }).join('');
+
+        if (q.length > 0) {
+            const exacta = listaBase.find(s => s.toLowerCase() === q);
+            if (exacta) {
+                seleccionarSala(exacta);
+            }
+        }
+    }
+
+    function setSalaDia(diaVal, btn) {
+        document.querySelectorAll('#bar-sala-dia .pill-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.salaDia = diaVal === 'hoy' ? String(obtenerDiaActualNumero()) : diaVal;
+        if (state.salaActiva) {
+            renderizarHorarioSala(state.salaActiva);
+        }
+    }
+
+    function limpiarSalaInput() {
+        const input = document.getElementById('input-sala-search');
+        if (input) input.value = '';
+        filtrarSalasLista('');
+    }
+
+    function seleccionarSala(sala) {
+        state.salaActiva = sala;
+        const input = document.getElementById('input-sala-search');
+        if (input) input.value = sala;
+        document.querySelectorAll('.room-chip').forEach(c => {
+            c.classList.toggle('active', c.dataset.sala === sala);
+        });
+        renderizarHorarioSala(sala);
+    }
+
+    async function renderizarHorarioSala(sala) {
+        const container = document.getElementById('timetable-display');
+        container.innerHTML = '<div class="empty-state">Cargando horario de la sala...</div>';
+        try {
+            const resp = await fetch(`/api/sala/${encodeURIComponent(sala)}`);
+            const data = await resp.json();
+            const diasNombres = { 1: "Lunes", 2: "Martes", 3: "Miércoles", 4: "Jueves", 5: "Viernes" };
+            
+            const isE441 = sala.startsWith('E441');
+            const campusLabel = isE441 ? 'Facultad de Ingeniería • Ejército 441' : (sala.startsWith('V432') ? 'Facultad de Ingeniería • Vergara 432' : 'Universidad Diego Portales');
+
+            let html = `
+                <div class="timetable-header-banner">
+                    <div class="timetable-title-group">
+                        <span class="timetable-pill-tag">HORARIO Y PLANIFICACIÓN</span>
+                        <div class="timetable-title-row">
+                            <span class="timetable-room-indicator ${isE441 ? 'e441' : 'v432'}"></span>
+                            <h3 class="timetable-room-title">${sala}</h3>
+                        </div>
+                    </div>
+                    <div class="timetable-campus-pill">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                        <span>${campusLabel}</span>
+                    </div>
+                </div>
+            `;
+
+            const diasAMostrar = state.salaDia ? [parseInt(state.salaDia)] : [1, 2, 3, 4, 5];
+            let tieneClases = false;
+
+            for (let d of diasAMostrar) {
+                const clasesDia = data.horario[d] || [];
+                if (clasesDia.length > 0) {
+                    tieneClases = true;
+                    html += `
+                        <div class="timetable-day-card">
+                            <div class="timetable-day-head">
+                                <div class="day-title-group">
+                                    <span class="day-dot"></span>
+                                    <span class="day-name">${diasNombres[d]}</span>
+                                </div>
+                                <span class="day-count-badge">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                    </svg>
+                                    ${clasesDia.length} ${clasesDia.length === 1 ? 'clase' : 'clases'}
+                                </span>
+                            </div>
+                            ${clasesDia.map(c => {
+                                const hasTeacher = c.profe && c.profe.trim().length > 0;
+                                return `
+                                    <div class="timetable-slot">
+                                        <div class="slot-time">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <circle cx="12" cy="12" r="10"></circle>
+                                                <polyline points="12 6 12 12 16 14"></polyline>
+                                            </svg>
+                                            <span>${c.start} - ${c.finish}</span>
+                                        </div>
+                                        <div class="slot-details">
+                                            <div class="slot-course-row">
+                                                <span class="slot-course-title">${c.curso}</span>
+                                                <span class="slot-meta-pill">Sec. ${c.seccion} • ${c.codigo}</span>
+                                            </div>
+                                            <div class="slot-teacher">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                                    <circle cx="12" cy="7" r="4"></circle>
+                                                </svg>
+                                                <span>Profesor: ${hasTeacher ? `<strong>${c.profe.trim()}</strong>` : `<em class="teacher-empty">No informado</em>`}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                } else if (state.salaDia) {
+                    html += `
+                        <div class="timetable-day-card free-day">
+                            <div class="timetable-day-head">
+                                <div class="day-title-group">
+                                    <span class="day-dot free"></span>
+                                    <span class="day-name">${diasNombres[d]}</span>
+                                </div>
+                                <span class="day-count-badge free">
+                                    <span class="status-dot"></span>
+                                    Libre
+                                </span>
+                            </div>
+                            <div class="day-free-body">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                                <span>Sala completamente libre sin clases programadas durante este día.</span>
+                            </div>
+                        </div>
+                    `;
+                    tieneClases = true;
+                }
+            }
+
+            if (!tieneClases) {
+                html += '<div class="empty-state">Esta sala no registra clases en el período consultado.</div>';
+            }
+
+            container.innerHTML = html;
+        } catch (e) {
+            container.innerHTML = '<div class="empty-state">Error al cargar la información de la sala.</div>';
+        }
+    }
+
+    function verHorarioDirecto(sala) {
+        const tabBtn = document.querySelectorAll('.tab-btn')[2];
+        cambiarTab('tab-horario', tabBtn);
+        seleccionarSala(sala);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    filtrarSalasLista('');
+</script>
+
+</body>
+</html>

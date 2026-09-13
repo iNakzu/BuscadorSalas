@@ -1,0 +1,480 @@
+import os
+import json
+import time
+import datetime
+from urllib.request import Request, urlopen
+from urllib.error import URLError
+from flask import Flask, request, render_template, jsonify
+
+app = Flask(__name__)
+
+REMOTE_URL = "https://salas.docencia-eit.cl/data.json"
+LOCAL_DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data.json')
+
+# Definición de bloques horarios estándar UDP
+STANDARD_BLOCKS = [
+    {"id": "8:30:00", "label": "08:30 - 09:50", "start": "08:30:00", "finish": "09:50:00", "start_min": 8 * 60 + 30, "end_min": 9 * 60 + 50},
+    {"id": "10:00:00", "label": "10:00 - 11:20", "start": "10:00:00", "finish": "11:20:00", "start_min": 10 * 60, "end_min": 11 * 60 + 20},
+    {"id": "11:30:00", "label": "11:30 - 12:50", "start": "11:30:00", "finish": "12:50:00", "start_min": 11 * 60 + 30, "end_min": 12 * 60 + 50},
+    {"id": "13:00:00", "label": "13:00 - 14:20", "start": "13:00:00", "finish": "14:20:00", "start_min": 13 * 60, "end_min": 14 * 60 + 20},
+    {"id": "14:30:00", "label": "14:30 - 15:50", "start": "14:30:00", "finish": "15:50:00", "start_min": 14 * 60 + 30, "end_min": 15 * 60 + 50},
+    {"id": "16:00:00", "label": "16:00 - 17:20", "start": "16:00:00", "finish": "17:20:00", "start_min": 16 * 60, "end_min": 17 * 60 + 20},
+    {"id": "17:25:00", "label": "17:25 - 18:45", "start": "17:25:00", "finish": "18:45:00", "start_min": 17 * 60 + 25, "end_min": 18 * 60 + 45}
+]
+
+DIAS_SEMANA = {
+    1: "Lunes",
+    2: "Martes",
+    3: "Miércoles",
+    4: "Jueves",
+    5: "Viernes",
+    6: "Sábado",
+    7: "Domingo"
+}
+
+def to_minutes(time_str):
+    if not time_str:
+        return 0
+    try:
+        parts = time_str.split(':')
+        return int(parts[0]) * 60 + int(parts[1])
+    except Exception:
+        return 0
+
+def format_time(time_str):
+    if not time_str:
+        return ""
+    try:
+        parts = time_str.split(':')
+        if len(parts) >= 2:
+            return f"{parts[0].zfill(2)}:{parts[1].zfill(2)}"
+    except Exception:
+        pass
+    return time_str
+
+class DataManager:
+    """Administra la carga, sincronización en vivo y caché de los datos de salas."""
+    def __init__(self):
+        self.cache = None
+        self.last_synced = None
+        self.source = "none"
+        self.ttl_seconds = 1800  # 30 minutos de caché en memoria
+        self.total_classes = 0
+        self.total_rooms = 0
+        self.all_rooms = []
+        self._init_data()
+
+    def _init_data(self):
+        # Intenta primero sincronizar con la web oficial; si falla, usa el archivo local
+        if not self.sync_from_remote():
+            self._load_from_local()
+
+    def _load_from_local(self):
+        if os.path.exists(LOCAL_DATA_FILE):
+            try:
+                with open(LOCAL_DATA_FILE, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                self.cache = data
+                self.last_synced = datetime.datetime.fromtimestamp(os.path.getmtime(LOCAL_DATA_FILE)).strftime("%d/%m/%Y %H:%M:%S")
+                self.source = "local_cache"
+                self._update_stats()
+                print(f"[DataManager] Cargado desde local_cache ({self.total_classes} clases, {self.total_rooms} salas)")
+                return True
+            except Exception as e:
+                print(f"[DataManager] Error al leer data.json local: {e}")
+        return False
+
+    def sync_from_remote(self):
+        try:
+            print(f"[DataManager] Sincronizando datos desde {REMOTE_URL} ...")
+            req = Request(
+                REMOTE_URL,
+                headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) BuscadorSalasUDP/2.0"}
+            )
+            with urlopen(req, timeout=8) as response:
+                content = response.read().decode('utf-8')
+                data = json.loads(content)
+            
+            # Validamos que tenga la estructura requerida
+            if 'data' in data and 'allSalasUdps' in data['data']:
+                self.cache = data
+                self.last_synced = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+                self.source = "online_web"
+                self._update_stats()
+
+                # Guardamos como copia de respaldo local
+                try:
+                    with open(LOCAL_DATA_FILE, 'w', encoding='utf-8') as f:
+                        f.write(content)
+                except Exception as save_err:
+                    print(f"[DataManager] Advertencia al guardar localmente: {save_err}")
+
+                print(f"[DataManager] Sincronización exitosa desde la web ({self.total_classes} clases, {self.total_rooms} salas)")
+                return True
+            else:
+                print("[DataManager] Estructura de JSON remoto no coincide con lo esperado.")
+                return False
+        except Exception as e:
+            print(f"[DataManager] Error al sincronizar desde la web: {e}")
+            return False
+
+    def _update_stats(self):
+        if not self.cache:
+            return
+        edges = self.cache.get('data', {}).get('allSalasUdps', {}).get('edges', [])
+        self.total_classes = len(edges)
+        rooms_set = set()
+        for e in edges:
+            p = e.get('node', {}).get('place')
+            if p:
+                rooms_set.add(p)
+        self.all_rooms = sorted(list(rooms_set))
+        self.total_rooms = len(self.all_rooms)
+
+    def get_classes(self):
+        if not self.cache:
+            self._init_data()
+        return self.cache.get('data', {}).get('allSalasUdps', {}).get('edges', []) if self.cache else []
+
+    def get_status(self):
+        return {
+            "source": self.source,
+            "last_synced": self.last_synced,
+            "total_classes": self.total_classes,
+            "total_rooms": self.total_rooms,
+            "remote_url": REMOTE_URL
+        }
+
+dm = DataManager()
+
+def nombre_dia(n):
+    return DIAS_SEMANA.get(int(n), str(n))
+
+def coincide_facultad(nombre_sala, filtro_facultad):
+    if not filtro_facultad or filtro_facultad == "TODAS":
+        return True
+    f = filtro_facultad.strip().upper()
+    if f == "INGENIERIA":
+        return nombre_sala.startswith("E441") or nombre_sala.startswith("V432")
+    return f in nombre_sala.upper()
+
+def obtener_bloque_info(hora_id):
+    for b in STANDARD_BLOCKS:
+        if b["id"] == hora_id:
+            return b
+    # Si viene en formato simple "HH:MM"
+    for b in STANDARD_BLOCKS:
+        if b["start"].startswith(hora_id):
+            return b
+    # Default primer bloque
+    return STANDARD_BLOCKS[0]
+
+def obtener_salas(dia_numero, hora_exacta, filtro_facultad):
+    clases = dm.get_classes()
+    bloque_ref = obtener_bloque_info(hora_exacta)
+    b_start = bloque_ref["start_min"]
+    b_end = bloque_ref["end_min"]
+    dia_int = int(dia_numero)
+
+    todas_las_salas = set()
+    ocupadas_dict = {}
+
+    for clase in clases:
+        nodo = clase.get('node', {})
+        nombre_sala = nodo.get('place')
+        if not nombre_sala:
+            continue
+
+        if not coincide_facultad(nombre_sala, filtro_facultad):
+            continue
+
+        todas_las_salas.add(nombre_sala)
+
+        # Verificamos si la clase ocurre el día solicitado
+        if nodo.get('day') == dia_int:
+            start_str = nodo.get('start', '')
+            finish_str = nodo.get('finish', '')
+            c_start = to_minutes(start_str)
+            c_finish = to_minutes(finish_str)
+
+            # Corregir anomalías en datos donde finish <= start
+            if c_finish <= c_start:
+                c_finish = c_start + 80
+
+            # Verificación de solapamiento temporal: no (c_finish <= b_start or c_start >= b_end)
+            if not (c_finish <= b_start or c_start >= b_end):
+                ocupadas_dict[nombre_sala] = {
+                    'sala': nombre_sala,
+                    'curso': nodo.get('course', 'Sin curso'),
+                    'profe': nodo.get('teacher', 'No informado'),
+                    'seccion': nodo.get('section', '-'),
+                    'codigo': nodo.get('code', '-'),
+                    'horario': f"{format_time(start_str)} - {format_time(finish_str)}"
+                }
+
+    vacias = sorted(list(todas_las_salas - set(ocupadas_dict.keys())))
+    ocupadas_ordenadas = dict(sorted(ocupadas_dict.items()))
+    return vacias, ocupadas_ordenadas
+
+import unicodedata
+
+def normalize_str(s):
+    if not s:
+        return ""
+    nfkd = unicodedata.normalize('NFD', str(s))
+    return "".join(c for c in nfkd if not unicodedata.combining(c)).lower().strip()
+
+def buscar_profesor(nombre_buscado, dia_filtro=None):
+    clases = dm.get_classes()
+    resultados = []
+    busqueda = normalize_str(nombre_buscado)
+    if not busqueda:
+        return []
+
+    dia_int = None
+    if dia_filtro and str(dia_filtro).strip().isdigit():
+        d_val = int(dia_filtro)
+        if 1 <= d_val <= 7:
+            dia_int = d_val
+
+    for clase in clases:
+        nodo = clase.get('node', {})
+        profe = nodo.get('teacher', "")
+        if busqueda in normalize_str(profe):
+            if dia_int is not None and nodo.get('day') != dia_int:
+                continue
+            resultados.append({
+                'sala': nodo.get('place', '-'),
+                'curso': nodo.get('course', '-'),
+                'seccion': nodo.get('section', '-'),
+                'codigo': nodo.get('code', '-'),
+                'hora_inicio': format_time(nodo.get('start', '')),
+                'hora_termino': format_time(nodo.get('finish', '')),
+                'dia_numero': nodo.get('day'),
+                'dia': nombre_dia(nodo.get('day')),
+                'profe': profe
+            })
+    # Ordenar por día y hora
+    resultados.sort(key=lambda x: (x['dia_numero'], to_minutes(x['hora_inicio'])))
+    return resultados
+
+def buscar_curso(query, dia_filtro=None):
+    clases = dm.get_classes()
+    resultados = []
+    q = normalize_str(query)
+    if not q:
+        return []
+
+    dia_int = None
+    if dia_filtro and str(dia_filtro).strip().isdigit():
+        d_val = int(dia_filtro)
+        if 1 <= d_val <= 7:
+            dia_int = d_val
+
+    for clase in clases:
+        nodo = clase.get('node', {})
+        curso = nodo.get('course', "")
+        codigo = nodo.get('code', "")
+        if q in normalize_str(curso) or q in normalize_str(codigo):
+            if dia_int is not None and nodo.get('day') != dia_int:
+                continue
+            resultados.append({
+                'sala': nodo.get('place', '-'),
+                'curso': curso,
+                'codigo': codigo,
+                'seccion': nodo.get('section', '-'),
+                'profe': nodo.get('teacher', 'No informado'),
+                'dia': nombre_dia(nodo.get('day')),
+                'dia_numero': nodo.get('day'),
+                'hora_inicio': format_time(nodo.get('start', '')),
+                'hora_termino': format_time(nodo.get('finish', '')),
+            })
+    resultados.sort(key=lambda x: (x['curso'], x['dia_numero'], to_minutes(x['hora_inicio'])))
+    return resultados
+
+def horario_de_sala(nombre_sala):
+    clases = dm.get_classes()
+    nombre_clean = (nombre_sala or "").strip().upper()
+    horario_semanal = {d: [] for d in range(1, 6)}  # Lunes a Viernes
+
+    for clase in clases:
+        nodo = clase.get('node', {})
+        if nodo.get('place', '').upper() == nombre_clean:
+            dia = nodo.get('day')
+            if dia in horario_semanal:
+                horario_semanal[dia].append({
+                    'curso': nodo.get('course', '-'),
+                    'codigo': nodo.get('code', '-'),
+                    'seccion': nodo.get('section', '-'),
+                    'profe': nodo.get('teacher', 'No informado'),
+                    'start': format_time(nodo.get('start', '')),
+                    'finish': format_time(nodo.get('finish', ''))
+                })
+
+    for dia in horario_semanal:
+        horario_semanal[dia].sort(key=lambda x: to_minutes(x['start']))
+
+    return horario_semanal
+
+def calcular_bloque_actual():
+    """Determina el día y bloque correspondiente a la hora local actual de Chile."""
+    now = datetime.datetime.now()
+    dia_real = now.weekday() + 1
+    current_min = now.hour * 60 + now.minute
+
+    es_fin_de_semana = dia_real > 5
+    primer_bloque_min = STANDARD_BLOCKS[0]["start_min"]  # 08:30 (510 min)
+    ultimo_bloque_min = STANDARD_BLOCKS[-1]["end_min"]   # 18:45 (1125 min)
+    fuera_de_hora = current_min < primer_bloque_min or current_min > ultimo_bloque_min
+
+    en_horario_valido = (not es_fin_de_semana) and (not fuera_de_hora)
+
+    dia_seleccionado = dia_real if not es_fin_de_semana else 1
+    bloque_seleccionado = STANDARD_BLOCKS[0]
+
+    for b in STANDARD_BLOCKS:
+        if current_min <= b["end_min"]:
+            bloque_seleccionado = b
+            break
+    else:
+        bloque_seleccionado = STANDARD_BLOCKS[0] if fuera_de_hora else STANDARD_BLOCKS[-1]
+
+    mensaje_horario = ""
+    if es_fin_de_semana:
+        mensaje_horario = "Actualmente es fin de semana. Las clases se dictan de lunes a viernes (08:30 - 18:45)."
+    elif current_min < primer_bloque_min:
+        mensaje_horario = "Aún no inicia el horario de clases de hoy (el primer bloque inicia a las 08:30)."
+    elif current_min > ultimo_bloque_min:
+        mensaje_horario = "La jornada de clases ya finalizó por hoy (el último bloque finalizó a las 18:45)."
+
+    return dia_seleccionado, bloque_seleccionado, en_horario_valido, mensaje_horario
+
+# --- RUTAS Y ENDPOINTS ---
+
+@app.route("/", methods=["GET", "POST"])
+def inicio():
+    vacias = []
+    ocupadas = {}
+    resultados_profe = []
+    busqueda_realizada = False
+    modo = "salas"
+
+    dia_def, bloque_def, en_horario_def, msg_horario_def = calcular_bloque_actual()
+    seleccion = {
+        'dia': str(dia_def),
+        'hora': bloque_def['id'],
+        'facultad': 'INGENIERIA',
+        'profe': ''
+    }
+
+    if request.method == "POST":
+        seleccion['dia'] = request.form.get("dia", seleccion['dia'])
+        seleccion['hora'] = request.form.get("hora", seleccion['hora'])
+        seleccion['facultad'] = request.form.get("facultad", "")
+        seleccion['profe'] = request.form.get("profe", "")
+
+        if seleccion['profe'] and seleccion['profe'].strip() != "":
+            modo = "profesor"
+            resultados_profe = buscar_profesor(seleccion['profe'])
+        else:
+            modo = "salas"
+            vacias, ocupadas = obtener_salas(seleccion['dia'], seleccion['hora'], seleccion['facultad'])
+
+        busqueda_realizada = True
+    else:
+        # Consulta por defecto (automática al abrir la app)
+        vacias, ocupadas = obtener_salas(seleccion['dia'], seleccion['hora'], seleccion['facultad'])
+        busqueda_realizada = True
+
+    return render_template(
+        "index.html",
+        vacias=vacias,
+        ocupadas=ocupadas,
+        resultados_profe=resultados_profe,
+        busqueda_realizada=busqueda_realizada,
+        sel=seleccion,
+        modo=modo,
+        bloques=STANDARD_BLOCKS,
+        status=dm.get_status(),
+        todas_las_salas=dm.all_rooms
+    )
+
+@app.route("/api/status", methods=["GET"])
+def api_status():
+    return jsonify(dm.get_status())
+
+@app.route("/api/sync", methods=["POST", "GET"])
+def api_sync():
+    ok = dm.sync_from_remote()
+    return jsonify({
+        "success": ok,
+        "message": "Datos sincronizados exitosamente desde salas.docencia-eit.cl" if ok else "No se pudo sincronizar; usando respaldo local.",
+        "status": dm.get_status()
+    })
+
+@app.route("/api/salas", methods=["GET"])
+def api_salas():
+    dia = request.args.get("dia", "1")
+    hora = request.args.get("hora", "8:30:00")
+    facultad = request.args.get("facultad", "")
+    
+    vacias, ocupadas = obtener_salas(dia, hora, facultad)
+    return jsonify({
+        "dia": int(dia),
+        "dia_nombre": nombre_dia(dia),
+        "hora": hora,
+        "facultad": facultad,
+        "total_libres": len(vacias),
+        "total_ocupadas": len(ocupadas),
+        "vacias": vacias,
+        "ocupadas": ocupadas
+    })
+
+@app.route("/api/ahora", methods=["GET"])
+def api_ahora():
+    facultad = request.args.get("facultad", "INGENIERIA")
+    dia_actual, bloque_actual, en_horario_valido, mensaje_horario = calcular_bloque_actual()
+    vacias, ocupadas = obtener_salas(dia_actual, bloque_actual['id'], facultad)
+    
+    return jsonify({
+        "dia": dia_actual,
+        "dia_nombre": nombre_dia(dia_actual),
+        "bloque": bloque_actual,
+        "en_horario_valido": en_horario_valido,
+        "mensaje_horario": mensaje_horario,
+        "facultad": facultad,
+        "total_libres": len(vacias),
+        "total_ocupadas": len(ocupadas),
+        "vacias": vacias,
+        "ocupadas": ocupadas
+    })
+
+@app.route("/api/search", methods=["GET"])
+def api_search():
+    q = request.args.get("q", "").strip()
+    dia = request.args.get("dia", "").strip()
+    if not q or len(q) < 2:
+        return jsonify({"query": q, "dia": dia, "profesores": [], "cursos": [], "salas": []})
+
+    profes = buscar_profesor(q, dia_filtro=dia)
+    cursos = buscar_curso(q, dia_filtro=dia)
+    salas_coincidentes = [s for s in dm.all_rooms if normalize_str(q) in normalize_str(s)]
+
+    return jsonify({
+        "query": q,
+        "dia": dia,
+        "profesores": profes[:40],
+        "cursos": cursos[:40],
+        "salas": salas_coincidentes[:20]
+    })
+
+@app.route("/api/sala/<nombre_sala>", methods=["GET"])
+def api_horario_sala(nombre_sala):
+    horario = horario_de_sala(nombre_sala)
+    return jsonify({
+        "sala": nombre_sala.upper(),
+        "horario": horario
+    })
+
+if __name__ == "__main__":
+    app.run(debug=True, host="127.0.0.1", port=5000)
