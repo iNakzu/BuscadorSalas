@@ -461,7 +461,7 @@ MALLA_ICIT = {
     }
 }
 
-def obtener_clases_malla(semestre=8, dia_filtro=None, ramo_filtro=None):
+def obtener_clases_malla(semestre=8, dia_filtro=None, ramo_filtro=None, hora_filtro=None):
     sem_info = MALLA_ICIT.get(int(semestre))
     if not sem_info:
         return []
@@ -501,6 +501,12 @@ def obtener_clases_malla(semestre=8, dia_filtro=None, ramo_filtro=None):
         if dia_int is not None and n.get('day') != dia_int:
             continue
 
+        c_start = format_time(n.get('start', ''))
+        if hora_filtro:
+            h_q = str(hora_filtro).strip()
+            if not (h_q.startswith(c_start) or c_start.startswith(h_q.replace(":00", "")) or h_q in n.get('start', '')):
+                continue
+
         resultados.append({
             'ramo_malla': matched_ramo,
             'curso_oficial': curso_oficial,
@@ -508,18 +514,19 @@ def obtener_clases_malla(semestre=8, dia_filtro=None, ramo_filtro=None):
             'codigo': n.get('code', '-'),
             'dia': nombre_dia(n.get('day')),
             'dia_numero': n.get('day'),
-            'hora_inicio': format_time(n.get('start', '')),
+            'hora_inicio': c_start,
             'hora_termino': format_time(n.get('finish', '')),
             'sala': n.get('place', '-'),
             'profe': n.get('teacher', 'No informado')
         })
 
+    # Ordenar primero los ramos más temprano (8:30 en adelante), luego por día, nombre y sección
     def sort_key_malla(item):
         try:
             sec_num = int(str(item['seccion']).strip())
         except ValueError:
             sec_num = 999
-        return (item['ramo_malla'], sec_num, item['dia_numero'], to_minutes(item['hora_inicio']))
+        return (to_minutes(item['hora_inicio']), item['dia_numero'], item['ramo_malla'], sec_num)
 
     resultados.sort(key=sort_key_malla)
     return resultados
@@ -717,6 +724,7 @@ def api_malla():
     semestre = request.args.get("semestre", "8")
     dia = request.args.get("dia", "").strip()
     ramo = request.args.get("ramo", "").strip()
+    hora = request.args.get("hora", "").strip()
 
     try:
         sem_num = int(semestre)
@@ -724,7 +732,7 @@ def api_malla():
         sem_num = 8
 
     sem_info = MALLA_ICIT.get(sem_num, MALLA_ICIT[8])
-    clases_malla = obtener_clases_malla(sem_num, dia_filtro=dia, ramo_filtro=ramo)
+    clases_malla = obtener_clases_malla(sem_num, dia_filtro=dia, ramo_filtro=ramo, hora_filtro=hora)
     semestres_disponibles = [{"numero": k, "nombre": v["nombre"]} for k, v in sorted(MALLA_ICIT.items())]
 
     return jsonify({
@@ -735,6 +743,7 @@ def api_malla():
         "ramos_del_semestre": [r["nombre"] for r in sem_info["ramos"]],
         "dia_filtro": dia,
         "ramo_filtro": ramo,
+        "hora_filtro": hora,
         "total_clases": len(clases_malla),
         "clases": clases_malla
     })

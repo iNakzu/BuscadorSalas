@@ -830,92 +830,116 @@
             text-shadow: 0 0 10px rgba(52, 211, 153, 0.35);
         }
 
-        /* SELECTOR EXPANDIBLE DE SEMESTRE (ESTILO GLASSMORPHIC) */
-        .select-semestre-wrapper {
+        /* DROPDOWN PERSONALIZADO ULTRA-MODERNO (CYBER / GLASSMORPHIC) */
+        .custom-dropdown {
             position: relative;
-            display: inline-flex;
-            align-items: center;
             max-width: 320px;
             width: 100%;
+            user-select: none;
         }
 
-        .select-semestre {
+        .dropdown-trigger {
             width: 100%;
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            background: rgba(15, 23, 42, 0.75);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 9px;
-            padding: 9px 38px 9px 14px;
-            color: #f8fafc;
-            font-size: 13.5px;
-            font-weight: 600;
-            font-family: inherit;
-            cursor: pointer;
-            outline: none;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-            transition: all 0.2s ease;
-            backdrop-filter: blur(12px);
-        }
-
-        .select-semestre:hover {
-            border-color: rgba(244, 63, 94, 0.45);
-            background: rgba(15, 23, 42, 0.9);
-            box-shadow: 0 4px 14px rgba(244, 63, 94, 0.15);
-        }
-
-        .select-semestre:focus {
-            border-color: rgba(244, 63, 94, 0.75);
-            box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.2), 0 4px 14px rgba(0, 0, 0, 0.35);
-        }
-
-        .select-semestre option {
-            background: #0f172a;
-            color: #f8fafc;
-            padding: 10px 14px;
-            font-size: 13.5px;
-        }
-
-        .select-semestre-icon {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            pointer-events: none;
-            color: var(--text-muted);
             display: flex;
             align-items: center;
+            justify-content: space-between;
+            background: rgba(15, 23, 42, 0.78);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            padding: 9px 14px;
+            color: #f8fafc;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08);
             transition: all 0.2s ease;
         }
 
-        .select-semestre-wrapper:hover .select-semestre-icon {
+        .dropdown-trigger:hover, .custom-dropdown.open .dropdown-trigger {
+            border-color: rgba(244, 63, 94, 0.55);
+            background: rgba(15, 23, 42, 0.92);
+            box-shadow: 0 6px 18px rgba(244, 63, 94, 0.2), inset 0 1px 0 rgba(251, 113, 133, 0.2);
+        }
+
+        .dropdown-chevron {
+            color: var(--text-muted);
+            transition: transform 0.25s ease, color 0.2s ease;
+            flex-shrink: 0;
+            margin-left: 10px;
+        }
+
+        .dropdown-trigger:hover .dropdown-chevron, .custom-dropdown.open .dropdown-chevron {
             color: #fb7185;
-            transform: translateY(-50%) scale(1.08);
         }
 
-        .btn-filter-ramo {
-            margin-top: 6px;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            color: var(--text-sub);
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.18s ease;
-            width: fit-content;
-            display: inline-flex;
+        .custom-dropdown.open .dropdown-chevron {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            right: 0;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 12px;
+            backdrop-filter: blur(24px);
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(244, 63, 94, 0.15);
+            max-height: 270px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            padding: 6px;
+        }
+
+        .custom-dropdown.open .dropdown-menu {
+            display: block;
+            animation: dropdownFade 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes dropdownFade {
+            from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .dropdown-item {
+            display: flex;
             align-items: center;
-            gap: 5px;
+            justify-content: space-between;
+            padding: 8.5px 12px;
+            color: #94a3b8;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s ease;
         }
 
-        .btn-filter-ramo:hover {
+        .dropdown-item:hover {
+            background: rgba(244, 63, 94, 0.14);
             color: #ffffff;
-            background: rgba(244, 63, 94, 0.18);
-            border-color: rgba(251, 113, 133, 0.45);
-            box-shadow: 0 0 10px rgba(244, 63, 94, 0.25);
+            transform: translateX(3px);
+        }
+
+        .dropdown-item.active {
+            background: linear-gradient(90deg, rgba(244, 63, 94, 0.22) 0%, rgba(244, 63, 94, 0.08) 100%);
+            color: #ffffff;
+            font-weight: 700;
+            border-left: 3px solid #fb7185;
+        }
+
+        .dropdown-item .active-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 4px;
+            background: rgba(244, 63, 94, 0.25);
+            color: #fda4af;
+            border: 1px solid rgba(251, 113, 133, 0.35);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
         }
 
         .item-top {
@@ -1710,36 +1734,40 @@
     <section id="tab-malla" class="panel">
         <div class="control-card">
             <div class="filter-header-row">
-                <div>
-                    <span class="status-pill" style="margin-bottom: 6px; display: inline-flex;">
+                <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                    <div class="filter-header-title" style="margin: 0;">Malla Curricular y Secciones por Semestre</div>
+                    <span class="status-pill" style="margin: 0; display: inline-flex;">
                         <span style="font-weight: 700;">Ingeniería Civil en Informática y Telecomunicaciones</span>
                     </span>
-                    <div class="filter-header-title">Malla Curricular y Secciones por Semestre</div>
                 </div>
                 <span style="font-size: 12px; color: var(--text-muted);">Compara horarios y salas entre secciones para asistir a otras</span>
             </div>
 
-            <!-- Selector de Semestre Expandible -->
+            <!-- Selector de Semestre Personalizado Ultra Moderno -->
             <div class="control-group">
                 <div class="section-label">Seleccionar Semestre</div>
-                <div class="select-semestre-wrapper">
-                    <select id="select-malla-semestre" class="select-semestre" onchange="setMallaSemestre(this.value)">
-                        <option value="1">Semestre I</option>
-                        <option value="2">Semestre II</option>
-                        <option value="3">Semestre III</option>
-                        <option value="4">Semestre IV</option>
-                        <option value="5">Semestre V</option>
-                        <option value="6">Semestre VI</option>
-                        <option value="7">Semestre VII</option>
-                        <option value="8" selected>Semestre VIII</option>
-                        <option value="9">Semestre IX</option>
-                        <option value="10">Semestre X</option>
-                        <option value="11">Semestre XI</option>
-                    </select>
-                    <div class="select-semestre-icon">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <div class="custom-dropdown" id="dropdown-semestre">
+                    <button type="button" class="dropdown-trigger" id="dropdown-semestre-btn" onclick="toggleSemestreDropdown(event)">
+                        <span id="dropdown-semestre-label">Semestre VIII (Actual)</span>
+                        <svg class="dropdown-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="6 9 12 15 18 9"></polyline>
                         </svg>
+                    </button>
+                    <div class="dropdown-menu" id="dropdown-semestre-menu">
+                        <div class="dropdown-item" data-sem="1" onclick="selectSemestreItem('1', 'Semestre I')">Semestre I</div>
+                        <div class="dropdown-item" data-sem="2" onclick="selectSemestreItem('2', 'Semestre II')">Semestre II</div>
+                        <div class="dropdown-item" data-sem="3" onclick="selectSemestreItem('3', 'Semestre III')">Semestre III</div>
+                        <div class="dropdown-item" data-sem="4" onclick="selectSemestreItem('4', 'Semestre IV')">Semestre IV</div>
+                        <div class="dropdown-item" data-sem="5" onclick="selectSemestreItem('5', 'Semestre V')">Semestre V</div>
+                        <div class="dropdown-item" data-sem="6" onclick="selectSemestreItem('6', 'Semestre VI')">Semestre VI</div>
+                        <div class="dropdown-item" data-sem="7" onclick="selectSemestreItem('7', 'Semestre VII')">Semestre VII</div>
+                        <div class="dropdown-item active" data-sem="8" onclick="selectSemestreItem('8', 'Semestre VIII (Actual)')">
+                            <span>Semestre VIII (Actual)</span>
+                            <span class="active-badge">Actual</span>
+                        </div>
+                        <div class="dropdown-item" data-sem="9" onclick="selectSemestreItem('9', 'Semestre IX')">Semestre IX</div>
+                        <div class="dropdown-item" data-sem="10" onclick="selectSemestreItem('10', 'Semestre X')">Semestre X</div>
+                        <div class="dropdown-item" data-sem="11" onclick="selectSemestreItem('11', 'Semestre XI')">Semestre XI</div>
                     </div>
                 </div>
             </div>
@@ -1753,6 +1781,20 @@
                     <button type="button" class="pill-btn" data-dia="3" onclick="setMallaDia('3', this)">Miércoles</button>
                     <button type="button" class="pill-btn" data-dia="4" onclick="setMallaDia('4', this)">Jueves</button>
                     <button type="button" class="pill-btn" data-dia="5" onclick="setMallaDia('5', this)">Viernes</button>
+                </div>
+            </div>
+
+            <!-- Selector de Horario Opcional (ninguno marcado por defecto) -->
+            <div class="control-group">
+                <div class="section-label">Filtrar por Bloque Horario (Opcional - Haz clic para activar o desactivar)</div>
+                <div class="pill-bar" id="bar-malla-hora">
+                    <button type="button" class="pill-btn" data-hora="08:30:00" onclick="setMallaHora('08:30:00', this)">08:30 - 09:50</button>
+                    <button type="button" class="pill-btn" data-hora="10:00:00" onclick="setMallaHora('10:00:00', this)">10:00 - 11:20</button>
+                    <button type="button" class="pill-btn" data-hora="11:30:00" onclick="setMallaHora('11:30:00', this)">11:30 - 12:50</button>
+                    <button type="button" class="pill-btn" data-hora="13:00:00" onclick="setMallaHora('13:00:00', this)">13:00 - 14:20</button>
+                    <button type="button" class="pill-btn" data-hora="14:30:00" onclick="setMallaHora('14:30:00', this)">14:30 - 15:50</button>
+                    <button type="button" class="pill-btn" data-hora="16:00:00" onclick="setMallaHora('16:00:00', this)">16:00 - 17:20</button>
+                    <button type="button" class="pill-btn" data-hora="17:25:00" onclick="setMallaHora('17:25:00', this)">17:25 - 18:45</button>
                 </div>
             </div>
 
@@ -1780,6 +1822,7 @@
         ramoDia: '1',
         mallaSemestre: '8',
         mallaDia: '1',
+        mallaHora: '',
         mallaRamo: '',
         salaDia: '1',
         salaActiva: ''
@@ -2101,13 +2144,40 @@
 
     let mallaRamosCache = [];
 
+    function toggleSemestreDropdown(event) {
+        event.stopPropagation();
+        const dd = document.getElementById('dropdown-semestre');
+        if (dd) dd.classList.toggle('open');
+    }
+
+    function selectSemestreItem(sem, label) {
+        const dd = document.getElementById('dropdown-semestre');
+        if (dd) dd.classList.remove('open');
+        const labelEl = document.getElementById('dropdown-semestre-label');
+        if (labelEl) labelEl.textContent = label;
+        document.querySelectorAll('#dropdown-semestre-menu .dropdown-item').forEach(item => {
+            item.classList.toggle('active', item.dataset.sem === String(sem));
+        });
+        setMallaSemestre(sem);
+    }
+
+    document.addEventListener('click', function(e) {
+        const dd = document.getElementById('dropdown-semestre');
+        if (dd && !dd.contains(e.target)) {
+            dd.classList.remove('open');
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const dd = document.getElementById('dropdown-semestre');
+            if (dd) dd.classList.remove('open');
+        }
+    });
+
     function setMallaSemestre(sem) {
         state.mallaSemestre = String(sem);
         state.mallaRamo = '';
-        const sel = document.getElementById('select-malla-semestre');
-        if (sel && sel.value !== String(sem)) {
-            sel.value = String(sem);
-        }
         cargarClasesMalla(true);
     }
 
@@ -2115,6 +2185,18 @@
         document.querySelectorAll('#bar-malla-dia .pill-btn').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
         state.mallaDia = diaVal;
+        cargarClasesMalla(false);
+    }
+
+    function setMallaHora(horaVal, btn) {
+        if (btn.classList.contains('active')) {
+            btn.classList.remove('active');
+            state.mallaHora = '';
+        } else {
+            document.querySelectorAll('#bar-malla-hora .pill-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            state.mallaHora = horaVal;
+        }
         cargarClasesMalla(false);
     }
 
@@ -2146,7 +2228,8 @@
             const semParam = `semestre=${encodeURIComponent(state.mallaSemestre)}`;
             const diaParam = state.mallaDia ? `&dia=${encodeURIComponent(state.mallaDia)}` : '';
             const ramoParam = state.mallaRamo ? `&ramo=${encodeURIComponent(state.mallaRamo)}` : '';
-            const resp = await fetch(`/api/malla?${semParam}${diaParam}${ramoParam}`);
+            const horaParam = state.mallaHora ? `&hora=${encodeURIComponent(state.mallaHora)}` : '';
+            const resp = await fetch(`/api/malla?${semParam}${diaParam}${ramoParam}${horaParam}`);
             const data = await resp.json();
 
             // Actualizar chips de ramos del semestre si se requiere
@@ -2166,7 +2249,8 @@
             if (!data.clases || data.clases.length === 0) {
                 const diaTxt = state.mallaDia ? ' para el día seleccionado' : '';
                 const ramoTxt = state.mallaRamo ? ` de "${state.mallaRamo}"` : '';
-                container.innerHTML = `<div class="empty-state">No se registraron clases programadas en ${data.semestre_nombre}${ramoTxt}${diaTxt}.</div>`;
+                const horaTxt = state.mallaHora ? ' en el horario seleccionado' : '';
+                container.innerHTML = `<div class="empty-state">No se registraron clases programadas en ${data.semestre_nombre}${ramoTxt}${diaTxt}${horaTxt}.</div>`;
                 return;
             }
 
@@ -2183,10 +2267,6 @@
                     <div class="item-meta">
                         <div>Profesor: <strong>${c.profe}</strong></div>
                         <span>Sección ${c.seccion} • Cód: ${c.codigo}</span>
-                        <button type="button" class="btn-filter-ramo" onclick="filtrarSoloEsteRamo('${c.ramo_malla}')" title="Ver todas las secciones de este ramo">
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                            <span>Ver todas las secciones de este ramo</span>
-                        </button>
                     </div>
                 </div>
             `).join('');
