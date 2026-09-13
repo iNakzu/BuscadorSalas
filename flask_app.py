@@ -244,12 +244,19 @@ def obtener_salas(dia_numero, hora_exacta, filtro_facultad):
         if futuras:
             prox = min(futuras, key=lambda x: x['start_min'])
             diff = prox['start_min'] - b_start
+            if diff >= 60:
+                hrs = diff // 60
+                mins = diff % 60
+                tiempo_str = f"{hrs}h{mins:02d}" if mins else f"{hrs}h"
+            else:
+                tiempo_str = f"{diff}m"
+
             vacias_info[s] = {
                 'proxima_hora': prox['start'],
                 'proximo_curso': prox['course'],
                 'minutos_hasta_proxima': diff,
                 'libre_todo_el_dia': False,
-                'texto': f"Hasta las {prox['start']}"
+                'texto': f"Hasta las {prox['start']} ({tiempo_str})"
             }
         else:
             vacias_info[s] = {
