@@ -198,14 +198,15 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* TABS DE NAVEGACIÓN */
         /* TABS DE NAVEGACIÓN (REDISEÑO MODERNO MINIMALISTA TIPO SEGMENTED GLASS DOCK) */
         .tabs-wrapper {
             display: flex;
             margin-bottom: 26px;
             overflow-x: auto;
             scrollbar-width: none;
-            padding: 2px 0;
+            -ms-overflow-style: none;
+            padding: 4px 2px 10px 2px;
+            -webkit-overflow-scrolling: touch;
         }
         .tabs-wrapper::-webkit-scrollbar { display: none; }
 
@@ -220,7 +221,9 @@
             border-radius: 9999px;
             padding: 5px;
             box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-            max-width: 100%;
+            width: max-content;
+            min-width: max-content;
+            flex-shrink: 0;
         }
 
         .tab-btn {
@@ -1440,6 +1443,18 @@
         }
 
         @media (max-width: 768px) {
+            .tabs-wrapper {
+                margin-left: -16px;
+                margin-right: -16px;
+                padding-left: 16px;
+                padding-right: 16px;
+                margin-bottom: 20px;
+            }
+            .tab-btn {
+                padding: 8px 14px;
+                font-size: 13px;
+                gap: 6px;
+            }
             .cards-grid { grid-template-columns: 1fr; }
             .rooms-grid { grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); }
             .header-actions { width: 100%; justify-content: space-between; }
@@ -1840,6 +1855,9 @@
         document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
         btn.classList.add('active');
+        if (btn.scrollIntoView) {
+            btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
         const target = document.getElementById(panelId);
         if (target) target.classList.add('active');
         if (panelId === 'tab-malla' && !mallaLoadedOnce) {
