@@ -853,20 +853,23 @@ def responder_con_ia(mensaje_usuario):
         }
     }
 
-    # Intentar con gemini-2.5-flash y fallback a gemini-1.5-flash
-    for modelo in ["gemini-2.5-flash", "gemini-1.5-flash"]:
+    # Intentar con gemini-3.6-flash, gemini-2.0-flash y gemini-1.5-flash
+    modelos = ["gemini-3.6-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-2.5-flash"]
+    ultimo_error = ""
+    for modelo in modelos:
         try:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent?key={api_key}"
             req = Request(url, data=json.dumps(payload).encode('utf-8'), headers={'Content-Type': 'application/json'}, method='POST')
-            with urlopen(req, timeout=12) as response:
+            with urlopen(req, timeout=15) as response:
                 res_data = json.loads(response.read().decode('utf-8'))
                 texto_respuesta = res_data.get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', '')
                 if texto_respuesta:
                     return texto_respuesta
         except Exception as e:
+            ultimo_error = str(e)
             continue
 
-    return "No fue posible conectar con la API de IA en este momento. Por favor verifica tu API Key."
+    return f"No fue posible conectar con la API de IA en este momento ({ultimo_error}). Por favor verifica tu API Key o conexión."
 
 @app.route("/api/chat", methods=["POST"])
 def api_chat():
