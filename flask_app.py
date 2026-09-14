@@ -8,9 +8,6 @@ from flask import Flask, request, render_template, jsonify
 
 app = Flask(__name__)
 
-# Si prefieres poner tu API Key directamente en texto plano, pégala aquí entre las comillas:
-GEMINI_API_KEY_DIRECTA = ""
-
 REMOTE_URL = "https://salas.docencia-eit.cl/data.json"
 LOCAL_DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data.json')
 
@@ -763,8 +760,6 @@ def api_malla():
     })
 
 def get_api_key():
-    if GEMINI_API_KEY_DIRECTA and GEMINI_API_KEY_DIRECTA.strip():
-        return GEMINI_API_KEY_DIRECTA.strip()
     key = os.environ.get("GEMINI_API_KEY", "").strip()
     if not key:
         env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
