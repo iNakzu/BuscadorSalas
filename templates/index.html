@@ -1677,60 +1677,6 @@
         .ai-msg.bot strong { color: #93c5fd; }
         .ai-msg.bot code { background: rgba(0,0,0,0.3); padding: 1px 4px; border-radius: 4px; font-size: 11px; }
 
-        .ai-suggestions {
-            padding: 8px 14px 10px;
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            overflow-y: hidden;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(59, 130, 246, 0.45) rgba(15, 23, 42, 0.6);
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            background: rgba(15, 23, 42, 0.5);
-            flex-shrink: 0;
-            cursor: grab;
-        }
-        .ai-suggestions:active {
-            cursor: grabbing;
-        }
-        .ai-suggestions::-webkit-scrollbar {
-            height: 4px;
-        }
-        .ai-suggestions::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.6);
-            border-radius: 4px;
-        }
-        .ai-suggestions::-webkit-scrollbar-thumb {
-            background: rgba(59, 130, 246, 0.45);
-            border-radius: 4px;
-        }
-        .ai-suggestions::-webkit-scrollbar-thumb:hover {
-            background: rgba(59, 130, 246, 0.75);
-        }
-
-        .ai-sug-chip {
-            white-space: nowrap;
-            background: rgba(59, 130, 246, 0.1);
-            border: 1px solid rgba(59, 130, 246, 0.25);
-            color: #93c5fd;
-            font-size: 11px;
-            font-weight: 600;
-            padding: 5px 11px;
-            border-radius: 999px;
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: all 0.15s ease;
-            user-select: none;
-        }
-
-        .ai-sug-chip:hover {
-            background: rgba(59, 130, 246, 0.22);
-            color: #ffffff;
-            border-color: #60a5fa;
-            transform: translateY(-1px);
-        }
-
         .ai-input-row {
             padding: 10px 12px;
             background: rgba(15, 23, 42, 0.95);
@@ -3099,41 +3045,6 @@
             if (sendBtn) sendBtn.disabled = false;
         }
     }
-
-    // Soporte para scroll horizontal con rueda del ratón y arrastre con mouse (drag to scroll)
-    document.addEventListener('DOMContentLoaded', () => {
-        const sug = document.querySelector('.ai-suggestions');
-        if (!sug) return;
-
-        // Scroll horizontal al girar la rueda del ratón
-        sug.addEventListener('wheel', (e) => {
-            if (e.deltaY !== 0) {
-                e.preventDefault();
-                sug.scrollLeft += (e.deltaY * 1.2);
-            }
-        }, { passive: false });
-
-        // Arrastre con clic del mouse
-        let isDown = false;
-        let startX, scrollLeft;
-
-        sug.addEventListener('mousedown', (e) => {
-            isDown = true;
-            startX = e.pageX - sug.offsetLeft;
-            scrollLeft = sug.scrollLeft;
-        });
-
-        sug.addEventListener('mouseleave', () => { isDown = false; });
-        sug.addEventListener('mouseup', () => { isDown = false; });
-
-        sug.addEventListener('mousemove', (e) => {
-            if (!isDown) return;
-            e.preventDefault();
-            const x = e.pageX - sug.offsetLeft;
-            const walk = (x - startX) * 1.5;
-            sug.scrollLeft = scrollLeft - walk;
-        });
-    });
 </script>
 
 <!-- BOTÓN FLOTANTE MINIMALISTA Y VENTANA DE CHAT -->
@@ -3163,13 +3074,6 @@
         <div class="ai-msg bot">
             ¡Hola! 👋 Soy el asistente de <strong>Disponibilidad de Salas</strong>. Puedo ayudarte a encontrar salas libres, consultar los horarios de un profesor o ver cuándo se imparte una asignatura. ¿En qué te ayudo hoy?
         </div>
-    </div>
-
-    <div class="ai-suggestions">
-        <button type="button" class="ai-sug-chip" onclick="preguntarSugerencia('¿Qué salas están libres ahora?')">⚡ Salas libres ahora</button>
-        <button type="button" class="ai-sug-chip" onclick="preguntarSugerencia('¿Qué clases hay en la sala S401?')">📍 Clases en S401</button>
-        <button type="button" class="ai-sug-chip" onclick="preguntarSugerencia('¿Dónde hace clases el profesor Guerrero?')">👨‍🏫 Profesor Guerrero</button>
-        <button type="button" class="ai-sug-chip" onclick="preguntarSugerencia('¿En qué horario se dicta Álgebra Lineal?')">📚 Álgebra Lineal</button>
     </div>
 
     <div class="ai-input-row">
