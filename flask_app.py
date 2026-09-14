@@ -796,8 +796,28 @@ def responder_con_ia(mensaje_usuario):
         )
 
     # Recopilar contexto en tiempo real
-    dia_actual, bloque_actual, en_horario, msg_horario = calcular_bloque_actual()
-    info_ahora = f"Día actual: {nombre_dia(dia_actual)} (id {dia_actual}), Bloque: {bloque_actual['label']}. Estado: {msg_horario or 'En horario lectivo'}."
+    now = datetime.datetime.now()
+    hora_actual_str = now.strftime("%H:%M")
+    dia_real_num = now.weekday() + 1
+    nombre_dia_real = DIAS_SEMANA.get(dia_real_num, "Lunes")
+
+    dia_bloque, bloque_ref, en_horario, msg_horario = calcular_bloque_actual()
+    vacias_ref, _, _ = obtener_salas(dia_bloque, bloque_ref['id'], "INGENIERIA")
+
+    if not en_horario:
+        info_ahora = (
+            f"HORA ACTUAL REAL: {hora_actual_str} hrs ({nombre_dia_real}).\n"
+            f"- ESTADO DE CLASES: Fuera de horario lectivo. ({msg_horario})\n"
+            f"- ACLARACIÓN CRUCIAL: A esta hora NO se están impartiendo clases presenciales en la sede.\n"
+            f"- Referencia para el próximo bloque académico ({nombre_dia(dia_bloque)}, {bloque_ref['label']}): hay {len(vacias_ref)} salas libres registradas."
+        )
+    else:
+        info_ahora = (
+            f"HORA ACTUAL REAL: {hora_actual_str} hrs ({nombre_dia_real}).\n"
+            f"- ESTADO DE CLASES: En horario de clases.\n"
+            f"- Bloque lectivo en curso: {bloque_ref['label']}.\n"
+            f"- Salas libres ahora mismo en este bloque: {len(vacias_ref)} salas ({', '.join(vacias_ref[:15])})."
+        )
     
     # Extraer entidades consultadas
     palabras = [p for p in mensaje_usuario.split() if len(p) >= 3]
@@ -817,11 +837,8 @@ def responder_con_ia(mensaje_usuario):
             if cr not in coincidencias_cursos:
                 coincidencias_cursos.append(cr)
     
-    vacias_ahora, _, _ = obtener_salas(dia_actual, bloque_actual['id'], "INGENIERIA")
-    resumen_salas_libres = f"Salas libres en el bloque actual ({bloque_actual['label']}): {', '.join(vacias_ahora[:15])} (Total libres: {len(vacias_ahora)})."
-    
     contexto_datos = (
-        f"ESTADO ACTUAL:\n- {info_ahora}\n- {resumen_salas_libres}\n\n"
+        f"ESTADO Y HORARIO:\n{info_ahora}\n\n"
         f"RESULTADOS RELEVANTES DE LA BASE DE DATOS:\n"
         f"- Profesores encontrados: {json.dumps(coincidencias_profes[:8], ensure_ascii=False)}\n"
         f"- Asignaturas encontradas: {json.dumps(coincidencias_cursos[:8], ensure_ascii=False)}\n"
@@ -833,9 +850,10 @@ def responder_con_ia(mensaje_usuario):
         "Tu misión es ayudar a estudiantes, profesores y visitantes a encontrar salas disponibles, verificar horarios de clases, ubicar a profesores y consultar información de asignaturas.\n\n"
         "Reglas fundamentales:\n"
         "1. NUNCA menciones la sigla UDP ni 'Universidad Diego Portales', refiérete al sistema únicamente como 'Disponibilidad de Salas'.\n"
-        "2. Sé conciso, claro, estructurado y muy amable. Usa viñetas y formato Markdown (negritas, listas, tablas si corresponde).\n"
-        "3. Basa tus respuestas en los datos provistos en el contexto en tiempo real. Si no hay clases o datos para lo solicitado, dilo cordialmente.\n"
-        "4. Especifica siempre sala, día, bloque horario y docente cuando la información esté disponible."
+        "2. ATENCIÓN ESTRICTA A LA HORA REAL: Revisa la 'HORA ACTUAL REAL'. Si estás fuera de horario (madrugada, noche o fin de semana), NUNCA afirmes que el bloque de 08:30 está ocurriendo ahora ni que las clases están activas en este momento. Explica amablemente qué hora es ({hora_actual_str} hrs) y que las actividades se reanudan a las 08:30 hrs, indicando las salas que estarán disponibles para ese bloque si preguntan por salas.\n"
+        "3. Sé conciso, claro, estructurado y muy amable. Usa viñetas y formato Markdown (negritas, listas, tablas si corresponde).\n"
+        "4. Basa tus respuestas en los datos provistos en el contexto en tiempo real. Si no hay clases o datos para lo solicitado, dilo cordialmente.\n"
+        "5. Especifica siempre sala, día, bloque horario y docente cuando la información esté disponible."
     )
 
     payload = {
