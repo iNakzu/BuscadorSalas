@@ -786,106 +786,409 @@ def get_api_key():
     # 2. Fallback a variable de entorno del sistema
     return os.environ.get("GEMINI_API_KEY", "").strip()
 
+STOPWORDS = {
+    'de', 'la', 'las', 'los', 'el', 'en', 'del', 'y', 'para', 'con', 'un', 'una', 'por', 'a', 'al', 'o',
+    'dime', 'que', 'cual', 'cuales', 'hay', 'donde', 'sala', 'salas', 'ver', 'busca', 'buscar',
+    'horario', 'horarios', 'profe', 'profesor', 'profesora', 'ramo', 'ramos', 'curso', 'cursos',
+    'clase', 'clases', 'disponible', 'disponibles', 'libre', 'libres', 'vacia', 'vacias', 'desocupada',
+    'desocupadas', 'ahora', 'hoy', 'manana', 'mañana', 'toda', 'todas', 'todo', 'todos', 'lista', 'listame', 'porfa'
+}
+
+def clean_tokens(text):
+    text_norm = normalize_str(text)
+    cleaned = re.sub(r'[^a-z0-9\s]', ' ', text_norm)
+    return [w for w in cleaned.split() if w]
+
+def format_title(s):
+    if not s:
+        return ""
+    words = s.lower().split()
+    menores = {'de', 'del', 'la', 'las', 'los', 'el', 'en', 'y', 'e', 'para', 'con', 'a', 'o'}
+    resultado = []
+    for i, w in enumerate(words):
+        if i == 0 or w not in menores:
+            resultado.append(w.capitalize())
+        else:
+            resultado.append(w)
+    return ' '.join(resultado)
+
+def extraer_dia_semana(texto):
+    texto_norm = normalize_str(texto)
+    dia_map = {'lunes': 1, 'martes': 2, 'miercoles': 3, 'jueves': 4, 'viernes': 5, 'sabado': 6, 'domingo': 7}
+    for d_nom, d_id in dia_map.items():
+        if re.search(rf'\b{d_nom}\b', texto_norm):
+            return d_id, DIAS_SEMANA[d_id]
+    if re.search(r'\bhoy\b', texto_norm):
+        now = datetime.datetime.now()
+        d_val = now.weekday() + 1
+        return (d_val if d_val <= 5 else 1), "Hoy"
+    if re.search(r'\bmanana\b', texto_norm):
+        now = datetime.datetime.now()
+        d_val = (now.weekday() + 1) % 7 + 1
+        return (d_val if d_val <= 5 else 1), "Mañana"
+    if any(p in texto_norm for p in ['toda la semana', 'toda semana', 'todos los dias', 'semana completa']):
+        return 'TODOS', "Toda la semana"
+    return None, None
+
+def extraer_hora_y_bloque(texto):
+    texto_lower = texto.lower()
+    m = re.search(r'\b(\d{1,2})[:.](\d{2})\b', texto_lower)
+    if m:
+        h = int(m.group(1))
+        mins = int(m.group(2))
+        if 1 <= h <= 6:
+            h += 12
+        total_mins = h * 60 + mins
+        for b in STANDARD_BLOCKS:
+            if b["start_min"] <= total_mins <= b["end_min"]:
+                return b, f"{h:02d}:{mins:02d}"
+        mejor_b = min(STANDARD_BLOCKS, key=lambda b: abs(b["start_min"] - total_mins))
+        return mejor_b, f"{h:02d}:{mins:02d}"
+    m_h = re.search(r'\ba\s+las?\s+(\d{1,2})\b', texto_lower)
+    if m_h:
+        h = int(m_h.group(1))
+        if 1 <= h <= 6:
+            h += 12
+        total_mins = h * 60
+        mejor_b = min(STANDARD_BLOCKS, key=lambda b: abs(b["start_min"] - total_mins))
+        return mejor_b, f"{h:02d}:00"
+    return None, None
+
+def generar_listado_todas_las_salas():
+    edificios_map = {
+        'E441': 'Edificio Ejército 441 (Facultad de Ingeniería)',
+        'V432': 'Edificio Vergara 432 (Facultad de Ingeniería)',
+        'E306': 'Edificio Ejército 306',
+        'E326': 'Edificio Ejército 326',
+        'E333': 'Edificio Ejército 333',
+        'E278A': 'Edificio Ejército 278A',
+        'E278B': 'Edificio Ejército 278B',
+        'M253A': 'Edificio Manuel Rodríguez 253A',
+        'M253B': 'Edificio Manuel Rodríguez 253B',
+        'V275': 'Edificio Vergara 275',
+        'V210': 'Edificio Vergara 210',
+        'R105': 'Edificio República 105',
+        'LOC': 'Local Externo',
+        'ONLINE': 'Virtual / Online'
+    }
+    agrupadas = {}
+    for s in dm.all_rooms:
+        pref = s.split('.')[0]
+        agrupadas.setdefault(pref, []).append(s)
+
+    lineas = [
+        f"El sistema cuenta con un total de **{len(dm.all_rooms)} salas registradas**.",
+        "A continuación tienes el listado completo organizado por edificio:\n"
+    ]
+    for pref, salas in sorted(agrupadas.items(), key=lambda x: (-len(x[1]), x[0])):
+        nombre_edif = edificios_map.get(pref, f"Edificio {pref}")
+        pills = " ".join(f"`{s}`" for s in salas)
+        lineas.append(f"### {nombre_edif} ({len(salas)} salas)")
+        lineas.append(f"{pills}\n")
+
+    return "\n".join(lineas)
+
+def generar_respuesta_salas_libres(dia_id, dia_nom, bloque_ref):
+    vacias_ing, ocup_ing, info_ing = obtener_salas(dia_id, bloque_ref['id'], "INGENIERIA")
+    vacias_todas, ocup_todas, info_todas = obtener_salas(dia_id, bloque_ref['id'], "")
+
+    lineas = [
+        f"Para el **{dia_nom}** en el bloque de **{bloque_ref['label']}**, se encontraron **{len(vacias_ing)} salas disponibles** en la Facultad de Ingeniería (y {len(vacias_todas)} en todo el campus):\n"
+    ]
+    if vacias_ing:
+        lineas.append("### Salas libres en Ingeniería (E441 y V432)")
+        for s in vacias_ing:
+            det = info_ing.get(s, {})
+            texto_info = det.get('texto', 'Disponible')
+            lineas.append(f"* `{s}` : {texto_info}")
+        lineas.append("")
+    else:
+        lineas.append("No se registran salas completamente libres en los edificios de Ingeniería para ese bloque.\n")
+
+    otras_vacias = [s for s in vacias_todas if s not in vacias_ing]
+    if otras_vacias:
+        lineas.append("### Otras salas libres en el campus")
+        pills = " ".join(f"`{s}`" for s in otras_vacias[:18])
+        lineas.append(pills)
+        if len(otras_vacias) > 18:
+            lineas.append(f"... y {len(otras_vacias) - 18} salas más.")
+
+    return "\n".join(lineas)
+
+def generar_respuesta_profesor(p_name, dia_id=None):
+    clases_profe = buscar_profesor(p_name)
+    if not clases_profe:
+        return f"No encontré clases registradas para **{p_name}** en la base de datos."
+
+    nombre_display = p_name.title()
+    dias_num = sorted(list(set(c['dia_numero'] for c in clases_profe)))
+    dias_nombres = [nombre_dia(d) for d in dias_num]
+    cursos_unicos = sorted(list(set(format_title(c['curso']) for c in clases_profe)))
+
+    # Si no se especificó día, preguntar para qué día quiere ver
+    if dia_id is None:
+        dias_texto = ", ".join(dias_nombres[:-1]) + (" y " if len(dias_nombres) > 1 else "") + dias_nombres[-1]
+        cursos_texto = ", ".join(cursos_unicos[:2])
+        botones = " ".join(f"[ACCION:{p_name} {d.lower()}|{d}]" for d in dias_nombres)
+        if len(dias_nombres) > 1:
+            botones += f" [ACCION:{p_name} toda la semana|Ver toda la semana]"
+
+        return (
+            f"Encontré al/a la docente **{nombre_display}**, quien dicta **{cursos_texto}** los días **{dias_texto}**.\n\n"
+            f"¿Para qué día quieres ver su horario de clases?\n\n"
+            f"{botones}"
+        )
+
+    # Si se pide toda la semana
+    if dia_id == 'TODOS':
+        lineas = [f"Horarios de clases de la semana para **{nombre_display}**:\n"]
+        for d in dias_num:
+            clases_d = [c for c in clases_profe if c['dia_numero'] == d]
+            clases_d.sort(key=lambda x: to_minutes(x['hora_inicio']))
+            lineas.append(f"### {nombre_dia(d)}")
+            for c in clases_d:
+                hora = f"{c['hora_inicio']} - {c['hora_termino']}"
+                sala = f"`{c['sala']}`"
+                curso = format_title(c['curso'])
+                sec = f"Sec. {c['seccion']}" if c['seccion'] != '-' else ""
+                lineas.append(f"* [CLASE] {hora} | {sala} | {curso} | {sec}")
+            lineas.append("")
+        return "\n".join(lineas)
+
+    # Si se especificó un día en particular
+    clases_dia = [c for c in clases_profe if c['dia_numero'] == dia_id]
+    dia_nom = nombre_dia(dia_id)
+    if not clases_dia:
+        dias_texto = ", ".join(dias_nombres[:-1]) + (" y " if len(dias_nombres) > 1 else "") + dias_nombres[-1]
+        botones = " ".join(f"[ACCION:{p_name} {d.lower()}|{d}]" for d in dias_nombres)
+        return (
+            f"El/la docente **{nombre_display}** no dicta clases los días **{dia_nom}**.\n\n"
+            f"Sus clases se dictan los días **{dias_texto}**:\n\n"
+            f"{botones}"
+        )
+
+    clases_dia.sort(key=lambda x: to_minutes(x['hora_inicio']))
+    lineas = [f"Horarios de clases para **{nombre_display}** el día **{dia_nom}**:\n"]
+    for c in clases_dia:
+        hora = f"{c['hora_inicio']} - {c['hora_termino']}"
+        sala = f"`{c['sala']}`"
+        curso = format_title(c['curso'])
+        sec = f"Sec. {c['seccion']}" if c['seccion'] != '-' else ""
+        lineas.append(f"* [CLASE] {hora} | {sala} | {curso} | {sec}")
+
+    otros_dias = [d for d in dias_nombres if d != dia_nom]
+    if otros_dias:
+        botones = " ".join(f"[ACCION:{p_name} {d.lower()}|Ver {d}]" for d in otros_dias)
+        botones += f" [ACCION:{p_name} toda la semana|Ver toda la semana]"
+        lineas.append(f"\n{botones}")
+
+    return "\n".join(lineas)
+
+def generar_respuesta_curso(c_name, dia_id=None):
+    clases_curso = buscar_curso(c_name)
+    if not clases_curso:
+        return f"No encontré clases registradas para la asignatura **{c_name}**."
+
+    nombre_display = format_title(c_name)
+    dias_num = sorted(list(set(c['dia_numero'] for c in clases_curso)))
+    dias_nombres = [nombre_dia(d) for d in dias_num]
+
+    if dia_id is None:
+        dias_texto = ", ".join(dias_nombres[:-1]) + (" y " if len(dias_nombres) > 1 else "") + dias_nombres[-1]
+        botones = " ".join(f"[ACCION:{c_name} {d.lower()}|{d}]" for d in dias_nombres)
+        if len(dias_nombres) > 1:
+            botones += f" [ACCION:{c_name} toda la semana|Ver toda la semana]"
+
+        return (
+            f"Encontré la asignatura **{nombre_display}**, impartida los días **{dias_texto}**.\n\n"
+            f"¿Para qué día quieres consultar los horarios y salas de las secciones?\n\n"
+            f"{botones}"
+        )
+
+    if dia_id == 'TODOS':
+        lineas = [f"Horarios y salas de la semana para **{nombre_display}**:\n"]
+        for d in dias_num:
+            clases_d = [c for c in clases_curso if c['dia_numero'] == d]
+            clases_d.sort(key=lambda x: to_minutes(x['hora_inicio']))
+            lineas.append(f"### {nombre_dia(d)}")
+            for c in clases_d:
+                hora = f"{c['hora_inicio']} - {c['hora_termino']}"
+                sala = f"`{c['sala']}`"
+                profe = c['profe'].title() if c['profe'] != 'No informado' else ""
+                curso_label = f"{nombre_display} ({profe})" if profe else nombre_display
+                sec = f"Sec. {c['seccion']}" if c['seccion'] != '-' else ""
+                lineas.append(f"* [CLASE] {hora} | {sala} | {curso_label} | {sec}")
+            lineas.append("")
+        return "\n".join(lineas)
+
+    clases_dia = [c for c in clases_curso if c['dia_numero'] == dia_id]
+    dia_nom = nombre_dia(dia_id)
+    if not clases_dia:
+        dias_texto = ", ".join(dias_nombres[:-1]) + (" y " if len(dias_nombres) > 1 else "") + dias_nombres[-1]
+        botones = " ".join(f"[ACCION:{c_name} {d.lower()}|{d}]" for d in dias_nombres)
+        return (
+            f"La asignatura **{nombre_display}** no tiene secciones los días **{dia_nom}**.\n\n"
+            f"Se imparte los días **{dias_texto}**:\n\n"
+            f"{botones}"
+        )
+
+    clases_dia.sort(key=lambda x: to_minutes(x['hora_inicio']))
+    lineas = [f"Secciones de **{nombre_display}** para el día **{dia_nom}**:\n"]
+    for c in clases_dia:
+        hora = f"{c['hora_inicio']} - {c['hora_termino']}"
+        sala = f"`{c['sala']}`"
+        profe = c['profe'].title() if c['profe'] != 'No informado' else ""
+        curso_label = f"{nombre_display} ({profe})" if profe else nombre_display
+        sec = f"Sec. {c['seccion']}" if c['seccion'] != '-' else ""
+        lineas.append(f"* [CLASE] {hora} | {sala} | {curso_label} | {sec}")
+
+    otros_dias = [d for d in dias_nombres if d != dia_nom]
+    if otros_dias:
+        botones = " ".join(f"[ACCION:{c_name} {d.lower()}|Ver {d}]" for d in otros_dias)
+        botones += f" [ACCION:{c_name} toda la semana|Ver toda la semana]"
+        lineas.append(f"\n{botones}")
+
+    return "\n".join(lineas)
+
 def responder_con_ia(mensaje_usuario):
     api_key = get_api_key()
     if not api_key:
-        return (
-            "⚠️ **API Key no configurada**\n\n"
-            "Para activar el asistente inteligente de **Disponibilidad de Salas**, necesitas configurar tu API Key gratuita de Google AI Studio.\n\n"
-            "**Cómo obtenerla y configurarla:**\n"
-            "1. Ve a [Google AI Studio](https://aistudio.google.com/app/apikey) e inicia sesión con tu cuenta de Google.\n"
-            "2. Haz clic en **Create API key** y copia la clave generada.\n"
-            "3. En tu terminal (PowerShell), ejecútala antes de iniciar la app:\n"
-            "```powershell\n"
-            "$env:GEMINI_API_KEY=\"AIzaSy...\"\n"
-            "python flask_app.py\n"
-            "```\n"
-            "O guárdala en un archivo `.env` en la raíz del proyecto:\n"
-            "```text\n"
-            "GEMINI_API_KEY=AIzaSy...\n"
-            "```"
-        )
+        return "Para activar el asistente inteligente de Disponibilidad de Salas, necesitas configurar tu API Key gratuita de Google AI Studio."
 
-    # Normalizar mensaje y palabras
     norm_msg = normalize_str(mensaje_usuario)
-    msg_words = set(norm_msg.split())
-    
-    # 1. Detectar día de la semana si se especifica
-    dia_map = {'lunes': 1, 'martes': 2, 'miercoles': 3, 'jueves': 4, 'viernes': 5, 'sabado': 6, 'domingo': 7}
-    dia_detectado = None
-    for d_nom, d_id in dia_map.items():
-        if d_nom in norm_msg:
-            dia_detectado = d_id
-            break
+    tokens_msg = clean_tokens(mensaje_usuario)
+    sig_tokens = [w for w in tokens_msg if w not in STOPWORDS and len(w) >= 3]
 
+    # 1. ¿Pide listar todas las salas?
+    pide_todas_salas = any(frase in norm_msg for frase in [
+        'todas las salas', 'lista de salas', 'listame las salas', 'listame todas las salas',
+        'que salas hay', 'cuales son las salas', 'cuales salas hay', 'todas las salas registradas',
+        'cuales salas existen', 'que salas existen', 'mostrar todas las salas', 'ver todas las salas',
+        'lista todas las salas'
+    ])
+    if pide_todas_salas:
+        return generar_listado_todas_las_salas()
+
+    # 2. Detección de día y hora/bloque
+    dia_detectado, dia_nombre_detectado = extraer_dia_semana(mensaje_usuario)
+    bloque_detectado, hora_detectada = extraer_hora_y_bloque(mensaje_usuario)
+
+    # 3. ¿Pide salas vacías / libres / disponibles?
+    pide_salas_libres = any(w in tokens_msg for w in ['vacia', 'vacias', 'libre', 'libres', 'disponible', 'disponibles', 'desocupada', 'desocupadas'])
+    if pide_salas_libres:
+        # Resolver día
+        if dia_detectado is None or dia_detectado == 'TODOS':
+            now = datetime.datetime.now()
+            d_val = now.weekday() + 1
+            dia_id = d_val if d_val <= 5 else 1
+            dia_nom = nombre_dia(dia_id)
+        else:
+            dia_id = dia_detectado
+            dia_nom = dia_nombre_detectado
+
+        # Resolver bloque
+        if bloque_detectado:
+            bloque_evaluar = bloque_detectado
+        else:
+            dia_actual, bloque_actual, _, _ = calcular_bloque_actual()
+            bloque_evaluar = bloque_actual
+
+        return generar_respuesta_salas_libres(dia_id, dia_nom, bloque_evaluar)
+
+    # 4. Coincidencia de profesor (filtrando stop-words para evitar falsos positivos)
     clases = dm.get_classes()
-    
-    # 2. Coincidencia inteligente de profesores
-    profes_map = {}
-    for c in clases:
-        p = c.get('node', {}).get('teacher', '')
-        if p and p not in profes_map:
-            profes_map[p] = normalize_str(p).split()
-            
-    matched_profes = []
-    for p_name, p_tokens in profes_map.items():
-        matching = [t for t in p_tokens if t in msg_words or any(w.startswith(t) or t.startswith(w) for w in msg_words if len(w) >= 4 and len(t) >= 4)]
-        if matching:
-            matched_profes.append((len(matching), p_name))
-    matched_profes.sort(key=lambda x: -x[0])
+    if sig_tokens:
+        profes_map = {}
+        for c in clases:
+            p = c.get('node', {}).get('teacher', '')
+            if p and p not in profes_map:
+                profes_map[p] = [w for w in clean_tokens(p) if w not in STOPWORDS and len(w) >= 3]
 
-    coincidencias_profes = []
-    for count, p_name in matched_profes[:3]:
-        coincidencias_profes.extend(buscar_profesor(p_name))
+        matched_profes = []
+        for p_name, p_tokens in profes_map.items():
+            if not p_tokens:
+                continue
+            matching = [
+                t for t in p_tokens
+                if any(t == w or (len(t) >= 4 and len(w) >= 4 and (t in w or w in t or t.startswith(w[:4]) or w.startswith(t[:4]))) for w in sig_tokens)
+            ]
+            if matching:
+                score = len(matching) / len(p_tokens)
+                matched_profes.append((len(matching), score, p_name))
 
-    # 3. Coincidencia inteligente de cursos/asignaturas
-    cursos_map = {}
-    for c in clases:
-        cr = c.get('node', {}).get('course', '')
-        if cr and cr not in cursos_map:
-            cursos_map[cr] = normalize_str(cr).split()
-            
-    matched_cursos = []
-    for cr_name, cr_tokens in cursos_map.items():
-        tokens_signif = [t for t in cr_tokens if len(t) >= 3 and t not in {'para', 'del', 'los', 'las', 'con'}]
-        matching = [t for t in tokens_signif if any(t == w or (len(w) >= 4 and len(t) >= 4 and (w in t or t in w)) for w in msg_words)]
-        if matching:
-            score = len(matching) / len(tokens_signif) if tokens_signif else 0
-            matched_cursos.append((score, len(matching), cr_name))
-    matched_cursos.sort(key=lambda x: (-x[0], -x[1]))
+        if matched_profes:
+            matched_profes.sort(key=lambda x: (-x[0], -x[1]))
+            best_match = matched_profes[0]
+            # Si tiene al menos una coincidencia fuerte
+            if best_match[0] >= 1:
+                return generar_respuesta_profesor(best_match[2], dia_id=dia_detectado)
 
-    coincidencias_cursos = []
-    for score, count, cr_name in matched_cursos[:2]:
-        coincidencias_cursos.extend(buscar_curso(cr_name))
+        # 5. Coincidencia de curso/asignatura
+        cursos_map = {}
+        for c in clases:
+            cr = c.get('node', {}).get('course', '')
+            if cr and cr not in cursos_map:
+                cursos_map[cr] = [w for w in clean_tokens(cr) if w not in STOPWORDS and len(w) >= 3]
 
-    # 4. Coincidencia de salas
-    coincidencias_salas = [s for s in dm.all_rooms if any(w in normalize_str(s) for w in msg_words if len(w) >= 3)]
+        matched_cursos = []
+        for cr_name, cr_tokens in cursos_map.items():
+            if not cr_tokens:
+                continue
+            matching = [
+                t for t in cr_tokens
+                if any(t == w or (len(t) >= 4 and len(w) >= 4 and (t in w or w in t or t.startswith(w[:4]) or w.startswith(t[:4]))) for w in sig_tokens)
+            ]
+            if matching:
+                score = len(matching) / len(cr_tokens)
+                matched_cursos.append((len(matching), score, cr_name))
 
-    # 5. Estado en tiempo real y salas libres
-    now = datetime.datetime.now()
-    hora_actual_str = now.strftime("%H:%M")
+        if matched_cursos:
+            matched_cursos.sort(key=lambda x: (-x[0], -x[1]))
+            best_match_cr = matched_cursos[0]
+            if best_match_cr[0] >= 1:
+                return generar_respuesta_curso(best_match_cr[2], dia_id=dia_detectado)
+
+    # 6. Coincidencia de salas específicas por código (ej: V432.3.S315)
+    coincidencias_salas = [s for s in dm.all_rooms if any(w in normalize_str(s) for w in sig_tokens if len(w) >= 4)]
+    if coincidencias_salas:
+        sala_sel = coincidencias_salas[0]
+        horario = horario_de_sala(sala_sel)
+        lineas = [f"Horario semanal de la sala `{sala_sel}`:\n"]
+        for d in range(1, 6):
+            cl_dia = horario.get(d, [])
+            lineas.append(f"### {nombre_dia(d)}")
+            if cl_dia:
+                for c in cl_dia:
+                    lineas.append(f"* [CLASE] {c['start']} - {c['finish']} | `{sala_sel}` | {format_title(c['curso'])} | Sec. {c['seccion']}")
+            else:
+                lineas.append("* Sin clases programadas (sala desocupada todo el día)")
+            lineas.append("")
+        return "\n".join(lineas)
+
+    # 7. Fallback general a la API de Gemini para consultas abiertas / conversacionales
     dia_bloque, bloque_ref, en_horario, msg_horario = calcular_bloque_actual()
     vacias_ref, _, _ = obtener_salas(dia_bloque, bloque_ref['id'], "INGENIERIA")
 
     contexto_datos = (
         f"CONSULTA DEL USUARIO: \"{mensaje_usuario}\"\n"
-        f"Día consultado o detectado: {nombre_dia(dia_detectado) if dia_detectado else 'Cualquier día'}\n\n"
-        f"DATOS EN TIEMPO REAL DE LA BASE DE DATOS:\n"
-        f"- Clases de Profesores coincidentes: {json.dumps(coincidencias_profes[:20], ensure_ascii=False)}\n"
-        f"- Asignaturas coincidentes: {json.dumps(coincidencias_cursos[:20], ensure_ascii=False)}\n"
-        f"- Horarios de salas consultadas: {json.dumps({s: horario_de_sala(s) for s in coincidencias_salas[:2]}, ensure_ascii=False)}\n"
-        f"- Referencia en vivo: {hora_actual_str} hrs ({nombre_dia(dia_bloque)}), {len(vacias_ref)} salas libres en bloque {bloque_ref['label']} ({msg_horario or 'En horario lectivo'}).\n"
+        f"Día consultado o detectado: {nombre_dia(dia_detectado) if dia_detectado and dia_detectado != 'TODOS' else 'No especificado'}\n\n"
+        f"ESTADO EN VIVO:\n"
+        f"- {len(vacias_ref)} salas libres actualmente en Ingeniería en bloque {bloque_ref['label']} ({msg_horario or 'En horario lectivo'}).\n"
+        f"- Total de salas registradas en el sistema: {len(dm.all_rooms)} salas.\n"
     )
 
     prompt_sistema = (
         "Eres el asistente inteligente de Disponibilidad de Salas.\n"
         "Instrucciones estrictas de respuesta:\n"
         "1. NUNCA menciones la sigla UDP ni 'Universidad Diego Portales', refiérete únicamente como 'Disponibilidad de Salas'.\n"
-        "2. DIRECTO AL GRANO: Responde directamente a lo que el usuario pide sin saludos largos, discursos de bienvenida ni introducciones repetitivas en cada mensaje.\n"
-        "3. HORARIOS Y PROFESORES: Si el usuario pregunta por un profesor, ramo o día (ej: 'busca a X los martes'), entrega de inmediato la información precisa basándote en los datos. Si no tiene clases en el día consultado, indícalo claramente y menciona en qué días y horarios sí dicta clases.\n"
-        "4. NO menciones que estamos fuera de horario lectivo a menos que el usuario pregunte expresamente por 'salas libres ahora' o 'qué hay en este momento'.\n"
-        "5. Formato: Usa Markdown limpio, viñetas ordenadas y código para nombres de salas (ej: `V432.3.S315`).\n"
-        "6. Proporciona EXCLUSIVAMENTE la respuesta final redactada para el usuario, sin notas de verificación ni pensamientos internos."
+        "2. DIRECTO AL GRANO: Responde directamente sin saludos largos ni introducciones repetitivas.\n"
+        "3. FORMATO DE CLASES Y RAMOS: Cuando listes clases o ramos, usa SIEMPRE este formato para cada una:\n"
+        "* [CLASE] HH:MM - HH:MM | `CODIGO_SALA` | Nombre del Curso | Sec. X\n"
+        "4. PREGUNTA DE DÍA: Si el usuario pregunta por un profesor o ramo sin indicar qué día desea ver, "
+        "pregunta amablemente para qué día quiere consultar y ofrece los días disponibles.\n"
+        "5. BOTONES DE ACCIÓN: Puedes sugerir acciones rápidas usando [ACCION:consulta a enviar|Texto del botón].\n"
+        "6. PUNTO INTERMITENTE: Cada viñeta debe usar * o - para que el sistema le añada el punto intermitente animado.\n"
+        "7. Proporciona EXCLUSIVAMENTE la respuesta final redactada para el usuario, sin notas de verificación ni pensamientos internos."
     )
 
     payload = {
@@ -903,7 +1206,6 @@ def responder_con_ia(mensaje_usuario):
         }
     }
 
-    # Intentar con los modelos más rápidos y directos de Gemini
     modelos = ["gemini-3.1-flash-lite", "gemini-3.5-flash-lite", "gemini-3.5-flash", "gemini-3.7-flash"]
     ultimo_error = ""
     for modelo in modelos:
@@ -919,7 +1221,6 @@ def responder_con_ia(mensaje_usuario):
                         text_parts.append(p['text'])
                 texto_respuesta = "".join(text_parts).strip()
                 if texto_respuesta:
-                    # Limpieza preventiva de pensamientos internos si existiesen
                     texto_respuesta = re.sub(r'<thought>.*?</thought>', '', texto_respuesta, flags=re.DOTALL).strip()
                     return texto_respuesta
         except Exception as e:

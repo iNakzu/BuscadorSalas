@@ -1723,18 +1723,123 @@
             display: flex;
             align-items: flex-start;
             gap: 8px;
-            margin: 5px 0;
+            margin: 6px 0;
             line-height: 1.5;
         }
 
-        .ai-list-dot {
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: #60a5fa;
-            box-shadow: 0 0 6px #3b82f6;
-            margin-top: 8px;
+        .ai-list-item .status-dot {
+            margin-top: 6px;
             flex-shrink: 0;
+        }
+
+        .ai-list-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #34d399;
+            box-shadow: 0 0 6px #10b981;
+            margin-top: 6px;
+            flex-shrink: 0;
+            display: inline-block;
+            animation: pulseDot 2.2s infinite ease-in-out;
+        }
+
+        /* TARJETAS REDISEÑADAS DE CLASES / RAMOS EN EL CHAT IA */
+        .ai-class-card {
+            background: linear-gradient(135deg, rgba(30, 41, 69, 0.72) 0%, rgba(15, 23, 42, 0.88) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.28);
+            border-radius: 12px;
+            padding: 10px 13px;
+            margin: 6px 0;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .ai-class-card:hover {
+            border-color: rgba(96, 165, 250, 0.55);
+            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.25);
+            transform: translateY(-1.5px);
+        }
+
+        .ai-class-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .ai-time-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4.5px;
+            background: rgba(56, 189, 248, 0.14);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 2px 7.5px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            font-weight: 600;
+        }
+
+        .ai-sec-badge {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(148, 163, 184, 0.14);
+            color: #cbd5e1;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            padding: 2px 7px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+            margin-left: auto;
+        }
+
+        .ai-course-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #ffffff;
+            line-height: 1.35;
+            letter-spacing: 0.01em;
+        }
+
+        /* BOTONES DE ACCIÓN RÁPIDA / SELECCIÓN DE DÍA */
+        .ai-quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-top: 10px;
+            padding-top: 6px;
+        }
+
+        .ai-quick-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.2) 0%, rgba(59, 130, 246, 0.12) 100%);
+            border: 1px solid rgba(96, 165, 250, 0.35);
+            color: #93c5fd;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .ai-quick-btn:hover {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.45) 0%, rgba(59, 130, 246, 0.35) 100%);
+            border-color: rgba(147, 197, 253, 0.7);
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.38);
+            transform: translateY(-1.5px);
+        }
+
+        .ai-quick-btn:active {
+            transform: translateY(0);
         }
 
         .ai-divider {
@@ -3087,6 +3192,19 @@
         }
     }
 
+    function sendQuickPrompt(texto) {
+        const input = document.getElementById('ai-chat-input');
+        if (!input) return;
+        input.value = texto;
+        enviarMensajeIA();
+    }
+
+    function buscarSalaEnApp(sala) {
+        if (typeof verHorarioDirecto === 'function') {
+            verHorarioDirecto(sala);
+        }
+    }
+
     function simpleMarkdown(text) {
         if (!text) return '';
         
@@ -3103,18 +3221,60 @@
                 continue;
             }
             if (l.startsWith('### ')) {
-                htmlLines.push('<div class="ai-section-title">' + l.substring(4) + '</div>');
+                htmlLines.push('<div class="ai-section-title"><span class="status-dot"></span> ' + l.substring(4) + '</div>');
                 continue;
             }
             if (l.startsWith('## ')) {
-                htmlLines.push('<div class="ai-section-title">' + l.substring(3) + '</div>');
+                htmlLines.push('<div class="ai-section-title"><span class="status-dot"></span> ' + l.substring(3) + '</div>');
                 continue;
             }
+
+            // Detectar botones de acción rápida
+            if (l.includes('[ACCION:')) {
+                let btnHtml = l.replace(/\[ACCION:([^|]+)\|([^\]]+)\]/g, function(match, cmd, label) {
+                    let escCmd = cmd.replace(/'/g, "\\'");
+                    return `<button type="button" class="ai-quick-btn" onclick="sendQuickPrompt('${escCmd}')"><span class="status-dot"></span><span>${label}</span></button>`;
+                });
+                htmlLines.push('<div class="ai-quick-actions">' + btnHtml + '</div>');
+                continue;
+            }
+
+            // Detectar formato de tarjeta de clase: * [CLASE] 08:30 - 09:50 | `V432.3.S315` | Curso | Sec. X
+            if (l.startsWith('* [CLASE] ') || l.startsWith('- [CLASE] ') || l.startsWith('[CLASE] ')) {
+                let raw = l.replace(/^(\*|-)?\s*\[CLASE\]\s*/i, '').trim();
+                let parts = raw.split('|').map(p => p.trim());
+                let time = parts[0] || '';
+                let room = (parts[1] || '').replace(/[`*]/g, '');
+                let course = (parts[2] || '').replace(/[*]/g, '');
+                let sec = parts[3] || '';
+
+                htmlLines.push(`
+                    <div class="ai-class-card">
+                        <div class="ai-class-header">
+                            <span class="status-dot"></span>
+                            <span class="ai-time-pill">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                                ${time}
+                            </span>
+                            <code class="ai-room-pill" onclick="buscarSalaEnApp('${room}')" title="Ver horario completo de ${room}">${room}</code>
+                            ${sec ? `<span class="ai-sec-badge">${sec}</span>` : ''}
+                        </div>
+                        <div class="ai-course-title">${course}</div>
+                    </div>
+                `);
+                continue;
+            }
+
+            // Viñeta estándar con punto intermitente animado
             if (l.startsWith('* ') || l.startsWith('- ')) {
                 let content = l.substring(2);
-                htmlLines.push('<div class="ai-list-item"><span class="ai-list-dot"></span><span>' + content + '</span></div>');
+                htmlLines.push('<div class="ai-list-item"><span class="status-dot"></span><span>' + content + '</span></div>');
                 continue;
             }
+
             htmlLines.push('<div>' + l + '</div>');
         }
         
@@ -3123,7 +3283,7 @@
         out = out.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         out = out.replace(/\*(.*?)\*/g, '<em>$1</em>');
         // Salas y códigos en backticks (`V432.3.S315`)
-        out = out.replace(/`([^`]+)`/g, '<code class="ai-room-pill">$1</code>');
+        out = out.replace(/`([^`]+)`/g, '<code class="ai-room-pill" onclick="buscarSalaEnApp(\'$1\')" title="Ver horario de $1">$1</code>');
         
         return out;
     }
