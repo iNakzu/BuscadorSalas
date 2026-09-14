@@ -1833,7 +1833,7 @@
         .ai-quick-actions {
             display: flex;
             flex-wrap: wrap;
-            gap: 7px;
+            gap: 8px;
             margin-top: 10px;
             padding-top: 6px;
         }
@@ -1841,29 +1841,40 @@
         .ai-quick-btn {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.2) 0%, rgba(59, 130, 246, 0.12) 100%);
-            border: 1px solid rgba(96, 165, 250, 0.35);
+            gap: 6.5px;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.22) 0%, rgba(59, 130, 246, 0.14) 100%);
+            border: 1px solid rgba(96, 165, 250, 0.4);
             color: #93c5fd;
-            padding: 6px 12px;
+            padding: 7px 13px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 12.5px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            max-width: 100%;
         }
 
         .ai-quick-btn:hover {
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.45) 0%, rgba(59, 130, 246, 0.35) 100%);
-            border-color: rgba(147, 197, 253, 0.7);
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.48) 0%, rgba(59, 130, 246, 0.38) 100%);
+            border-color: rgba(147, 197, 253, 0.75);
             color: #ffffff;
-            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.38);
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
             transform: translateY(-1.5px);
         }
 
         .ai-quick-btn:active {
-            transform: translateY(0);
+            transform: scale(0.96);
+            background: rgba(37, 99, 235, 0.55);
+            border-color: #60a5fa;
+            color: #ffffff;
+        }
+
+        .ai-quick-btn .status-dot {
+            flex-shrink: 0;
         }
 
         .ai-divider {
@@ -3230,6 +3241,11 @@
     function simpleMarkdown(text) {
         if (!text) return '';
         
+        // 1. Limpieza preventiva de cualquier placeholder o residuo de comando interno
+        text = text.replace(/\[\s*(?:ACCION|ACCIÓN|accion)\s*:[^\]]*consulta a enviar[^\]]*\]/gi, '');
+        text = text.replace(/(?:ACCION|ACCIÓN|accion)\s*:\s*consulta a enviar[^\n]*/gi, '');
+        text = text.replace(/consulta a enviar/gi, '');
+
         let lines = text.split('\n');
         let htmlLines = [];
         for (let line of lines) {
@@ -3252,13 +3268,31 @@
             }
 
             // Detectar botones de acción rápida
-            if (l.includes('[ACCION:')) {
-                let btnHtml = l.replace(/\[ACCION:([^|]+)\|([^\]]+)\]/g, function(match, cmd, label) {
-                    let escCmd = cmd.replace(/'/g, "\\'");
-                    let escLabel = label.replace(/'/g, "\\'");
-                    return `<button type="button" class="ai-quick-btn" onclick="sendQuickPrompt('${escCmd}', '${escLabel}')"><span class="status-dot"></span><span>${label}</span></button>`;
-                });
-                htmlLines.push('<div class="ai-quick-actions">' + btnHtml + '</div>');
+            const accionRegex = /\[\s*(?:ACCION|ACCIÓN|accion)\s*:\s*([^|\]]+?)\s*\|\s*([^\]]+?)\s*\]/gi;
+            if (accionRegex.test(l)) {
+                let buttons = [];
+                let textWithoutButtons = l.replace(accionRegex, function(match, cmd, label) {
+                    let cleanCmd = (cmd || '').trim();
+                    let cleanLabel = (label || '').trim();
+                    if (cleanCmd.toLowerCase().includes('consulta a enviar') || cleanLabel.toLowerCase().includes('texto del')) {
+                        return '';
+                    }
+                    let escCmd = cleanCmd.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+                    let escLabel = cleanLabel.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+                    buttons.push(`<button type="button" class="ai-quick-btn" onclick="sendQuickPrompt('${escCmd}', '${escLabel}')"><span class="status-dot"></span><span>${cleanLabel}</span></button>`);
+                    return '';
+                }).trim();
+
+                if (textWithoutButtons) {
+                    if (textWithoutButtons.startsWith('* ') || textWithoutButtons.startsWith('- ')) {
+                        htmlLines.push('<div class="ai-list-item"><span class="status-dot"></span><span>' + textWithoutButtons.substring(2) + '</span></div>');
+                    } else {
+                        htmlLines.push('<div>' + textWithoutButtons + '</div>');
+                    }
+                }
+                if (buttons.length > 0) {
+                    htmlLines.push('<div class="ai-quick-actions">' + buttons.join('') + '</div>');
+                }
                 continue;
             }
 
@@ -3302,7 +3336,11 @@
                 continue;
             }
 
-            htmlLines.push('<div>' + l + '</div>');
+            // Descartar cualquier línea residual de ACCION
+            let sanitizedLine = l.replace(/(?:ACCION|ACCIÓN)\s*:\s*[^\n]*/gi, '').trim();
+            if (sanitizedLine && sanitizedLine !== '*' && sanitizedLine !== '-') {
+                htmlLines.push('<div>' + sanitizedLine + '</div>');
+            }
         }
         
         let out = htmlLines.join('');

@@ -3,6 +3,7 @@ import re
 import json
 import time
 import datetime
+import difflib
 from urllib.request import Request, urlopen
 from urllib.error import URLError
 from flask import Flask, request, render_template, jsonify
@@ -604,6 +605,14 @@ def calcular_bloque_actual():
 
 # --- RUTAS Y ENDPOINTS ---
 
+@app.after_request
+def add_no_cache_headers(response):
+    if request.path == "/" or request.path.startswith("/api/"):
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
+
 @app.route("/", methods=["GET", "POST"])
 def inicio():
     vacias = []
@@ -791,7 +800,9 @@ STOPWORDS = {
     'dime', 'que', 'cual', 'cuales', 'hay', 'donde', 'sala', 'salas', 'ver', 'busca', 'buscar',
     'horario', 'horarios', 'profe', 'profesor', 'profesora', 'ramo', 'ramos', 'curso', 'cursos',
     'clase', 'clases', 'disponible', 'disponibles', 'libre', 'libres', 'vacia', 'vacias', 'desocupada',
-    'desocupadas', 'ahora', 'hoy', 'manana', 'mañana', 'toda', 'todas', 'todo', 'todos', 'lista', 'listame', 'porfa'
+    'desocupadas', 'ahora', 'hoy', 'manana', 'mañana', 'toda', 'todas', 'todo', 'todos', 'lista', 'listame', 'porfa',
+    'hola', 'buenas', 'buenos', 'dias', 'tardes', 'noches', 'como', 'estas', 'quien', 'eres', 'puedes', 'hacer',
+    'ayuda', 'gracias', 'favor', 'saludos', 'funciona'
 }
 
 def clean_tokens(text):
@@ -1110,7 +1121,7 @@ def responder_con_ia(mensaje_usuario):
                 continue
             matching = [
                 t for t in p_tokens
-                if any(t == w or (len(t) >= 4 and len(w) >= 4 and (t in w or w in t or t.startswith(w[:4]) or w.startswith(t[:4]))) for w in sig_tokens)
+                if any(t == w or (len(t) >= 4 and len(w) >= 4 and difflib.SequenceMatcher(None, t, w).ratio() >= 0.8) for w in sig_tokens)
             ]
             if matching:
                 score = len(matching) / len(p_tokens)
@@ -1136,7 +1147,7 @@ def responder_con_ia(mensaje_usuario):
                 continue
             matching = [
                 t for t in cr_tokens
-                if any(t == w or (len(t) >= 4 and len(w) >= 4 and (t in w or w in t or t.startswith(w[:4]) or w.startswith(t[:4]))) for w in sig_tokens)
+                if any(t == w or (len(t) >= 4 and len(w) >= 4 and difflib.SequenceMatcher(None, t, w).ratio() >= 0.8) for w in sig_tokens)
             ]
             if matching:
                 score = len(matching) / len(cr_tokens)
@@ -1184,11 +1195,9 @@ def responder_con_ia(mensaje_usuario):
         "2. DIRECTO AL GRANO: Responde directamente sin saludos largos ni introducciones repetitivas.\n"
         "3. FORMATO DE CLASES Y RAMOS: Cuando listes clases o ramos, usa SIEMPRE este formato para cada una:\n"
         "* [CLASE] HH:MM - HH:MM | `CODIGO_SALA` | Nombre del Curso | Sec. X\n"
-        "4. PREGUNTA DE DÍA: Si el usuario pregunta por un profesor o ramo sin indicar qué día desea ver, "
-        "pregunta amablemente para qué día quiere consultar y ofrece los días disponibles.\n"
-        "5. BOTONES DE ACCIÓN: Puedes sugerir acciones rápidas usando [ACCION:consulta a enviar|Texto del botón].\n"
-        "6. PUNTO INTERMITENTE: Cada viñeta debe usar * o - para que el sistema le añada el punto intermitente animado.\n"
-        "7. Proporciona EXCLUSIVAMENTE la respuesta final redactada para el usuario, sin notas de verificación ni pensamientos internos."
+        "4. LENGUAJE NATURAL: NUNCA inventes comandos internos, ni uses la palabra 'ACCION:' ni 'consulta a enviar' en tus respuestas. Responde en lenguaje natural, amable y claro.\n"
+        "5. PUNTO INTERMITENTE: Cada viñeta debe usar * o - para que el sistema le añada el punto intermitente animado.\n"
+        "6. Proporciona EXCLUSIVAMENTE la respuesta final redactada para el usuario, sin notas de verificación ni pensamientos internos."
     )
 
     payload = {
@@ -1222,7 +1231,11 @@ def responder_con_ia(mensaje_usuario):
                 texto_respuesta = "".join(text_parts).strip()
                 if texto_respuesta:
                     texto_respuesta = re.sub(r'<thought>.*?</thought>', '', texto_respuesta, flags=re.DOTALL).strip()
-                    return texto_respuesta
+                    # Sanitización exhaustiva contra residuos de placeholders o comandos internos
+                    texto_respuesta = re.sub(r'\[\s*(?:ACCION|ACCIÓN)\s*:[^\]]*consulta a enviar[^\]]*\]', '', texto_respuesta, flags=re.IGNORECASE)
+                    texto_respuesta = re.sub(r'(?:ACCION|ACCIÓN)\s*:\s*consulta a enviar[^\n]*', '', texto_respuesta, flags=re.IGNORECASE)
+                    texto_respuesta = re.sub(r'consulta a enviar', '', texto_respuesta, flags=re.IGNORECASE)
+                    return texto_respuesta.strip()
         except Exception as e:
             ultimo_error = str(e)
             continue
