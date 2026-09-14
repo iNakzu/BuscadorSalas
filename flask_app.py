@@ -759,5 +759,104 @@ def api_malla():
         "clases": clases_malla
     })
 
+def responder_con_ia(mensaje_usuario):
+    api_key = os.environ.get("GEMINI_API_KEY", "").strip()
+    if not api_key:
+        return (
+            "⚠️ **API Key no configurada**\n\n"
+            "Para activar el asistente inteligente de **Disponibilidad de Salas**, necesitas configurar tu API Key gratuita de Google AI Studio.\n\n"
+            "**Cómo obtenerla y configurarla:**\n"
+            "1. Ve a [Google AI Studio](https://aistudio.google.com/app/apikey) e inicia sesión con tu cuenta de Google.\n"
+            "2. Haz clic en **Create API key** y copia la clave generada.\n"
+            "3. En tu terminal (PowerShell), ejecútala antes de iniciar la app:\n"
+            "```powershell\n"
+            "$env:GEMINI_API_KEY=\"AIzaSy...\"\n"
+            "python flask_app.py\n"
+            "```"
+        )
+
+    # Recopilar contexto en tiempo real
+    dia_actual, bloque_actual, en_horario, msg_horario = calcular_bloque_actual()
+    info_ahora = f"Día actual: {nombre_dia(dia_actual)} (id {dia_actual}), Bloque: {bloque_actual['label']}. Estado: {msg_horario or 'En horario lectivo'}."
+    
+    # Extraer entidades consultadas
+    palabras = [p for p in mensaje_usuario.split() if len(p) >= 3]
+    coincidencias_profes = []
+    coincidencias_cursos = []
+    coincidencias_salas = []
+    
+    for p in palabras:
+        norm_p = normalize_str(p)
+        for sala in dm.all_rooms:
+            if norm_p in normalize_str(sala) and sala not in coincidencias_salas:
+                coincidencias_salas.append(sala)
+        for pr in buscar_profesor(p)[:5]:
+            if pr not in coincidencias_profes:
+                coincidencias_profes.append(pr)
+        for cr in buscar_curso(p)[:5]:
+            if cr not in coincidencias_cursos:
+                coincidencias_cursos.append(cr)
+    
+    vacias_ahora, _, _ = obtener_salas(dia_actual, bloque_actual['id'], "INGENIERIA")
+    resumen_salas_libres = f"Salas libres en el bloque actual ({bloque_actual['label']}): {', '.join(vacias_ahora[:15])} (Total libres: {len(vacias_ahora)})."
+    
+    contexto_datos = (
+        f"ESTADO ACTUAL:\n- {info_ahora}\n- {resumen_salas_libres}\n\n"
+        f"RESULTADOS RELEVANTES DE LA BASE DE DATOS:\n"
+        f"- Profesores encontrados: {json.dumps(coincidencias_profes[:8], ensure_ascii=False)}\n"
+        f"- Asignaturas encontradas: {json.dumps(coincidencias_cursos[:8], ensure_ascii=False)}\n"
+        f"- Horario de salas mencionadas: {json.dumps({s: horario_de_sala(s) for s in coincidencias_salas[:2]}, ensure_ascii=False)}\n"
+    )
+
+    prompt_sistema = (
+        "Eres el asistente virtual inteligente de Disponibilidad de Salas.\n"
+        "Tu misión es ayudar a estudiantes, profesores y visitantes a encontrar salas disponibles, verificar horarios de clases, ubicar a profesores y consultar información de asignaturas.\n\n"
+        "Reglas fundamentales:\n"
+        "1. NUNCA menciones la sigla UDP ni 'Universidad Diego Portales', refiérete al sistema únicamente como 'Disponibilidad de Salas'.\n"
+        "2. Sé conciso, claro, estructurado y muy amable. Usa viñetas y formato Markdown (negritas, listas, tablas si corresponde).\n"
+        "3. Basa tus respuestas en los datos provistos en el contexto en tiempo real. Si no hay clases o datos para lo solicitado, dilo cordialmente.\n"
+        "4. Especifica siempre sala, día, bloque horario y docente cuando la información esté disponible."
+    )
+
+    payload = {
+        "contents": [
+            {
+                "role": "user",
+                "parts": [
+                    {"text": f"{prompt_sistema}\n\n{contexto_datos}\n\nPREGUNTA DEL USUARIO:\n{mensaje_usuario}"}
+                ]
+            }
+        ],
+        "generationConfig": {
+            "temperature": 0.3,
+            "maxOutputTokens": 1000
+        }
+    }
+
+    # Intentar con gemini-2.5-flash y fallback a gemini-1.5-flash
+    for modelo in ["gemini-2.5-flash", "gemini-1.5-flash"]:
+        try:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent?key={api_key}"
+            req = Request(url, data=json.dumps(payload).encode('utf-8'), headers={'Content-Type': 'application/json'}, method='POST')
+            with urlopen(req, timeout=12) as response:
+                res_data = json.loads(response.read().decode('utf-8'))
+                texto_respuesta = res_data.get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', '')
+                if texto_respuesta:
+                    return texto_respuesta
+        except Exception as e:
+            continue
+
+    return "No fue posible conectar con la API de IA en este momento. Por favor verifica tu API Key."
+
+@app.route("/api/chat", methods=["POST"])
+def api_chat():
+    data = request.get_json() or {}
+    mensaje = data.get("mensaje", "").strip()
+    if not mensaje:
+        return jsonify({"respuesta": "Por favor escribe una consulta o pregunta."})
+
+    respuesta = responder_con_ia(mensaje)
+    return jsonify({"respuesta": respuesta})
+
 if __name__ == "__main__":
     app.run(debug=True, host="127.0.0.1", port=5000)

@@ -1505,7 +1505,291 @@
             animation: pulseDotProf 2.2s infinite ease-in-out;
         }
 
+        /* WIDGET FLOTANTE DE ASISTENTE IA */
+        .ai-fab-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 999;
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 11px 18px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
+            color: #ffffff;
+            font-size: 13.5px;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 9999px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px -4px rgba(59, 130, 246, 0.5), 0 0 15px rgba(139, 92, 246, 0.35);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .ai-fab-btn:hover {
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 12px 30px -4px rgba(59, 130, 246, 0.65), 0 0 22px rgba(139, 92, 246, 0.5);
+            border-color: rgba(255, 255, 255, 0.45);
+        }
+
+        .ai-fab-btn svg {
+            filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.6));
+        }
+
+        .ai-chat-window {
+            position: fixed;
+            bottom: 82px;
+            right: 24px;
+            width: 390px;
+            max-width: calc(100vw - 32px);
+            height: 540px;
+            max-height: calc(100vh - 110px);
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 18px;
+            box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.75), 0 0 30px rgba(59, 130, 246, 0.15);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 1000;
+            animation: modalFadeUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .ai-chat-window.open {
+            display: flex;
+        }
+
+        @keyframes modalFadeUp {
+            from { opacity: 0; transform: translateY(14px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .ai-chat-header {
+            padding: 14px 16px;
+            background: linear-gradient(135deg, rgba(30, 41, 69, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .ai-header-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ai-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
+            flex-shrink: 0;
+        }
+
+        .ai-title-text h4 {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #f8fafc;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .ai-title-text p {
+            font-size: 11px;
+            color: #94a3b8;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .ai-close-btn {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all 0.15s ease;
+        }
+
+        .ai-close-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .ai-messages-area {
+            flex: 1;
+            padding: 14px 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            scrollbar-width: thin;
+        }
+
+        .ai-msg {
+            max-width: 88%;
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: 12.5px;
+            line-height: 1.45;
+            word-break: break-word;
+        }
+
+        .ai-msg.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: #ffffff;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .ai-msg.bot {
+            align-self: flex-start;
+            background: rgba(30, 41, 69, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #e2e8f0;
+            border-bottom-left-radius: 4px;
+        }
+
+        .ai-msg.bot p { margin: 0 0 6px 0; }
+        .ai-msg.bot p:last-child { margin-bottom: 0; }
+        .ai-msg.bot ul, .ai-msg.bot ol { margin: 4px 0 6px 18px; }
+        .ai-msg.bot strong { color: #93c5fd; }
+        .ai-msg.bot code { background: rgba(0,0,0,0.3); padding: 1px 4px; border-radius: 4px; font-size: 11px; }
+
+        .ai-suggestions {
+            padding: 8px 16px;
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(15, 23, 42, 0.5);
+            flex-shrink: 0;
+        }
+        .ai-suggestions::-webkit-scrollbar { display: none; }
+
+        .ai-sug-chip {
+            white-space: nowrap;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            color: #93c5fd;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .ai-sug-chip:hover {
+            background: rgba(59, 130, 246, 0.22);
+            color: #ffffff;
+            border-color: #60a5fa;
+            transform: translateY(-1px);
+        }
+
+        .ai-input-row {
+            padding: 10px 12px;
+            background: rgba(15, 23, 42, 0.95);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ai-input-row input {
+            flex: 1;
+            background: rgba(30, 41, 69, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #f8fafc;
+            padding: 9px 12px;
+            font-size: 12.5px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .ai-input-row input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.25);
+            background: rgba(30, 41, 69, 0.95);
+        }
+
+        .ai-send-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            border: none;
+            color: #ffffff;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .ai-send-btn:hover {
+            transform: scale(1.06);
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
+        }
+
+        .ai-send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .ai-typing-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+        }
+
+        .ai-typing-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #94a3b8;
+            animation: typingBounce 1.2s infinite ease-in-out;
+        }
+
+        .ai-typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .ai-typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-4px); opacity: 1; }
+        }
+
         @media (max-width: 768px) {
+            .ai-fab-btn {
+                bottom: 16px;
+                right: 16px;
+                padding: 9px 14px;
+                font-size: 12.5px;
+            }
+            .ai-chat-window {
+                bottom: 70px;
+                right: 12px;
+                width: calc(100vw - 24px);
+                height: 480px;
+            }
             .tabs-wrapper {
                 margin-left: -16px;
                 margin-right: -16px;
@@ -2693,7 +2977,148 @@
     }
 
     filtrarSalasLista('');
+
+    /* --- LÓGICA ASISTENTE DE IA --- */
+    function toggleAIChat() {
+        const win = document.getElementById('ai-chat-window');
+        if (!win) return;
+        const isOpen = win.classList.toggle('open');
+        if (isOpen) {
+            const input = document.getElementById('ai-chat-input');
+            if (input) setTimeout(() => input.focus(), 150);
+        }
+    }
+
+    function preguntarSugerencia(texto) {
+        const input = document.getElementById('ai-chat-input');
+        if (input) input.value = texto;
+        enviarMensajeIA();
+    }
+
+    function handleChatKey(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            enviarMensajeIA();
+        }
+    }
+
+    function simpleMarkdown(text) {
+        if (!text) return '';
+        return text
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/`([^`]+)`/g, '<code>$1</code>')
+            .replace(/\n\n/g, '<br><br>')
+            .replace(/\n- /g, '<br>• ')
+            .replace(/\n/g, '<br>');
+    }
+
+    async function enviarMensajeIA() {
+        const input = document.getElementById('ai-chat-input');
+        const sendBtn = document.getElementById('ai-send-btn');
+        const area = document.getElementById('ai-messages-area');
+        if (!input || !area) return;
+
+        const msg = input.value.trim();
+        if (!msg) return;
+
+        // Añadir mensaje del usuario
+        const userDiv = document.createElement('div');
+        userDiv.className = 'ai-msg user';
+        userDiv.textContent = msg;
+        area.appendChild(userDiv);
+        input.value = '';
+        area.scrollTop = area.scrollHeight;
+
+        // Mostrar indicador de escritura
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'ai-msg bot ai-typing-indicator';
+        typingDiv.id = 'ai-typing-temp';
+        typingDiv.innerHTML = '<span class="ai-typing-dot"></span><span class="ai-typing-dot"></span><span class="ai-typing-dot"></span>';
+        area.appendChild(typingDiv);
+        area.scrollTop = area.scrollHeight;
+
+        if (sendBtn) sendBtn.disabled = true;
+
+        try {
+            const resp = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mensaje: msg })
+            });
+            const data = await resp.json();
+
+            const temp = document.getElementById('ai-typing-temp');
+            if (temp) temp.remove();
+
+            const botDiv = document.createElement('div');
+            botDiv.className = 'ai-msg bot';
+            botDiv.innerHTML = simpleMarkdown(data.respuesta || 'Sin respuesta.');
+            area.appendChild(botDiv);
+            area.scrollTop = area.scrollHeight;
+        } catch (e) {
+            const temp = document.getElementById('ai-typing-temp');
+            if (temp) temp.remove();
+
+            const botDiv = document.createElement('div');
+            botDiv.className = 'ai-msg bot';
+            botDiv.innerHTML = '⚠️ Error al comunicarse con el servidor.';
+            area.appendChild(botDiv);
+            area.scrollTop = area.scrollHeight;
+        } finally {
+            if (sendBtn) sendBtn.disabled = false;
+        }
+    }
 </script>
+
+<!-- BOTÓN FLOTANTE Y VENTANA DE CHAT ASISTENTE IA -->
+<button type="button" class="ai-fab-btn" onclick="toggleAIChat()" title="Abrir Asistente de IA">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+    </svg>
+    <span>Asistente IA</span>
+    <span class="status-dot"></span>
+</button>
+
+<div class="ai-chat-window" id="ai-chat-window">
+    <div class="ai-chat-header">
+        <div class="ai-header-info">
+            <div class="ai-avatar">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2a8 8 0 0 0-8 8c0 3.36 2.07 6.24 5 7.42V20a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-2.58c2.93-1.18 5-4.06 5-7.42a8 8 0 0 0-8-8z"></path>
+                </svg>
+            </div>
+            <div class="ai-title-text">
+                <h4>Asistente Inteligente</h4>
+                <p><span class="status-dot"></span> Disponibilidad de Salas</p>
+            </div>
+        </div>
+        <button type="button" class="ai-close-btn" onclick="toggleAIChat()">&times;</button>
+    </div>
+
+    <div class="ai-messages-area" id="ai-messages-area">
+        <div class="ai-msg bot">
+            ¡Hola! 👋 Soy el asistente de <strong>Disponibilidad de Salas</strong>. Puedo ayudarte a encontrar salas libres, consultar los horarios de un profesor o ver cuándo se imparte una asignatura. ¿En qué te ayudo hoy?
+        </div>
+    </div>
+
+    <div class="ai-suggestions">
+        <button type="button" class="ai-sug-chip" onclick="preguntarSugerencia('¿Qué salas están libres ahora?')">⚡ Salas libres ahora</button>
+        <button type="button" class="ai-sug-chip" onclick="preguntarSugerencia('¿Qué clases hay en la sala S401?')">📍 Clases en S401</button>
+        <button type="button" class="ai-sug-chip" onclick="preguntarSugerencia('¿Dónde hace clases el profesor Guerrero?')">👨‍🏫 Profesor Guerrero</button>
+        <button type="button" class="ai-sug-chip" onclick="preguntarSugerencia('¿En qué horario se dicta Álgebra Lineal?')">📚 Álgebra Lineal</button>
+    </div>
+
+    <div class="ai-input-row">
+        <input type="text" id="ai-chat-input" placeholder="Pregúntame algo sobre las salas u horarios..." onkeydown="handleChatKey(event)" autocomplete="off">
+        <button type="button" class="ai-send-btn" id="ai-send-btn" onclick="enviarMensajeIA()" title="Enviar mensaje">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+        </button>
+    </div>
+</div>
 
 </body>
 </html>
