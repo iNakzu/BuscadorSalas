@@ -1678,16 +1678,36 @@
         .ai-msg.bot code { background: rgba(0,0,0,0.3); padding: 1px 4px; border-radius: 4px; font-size: 11px; }
 
         .ai-suggestions {
-            padding: 8px 16px;
+            padding: 8px 14px 10px;
             display: flex;
-            gap: 6px;
+            gap: 8px;
             overflow-x: auto;
-            scrollbar-width: none;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(59, 130, 246, 0.45) rgba(15, 23, 42, 0.6);
             border-top: 1px solid rgba(255, 255, 255, 0.05);
             background: rgba(15, 23, 42, 0.5);
             flex-shrink: 0;
+            cursor: grab;
         }
-        .ai-suggestions::-webkit-scrollbar { display: none; }
+        .ai-suggestions:active {
+            cursor: grabbing;
+        }
+        .ai-suggestions::-webkit-scrollbar {
+            height: 4px;
+        }
+        .ai-suggestions::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 4px;
+        }
+        .ai-suggestions::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.45);
+            border-radius: 4px;
+        }
+        .ai-suggestions::-webkit-scrollbar-thumb:hover {
+            background: rgba(59, 130, 246, 0.75);
+        }
 
         .ai-sug-chip {
             white-space: nowrap;
@@ -1696,10 +1716,12 @@
             color: #93c5fd;
             font-size: 11px;
             font-weight: 600;
-            padding: 4px 10px;
+            padding: 5px 11px;
             border-radius: 999px;
             cursor: pointer;
+            flex-shrink: 0;
             transition: all 0.15s ease;
+            user-select: none;
         }
 
         .ai-sug-chip:hover {
@@ -3077,6 +3099,41 @@
             if (sendBtn) sendBtn.disabled = false;
         }
     }
+
+    // Soporte para scroll horizontal con rueda del ratón y arrastre con mouse (drag to scroll)
+    document.addEventListener('DOMContentLoaded', () => {
+        const sug = document.querySelector('.ai-suggestions');
+        if (!sug) return;
+
+        // Scroll horizontal al girar la rueda del ratón
+        sug.addEventListener('wheel', (e) => {
+            if (e.deltaY !== 0) {
+                e.preventDefault();
+                sug.scrollLeft += (e.deltaY * 1.2);
+            }
+        }, { passive: false });
+
+        // Arrastre con clic del mouse
+        let isDown = false;
+        let startX, scrollLeft;
+
+        sug.addEventListener('mousedown', (e) => {
+            isDown = true;
+            startX = e.pageX - sug.offsetLeft;
+            scrollLeft = sug.scrollLeft;
+        });
+
+        sug.addEventListener('mouseleave', () => { isDown = false; });
+        sug.addEventListener('mouseup', () => { isDown = false; });
+
+        sug.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - sug.offsetLeft;
+            const walk = (x - startX) * 1.5;
+            sug.scrollLeft = scrollLeft - walk;
+        });
+    });
 </script>
 
 <!-- BOTÓN FLOTANTE MINIMALISTA Y VENTANA DE CHAT -->
