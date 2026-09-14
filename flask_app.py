@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import time
 import datetime
@@ -290,8 +291,8 @@ def normalize_str(s):
 def buscar_profesor(nombre_buscado, dia_filtro=None, hora_filtro=None):
     clases = dm.get_classes()
     resultados = []
-    busqueda = normalize_str(nombre_buscado)
-    if not busqueda:
+    tokens = [t for t in normalize_str(nombre_buscado).split() if len(t) > 0]
+    if not tokens:
         return []
 
     dia_int = None
@@ -303,7 +304,8 @@ def buscar_profesor(nombre_buscado, dia_filtro=None, hora_filtro=None):
     for clase in clases:
         nodo = clase.get('node', {})
         profe = nodo.get('teacher', "")
-        if busqueda in normalize_str(profe):
+        norm_p = normalize_str(profe)
+        if all(t in norm_p for t in tokens):
             if dia_int is not None and nodo.get('day') != dia_int:
                 continue
             c_start = format_time(nodo.get('start', ''))
@@ -329,8 +331,8 @@ def buscar_profesor(nombre_buscado, dia_filtro=None, hora_filtro=None):
 def buscar_curso(query, dia_filtro=None, hora_filtro=None):
     clases = dm.get_classes()
     resultados = []
-    q = normalize_str(query)
-    if not q:
+    tokens = [t for t in normalize_str(query).split() if len(t) > 0]
+    if not tokens:
         return []
 
     dia_int = None
@@ -347,7 +349,9 @@ def buscar_curso(query, dia_filtro=None, hora_filtro=None):
         nodo = clase.get('node', {})
         curso = nodo.get('course', "")
         codigo = nodo.get('code', "")
-        if q in normalize_str(curso) or q in normalize_str(codigo):
+        norm_c = normalize_str(curso)
+        norm_code = normalize_str(codigo)
+        if all(t in norm_c for t in tokens) or all(t in norm_code for t in tokens):
             if dia_int is not None and nodo.get('day') != dia_int:
                 continue
             c_start = format_time(nodo.get('start', ''))
@@ -795,65 +799,86 @@ def responder_con_ia(mensaje_usuario):
             "```"
         )
 
-    # Recopilar contexto en tiempo real
+    # Normalizar mensaje y palabras
+    norm_msg = normalize_str(mensaje_usuario)
+    msg_words = set(norm_msg.split())
+    
+    # 1. Detectar día de la semana si se especifica
+    dia_map = {'lunes': 1, 'martes': 2, 'miercoles': 3, 'jueves': 4, 'viernes': 5, 'sabado': 6, 'domingo': 7}
+    dia_detectado = None
+    for d_nom, d_id in dia_map.items():
+        if d_nom in norm_msg:
+            dia_detectado = d_id
+            break
+
+    clases = dm.get_classes()
+    
+    # 2. Coincidencia inteligente de profesores
+    profes_map = {}
+    for c in clases:
+        p = c.get('node', {}).get('teacher', '')
+        if p and p not in profes_map:
+            profes_map[p] = normalize_str(p).split()
+            
+    matched_profes = []
+    for p_name, p_tokens in profes_map.items():
+        matching = [t for t in p_tokens if t in msg_words or any(w.startswith(t) or t.startswith(w) for w in msg_words if len(w) >= 4 and len(t) >= 4)]
+        if matching:
+            matched_profes.append((len(matching), p_name))
+    matched_profes.sort(key=lambda x: -x[0])
+
+    coincidencias_profes = []
+    for count, p_name in matched_profes[:3]:
+        coincidencias_profes.extend(buscar_profesor(p_name))
+
+    # 3. Coincidencia inteligente de cursos/asignaturas
+    cursos_map = {}
+    for c in clases:
+        cr = c.get('node', {}).get('course', '')
+        if cr and cr not in cursos_map:
+            cursos_map[cr] = normalize_str(cr).split()
+            
+    matched_cursos = []
+    for cr_name, cr_tokens in cursos_map.items():
+        tokens_signif = [t for t in cr_tokens if len(t) >= 3 and t not in {'para', 'del', 'los', 'las', 'con'}]
+        matching = [t for t in tokens_signif if any(t == w or (len(w) >= 4 and len(t) >= 4 and (w in t or t in w)) for w in msg_words)]
+        if matching:
+            score = len(matching) / len(tokens_signif) if tokens_signif else 0
+            matched_cursos.append((score, len(matching), cr_name))
+    matched_cursos.sort(key=lambda x: (-x[0], -x[1]))
+
+    coincidencias_cursos = []
+    for score, count, cr_name in matched_cursos[:2]:
+        coincidencias_cursos.extend(buscar_curso(cr_name))
+
+    # 4. Coincidencia de salas
+    coincidencias_salas = [s for s in dm.all_rooms if any(w in normalize_str(s) for w in msg_words if len(w) >= 3)]
+
+    # 5. Estado en tiempo real y salas libres
     now = datetime.datetime.now()
     hora_actual_str = now.strftime("%H:%M")
-    dia_real_num = now.weekday() + 1
-    nombre_dia_real = DIAS_SEMANA.get(dia_real_num, "Lunes")
-
     dia_bloque, bloque_ref, en_horario, msg_horario = calcular_bloque_actual()
     vacias_ref, _, _ = obtener_salas(dia_bloque, bloque_ref['id'], "INGENIERIA")
 
-    if not en_horario:
-        info_ahora = (
-            f"HORA ACTUAL REAL: {hora_actual_str} hrs ({nombre_dia_real}).\n"
-            f"- ESTADO DE CLASES: Fuera de horario lectivo. ({msg_horario})\n"
-            f"- ACLARACIÓN CRUCIAL: A esta hora NO se están impartiendo clases presenciales en la sede.\n"
-            f"- Referencia para el próximo bloque académico ({nombre_dia(dia_bloque)}, {bloque_ref['label']}): hay {len(vacias_ref)} salas libres registradas."
-        )
-    else:
-        info_ahora = (
-            f"HORA ACTUAL REAL: {hora_actual_str} hrs ({nombre_dia_real}).\n"
-            f"- ESTADO DE CLASES: En horario de clases.\n"
-            f"- Bloque lectivo en curso: {bloque_ref['label']}.\n"
-            f"- Salas libres ahora mismo en este bloque: {len(vacias_ref)} salas ({', '.join(vacias_ref[:15])})."
-        )
-    
-    # Extraer entidades consultadas
-    palabras = [p for p in mensaje_usuario.split() if len(p) >= 3]
-    coincidencias_profes = []
-    coincidencias_cursos = []
-    coincidencias_salas = []
-    
-    for p in palabras:
-        norm_p = normalize_str(p)
-        for sala in dm.all_rooms:
-            if norm_p in normalize_str(sala) and sala not in coincidencias_salas:
-                coincidencias_salas.append(sala)
-        for pr in buscar_profesor(p)[:5]:
-            if pr not in coincidencias_profes:
-                coincidencias_profes.append(pr)
-        for cr in buscar_curso(p)[:5]:
-            if cr not in coincidencias_cursos:
-                coincidencias_cursos.append(cr)
-    
     contexto_datos = (
-        f"ESTADO Y HORARIO:\n{info_ahora}\n\n"
-        f"RESULTADOS RELEVANTES DE LA BASE DE DATOS:\n"
-        f"- Profesores encontrados: {json.dumps(coincidencias_profes[:8], ensure_ascii=False)}\n"
-        f"- Asignaturas encontradas: {json.dumps(coincidencias_cursos[:8], ensure_ascii=False)}\n"
-        f"- Horario de salas mencionadas: {json.dumps({s: horario_de_sala(s) for s in coincidencias_salas[:2]}, ensure_ascii=False)}\n"
+        f"CONSULTA DEL USUARIO: \"{mensaje_usuario}\"\n"
+        f"Día consultado o detectado: {nombre_dia(dia_detectado) if dia_detectado else 'Cualquier día'}\n\n"
+        f"DATOS EN TIEMPO REAL DE LA BASE DE DATOS:\n"
+        f"- Clases de Profesores coincidentes: {json.dumps(coincidencias_profes[:20], ensure_ascii=False)}\n"
+        f"- Asignaturas coincidentes: {json.dumps(coincidencias_cursos[:20], ensure_ascii=False)}\n"
+        f"- Horarios de salas consultadas: {json.dumps({s: horario_de_sala(s) for s in coincidencias_salas[:2]}, ensure_ascii=False)}\n"
+        f"- Referencia en vivo: {hora_actual_str} hrs ({nombre_dia(dia_bloque)}), {len(vacias_ref)} salas libres en bloque {bloque_ref['label']} ({msg_horario or 'En horario lectivo'}).\n"
     )
 
     prompt_sistema = (
-        "Eres el asistente virtual inteligente de Disponibilidad de Salas.\n"
-        "Tu misión es ayudar a estudiantes, profesores y visitantes a encontrar salas disponibles, verificar horarios de clases, ubicar a profesores y consultar información de asignaturas.\n\n"
-        "Reglas fundamentales:\n"
-        "1. NUNCA menciones la sigla UDP ni 'Universidad Diego Portales', refiérete al sistema únicamente como 'Disponibilidad de Salas'.\n"
-        "2. ATENCIÓN ESTRICTA A LA HORA REAL: Revisa la 'HORA ACTUAL REAL'. Si estás fuera de horario (madrugada, noche o fin de semana), NUNCA afirmes que el bloque de 08:30 está ocurriendo ahora ni que las clases están activas en este momento. Explica amablemente qué hora es ({hora_actual_str} hrs) y que las actividades se reanudan a las 08:30 hrs, indicando las salas que estarán disponibles para ese bloque si preguntan por salas.\n"
-        "3. Sé conciso, claro, estructurado y muy amable. Usa viñetas y formato Markdown (negritas, listas, tablas si corresponde).\n"
-        "4. Basa tus respuestas en los datos provistos en el contexto en tiempo real. Si no hay clases o datos para lo solicitado, dilo cordialmente.\n"
-        "5. Especifica siempre sala, día, bloque horario y docente cuando la información esté disponible."
+        "Eres el asistente inteligente de Disponibilidad de Salas.\n"
+        "Instrucciones estrictas de respuesta:\n"
+        "1. NUNCA menciones la sigla UDP ni 'Universidad Diego Portales', refiérete únicamente como 'Disponibilidad de Salas'.\n"
+        "2. DIRECTO AL GRANO: Responde directamente a lo que el usuario pide sin saludos largos, discursos de bienvenida ni introducciones repetitivas en cada mensaje.\n"
+        "3. HORARIOS Y PROFESORES: Si el usuario pregunta por un profesor, ramo o día (ej: 'busca a X los martes'), entrega de inmediato la información precisa basándote en los datos. Si no tiene clases en el día consultado, indícalo claramente y menciona en qué días y horarios sí dicta clases.\n"
+        "4. NO menciones que estamos fuera de horario lectivo a menos que el usuario pregunte expresamente por 'salas libres ahora' o 'qué hay en este momento'.\n"
+        "5. Formato: Usa Markdown limpio, viñetas ordenadas y código para nombres de salas (ej: `V432.3.S315`).\n"
+        "6. Proporciona EXCLUSIVAMENTE la respuesta final redactada para el usuario, sin notas de verificación ni pensamientos internos."
     )
 
     payload = {
@@ -866,22 +891,29 @@ def responder_con_ia(mensaje_usuario):
             }
         ],
         "generationConfig": {
-            "temperature": 0.3,
-            "maxOutputTokens": 1000
+            "temperature": 0.2,
+            "maxOutputTokens": 2048
         }
     }
 
-    # Intentar con gemini-3.6-flash, gemini-2.0-flash y gemini-1.5-flash
-    modelos = ["gemini-3.6-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-2.5-flash"]
+    # Intentar con los modelos más rápidos y directos de Gemini
+    modelos = ["gemini-3.1-flash-lite", "gemini-3.5-flash-lite", "gemini-3.5-flash", "gemini-3.7-flash"]
     ultimo_error = ""
     for modelo in modelos:
         try:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent?key={api_key}"
             req = Request(url, data=json.dumps(payload).encode('utf-8'), headers={'Content-Type': 'application/json'}, method='POST')
-            with urlopen(req, timeout=15) as response:
+            with urlopen(req, timeout=18) as response:
                 res_data = json.loads(response.read().decode('utf-8'))
-                texto_respuesta = res_data.get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', '')
+                parts = res_data.get('candidates', [{}])[0].get('content', {}).get('parts', [])
+                text_parts = []
+                for p in parts:
+                    if not p.get('thought', False) and 'text' in p:
+                        text_parts.append(p['text'])
+                texto_respuesta = "".join(text_parts).strip()
                 if texto_respuesta:
+                    # Limpieza preventiva de pensamientos internos si existiesen
+                    texto_respuesta = re.sub(r'<thought>.*?</thought>', '', texto_respuesta, flags=re.DOTALL).strip()
                     return texto_respuesta
         except Exception as e:
             ultimo_error = str(e)
