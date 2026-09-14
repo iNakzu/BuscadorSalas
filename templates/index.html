@@ -1647,35 +1647,102 @@
         }
 
         .ai-msg {
-            max-width: 88%;
-            padding: 10px 14px;
-            border-radius: 14px;
-            font-size: 12.5px;
-            line-height: 1.45;
+            max-width: 90%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 13px;
+            line-height: 1.55;
             word-break: break-word;
+            letter-spacing: 0.01em;
         }
 
         .ai-msg.user {
             align-self: flex-end;
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
             color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-bottom-right-radius: 4px;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
         }
 
         .ai-msg.bot {
             align-self: flex-start;
-            background: rgba(30, 41, 69, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: linear-gradient(160deg, rgba(30, 41, 69, 0.82) 0%, rgba(15, 23, 42, 0.92) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             color: #e2e8f0;
             border-bottom-left-radius: 4px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
         }
 
-        .ai-msg.bot p { margin: 0 0 6px 0; }
-        .ai-msg.bot p:last-child { margin-bottom: 0; }
-        .ai-msg.bot ul, .ai-msg.bot ol { margin: 4px 0 6px 18px; }
-        .ai-msg.bot strong { color: #93c5fd; }
-        .ai-msg.bot code { background: rgba(0,0,0,0.3); padding: 1px 4px; border-radius: 4px; font-size: 11px; }
+        .ai-msg.bot strong {
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        /* CHIPS / PILLS DE SALAS MODERNAS Y CÓDIGO EN EL CHAT */
+        .ai-msg code, .ai-room-pill {
+            display: inline-flex;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.18) 0%, rgba(139, 92, 246, 0.15) 100%);
+            border: 1px solid rgba(147, 197, 253, 0.38);
+            color: #93c5fd;
+            font-family: inherit;
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: 0.02em;
+            padding: 2px 7px;
+            border-radius: 6px;
+            margin: 0 2px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            transition: all 0.18s ease;
+            vertical-align: baseline;
+        }
+
+        .ai-msg code:hover, .ai-room-pill:hover {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.32) 0%, rgba(139, 92, 246, 0.28) 100%);
+            border-color: rgba(147, 197, 253, 0.7);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            transform: translateY(-1px);
+        }
+
+        /* ESTRUCTURA Y ELEMENTOS DE MENSAJES */
+        .ai-section-title {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #93c5fd;
+            margin: 10px 0 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.01em;
+        }
+        .ai-section-title:first-child { margin-top: 2px; }
+
+        .ai-list-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin: 5px 0;
+            line-height: 1.5;
+        }
+
+        .ai-list-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #60a5fa;
+            box-shadow: 0 0 6px #3b82f6;
+            margin-top: 8px;
+            flex-shrink: 0;
+        }
+
+        .ai-divider {
+            border: none;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            margin: 12px 0;
+        }
 
         /* INDICADOR DE ESCRITURA IA FLUIDO Y CONTENIDO */
         .ai-typing-indicator {
@@ -3022,13 +3089,43 @@
 
     function simpleMarkdown(text) {
         if (!text) return '';
-        return text
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*(.*?)\*/g, '<em>$1</em>')
-            .replace(/`([^`]+)`/g, '<code>$1</code>')
-            .replace(/\n\n/g, '<br><br>')
-            .replace(/\n- /g, '<br>• ')
-            .replace(/\n/g, '<br>');
+        
+        let lines = text.split('\n');
+        let htmlLines = [];
+        for (let line of lines) {
+            let l = line.trim();
+            if (!l) {
+                htmlLines.push('<div style="height: 6px;"></div>');
+                continue;
+            }
+            if (l === '---') {
+                htmlLines.push('<hr class="ai-divider">');
+                continue;
+            }
+            if (l.startsWith('### ')) {
+                htmlLines.push('<div class="ai-section-title">' + l.substring(4) + '</div>');
+                continue;
+            }
+            if (l.startsWith('## ')) {
+                htmlLines.push('<div class="ai-section-title">' + l.substring(3) + '</div>');
+                continue;
+            }
+            if (l.startsWith('* ') || l.startsWith('- ')) {
+                let content = l.substring(2);
+                htmlLines.push('<div class="ai-list-item"><span class="ai-list-dot"></span><span>' + content + '</span></div>');
+                continue;
+            }
+            htmlLines.push('<div>' + l + '</div>');
+        }
+        
+        let out = htmlLines.join('');
+        // Negritas e Itálicas
+        out = out.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        out = out.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        // Salas y códigos en backticks (`V432.3.S315`)
+        out = out.replace(/`([^`]+)`/g, '<code class="ai-room-pill">$1</code>');
+        
+        return out;
     }
 
     async function enviarMensajeIA() {
