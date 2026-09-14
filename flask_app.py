@@ -764,20 +764,27 @@ def api_malla():
     })
 
 def get_api_key():
-    key = os.environ.get("GEMINI_API_KEY", "").strip()
-    if not key:
-        env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
+    # 1. Priorizar lectura directa desde archivo .env en varias rutas posibles
+    posibles_rutas = [
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env'),
+        os.path.join(os.getcwd(), '.env'),
+        '.env'
+    ]
+    for env_path in posibles_rutas:
         if os.path.exists(env_path):
             try:
-                with open(env_path, 'r', encoding='utf-8') as f:
+                with open(env_path, 'r', encoding='utf-8-sig') as f:
                     for line in f:
                         line = line.strip()
                         if line.startswith("GEMINI_API_KEY="):
                             key = line.split("=", 1)[1].strip().strip('"').strip("'")
-                            break
+                            if key:
+                                return key
             except Exception:
                 pass
-    return key
+
+    # 2. Fallback a variable de entorno del sistema
+    return os.environ.get("GEMINI_API_KEY", "").strip()
 
 def responder_con_ia(mensaje_usuario):
     api_key = get_api_key()
