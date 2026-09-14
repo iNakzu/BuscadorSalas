@@ -1677,6 +1677,48 @@
         .ai-msg.bot strong { color: #93c5fd; }
         .ai-msg.bot code { background: rgba(0,0,0,0.3); padding: 1px 4px; border-radius: 4px; font-size: 11px; }
 
+        /* INDICADOR DE ESCRITURA IA FLUIDO Y CONTENIDO */
+        .ai-typing-indicator {
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 12px 18px !important;
+            min-height: 38px;
+            border-radius: 16px !important;
+            width: fit-content;
+            background: rgba(30, 41, 69, 0.8) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .ai-typing-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #94a3b8;
+            display: inline-block;
+            animation: typingBounce 1.3s infinite ease-in-out both;
+        }
+
+        .ai-typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .ai-typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        .ai-typing-dot:nth-child(3) { animation-delay: 0s; }
+
+        @keyframes typingBounce {
+            0%, 80%, 100% {
+                transform: scale(0.65);
+                opacity: 0.35;
+                background: #94a3b8;
+            }
+            40% {
+                transform: scale(1.15);
+                opacity: 1;
+                background: #60a5fa;
+                box-shadow: 0 0 6px rgba(96, 165, 250, 0.6);
+            }
+        }
+
         .ai-input-row {
             padding: 10px 12px;
             background: rgba(15, 23, 42, 0.95);
