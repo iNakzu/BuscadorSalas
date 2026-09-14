@@ -843,7 +843,15 @@ def extraer_dia_semana(texto):
 
 def extraer_hora_y_bloque(texto):
     texto_lower = texto.lower()
-    m = re.search(r'\b(\d{1,2})[:.](\d{2})\b', texto_lower)
+    
+    # 1. Bloque explícito: bloque 1 .. bloque 7
+    m_bloque = re.search(r'\bbloque\s*([1-7])\b', texto_lower)
+    if m_bloque:
+        idx = int(m_bloque.group(1)) - 1
+        return STANDARD_BLOCKS[idx], f'Bloque {idx+1}'
+
+    # 2. Hora con minutos: 08:30, 8:30, 14.30, 14:30:00
+    m = re.search(r'\b(\d{1,2})[:.](\d{2})(?::\d{2})?\b', texto_lower)
     if m:
         h = int(m.group(1))
         mins = int(m.group(2))
@@ -855,7 +863,9 @@ def extraer_hora_y_bloque(texto):
                 return b, f"{h:02d}:{mins:02d}"
         mejor_b = min(STANDARD_BLOCKS, key=lambda b: abs(b["start_min"] - total_mins))
         return mejor_b, f"{h:02d}:{mins:02d}"
-    m_h = re.search(r'\ba\s+las?\s+(\d{1,2})\b', texto_lower)
+
+    # 3. a las 14, a las 2, a las 10
+    m_h = re.search(r'\ba\s+las?\s+(\d{1,2})(?:\s*(?:horas?|hrs?))?\b', texto_lower)
     if m_h:
         h = int(m_h.group(1))
         if 1 <= h <= 6:
@@ -863,7 +873,158 @@ def extraer_hora_y_bloque(texto):
         total_mins = h * 60
         mejor_b = min(STANDARD_BLOCKS, key=lambda b: abs(b["start_min"] - total_mins))
         return mejor_b, f"{h:02d}:00"
+
+    # 4. 14 hrs, 2pm, 10am
+    m_ampm = re.search(r'\b(\d{1,2})\s*(pm|am|hrs?|horas?)\b', texto_lower)
+    if m_ampm:
+        h = int(m_ampm.group(1))
+        mod = m_ampm.group(2)
+        if mod == 'pm' and h < 12:
+            h += 12
+        elif 1 <= h <= 6:
+            h += 12
+        total_mins = h * 60
+        mejor_b = min(STANDARD_BLOCKS, key=lambda b: abs(b["start_min"] - total_mins))
+        return mejor_b, f"{h:02d}:00"
+
     return None, None
+
+def buscar_sala_en_texto(texto):
+    texto_norm = normalize_str(texto)
+    # Coincidencia directa exacta
+    for s in dm.all_rooms:
+        s_norm = normalize_str(s)
+        if s_norm in texto_norm or s_norm.replace('.', '') in texto_norm.replace('.', ''):
+            return s
+
+    tokens = [w for w in clean_tokens(texto) if w not in STOPWORDS]
+    candidatos = []
+    for s in dm.all_rooms:
+        s_tokens = clean_tokens(s)
+        matches = [t for t in s_tokens if any(t == w for w in tokens)]
+        if matches:
+            score = len(matches) / len(s_tokens)
+            candidatos.append((len(matches), score, s))
+
+    if candidatos:
+        candidatos.sort(key=lambda x: (-x[0], -x[1]))
+        best = candidatos[0]
+        if best[0] >= 2 or len(clean_tokens(best[2])) <= 1:
+            return best[2]
+    return None
+
+def consultar_estado_sala(sala_code, dia_id=None, bloque=None):
+    dia_actual, bloque_actual, en_horario, msg_horario = calcular_bloque_actual()
+    dia_evaluar = dia_id if dia_id else dia_actual
+    bloque_evaluar = bloque if bloque else bloque_actual
+
+    dia_nom = nombre_dia(dia_evaluar)
+    vacias, ocupadas, vacias_info = obtener_salas(dia_evaluar, bloque_evaluar['id'], "")
+
+    lineas = []
+    if sala_code in ocupadas:
+        info = ocupadas[sala_code]
+        curso = format_title(info.get('curso', ''))
+        profe = info.get('profe', '').title()
+        sec = info.get('seccion', '')
+        lineas.append(f"La sala `{sala_code}` se encuentra **OCUPADA** para el **{dia_nom}** en el bloque de **{bloque_evaluar['label']}**:\n")
+        lineas.append(f"* Clase: **{curso}**")
+        if profe and profe != 'No Informado':
+            lineas.append(f"* Docente: **{profe}**")
+        if sec and sec != '-':
+            lineas.append(f"* Sección: **Sec. {sec}**")
+    else:
+        lineas.append(f"La sala `{sala_code}` se encuentra **DISPONIBLE** para el **{dia_nom}** en el bloque de **{bloque_evaluar['label']}**.\n")
+        lineas.append("No registra clases programadas en ese bloque horario.")
+
+    botones = f"[ACCION:horario sala {sala_code}|Ver horario completo de {sala_code}] [ACCION:salas libres ahora|Ver salas libres ahora]"
+    lineas.append(f"\n{botones}")
+    return "\n".join(lineas)
+
+def consultar_docente_en_vivo(p_name):
+    clases_profe = buscar_profesor(p_name)
+    if not clases_profe:
+        return f"No encontré clases registradas para **{p_name}**."
+
+    nombre_display = p_name.title()
+    dia_actual, bloque_actual, en_horario, msg_horario = calcular_bloque_actual()
+    dia_nom = nombre_dia(dia_actual)
+
+    clases_hoy = [c for c in clases_profe if c['dia_numero'] == dia_actual]
+    clase_actual = None
+    for c in clases_hoy:
+        ini = to_minutes(c['hora_inicio'])
+        fin = to_minutes(c['hora_termino'])
+        if ini <= bloque_actual['end_min'] and fin >= bloque_actual['start_min']:
+            clase_actual = c
+            break
+
+    lineas = []
+    if clase_actual:
+        curso = format_title(clase_actual['curso'])
+        sec = f"Sec. {clase_actual['seccion']}" if clase_actual['seccion'] != '-' else ""
+        sala = clase_actual['sala']
+        hora = f"{clase_actual['hora_inicio']} - {clase_actual['hora_termino']}"
+        lineas.append(f"El/la docente **{nombre_display}** se encuentra dictando clases en este momento ({dia_nom}, bloque {bloque_actual['label']}):\n")
+        lineas.append(f"* [CLASE] {hora} | `{sala}` | {curso} | {sec}\n")
+    else:
+        lineas.append(f"El/la docente **{nombre_display}** **no tiene clases en este momento** ({dia_nom}, bloque {bloque_actual['label']}).")
+        if clases_hoy:
+            proximas = [c for c in clases_hoy if to_minutes(c['hora_inicio']) > bloque_actual['start_min']]
+            if proximas:
+                proximas.sort(key=lambda x: to_minutes(x['hora_inicio']))
+                prox = proximas[0]
+                lineas.append(f"Su próxima clase de hoy es a las **{prox['hora_inicio']}** en la sala `{prox['sala']}` ({format_title(prox['curso'])}).\n")
+            else:
+                lineas.append(f"Sus clases programadas para hoy ya concluyeron.\n")
+        else:
+            lineas.append(f"No tiene clases programadas para el día de hoy ({dia_nom}).\n")
+
+    botones = f"[ACCION:{nombre_display} hoy|Ver horario de hoy] [ACCION:{nombre_display} toda la semana|Ver toda la semana]"
+    lineas.append(f"{botones}")
+    return "\n".join(lineas)
+
+def generar_respuesta_horario_sala(sala_sel, dia_id=None):
+    horario = horario_de_sala(sala_sel)
+
+    if dia_id is None:
+        botones = ' '.join(f"[ACCION:horario sala {sala_sel} {DIAS_SEMANA[d].lower()}|{DIAS_SEMANA[d]}]" for d in range(1, 6))
+        botones += f" [ACCION:horario sala {sala_sel} toda la semana|Ver toda la semana]"
+        return (
+            f"Encontré la sala `{sala_sel}`.\n\n"
+            f"¿Para qué día deseas consultar su programación de clases?\n\n"
+            f"{botones}"
+        )
+
+    if dia_id == 'TODOS':
+        lineas = [f"Horario semanal completo para la sala `{sala_sel}`:\n"]
+        for d in range(1, 6):
+            cl_dia = horario.get(d, [])
+            lineas.append(f"### {nombre_dia(d)}")
+            if cl_dia:
+                for c in cl_dia:
+                    sec = f"Sec. {c['seccion']}" if c['seccion'] != '-' else ""
+                    lineas.append(f"* [CLASE] {c['start']} - {c['finish']} | `{sala_sel}` | {format_title(c['curso'])} | {sec}")
+            else:
+                lineas.append("* Sin clases programadas (sala desocupada todo el día)")
+            lineas.append("")
+        return "\n".join(lineas)
+
+    dia_nom = nombre_dia(dia_id)
+    cl_dia = horario.get(dia_id, [])
+    lineas = [f"Programación de clases para la sala `{sala_sel}` el día **{dia_nom}**:\n"]
+    if cl_dia:
+        for c in cl_dia:
+            sec = f"Sec. {c['seccion']}" if c['seccion'] != '-' else ""
+            lineas.append(f"* [CLASE] {c['start']} - {c['finish']} | `{sala_sel}` | {format_title(c['curso'])} | {sec}")
+    else:
+        lineas.append("* Sin clases programadas en este día (sala disponible toda la jornada).")
+
+    otros_dias = [d for d in range(1, 6) if d != dia_id]
+    botones = ' '.join(f"[ACCION:horario sala {sala_sel} {DIAS_SEMANA[d].lower()}|{DIAS_SEMANA[d]}]" for d in otros_dias)
+    botones += f" [ACCION:horario sala {sala_sel} toda la semana|Ver toda la semana]"
+    lineas.append(f"\n{botones}")
+    return "\n".join(lineas)
 
 def generar_listado_todas_las_salas():
     edificios_map = {
@@ -899,30 +1060,61 @@ def generar_listado_todas_las_salas():
 
     return "\n".join(lineas)
 
-def generar_respuesta_salas_libres(dia_id, dia_nom, bloque_ref):
+def generar_respuesta_salas_libres(dia_id, dia_nom, bloque_ref, es_en_vivo=False, msg_horario=None, sugerir_otros_dias=False):
     vacias_ing, ocup_ing, info_ing = obtener_salas(dia_id, bloque_ref['id'], "INGENIERIA")
     vacias_todas, ocup_todas, info_todas = obtener_salas(dia_id, bloque_ref['id'], "")
 
+    titulo = f"Para el **{dia_nom}** en el bloque de **{bloque_ref['label']}**"
+    if es_en_vivo:
+        titulo = f"Estado en vivo ({dia_nom}, bloque **{bloque_ref['label']}**)"
+        if msg_horario:
+            titulo += f" — *{msg_horario}*"
+
     lineas = [
-        f"Para el **{dia_nom}** en el bloque de **{bloque_ref['label']}**, se encontraron **{len(vacias_ing)} salas disponibles** en la Facultad de Ingeniería (y {len(vacias_todas)} en todo el campus):\n"
+        f"{titulo}, se registraron **{len(vacias_ing)} salas disponibles** en la Facultad de Ingeniería (y {len(vacias_todas)} en todo el campus):\n"
     ]
     if vacias_ing:
-        lineas.append("### Salas libres en Ingeniería (E441 y V432)")
-        for s in vacias_ing:
-            det = info_ing.get(s, {})
-            texto_info = det.get('texto', 'Disponible')
-            lineas.append(f"* `{s}` : {texto_info}")
-        lineas.append("")
+        e441_salas = [s for s in vacias_ing if s.startswith('E441')]
+        v432_salas = [s for s in vacias_ing if s.startswith('V432')]
+        otras_ing = [s for s in vacias_ing if not s.startswith('E441') and not s.startswith('V432')]
+
+        if e441_salas:
+            lineas.append(f"### Edificio Ejército 441 ({len(e441_salas)} libres)")
+            lineas.append(" ".join(f"`{s}`" for s in e441_salas) + "\n")
+        if v432_salas:
+            lineas.append(f"### Edificio Vergara 432 ({len(v432_salas)} libres)")
+            lineas.append(" ".join(f"`{s}`" for s in v432_salas) + "\n")
+        if otras_ing:
+            lineas.append(f"### Otras dependencias Ingeniería ({len(otras_ing)} libres)")
+            lineas.append(" ".join(f"`{s}`" for s in otras_ing) + "\n")
     else:
-        lineas.append("No se registran salas completamente libres en los edificios de Ingeniería para ese bloque.\n")
+        lineas.append("*No se registran salas completamente libres en los edificios de Ingeniería para este bloque.*\n")
 
     otras_vacias = [s for s in vacias_todas if s not in vacias_ing]
     if otras_vacias:
-        lineas.append("### Otras salas libres en el campus")
+        lineas.append(f"### Otras salas disponibles en el campus ({len(otras_vacias)} libres)")
         pills = " ".join(f"`{s}`" for s in otras_vacias[:18])
         lineas.append(pills)
         if len(otras_vacias) > 18:
             lineas.append(f"... y {len(otras_vacias) - 18} salas más.")
+        lineas.append("")
+
+    dia_param = dia_nom.lower() if dia_nom != "Hoy" else "hoy"
+    botones = []
+    if sugerir_otros_dias:
+        dias_lista = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes']
+        for d in dias_lista:
+            botones.append(f"[ACCION:salas libres {d} {bloque_ref['id']}|{d.capitalize()}]")
+        botones.append("[ACCION:salas libres|Ver otros horarios]")
+    else:
+        otros_bloques = [b for b in STANDARD_BLOCKS if b['id'] != bloque_ref['id']]
+        for b in otros_bloques[:3]:
+            botones.append(f"[ACCION:salas libres {dia_param} {b['id']}|{b['label'][:5]}]")
+        botones.append(f"[ACCION:salas libres {dia_param}|Más horarios]")
+        botones.append("[ACCION:salas libres|Elegir otro día]")
+
+    if botones:
+        lineas.append("\n" + " ".join(botones))
 
     return "\n".join(lineas)
 
@@ -1070,7 +1262,25 @@ def responder_con_ia(mensaje_usuario):
     tokens_msg = clean_tokens(mensaje_usuario)
     sig_tokens = [w for w in tokens_msg if w not in STOPWORDS and len(w) >= 3]
 
-    # 1. ¿Pide listar todas las salas?
+    # 1. Saludos, Ayuda y Consultas de Inicio
+    es_saludo_ayuda = any(frase in norm_msg for frase in [
+        'hola', 'buenas', 'buenos dias', 'buenas tardes', 'buenas noches',
+        'que puedes hacer', 'como funciona', 'ayuda', 'que haces', 'opciones', 'empezar', 'inicio'
+    ]) and len(sig_tokens) <= 2
+    if es_saludo_ayuda:
+        return (
+            "¡Hola! Soy el asistente inteligente de **Disponibilidad de Salas**.\n\n"
+            "Puedo ayudarte a encontrar salas libres en tiempo real, consultar los horarios y salas de tus asignaturas, "
+            "revisar las clases de tus docentes y verificar el estado de cualquier espacio del campus.\n\n"
+            "¿Qué te gustaría consultar?\n\n"
+            "[ACCION:salas libres ahora|Salas libres ahora] "
+            "[ACCION:salas libres|Salas por día/hora] "
+            "[ACCION:todas las salas|Ver todas las salas] "
+            "[ACCION:Rivero Rosa Elvira|Docente: Rosa Rivero] "
+            "[ACCION:Calculo Diferencial e Integral|Ramo: Cálculo]"
+        )
+
+    # 2. ¿Pide listar todas las salas?
     pide_todas_salas = any(frase in norm_msg for frase in [
         'todas las salas', 'lista de salas', 'listame las salas', 'listame todas las salas',
         'que salas hay', 'cuales son las salas', 'cuales salas hay', 'todas las salas registradas',
@@ -1080,33 +1290,63 @@ def responder_con_ia(mensaje_usuario):
     if pide_todas_salas:
         return generar_listado_todas_las_salas()
 
-    # 2. Detección de día y hora/bloque
+    # 3. Detección de día, hora y modo en vivo
     dia_detectado, dia_nombre_detectado = extraer_dia_semana(mensaje_usuario)
     bloque_detectado, hora_detectada = extraer_hora_y_bloque(mensaje_usuario)
+    es_en_vivo = any(p in norm_msg for p in ['ahora', 'ahorita', 'en este momento', 'en vivo', 'actualmente', 'ya'])
 
-    # 3. ¿Pide salas vacías / libres / disponibles?
-    pide_salas_libres = any(w in tokens_msg for w in ['vacia', 'vacias', 'libre', 'libres', 'disponible', 'disponibles', 'desocupada', 'desocupadas'])
+    # 4. Coincidencia de sala específica por código (ej: V432.3.S315, E441.4.L.D)
+    sala_especifica = buscar_sala_en_texto(mensaje_usuario)
+    if sala_especifica:
+        pide_estado = any(w in norm_msg for w in ['libre', 'ocupada', 'vacia', 'ahora', 'estado', 'disponible', 'desocupada'])
+        if pide_estado or es_en_vivo:
+            return consultar_estado_sala(sala_especifica, dia_id=dia_detectado, bloque=bloque_detectado)
+        return generar_respuesta_horario_sala(sala_especifica, dia_id=dia_detectado)
+
+    # 5. ¿Pide salas vacías / libres / disponibles? (Flujo dialógico interactivo)
+    pide_salas_libres = any(w in tokens_msg for w in ['vacia', 'vacias', 'libre', 'libres', 'disponible', 'disponibles', 'desocupada', 'desocupadas']) or any(f in norm_msg for f in ['buscar sala', 'busco sala', 'salas libres', 'salas vacias', 'salas desocupadas'])
     if pide_salas_libres:
-        # Resolver día
-        if dia_detectado is None or dia_detectado == 'TODOS':
-            now = datetime.datetime.now()
-            d_val = now.weekday() + 1
-            dia_id = d_val if d_val <= 5 else 1
-            dia_nom = nombre_dia(dia_id)
-        else:
-            dia_id = dia_detectado
-            dia_nom = dia_nombre_detectado
+        # Caso 5.1: Consulta explícita "ahora" / "en vivo"
+        if es_en_vivo:
+            dia_actual, bloque_actual, en_horario, msg_horario = calcular_bloque_actual()
+            dia_nom = nombre_dia(dia_actual)
+            return generar_respuesta_salas_libres(dia_actual, dia_nom, bloque_actual, es_en_vivo=True, msg_horario=msg_horario)
 
-        # Resolver bloque
-        if bloque_detectado:
-            bloque_evaluar = bloque_detectado
-        else:
-            dia_actual, bloque_actual, _, _ = calcular_bloque_actual()
-            bloque_evaluar = bloque_actual
+        # Caso 5.2: NO especificó ni día ni hora -> Preguntar interactivamente con botones
+        if dia_detectado is None and bloque_detectado is None:
+            return (
+                "¿Para qué día y horario necesitas consultar salas disponibles?\n\n"
+                "Puedes consultar el estado en vivo ahora mismo o seleccionar un día de la semana:\n\n"
+                "[ACCION:salas libres ahora|Ahora mismo] "
+                "[ACCION:salas libres hoy|Hoy] "
+                "[ACCION:salas libres lunes|Lunes] "
+                "[ACCION:salas libres martes|Martes] "
+                "[ACCION:salas libres miercoles|Miércoles] "
+                "[ACCION:salas libres jueves|Jueves] "
+                "[ACCION:salas libres viernes|Viernes] "
+                "[ACCION:todas las salas|Ver todas las salas]"
+            )
 
-        return generar_respuesta_salas_libres(dia_id, dia_nom, bloque_evaluar)
+        # Caso 5.3: Especificó DÍA pero NO HORA -> Preguntar qué bloque de ese día
+        if dia_detectado is not None and bloque_detectado is None:
+            dia_param = dia_nombre_detectado.lower() if dia_nombre_detectado != "Hoy" else "hoy"
+            botones = " ".join(f"[ACCION:salas libres {dia_param} {b['id']}|{b['label']}]" for b in STANDARD_BLOCKS)
+            botones += f" [ACCION:salas libres|Elegir otro día]"
+            return (
+                f"¿En qué horario o bloque del día **{dia_nombre_detectado}** buscas salas disponibles?\n\n"
+                f"Selecciona un bloque de clases:\n\n"
+                f"{botones}"
+            )
 
-    # 4. Coincidencia de profesor (filtrando stop-words para evitar falsos positivos)
+        # Caso 5.4: Especificó HORA pero NO DÍA -> Mostrar para Hoy con opciones para otros días
+        if dia_detectado is None and bloque_detectado is not None:
+            dia_actual, _, _, _ = calcular_bloque_actual()
+            return generar_respuesta_salas_libres(dia_actual, "Hoy", bloque_detectado, sugerir_otros_dias=True)
+
+        # Caso 5.5: Especificó AMBOS (Día y Hora) -> Mostrar resultado completo con botones
+        return generar_respuesta_salas_libres(dia_detectado, dia_nombre_detectado, bloque_detectado)
+
+    # 6. Coincidencia de profesor (filtrando stop-words para evitar falsos positivos)
     clases = dm.get_classes()
     if sig_tokens:
         profes_map = {}
@@ -1130,11 +1370,13 @@ def responder_con_ia(mensaje_usuario):
         if matched_profes:
             matched_profes.sort(key=lambda x: (-x[0], -x[1]))
             best_match = matched_profes[0]
-            # Si tiene al menos una coincidencia fuerte
             if best_match[0] >= 1:
+                pide_donde_esta = any(f in norm_msg for f in ['donde esta', 'donde se encuentra', 'en que sala esta', 'ubicacion']) or (es_en_vivo and 'horario' not in norm_msg)
+                if pide_donde_esta:
+                    return consultar_docente_en_vivo(best_match[2])
                 return generar_respuesta_profesor(best_match[2], dia_id=dia_detectado)
 
-        # 5. Coincidencia de curso/asignatura
+        # 7. Coincidencia de curso/asignatura
         cursos_map = {}
         for c in clases:
             cr = c.get('node', {}).get('course', '')
@@ -1158,23 +1400,6 @@ def responder_con_ia(mensaje_usuario):
             best_match_cr = matched_cursos[0]
             if best_match_cr[0] >= 1:
                 return generar_respuesta_curso(best_match_cr[2], dia_id=dia_detectado)
-
-    # 6. Coincidencia de salas específicas por código (ej: V432.3.S315)
-    coincidencias_salas = [s for s in dm.all_rooms if any(w in normalize_str(s) for w in sig_tokens if len(w) >= 4)]
-    if coincidencias_salas:
-        sala_sel = coincidencias_salas[0]
-        horario = horario_de_sala(sala_sel)
-        lineas = [f"Horario semanal de la sala `{sala_sel}`:\n"]
-        for d in range(1, 6):
-            cl_dia = horario.get(d, [])
-            lineas.append(f"### {nombre_dia(d)}")
-            if cl_dia:
-                for c in cl_dia:
-                    lineas.append(f"* [CLASE] {c['start']} - {c['finish']} | `{sala_sel}` | {format_title(c['curso'])} | Sec. {c['seccion']}")
-            else:
-                lineas.append("* Sin clases programadas (sala desocupada todo el día)")
-            lineas.append("")
-        return "\n".join(lineas)
 
     # 7. Fallback general a la API de Gemini para consultas abiertas / conversacionales
     dia_bloque, bloque_ref, en_horario, msg_horario = calcular_bloque_actual()
