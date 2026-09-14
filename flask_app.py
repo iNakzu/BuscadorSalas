@@ -759,8 +759,24 @@ def api_malla():
         "clases": clases_malla
     })
 
+def get_api_key():
+    key = os.environ.get("GEMINI_API_KEY", "").strip()
+    if not key:
+        env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
+        if os.path.exists(env_path):
+            try:
+                with open(env_path, 'r', encoding='utf-8') as f:
+                    for line in f:
+                        line = line.strip()
+                        if line.startswith("GEMINI_API_KEY="):
+                            key = line.split("=", 1)[1].strip().strip('"').strip("'")
+                            break
+            except Exception:
+                pass
+    return key
+
 def responder_con_ia(mensaje_usuario):
-    api_key = os.environ.get("GEMINI_API_KEY", "").strip()
+    api_key = get_api_key()
     if not api_key:
         return (
             "⚠️ **API Key no configurada**\n\n"
@@ -772,6 +788,10 @@ def responder_con_ia(mensaje_usuario):
             "```powershell\n"
             "$env:GEMINI_API_KEY=\"AIzaSy...\"\n"
             "python flask_app.py\n"
+            "```\n"
+            "O guárdala en un archivo `.env` en la raíz del proyecto:\n"
+            "```text\n"
+            "GEMINI_API_KEY=AIzaSy...\n"
             "```"
         )
 
