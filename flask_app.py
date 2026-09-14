@@ -929,9 +929,9 @@ def generar_respuesta_profesor(p_name, dia_id=None):
     if dia_id is None:
         dias_texto = ", ".join(dias_nombres[:-1]) + (" y " if len(dias_nombres) > 1 else "") + dias_nombres[-1]
         cursos_texto = ", ".join(cursos_unicos[:2])
-        botones = " ".join(f"[ACCION:{p_name} {d.lower()}|{d}]" for d in dias_nombres)
+        botones = " ".join(f"[ACCION:{nombre_display} {d.lower()}|{d}]" for d in dias_nombres)
         if len(dias_nombres) > 1:
-            botones += f" [ACCION:{p_name} toda la semana|Ver toda la semana]"
+            botones += f" [ACCION:{nombre_display} toda la semana|Ver toda la semana]"
 
         return (
             f"Encontré al/a la docente **{nombre_display}**, quien dicta **{cursos_texto}** los días **{dias_texto}**.\n\n"
@@ -960,7 +960,7 @@ def generar_respuesta_profesor(p_name, dia_id=None):
     dia_nom = nombre_dia(dia_id)
     if not clases_dia:
         dias_texto = ", ".join(dias_nombres[:-1]) + (" y " if len(dias_nombres) > 1 else "") + dias_nombres[-1]
-        botones = " ".join(f"[ACCION:{p_name} {d.lower()}|{d}]" for d in dias_nombres)
+        botones = " ".join(f"[ACCION:{nombre_display} {d.lower()}|{d}]" for d in dias_nombres)
         return (
             f"El/la docente **{nombre_display}** no dicta clases los días **{dia_nom}**.\n\n"
             f"Sus clases se dictan los días **{dias_texto}**:\n\n"
@@ -978,8 +978,8 @@ def generar_respuesta_profesor(p_name, dia_id=None):
 
     otros_dias = [d for d in dias_nombres if d != dia_nom]
     if otros_dias:
-        botones = " ".join(f"[ACCION:{p_name} {d.lower()}|Ver {d}]" for d in otros_dias)
-        botones += f" [ACCION:{p_name} toda la semana|Ver toda la semana]"
+        botones = " ".join(f"[ACCION:{nombre_display} {d.lower()}|Ver {d}]" for d in otros_dias)
+        botones += f" [ACCION:{nombre_display} toda la semana|Ver toda la semana]"
         lineas.append(f"\n{botones}")
 
     return "\n".join(lineas)
@@ -995,9 +995,9 @@ def generar_respuesta_curso(c_name, dia_id=None):
 
     if dia_id is None:
         dias_texto = ", ".join(dias_nombres[:-1]) + (" y " if len(dias_nombres) > 1 else "") + dias_nombres[-1]
-        botones = " ".join(f"[ACCION:{c_name} {d.lower()}|{d}]" for d in dias_nombres)
+        botones = " ".join(f"[ACCION:{nombre_display} {d.lower()}|{d}]" for d in dias_nombres)
         if len(dias_nombres) > 1:
-            botones += f" [ACCION:{c_name} toda la semana|Ver toda la semana]"
+            botones += f" [ACCION:{nombre_display} toda la semana|Ver toda la semana]"
 
         return (
             f"Encontré la asignatura **{nombre_display}**, impartida los días **{dias_texto}**.\n\n"
@@ -1025,7 +1025,7 @@ def generar_respuesta_curso(c_name, dia_id=None):
     dia_nom = nombre_dia(dia_id)
     if not clases_dia:
         dias_texto = ", ".join(dias_nombres[:-1]) + (" y " if len(dias_nombres) > 1 else "") + dias_nombres[-1]
-        botones = " ".join(f"[ACCION:{c_name} {d.lower()}|{d}]" for d in dias_nombres)
+        botones = " ".join(f"[ACCION:{nombre_display} {d.lower()}|{d}]" for d in dias_nombres)
         return (
             f"La asignatura **{nombre_display}** no tiene secciones los días **{dia_nom}**.\n\n"
             f"Se imparte los días **{dias_texto}**:\n\n"
@@ -1044,8 +1044,8 @@ def generar_respuesta_curso(c_name, dia_id=None):
 
     otros_dias = [d for d in dias_nombres if d != dia_nom]
     if otros_dias:
-        botones = " ".join(f"[ACCION:{c_name} {d.lower()}|Ver {d}]" for d in otros_dias)
-        botones += f" [ACCION:{c_name} toda la semana|Ver toda la semana]"
+        botones = " ".join(f"[ACCION:{nombre_display} {d.lower()}|Ver {d}]" for d in otros_dias)
+        botones += f" [ACCION:{nombre_display} toda la semana|Ver toda la semana]"
         lineas.append(f"\n{botones}")
 
     return "\n".join(lineas)
