@@ -2341,6 +2341,13 @@
                 </svg>
                 <span>Buscar por Ramo</span>
             </button>
+            <button type="button" class="tab-btn" onclick="cambiarTab('tab-malla', this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                    <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                </svg>
+                <span>Ramos por Semestre</span>
+            </button>
             <button type="button" class="tab-btn" onclick="cambiarTab('tab-horario', this)">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -2349,13 +2356,6 @@
                     <line x1="3" y1="10" x2="21" y2="10"></line>
                 </svg>
                 <span>Horario por Sala</span>
-            </button>
-            <button type="button" class="tab-btn" onclick="cambiarTab('tab-malla', this)">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
-                    <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
-                </svg>
-                <span>Ramos por Semestre</span>
             </button>
         </nav>
     </div>
@@ -2605,50 +2605,7 @@
         </div>
     </section>
 
-    <!-- TAB 3: HORARIO POR SALA (BUSCADOR MANUAL) -->
-    <section id="tab-horario" class="panel">
-        <div class="control-card">
-            <!-- Buscador manual de sala -->
-            <div class="search-field">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-                <input type="text" id="input-sala-search" placeholder="Escribe el código o número de sala (ej. E441, S401, V432, 101)..." oninput="filtrarSalasLista(this.value)" autocomplete="off">
-                <button type="button" class="clear-btn" id="clear-sala-btn" onclick="limpiarSalaInput()">&times;</button>
-            </div>
-
-            <!-- Filtro de Día para la sala -->
-            <div class="control-group">
-                <div class="section-label">Filtrar Día en Sala</div>
-                <div class="pill-bar" id="bar-sala-dia">
-                    <button type="button" class="pill-btn active" data-dia="1" onclick="setSalaDia('1', this)">Lunes</button>
-                    <button type="button" class="pill-btn" data-dia="2" onclick="setSalaDia('2', this)">Martes</button>
-                    <button type="button" class="pill-btn" data-dia="3" onclick="setSalaDia('3', this)">Miércoles</button>
-                    <button type="button" class="pill-btn" data-dia="4" onclick="setSalaDia('4', this)">Jueves</button>
-                    <button type="button" class="pill-btn" data-dia="5" onclick="setSalaDia('5', this)">Viernes</button>
-                </div>
-            </div>
-
-        <!-- Sugerencias de salas abiertas (Sin estar dentro de otra casilla) -->
-        <div class="suggested-rooms-block">
-            <div class="suggested-header">
-                <div class="group-title" style="color: #93c5fd; margin: 0;">Salas de Ingeniería (Ejército y Vergara)</div>
-                <div class="building-switch">
-                    <button type="button" class="switch-chip active" data-sub="TODAS" onclick="cambiarFiltroSugeridas('TODAS', this)">Todas (39)</button>
-                    <button type="button" class="switch-chip" data-sub="E441" onclick="cambiarFiltroSugeridas('E441', this)">Ejército 441 (23)</button>
-                    <button type="button" class="switch-chip" data-sub="V432" onclick="cambiarFiltroSugeridas('V432', this)">Vergara 432 (16)</button>
-                </div>
-            </div>
-            <div class="room-chips-cloud" id="chips-salas"></div>
-        </div>
-
-        <div id="timetable-display">
-            <div class="empty-state">Escribe o selecciona una sala del listado superior para consultar su calendario de clases.</div>
-        </div>
-    </section>
-
-    <!-- TAB 5: RAMOS POR SEMESTRE (MALLA CURRICULAR ICIT) -->
+    <!-- TAB 4: RAMOS POR SEMESTRE (MALLA CURRICULAR ICIT) -->
     <section id="tab-malla" class="panel">
         <div class="control-card">
             <div class="filter-header-row">
@@ -2743,6 +2700,49 @@
 
         <div class="cards-grid" id="malla-results-grid">
             <div class="empty-state">Cargando secciones del semestre...</div>
+        </div>
+    </section>
+
+    <!-- TAB 5: HORARIO POR SALA (BUSCADOR MANUAL) -->
+    <section id="tab-horario" class="panel">
+        <div class="control-card">
+            <!-- Buscador manual de sala -->
+            <div class="search-field">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="input-sala-search" placeholder="Escribe el código o número de sala (ej. E441, S401, V432, 101)..." oninput="filtrarSalasLista(this.value)" autocomplete="off">
+                <button type="button" class="clear-btn" id="clear-sala-btn" onclick="limpiarSalaInput()">&times;</button>
+            </div>
+
+            <!-- Filtro de Día para la sala -->
+            <div class="control-group">
+                <div class="section-label">Filtrar Día en Sala</div>
+                <div class="pill-bar" id="bar-sala-dia">
+                    <button type="button" class="pill-btn active" data-dia="1" onclick="setSalaDia('1', this)">Lunes</button>
+                    <button type="button" class="pill-btn" data-dia="2" onclick="setSalaDia('2', this)">Martes</button>
+                    <button type="button" class="pill-btn" data-dia="3" onclick="setSalaDia('3', this)">Miércoles</button>
+                    <button type="button" class="pill-btn" data-dia="4" onclick="setSalaDia('4', this)">Jueves</button>
+                    <button type="button" class="pill-btn" data-dia="5" onclick="setSalaDia('5', this)">Viernes</button>
+                </div>
+            </div>
+
+        <!-- Sugerencias de salas abiertas (Sin estar dentro de otra casilla) -->
+        <div class="suggested-rooms-block">
+            <div class="suggested-header">
+                <div class="group-title" style="color: #93c5fd; margin: 0;">Salas de Ingeniería (Ejército y Vergara)</div>
+                <div class="building-switch">
+                    <button type="button" class="switch-chip active" data-sub="TODAS" onclick="cambiarFiltroSugeridas('TODAS', this)">Todas (39)</button>
+                    <button type="button" class="switch-chip" data-sub="E441" onclick="cambiarFiltroSugeridas('E441', this)">Ejército 441 (23)</button>
+                    <button type="button" class="switch-chip" data-sub="V432" onclick="cambiarFiltroSugeridas('V432', this)">Vergara 432 (16)</button>
+                </div>
+            </div>
+            <div class="room-chips-cloud" id="chips-salas"></div>
+        </div>
+
+        <div id="timetable-display">
+            <div class="empty-state">Escribe o selecciona una sala del listado superior para consultar su calendario de clases.</div>
         </div>
     </section>
 </div>
