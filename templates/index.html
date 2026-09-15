@@ -4185,7 +4185,7 @@
                         </div>
                         <div class="my-form-group" style="flex: 0.9;">
                             <label class="my-form-label" for="modal-add-seccion">Sección (opcional)</label>
-                            <input type="text" class="my-form-input" id="modal-add-seccion" placeholder="Ej. Sec. 1" value="" autocomplete="off">
+                            <input type="text" class="my-form-input" id="modal-add-seccion" placeholder="Ej. Sección 1" value="" autocomplete="off">
                         </div>
                     </div>
 
@@ -5152,7 +5152,7 @@
             horaFin: '12:50',
             curso: 'Álgebra Lineal A.',
             tipo: 'Ayudantía',
-            seccion: 'Sec. 19',
+            seccion: 'Sección 19',
             sala: 'E306.1.S107',
             profesor: 'Matías Robotham',
             rol: 'assistant'
@@ -5323,7 +5323,7 @@
             horaFin: '12:50',
             curso: 'Mecánica A.',
             tipo: 'Ayudantía',
-            seccion: 'Sec. 13',
+            seccion: 'Sección 13',
             sala: 'E441.4.S401',
             profesor: 'Karina Arancibia',
             rol: 'assistant'
@@ -5353,7 +5353,7 @@
             horaFin: '15:50',
             curso: 'Introducción al Álgebra A.',
             tipo: 'Ayudantía',
-            seccion: 'Sec. 3',
+            seccion: 'Sección 3',
             sala: 'E306.1.S101',
             profesor: 'Jaime Contreras',
             rol: 'assistant'
@@ -5368,7 +5368,7 @@
             horaFin: '17:20',
             curso: 'Álgebra Lineal A.',
             tipo: 'Ayudantía',
-            seccion: 'Sec. 11',
+            seccion: 'Sección 11',
             sala: 'E306.2.S208',
             profesor: 'Rosa Rivero',
             rol: 'assistant'
@@ -5397,21 +5397,29 @@
                 c.seccion = '';
             }
             if (c.id === 'mar-1') {
-                c.seccion = 'Sec. 19';
+                c.seccion = 'Sección 19';
                 c.profesor = 'Matías Robotham';
                 c.tipo = 'Ayudantía';
             } else if (c.id === 'vie-1') {
-                c.seccion = 'Sec. 13';
+                c.seccion = 'Sección 13';
                 c.profesor = 'Karina Arancibia';
                 c.tipo = 'Ayudantía';
             } else if (c.id === 'vie-3') {
-                c.seccion = 'Sec. 3';
+                c.seccion = 'Sección 3';
                 c.profesor = 'Jaime Contreras';
                 c.tipo = 'Ayudantía';
             } else if (c.id === 'vie-4') {
-                c.seccion = 'Sec. 11';
+                c.seccion = 'Sección 11';
                 c.profesor = 'Rosa Rivero';
                 c.tipo = 'Ayudantía';
+            }
+            // Normalizar formato Sec. o Sec a Sección
+            if (c.seccion) {
+                if (c.seccion.toLowerCase().startsWith('sec.')) {
+                    c.seccion = c.seccion.replace(/^sec\.\s*/i, 'Sección ');
+                } else if (c.seccion.toLowerCase().startsWith('sec ')) {
+                    c.seccion = c.seccion.replace(/^sec\s*/i, 'Sección ');
+                }
             }
         });
         return list;
@@ -5939,7 +5947,8 @@
         listEl.innerHTML = lista.map(c => {
             const cursoNombre = escapeHtml(c.curso || 'Asignatura');
             const sala = escapeHtml(c.sala || 'Sin sala');
-            const sec = (c.seccion !== undefined && c.seccion !== null && c.seccion !== '') ? `Sec. ${escapeHtml(String(c.seccion))}` : '';
+            const rawSec = (c.seccion !== undefined && c.seccion !== null && c.seccion !== '') ? String(c.seccion).trim() : '';
+            const sec = rawSec ? (rawSec.toLowerCase().startsWith('secc') ? rawSec : (rawSec.toLowerCase().startsWith('sec') ? rawSec.replace(/^sec\.?\s*/i, 'Sección ') : `Sección ${rawSec}`)) : '';
             const profe = escapeHtml(c.profe || '');
             const codigo = escapeHtml(c.codigo || '');
             const objSafe = JSON.stringify(c).replace(/"/g, '&quot;');
@@ -5950,7 +5959,7 @@
                         <div class="my-real-item-title">${cursoNombre}</div>
                         <div class="my-real-item-meta">
                             <span class="my-real-item-chip" style="color: #60a5fa; border-color: rgba(59,130,246,0.35); background: rgba(59,130,246,0.12);">${sala}</span>
-                            ${sec ? `<span class="my-real-item-chip">${sec}</span>` : ''}
+                            ${sec ? `<span class="my-real-item-chip">${escapeHtml(sec)}</span>` : ''}
                             ${codigo ? `<span class="my-real-item-chip" style="opacity: 0.8;">${codigo}</span>` : ''}
                             ${profe ? `<span style="font-size: 11.5px; opacity: 0.88; color: #cbd5e1;">${profe}</span>` : ''}
                         </div>
@@ -6044,8 +6053,8 @@
         }
 
         if (inpSec) {
-            const numSec = (c.seccion !== undefined && c.seccion !== null) ? String(c.seccion) : '';
-            inpSec.value = numSec ? (numSec.toLowerCase().startsWith('sec') ? numSec : `Sec. ${numSec}`) : '';
+            const numSec = (c.seccion !== undefined && c.seccion !== null) ? String(c.seccion).trim() : '';
+            inpSec.value = numSec ? (numSec.toLowerCase().startsWith('secc') ? numSec : (numSec.toLowerCase().startsWith('sec') ? numSec.replace(/^sec\.?\s*/i, 'Sección ') : `Sección ${numSec}`)) : '';
             inpSec.classList.add('field-autofilled');
             setTimeout(() => inpSec.classList.remove('field-autofilled'), 1200);
         }
@@ -6193,7 +6202,13 @@
                         const endM = timeToMinutes(c.horaFin);
                         const isCurrent = isToday && (totalMinutes >= startM && totalMinutes < endM);
                         const tipoCls = 'tipo-' + (c.tipo || 'Cátedra').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
-                        const secText = (c.seccion && !c.seccion.toLowerCase().includes('ayudantía que impartes')) ? `<span class="my-type-sec">• ${escapeHtml(c.seccion)}</span>` : '';
+                        let cleanSec = (c.seccion || '').trim();
+                        if (cleanSec.toLowerCase().startsWith('sec.')) {
+                            cleanSec = cleanSec.replace(/^sec\.\s*/i, 'Sección ');
+                        } else if (cleanSec.toLowerCase().startsWith('sec ')) {
+                            cleanSec = cleanSec.replace(/^sec\s*/i, 'Sección ');
+                        }
+                        const secText = (cleanSec && !cleanSec.toLowerCase().includes('ayudantía que impartes')) ? `<span class="my-type-sec">• ${escapeHtml(cleanSec)}</span>` : '';
                         const tipoHtml = `<span class="my-type-tag ${tipoCls}"><span>${escapeHtml(c.tipo || 'Cátedra')}</span>${secText}</span>`;
 
                         cardsHtml += `
@@ -6286,7 +6301,13 @@
                     const endM = timeToMinutes(c.horaFin);
                     const isCurrent = isToday && (totalMinutes >= startM && totalMinutes < endM);
                     const tipoCls = 'tipo-' + (c.tipo || 'Cátedra').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
-                    const secText = (c.seccion && !c.seccion.toLowerCase().includes('ayudantía que impartes')) ? `<span class="my-type-sec">• ${escapeHtml(c.seccion)}</span>` : '';
+                    let cleanSec = (c.seccion || '').trim();
+                    if (cleanSec.toLowerCase().startsWith('sec.')) {
+                        cleanSec = cleanSec.replace(/^sec\.\s*/i, 'Sección ');
+                    } else if (cleanSec.toLowerCase().startsWith('sec ')) {
+                        cleanSec = cleanSec.replace(/^sec\s*/i, 'Sección ');
+                    }
+                    const secText = (cleanSec && !cleanSec.toLowerCase().includes('ayudantía que impartes')) ? `<span class="my-type-sec">• ${escapeHtml(cleanSec)}</span>` : '';
                     const tipoHtml = `<span class="my-type-tag ${tipoCls}"><span>${escapeHtml(c.tipo || 'Cátedra')}</span>${secText}</span>`;
 
                     timelineCardsHtml += `
