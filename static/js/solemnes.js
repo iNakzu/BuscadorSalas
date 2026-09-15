@@ -13,6 +13,136 @@ function escapeHtml(str) {
         .replace(/'/g, '&#039;');
 }
 
+const customStyles = `
+<style>
+    #tab-solemnes {
+        padding: 0 !important;
+    }
+    .solemnes-scroll-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 0 16px 20px 16px;
+    }
+    .solemnes-grid {
+        display: grid;
+        grid-template-columns: 100px repeat(5, minmax(220px, 1fr));
+        gap: 12px;
+        min-width: 1200px; /* Force wide layout for horizontal scroll */
+        margin-top: 20px;
+    }
+    
+    .sol-header-cell {
+        background: rgba(30, 41, 59, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+    .sol-header-title {
+        color: #e2e8f0;
+        font-size: 15px;
+        font-weight: 600;
+    }
+    .sol-header-sub {
+        color: #94a3b8;
+        font-size: 12px;
+        margin-top: 4px;
+    }
+
+    .sol-time-cell {
+        background: rgba(15, 23, 42, 0.4);
+        border-radius: 12px;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.03);
+    }
+    .sol-time-num {
+        color: #94a3b8;
+        font-size: 12px;
+        font-weight: 500;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .sol-time-range {
+        color: #38bdf8;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .sol-day-cell {
+        background: rgba(15, 23, 42, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        transition: opacity 0.3s ease;
+    }
+
+    .sol-ramo-pill {
+        border-radius: 6px;
+        padding: 8px 10px;
+        font-size: 12.5px;
+        line-height: 1.3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        transition: all 0.2s;
+    }
+    .sol-ramo-pill.matched {
+        background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(6, 182, 212, 0.15));
+        border: 1px solid rgba(56, 189, 248, 0.4);
+        border-left: 3px solid #38bdf8;
+        color: #ffffff;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .sol-ramo-pill.dimmed {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid transparent;
+        color: #64748b;
+        font-weight: 400;
+    }
+
+    /* Custom scrollbar */
+    .solemnes-scroll-wrapper::-webkit-scrollbar {
+        height: 8px;
+    }
+    .solemnes-scroll-wrapper::-webkit-scrollbar-track {
+        background: rgba(0,0,0,0.2);
+        border-radius: 4px;
+        margin: 0 16px;
+    }
+    .solemnes-scroll-wrapper::-webkit-scrollbar-thumb {
+        background: rgba(255,255,255,0.2);
+        border-radius: 4px;
+    }
+    
+    .sol-empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: #475569;
+        font-size: 13px;
+        font-weight: 500;
+        font-style: italic;
+    }
+</style>
+`;
+
 function renderSolemnes() {
     const container = document.getElementById('solemnes-container');
     if (!container) return;
@@ -36,119 +166,74 @@ function renderSolemnes() {
         { num: 5, label: "17:30 - 19:30", raw: "17:30 a 19:30" }
     ];
 
-    let colsHtml = '';
+    let gridHtml = `<div class="solemnes-grid">`;
 
+    // Row 1: Headers (Empty corner + 5 days)
+    gridHtml += `<div class="sol-header-cell" style="background: transparent; border: none;"></div>`;
     for (let d = 1; d <= 5; d++) {
-        let cardsHtml = '';
-        
-        bloques.forEach(b => {
+        gridHtml += `
+            <div class="sol-header-cell">
+                <span class="sol-header-title">${mapDias[d].title}</span>
+                <span class="sol-header-sub">${mapDias[d].sub}</span>
+            </div>
+        `;
+    }
+
+    // Rows 2-6: Time blocks
+    bloques.forEach(b => {
+        // Time column
+        gridHtml += `
+            <div class="sol-time-cell">
+                <span class="sol-time-num">Bloque ${b.num}</span>
+                <span class="sol-time-range">${b.label}</span>
+            </div>
+        `;
+
+        // 5 day columns
+        for (let d = 1; d <= 5; d++) {
             const cellData = SOLEMNES_DATA.find(item => item.dia === d && item.horario === b.raw);
             const ramos = cellData ? cellData.ramos : [];
             const matches = query ? ramos.filter(r => normStr(r).includes(query)) : ramos;
             const hasMatch = matches.length > 0;
             
-            // Si buscamos y no hay match en este bloque, opacamos la cápsula
-            const cardOpacity = (query && !hasMatch && ramos.length > 0) ? '0.25' : '1';
+            // Opacity logic: if searching and no matches in this cell, dim the whole cell heavily
+            const cellOpacity = (query && !hasMatch && ramos.length > 0) ? '0.15' : '1';
 
-            if (ramos.length > 0) {
-                let innerHtml = '';
-                ramos.forEach(r => {
-                    const isMatch = query && normStr(r).includes(query);
-                    const isHighlighted = query ? isMatch : true;
-                    // En solemnes todos pueden ser "tipo-catedra" para tener el azul default, o podemos darles distintos.
-                    // Le daremos el color azul bonito
-                    const bgColor = isHighlighted ? 'rgba(56, 189, 248, 0.15)' : 'rgba(255,255,255,0.03)';
-                    const fw = isHighlighted ? '600' : '400';
-                    const color = isHighlighted ? '#ffffff' : '#94a3b8';
-                    const border = isHighlighted ? '1px solid rgba(56, 189, 248, 0.4)' : '1px solid transparent';
-                    innerHtml += `
-                        <div style="background: ${bgColor}; border: ${border}; color: ${color}; font-weight: ${fw}; padding: 6px; border-radius: 6px; font-size: 11.5px; margin-top: 6px; text-align: center; transition: all 0.2s;">
-                            ${escapeHtml(r)}
-                        </div>
-                    `;
-                });
-
-                // Renderizamos una class-card de horario
-                cardsHtml += `
-                    <div class="my-class-card tipo-catedra" style="opacity: ${cardOpacity}; transition: opacity 0.3s; min-height: 120px;">
-                        <div class="my-card-header">
-                            <span class="my-card-time">
-                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                                <span>${b.label}</span>
-                            </span>
-                            <div style="display:none"></div>
-                        </div>
-                        <div style="padding: 0 12px 12px 12px;">
-                            ${innerHtml}
-                        </div>
-                        <div class="my-card-footer" style="margin-top: auto;">
-                            <span class="my-card-bloque-num">Bloque ${b.num}</span>
-                        </div>
+            if (ramos.length === 0) {
+                gridHtml += `
+                    <div class="sol-day-cell" style="opacity: ${query ? '0.1' : '0.5'};">
+                        <div class="sol-empty">-</div>
                     </div>
                 `;
-            } else {
-                // Bloque vacío
-                const emptyOpacity = query ? '0.1' : '1';
-                cardsHtml += `
-                    <div class="my-empty-slot" style="opacity: ${emptyOpacity}; min-height: 120px; transition: opacity 0.3s;" title="Sin Solemnes en este bloque">
-                        <div class="my-empty-header">
-                            <span class="my-empty-time">
-                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                                <span>${b.label}</span>
-                            </span>
-                            <span class="my-card-bloque-num">Bloque ${b.num}</span>
-                        </div>
-                        <div class="my-empty-body">
-                            <span class="my-empty-text">Sin Solemnes</span>
-                        </div>
-                    </div>
-                `;
+                continue;
             }
-        });
 
-        colsHtml += `
-            <div class="my-day-col">
-                <div class="my-day-header">
-                    <div class="my-day-title-box" style="flex-direction: column; align-items: flex-start; gap: 2px;">
-                        <span class="my-day-title" style="font-size: 15px;">${mapDias[d].title}</span>
-                        <span style="font-size: 12px; color: #94a3b8; font-weight: 500;">${mapDias[d].sub}</span>
+            let cellContent = '';
+            ramos.forEach(r => {
+                const isMatch = query ? normStr(r).includes(query) : true;
+                const pillClass = isMatch ? 'sol-ramo-pill matched' : 'sol-ramo-pill dimmed';
+                
+                cellContent += `
+                    <div class="sol-ramo-pill ${isMatch ? 'matched' : 'dimmed'}">
+                        ${escapeHtml(r)}
                     </div>
-                    <span class="my-day-count">${SOLEMNES_DATA.filter(item => item.dia === d).length} blq</span>
+                `;
+            });
+
+            gridHtml += `
+                <div class="sol-day-cell" style="opacity: ${cellOpacity};">
+                    ${cellContent}
                 </div>
-                <div class="my-day-cards">
-                    ${cardsHtml}
-                </div>
-            </div>
-        `;
-    }
+            `;
+        }
+    });
+
+    gridHtml += `</div>`; // end solemnes-grid
 
     const finalHtml = `
-        <style>
-            #tab-solemnes .my-week-grid {
-                display: flex !important;
-                min-width: 900px; /* Forzar scroll horizontal en móviles */
-                padding-bottom: 12px;
-            }
-            .solemnes-scroll-wrapper {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-            .solemnes-scroll-wrapper::-webkit-scrollbar {
-                height: 8px;
-            }
-            .solemnes-scroll-wrapper::-webkit-scrollbar-track {
-                background: rgba(0,0,0,0.2);
-                border-radius: 4px;
-            }
-            .solemnes-scroll-wrapper::-webkit-scrollbar-thumb {
-                background: rgba(255,255,255,0.2);
-                border-radius: 4px;
-            }
-        </style>
+        ${customStyles}
         <div class="solemnes-scroll-wrapper">
-            <div class="my-week-grid">
-                ${colsHtml}
-            </div>
+            ${gridHtml}
         </div>
     `;
 
