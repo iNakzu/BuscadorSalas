@@ -979,7 +979,6 @@ function renderMiHorario() {
 
         let timelineCardsHtml = '';
         BLOQUES_HORARIOS.forEach(b => {
-        BLOQUES_HORARIOS.forEach(b => {
             const c = dayItems.find(item => item.bloqueNum === b.num);
             const startM = timeToMinutes(b.inicio);
             const endM = timeToMinutes(b.fin);
