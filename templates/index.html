@@ -2322,6 +2322,13 @@
             margin-bottom: 12px;
         }
 
+        .my-hero-top-badges {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
         .my-hero-status-pill {
             display: inline-flex;
             align-items: center;
@@ -5441,20 +5448,21 @@
                         <span class="pulse-dot"></span>
                         <span>¡En Clase Ahora Mismo!</span>
                     </div>
+                    <div class="my-hero-top-badges">
+                        ${claseActual.rol === 'assistant' ? '<span class="my-role-badge badge-assistant">✍️ Ayudante</span>' : ''}
+                        <span class="my-room-pill" onclick="verHorarioDirecto('${claseActual.sala}')" title="Ver horario de la sala ${claseActual.sala}">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+                            <span>Sala ${claseActual.sala}</span>
+                        </span>
+                    </div>
                 </div>
                 <div class="my-hero-body">
                     <div class="my-hero-class-info">
                         <div class="my-hero-title">
                             <span>${claseActual.curso}</span>
-                            ${claseActual.rol === 'assistant' ? '<span class="my-role-badge badge-assistant">✍️ Ayudante</span>' : ''}
                         </div>
                         <div class="my-hero-subtitle">
                             <span>Bloque ${claseActual.bloqueNum} (${claseActual.bloqueLabel})</span>
-                            <span>•</span>
-                            <span class="my-room-pill" onclick="verHorarioDirecto('${claseActual.sala}')" title="Ver horario de la sala">
-                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-                                Sala ${claseActual.sala}
-                            </span>
                             ${claseActual.profesor ? `<span>• Prof: ${claseActual.profesor}</span>` : ''}
                             <span>• Quedan aprox. <strong>${minRestantes} min</strong></span>
                         </div>
@@ -5484,20 +5492,21 @@
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                         <span>Próxima Clase Hoy en ${diffTexto}</span>
                     </div>
+                    <div class="my-hero-top-badges">
+                        ${proximaHoy.rol === 'assistant' ? '<span class="my-role-badge badge-assistant">✍️ Ayudante</span>' : ''}
+                        <span class="my-room-pill" onclick="verHorarioDirecto('${proximaHoy.sala}')" title="Ver horario de la sala ${proximaHoy.sala}">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+                            <span>Sala ${proximaHoy.sala}</span>
+                        </span>
+                    </div>
                 </div>
                 <div class="my-hero-body">
                     <div class="my-hero-class-info">
                         <div class="my-hero-title">
                             <span>${proximaHoy.curso}</span>
-                            ${proximaHoy.rol === 'assistant' ? '<span class="my-role-badge badge-assistant">✍️ Ayudante</span>' : ''}
                         </div>
                         <div class="my-hero-subtitle">
                             <span>Inicia a las <strong>${proximaHoy.horaInicio}</strong> (Bloque ${proximaHoy.bloqueNum})</span>
-                            <span>•</span>
-                            <span class="my-room-pill" onclick="verHorarioDirecto('${proximaHoy.sala}')" title="Ver horario de la sala">
-                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-                                Sala ${proximaHoy.sala}
-                            </span>
                             ${proximaHoy.profesor ? `<span>• Prof: ${proximaHoy.profesor}</span>` : ''}
                         </div>
                     </div>
