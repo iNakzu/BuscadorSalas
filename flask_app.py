@@ -1279,10 +1279,14 @@ def generar_respuesta_curso(c_name, dia_id=None):
 
     return "\n".join(lineas)
 
-def responder_con_ia(mensaje_usuario):
+def responder_con_ia(mensaje_usuario, historial=None, imagen=None):
     api_key = get_api_key()
     if not api_key:
         return "Para activar el asistente inteligente de Disponibilidad de Salas, necesitas configurar tu API Key gratuita de Google AI Studio."
+
+    # Si hay una imagen adjunta, pasar de inmediato al análisis multimodal de Gemini
+    if imagen:
+        return generar_respuesta_gemini(mensaje_usuario, historial=historial, imagen=imagen)
 
     norm_msg = normalize_str(mensaje_usuario)
     tokens_msg = clean_tokens(mensaje_usuario)
@@ -1454,14 +1458,20 @@ def responder_con_ia(mensaje_usuario):
             elif not es_pregunta_general and not intencion_profesor:
                 if best_match_cr[0] >= 2:
                     es_match_curso_valido = True
-                elif len(sig_tokens) <= 2 and best_match_cr[1] >= 0.5:
                     if any(m in sig_tokens for m in best_match_cr[3]):
                         es_match_curso_valido = True
 
             if es_match_curso_valido:
                 return generar_respuesta_curso(best_match_cr[2], dia_id=dia_detectado)
 
-    # 8. Fallback general a la API de Gemini para consultas abiertas, hora en vivo y conocimiento general
+    return generar_respuesta_gemini(mensaje_usuario, historial=historial, imagen=imagen, dia_detectado=dia_detectado)
+
+def generar_respuesta_gemini(mensaje_usuario, historial=None, imagen=None, dia_detectado=None):
+    api_key = get_api_key()
+    if not api_key:
+        return "Para activar el asistente inteligente de Disponibilidad de Salas, necesitas configurar tu API Key gratuita de Google AI Studio."
+
+    # 8. Fallback general a la API de Gemini para consultas abiertas, hora en vivo, conocimiento general y visión multimodal
     now_chile = get_chile_now()
     hora_actual_str = now_chile.strftime("%H:%M:%S")
     dia_num_actual = now_chile.weekday() + 1
@@ -1472,6 +1482,7 @@ def responder_con_ia(mensaje_usuario):
     dia_bloque, bloque_ref, en_horario, msg_horario = calcular_bloque_actual(now_chile)
     vacias_ref, _, _ = obtener_salas(dia_bloque, bloque_ref['id'], "INGENIERIA")
 
+    dia_detectado_val = dia_detectado if not imagen else None
     contexto_datos = (
         f"HORA Y FECHA EN TIEMPO REAL (Santiago de Chile):\n"
         f"- Hora actual exacta de Chile: {hora_actual_str}\n"
@@ -1479,32 +1490,62 @@ def responder_con_ia(mensaje_usuario):
         f"- Bloque horario académico actual: {bloque_ref['label']} ({msg_horario or 'En horario lectivo'}).\n"
         f"- Salas libres en campus ahora: {len(vacias_ref)} salas disponibles en Ingeniería.\n"
         f"- Total salas registradas: {len(dm.all_rooms)} salas.\n"
-        f"Día consultado o detectado: {nombre_dia(dia_detectado) if dia_detectado and dia_detectado != 'TODOS' else dia_nom_actual}\n"
+        f"Día consultado o detectado: {nombre_dia(dia_detectado_val) if dia_detectado_val and dia_detectado_val != 'TODOS' else dia_nom_actual}\n"
     )
 
     prompt_sistema = (
         "Eres el asistente inteligente de 'Disponibilidad de Salas', y además un asistente general versátil, amable y culto.\n"
         "Directrices de respuesta:\n"
         "1. VERSATILIDAD Y AMPLITUD: Si el usuario te pregunta por la hora, fecha, dudas de asignaturas, programación, ciencias, matemáticas, cultura general, o cualquier tema no relacionado a las salas, RESPONDE DE FORMA DIRECTA, EXACTA Y ÚTIL a lo que preguntó. No restrinjas tu respuesta ni intentes forzar temas de salas si la pregunta no viene al caso.\n"
-        "2. HORA Y FECHA EXACTA: Tienes la hora y fecha actual exacta de Santiago de Chile en el contexto ('HORA Y FECHA EN TIEMPO REAL'). Si el usuario te pregunta qué hora es, qué día es hoy o la fecha, responde con esa información exacta con total seguridad.\n"
-        "3. DISPONIBILIDAD DE SALAS Y DOCENCIA: Si la pregunta sí trata sobre disponibilidad de salas, horarios, docentes o asignaturas, responde con precisión usando la información del sistema. NUNCA menciones la sigla 'UDP' ni 'Universidad Diego Portales'; refiérete únicamente como 'Disponibilidad de Salas'.\n"
-        "4. DIRECTO AL GRANO: Responde de forma clara y concisa, sin saludos largos ni introducciones innecesarias.\n"
-        "5. FORMATO DE CLASES Y RAMOS: Cuando listes clases o asignaturas, usa SIEMPRE este formato:\n"
+        "2. ANÁLISIS DE IMÁGENES: Si el usuario adjunta una imagen (foto de ejercicio, pizarra, apunte, horario, diagrama, código o captura), analízala con máxima atención y responde resolviendo o explicando lo que solicita de forma clara y detallada.\n"
+        "3. HORA Y FECHA EXACTA: Tienes la hora y fecha actual exacta de Santiago de Chile en el contexto ('HORA Y FECHA EN TIEMPO REAL'). Si el usuario te pregunta qué hora es, qué día es hoy o la fecha, responde con esa información exacta con total seguridad.\n"
+        "4. DISPONIBILIDAD DE SALAS Y DOCENCIA: Si la pregunta sí trata sobre disponibilidad de salas, horarios, docentes o asignaturas, responde con precisión usando la información del sistema. NUNCA menciones la sigla 'UDP' ni 'Universidad Diego Portales'; refiérete únicamente como 'Disponibilidad de Salas'.\n"
+        "5. DIRECTO AL GRANO: Responde de forma clara y concisa, sin saludos largos ni introducciones innecesarias.\n"
+        "6. FORMATO DE CLASES Y RAMOS: Cuando listes clases o asignaturas, usa SIEMPRE este formato:\n"
         "* [CLASE] HH:MM - HH:MM | `CODIGO_SALA` | Nombre del Curso | Sec. X\n"
-        "6. LENGUAJE NATURAL: NUNCA inventes comandos internos, ni uses la palabra 'ACCION:' ni 'consulta a enviar'. Responde en lenguaje natural fluido.\n"
-        "7. FÓRMULAS MATEMÁTICAS Y CIENCIAS: La interfaz cuenta con renderizador KaTeX (LaTeX). Para fórmulas matemáticas, usa SIEMPRE notación LaTeX estándar con $$...$$ para fórmulas en bloque y $...$ para variables o expresiones en línea (por ejemplo: $x$, $f(x)$, $$\\int_{a}^{b} f(x)\\,dx$$, $$\\frac{df}{dx}$$).\n"
-        "8. Proporciona EXCLUSIVAMENTE la respuesta final redactada para el usuario, sin notas de verificación interna ni etiquetas como <thought>."
+        "7. LENGUAJE NATURAL: NUNCA inventes comandos internos, ni uses la palabra 'ACCION:' ni 'consulta a enviar'. Responde en lenguaje natural fluido.\n"
+        "8. FÓRMULAS MATEMÁTICAS Y CIENCIAS: La interfaz cuenta con renderizador KaTeX (LaTeX). Para fórmulas matemáticas, usa SIEMPRE notación LaTeX estándar con $$...$$ para fórmulas en bloque y $...$ para variables o expresiones en línea (por ejemplo: $x$, $f(x)$, $$\\int_{a}^{b} f(x)\\,dx$$, $$\\frac{df}{dx}$$).\n"
+        "9. Proporciona EXCLUSIVAMENTE la respuesta final redactada para el usuario, sin notas de verificación interna ni etiquetas como <thought>."
     )
 
-    payload = {
-        "contents": [
-            {
-                "role": "user",
-                "parts": [
-                    {"text": f"{prompt_sistema}\n\n{contexto_datos}\n\nPREGUNTA DEL USUARIO:\n{mensaje_usuario}"}
-                ]
+    contents = []
+
+    # 1. Historial de conversación multi-turno (memoria de turnos anteriores)
+    if historial and isinstance(historial, list):
+        for h in historial[-8:]:
+            h_role = "model" if h.get("role") in ["model", "assistant", "bot"] else "user"
+            h_text = str(h.get("text", "")).strip()
+            if h_text:
+                contents.append({
+                    "role": h_role,
+                    "parts": [{"text": h_text}]
+                })
+
+    # 2. Turno actual del usuario (con imagen multimodal si está presente)
+    current_parts = []
+    if imagen and isinstance(imagen, dict) and imagen.get("data"):
+        raw_b64 = str(imagen.get("data", "")).strip()
+        if "," in raw_b64:
+            raw_b64 = raw_b64.split(",", 1)[1]
+        mime = imagen.get("mimeType", "image/jpeg")
+        current_parts.append({
+            "inlineData": {
+                "mimeType": mime,
+                "data": raw_b64
             }
-        ],
+        })
+
+    texto_usuario = mensaje_usuario if mensaje_usuario else "(El usuario ha adjuntado una imagen para que la analices y expliques)."
+    current_parts.append({
+        "text": f"{prompt_sistema}\n\n{contexto_datos}\n\nPREGUNTA DEL USUARIO:\n{texto_usuario}"
+    })
+    contents.append({
+        "role": "user",
+        "parts": current_parts
+    })
+
+    payload = {
+        "contents": contents,
         "generationConfig": {
             "temperature": 0.2,
             "maxOutputTokens": 2048
@@ -1517,7 +1558,7 @@ def responder_con_ia(mensaje_usuario):
         try:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent?key={api_key}"
             req = Request(url, data=json.dumps(payload).encode('utf-8'), headers={'Content-Type': 'application/json'}, method='POST')
-            with urlopen(req, timeout=18) as response:
+            with urlopen(req, timeout=22) as response:
                 res_data = json.loads(response.read().decode('utf-8'))
                 parts = res_data.get('candidates', [{}])[0].get('content', {}).get('parts', [])
                 text_parts = []
@@ -1542,10 +1583,13 @@ def responder_con_ia(mensaje_usuario):
 def api_chat():
     data = request.get_json() or {}
     mensaje = data.get("mensaje", "").strip()
-    if not mensaje:
-        return jsonify({"respuesta": "Por favor escribe una consulta o pregunta."})
+    historial = data.get("historial", [])
+    imagen = data.get("imagen")
 
-    respuesta = responder_con_ia(mensaje)
+    if not mensaje and not imagen:
+        return jsonify({"respuesta": "Por favor escribe una consulta o adjunta una imagen."})
+
+    respuesta = responder_con_ia(mensaje, historial=historial, imagen=imagen)
     return jsonify({"respuesta": respuesta})
 
 if __name__ == "__main__":
