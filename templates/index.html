@@ -2855,7 +2855,8 @@
             state.hora = data.bloque.id;
 
             if (!data.en_horario_valido) {
-                alertaTxt.innerHTML = `<strong>Fuera de horario académico:</strong> ${data.mensaje_horario} Mostrando de referencia el primer bloque (${data.dia_nombre} ${data.bloque.label}).`;
+                const horaActual = data.hora_actual || (data.hora_chile ? data.hora_chile.substring(0, 5) : new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' }));
+                alertaTxt.innerHTML = `<strong>Fuera de horario académico (hora actual: ${horaActual}):</strong> ${data.mensaje_horario} Mostrando de referencia el primer bloque (${data.dia_nombre} ${data.bloque.label}).`;
                 banner.classList.add('show');
             } else {
                 banner.classList.remove('show');

@@ -723,6 +723,7 @@ def api_ahora():
         "en_horario_valido": en_horario_valido,
         "mensaje_horario": mensaje_horario,
         "hora_chile": now_chile.strftime("%H:%M:%S"),
+        "hora_actual": now_chile.strftime("%H:%M"),
         "fecha_chile": f"{DIAS_SEMANA.get(dia_actual, '')} {now_chile.day} de {MESES_ES.get(now_chile.month, '')} de {now_chile.year}",
         "facultad": facultad,
         "total_libres": len(vacias),
