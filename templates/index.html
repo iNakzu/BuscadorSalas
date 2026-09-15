@@ -2731,11 +2731,13 @@
 
         .my-modal-dialog {
             background: #0f172a;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 20px;
             width: 100%;
-            max-width: 480px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75);
+            max-width: 550px;
+            max-height: 92vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.85);
             padding: 24px;
             animation: modalScaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -2749,13 +2751,13 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 20px;
-            padding-bottom: 14px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .my-modal-title {
-            font-size: 18px;
+            font-size: 18.5px;
             font-weight: 800;
             color: #f8fafc;
             letter-spacing: -0.01em;
@@ -2785,8 +2787,152 @@
             background: rgba(255, 255, 255, 0.1);
         }
 
+        /* BUSCADOR DE CLASES REALES EN LA BASE DE DATOS UDP */
+        .my-search-real-container {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(59, 130, 246, 0.28);
+            border-radius: 14px;
+            padding: 13px 14px;
+            margin-bottom: 16px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .my-search-real-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .my-search-real-title {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #93c5fd;
+        }
+
+        .my-search-real-badge {
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.35);
+            color: #93c5fd;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 99px;
+        }
+
+        .my-real-classes-list {
+            max-height: 175px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            margin-top: 8px;
+            padding-right: 2px;
+        }
+
+        .my-real-class-item {
+            background: rgba(30, 41, 69, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 9px 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .my-real-class-item:hover {
+            background: rgba(59, 130, 246, 0.22);
+            border-color: rgba(59, 130, 246, 0.5);
+            transform: translateX(2px);
+        }
+
+        .my-real-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .my-real-item-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #f8fafc;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .my-real-item-meta {
+            font-size: 11.5px;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .my-real-item-chip {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1px 7px;
+            border-radius: 5px;
+            font-weight: 600;
+            color: #cbd5e1;
+            font-size: 11px;
+        }
+
+        .my-real-select-btn {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            color: #93c5fd;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 5px 10px;
+            border-radius: 7px;
+            white-space: nowrap;
+            pointer-events: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .my-real-class-item:hover .my-real-select-btn {
+            background: #3b82f6;
+            color: #ffffff;
+            border-color: #60a5fa;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+        }
+
+        /* DIVISOR CON TEXTO */
+        .my-divider-with-text {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 16px 0 14px;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .my-divider-with-text::before,
+        .my-divider-with-text::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* CAMPOS DE FORMULARIO */
         .my-form-group {
-            margin-bottom: 15px;
+            margin-bottom: 14px;
+            position: relative;
         }
 
         .my-form-row {
@@ -2802,7 +2948,7 @@
             margin-bottom: 6px;
         }
 
-        .my-form-input, .my-form-select {
+        .my-form-input {
             width: 100%;
             background: rgba(15, 23, 42, 0.85);
             border: 1px solid rgba(255, 255, 255, 0.14);
@@ -2812,17 +2958,87 @@
             color: #f8fafc;
             outline: none;
             box-sizing: border-box;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.3s;
         }
 
-        .my-form-input:focus, .my-form-select:focus {
+        .my-form-input:focus {
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
         }
 
-        .my-form-select option {
+        /* DROPDOWN FLOTANTE PERSONALIZADO PARA SALAS */
+        .my-custom-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 4px;
             background: #0f172a;
-            color: #f8fafc;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            max-height: 165px;
+            overflow-y: auto;
+            z-index: 10010;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(12px);
+        }
+
+        .my-dropdown-item {
+            padding: 8px 12px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .my-dropdown-item:hover {
+            background: rgba(59, 130, 246, 0.22);
+            color: #ffffff;
+        }
+
+        /* SELECTOR DE TIPO POR PÍLDORAS (NO NATIVO) */
+        .my-tipo-pills {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .my-tipo-pill {
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .my-tipo-pill:hover {
+            border-color: rgba(255, 255, 255, 0.25);
+            color: #f1f5f9;
+        }
+
+        .my-tipo-pill.active {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: #3b82f6;
+            color: #93c5fd;
+            font-weight: 700;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.25);
+        }
+
+        /* EFECTO DE AUTOCOMPLETADO SUAVE */
+        @keyframes fieldAutofillGlow {
+            0% { border-color: #60a5fa; box-shadow: 0 0 12px rgba(59, 130, 246, 0.5); }
+            100% { border-color: rgba(255, 255, 255, 0.14); }
+        }
+
+        .field-autofilled {
+            animation: fieldAutofillGlow 1.2s ease-out;
         }
 
         .my-role-selector {
@@ -2863,6 +3079,7 @@
             border-color: #f59e0b;
             color: #f59e0b;
         }
+
 
         .my-modal-actions {
             display: flex;
@@ -3738,32 +3955,58 @@
                 <form id="form-agregar-clase" onsubmit="guardarNuevaClaseModal(event)">
                     <input type="hidden" id="modal-add-dia" value="1">
                     <input type="hidden" id="modal-add-bloque" value="1">
+                    <input type="hidden" id="modal-add-hora-inicio" value="08:30">
 
+                    <!-- SECCIÓN 1: BUSCADOR DE CLASES REALES DESDE DATA.JSON -->
+                    <div class="my-search-real-container">
+                        <div class="my-search-real-header">
+                            <div class="my-search-real-title">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                <span>Buscar clase real en base de datos UDP</span>
+                            </div>
+                            <span class="my-search-real-badge" id="modal-real-badge">0 clases</span>
+                        </div>
+                        <div class="search-field" style="margin-bottom: 0;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            <input type="text" id="modal-input-real-search" placeholder="Escribe tu ramo o docente (ej. Cálculo, Física, Diego)..." oninput="filtrarClasesRealesModal(this.value)" autocomplete="off">
+                            <button type="button" class="clear-btn" id="modal-clear-real-btn" onclick="limpiarBusquedaRealModal()" style="display:none;">&times;</button>
+                        </div>
+                        <div class="my-real-classes-list" id="modal-real-classes-list">
+                            <!-- Resultados dinámicos con botón para autocompletar -->
+                        </div>
+                    </div>
+
+                    <div class="my-divider-with-text">
+                        <span>O completa / edita los datos manualmente</span>
+                    </div>
+
+                    <!-- SECCIÓN 2: CAMPOS MANUALES / AUTOCOMPLETADOS -->
                     <div class="my-form-group">
                         <label class="my-form-label" for="modal-add-curso">Nombre de la Asignatura / Actividad *</label>
                         <input type="text" class="my-form-input" id="modal-add-curso" placeholder="Ej. Cálculo II, Redes de Datos, Mecánica, Física..." required autocomplete="off">
                     </div>
 
                     <div class="my-form-row">
-                        <div class="my-form-group" style="flex: 1.2;">
+                        <div class="my-form-group" style="flex: 1.1; position: relative;">
                             <label class="my-form-label" for="modal-add-sala">Sala Asignada *</label>
-                            <input type="text" class="my-form-input" id="modal-add-sala" placeholder="Ej. E441.2.S201, V432.3.S312..." list="lista-salas-sugeridas" required autocomplete="off">
-                            <datalist id="lista-salas-sugeridas"></datalist>
+                            <input type="text" class="my-form-input" id="modal-add-sala" placeholder="Ej. E441.2.S201, V432.3.S312..." required autocomplete="off" oninput="filtrarSalasDropdown(this.value)" onfocus="abrirSalasDropdown()">
+                            <div class="my-custom-dropdown" id="modal-salas-dropdown" style="display: none;"></div>
                         </div>
-                        <div class="my-form-group" style="flex: 1;">
-                            <label class="my-form-label" for="modal-add-tipo">Tipo</label>
-                            <select class="my-form-select" id="modal-add-tipo">
-                                <option value="Cátedra" selected>Cátedra</option>
-                                <option value="Ayudantía">Ayudantía</option>
-                                <option value="Laboratorio">Laboratorio</option>
-                                <option value="Taller">Taller</option>
-                                <option value="Estudio">Estudio</option>
-                            </select>
+                        <div class="my-form-group" style="flex: 1.3;">
+                            <label class="my-form-label">Tipo de Clase</label>
+                            <input type="hidden" id="modal-add-tipo" value="Cátedra">
+                            <div class="my-tipo-pills" id="modal-tipo-pills">
+                                <button type="button" class="my-tipo-pill active" onclick="setModalTipo('Cátedra', this)">Cátedra</button>
+                                <button type="button" class="my-tipo-pill" onclick="setModalTipo('Ayudantía', this)">Ayudantía</button>
+                                <button type="button" class="my-tipo-pill" onclick="setModalTipo('Laboratorio', this)">Lab</button>
+                                <button type="button" class="my-tipo-pill" onclick="setModalTipo('Taller', this)">Taller</button>
+                                <button type="button" class="my-tipo-pill" onclick="setModalTipo('Estudio', this)">Estudio</button>
+                            </div>
                         </div>
                     </div>
 
                     <div class="my-form-group">
-                        <label class="my-form-label">Rol en este Ramo</label>
+                        <label class="my-form-label">Tu Rol en este Ramo</label>
                         <div class="my-role-selector">
                             <button type="button" class="my-role-btn active" id="btn-modal-rol-student" onclick="setModalRol('student')">
                                 <span>🎓 Estudiante</span>
@@ -3777,21 +4020,22 @@
                     <div class="my-form-row">
                         <div class="my-form-group" style="flex: 1;">
                             <label class="my-form-label" for="modal-add-seccion">Sección (opcional)</label>
-                            <input type="text" class="my-form-input" id="modal-add-seccion" placeholder="Ej. Sec. 1" value="Sec. 1">
+                            <input type="text" class="my-form-input" id="modal-add-seccion" placeholder="Ej. Sec. 1" value="" autocomplete="off">
                         </div>
-                        <div class="my-form-group" style="flex: 1.2;">
+                        <div class="my-form-group" style="flex: 1.3;">
                             <label class="my-form-label" for="modal-add-profesor">Profesor (opcional)</label>
-                            <input type="text" class="my-form-input" id="modal-add-profesor" placeholder="Nombre del docente">
+                            <input type="text" class="my-form-input" id="modal-add-profesor" placeholder="Nombre del docente" value="" autocomplete="off">
                         </div>
                     </div>
 
                     <div class="my-modal-actions">
                         <button type="button" class="my-btn-secondary" onclick="cerrarModalAgregarClase()">Cancelar</button>
-                        <button type="submit" class="my-btn-primary">Guardar Asignatura</button>
+                        <button type="submit" class="my-btn-primary">Guardar en Mi Horario</button>
                     </div>
                 </form>
             </div>
         </div>
+
 
     </section>
 </div>
@@ -5303,6 +5547,18 @@
     }
 
     let modalRolSeleccionado = 'student';
+    let modalClasesRealesBloqueActual = [];
+    let modalBusquedaRealTimeout = null;
+
+    function escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
 
     function setModalRol(rol) {
         modalRolSeleccionado = rol;
@@ -5319,47 +5575,130 @@
         }
     }
 
+    function setModalTipo(tipo, btn) {
+        const inpTipo = document.getElementById('modal-add-tipo');
+        if (inpTipo) inpTipo.value = tipo;
+        const container = document.getElementById('modal-tipo-pills');
+        if (container) {
+            container.querySelectorAll('.my-tipo-pill').forEach(b => b.classList.remove('active'));
+        }
+        if (btn) {
+            btn.classList.add('active');
+        } else if (container) {
+            const pills = container.querySelectorAll('.my-tipo-pill');
+            pills.forEach(p => {
+                const txt = p.textContent.trim().toLowerCase();
+                const target = (tipo || '').trim().toLowerCase();
+                if (txt === target || (target.startsWith('lab') && txt === 'lab') || (target.startsWith('estud') && txt === 'estudio')) {
+                    p.classList.add('active');
+                }
+            });
+        }
+    }
+
+    function abrirSalasDropdown() {
+        const inp = document.getElementById('modal-add-sala');
+        filtrarSalasDropdown(inp ? inp.value : '');
+    }
+
+    function filtrarSalasDropdown(val) {
+        const dropdown = document.getElementById('modal-salas-dropdown');
+        if (!dropdown) return;
+        if (typeof TODAS_LAS_SALAS === 'undefined' || !Array.isArray(TODAS_LAS_SALAS)) {
+            dropdown.style.display = 'none';
+            return;
+        }
+
+        const q = (val || '').trim().toLowerCase();
+        let matches = [];
+        if (!q) {
+            matches = TODAS_LAS_SALAS.slice(0, 20);
+        } else {
+            matches = TODAS_LAS_SALAS.filter(s => s.toLowerCase().includes(q)).slice(0, 20);
+        }
+
+        if (matches.length === 0) {
+            dropdown.innerHTML = `<div style="padding: 10px 12px; font-size: 12px; color: #94a3b8; text-align: center;">No hay salas que coincidan</div>`;
+            dropdown.style.display = 'block';
+            return;
+        }
+
+        dropdown.innerHTML = matches.map(s => `
+            <div class="my-dropdown-item" onclick="seleccionarSalaModal('${escapeHtml(s)}')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block; margin-right:6px; vertical-align:middle; opacity:0.75;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+                <span>${escapeHtml(s)}</span>
+            </div>
+        `).join('');
+        dropdown.style.display = 'block';
+    }
+
+    function seleccionarSalaModal(sala) {
+        const inpSala = document.getElementById('modal-add-sala');
+        if (inpSala) {
+            inpSala.value = sala;
+            inpSala.classList.add('field-autofilled');
+            setTimeout(() => inpSala.classList.remove('field-autofilled'), 1200);
+        }
+        const dropdown = document.getElementById('modal-salas-dropdown');
+        if (dropdown) dropdown.style.display = 'none';
+    }
+
+    // Cerrar dropdown de salas al hacer clic afuera
+    if (typeof document !== 'undefined' && document.addEventListener) {
+        document.addEventListener('click', function(ev) {
+            const dropdown = document.getElementById('modal-salas-dropdown');
+            const inpSala = document.getElementById('modal-add-sala');
+            if (dropdown && dropdown.style.display !== 'none') {
+                if (!dropdown.contains(ev.target) && ev.target !== inpSala) {
+                    dropdown.style.display = 'none';
+                }
+            }
+        });
+    }
+
     function abrirModalAgregarClase(diaNum, bloqueNum) {
         const bloque = BLOQUES_HORARIOS.find(b => b.num === bloqueNum);
         const diasNombres = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
         const diaNombre = diasNombres[diaNum] || 'Día';
+        const horaInicio = bloque ? bloque.inicio : '08:30';
 
         const inpDia = document.getElementById('modal-add-dia');
         const inpBloque = document.getElementById('modal-add-bloque');
+        const inpHora = document.getElementById('modal-add-hora-inicio');
         const badge = document.getElementById('modal-bloque-badge');
 
         if (inpDia) inpDia.value = diaNum;
         if (inpBloque) inpBloque.value = bloqueNum;
+        if (inpHora) inpHora.value = horaInicio;
         if (badge) badge.textContent = `${diaNombre} • Bloque ${bloqueNum} (${bloque ? bloque.label : ''})`;
 
         const inpCurso = document.getElementById('modal-add-curso');
         const inpSala = document.getElementById('modal-add-sala');
         const inpSec = document.getElementById('modal-add-seccion');
-        const inpTipo = document.getElementById('modal-add-tipo');
         const inpProf = document.getElementById('modal-add-profesor');
+        const inpSearchReal = document.getElementById('modal-input-real-search');
+        const clearBtn = document.getElementById('modal-clear-real-btn');
+        const dropdown = document.getElementById('modal-salas-dropdown');
 
         if (inpCurso) inpCurso.value = '';
         if (inpSala) inpSala.value = '';
-        if (inpSec) inpSec.value = 'Sec. 1';
-        if (inpTipo) inpTipo.value = 'Cátedra';
+        if (inpSec) inpSec.value = ''; // Sin hardcodear Sec. 1
         if (inpProf) inpProf.value = '';
+        if (inpSearchReal) inpSearchReal.value = '';
+        if (clearBtn) clearBtn.style.display = 'none';
+        if (dropdown) dropdown.style.display = 'none';
+
+        setModalTipo('Cátedra');
         setModalRol('student');
 
-        // Poblar datalist de salas si está vacío
-        const datalist = document.getElementById('lista-salas-sugeridas');
-        if (datalist && datalist.children.length === 0 && typeof TODAS_LAS_SALAS !== 'undefined' && Array.isArray(TODAS_LAS_SALAS)) {
-            TODAS_LAS_SALAS.forEach(sala => {
-                const opt = document.createElement('option');
-                opt.value = sala;
-                datalist.appendChild(opt);
-            });
-        }
+        // Cargar clases reales de este bloque desde data.json vía /api/search
+        cargarClasesRealesBloque(diaNum, horaInicio);
 
         const modal = document.getElementById('modal-agregar-ramo');
         if (modal) {
             modal.style.display = 'flex';
             setTimeout(() => {
-                if (inpCurso) inpCurso.focus();
+                if (inpSearchReal) inpSearchReal.focus();
             }, 60);
         }
     }
@@ -5367,6 +5706,180 @@
     function cerrarModalAgregarClase() {
         const modal = document.getElementById('modal-agregar-ramo');
         if (modal) modal.style.display = 'none';
+        const dropdown = document.getElementById('modal-salas-dropdown');
+        if (dropdown) dropdown.style.display = 'none';
+    }
+
+    async function cargarClasesRealesBloque(diaNum, horaInicio) {
+        const listEl = document.getElementById('modal-real-classes-list');
+        const badgeEl = document.getElementById('modal-real-badge');
+        if (!listEl) return;
+
+        listEl.innerHTML = `
+            <div style="padding: 16px; text-align: center; color: #94a3b8; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="spin"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
+                <span>Cargando clases UDP del bloque...</span>
+            </div>
+        `;
+
+        try {
+            const resp = await fetch(`/api/search?dia=${diaNum}&hora=${encodeURIComponent(horaInicio + ':00')}`);
+            if (!resp.ok) throw new Error('Error al cargar');
+            const data = await resp.json();
+            modalClasesRealesBloqueActual = data.cursos || [];
+            if (badgeEl) badgeEl.textContent = `${modalClasesRealesBloqueActual.length} clases en bloque`;
+            renderListaClasesRealesModal(modalClasesRealesBloqueActual, false);
+        } catch (err) {
+            console.error('Error cargando clases reales:', err);
+            listEl.innerHTML = `<div style="padding: 12px; text-align: center; color: #94a3b8; font-size: 12px;">No se pudieron cargar clases sugeridas para este bloque. Puedes ingresarlas manualmente abajo.</div>`;
+            if (badgeEl) badgeEl.textContent = '0 clases';
+        }
+    }
+
+    function renderListaClasesRealesModal(lista, esBusquedaGlobal) {
+        const listEl = document.getElementById('modal-real-classes-list');
+        if (!listEl) return;
+
+        if (!lista || lista.length === 0) {
+            listEl.innerHTML = `
+                <div style="padding: 14px; text-align: center; color: #94a3b8; font-size: 12px;">
+                    No se encontraron clases coincidentes. Puedes completar los campos manualmente.
+                </div>
+            `;
+            return;
+        }
+
+        listEl.innerHTML = lista.map(c => {
+            const cursoNombre = escapeHtml(c.curso || 'Asignatura');
+            const sala = escapeHtml(c.sala || 'Sin sala');
+            const sec = (c.seccion !== undefined && c.seccion !== null && c.seccion !== '') ? `Sec. ${escapeHtml(String(c.seccion))}` : '';
+            const profe = escapeHtml(c.profe || '');
+            const codigo = escapeHtml(c.codigo || '');
+            const objSafe = JSON.stringify(c).replace(/"/g, '&quot;');
+
+            return `
+                <div class="my-real-class-item" onclick="seleccionarClaseRealPorObj(${objSafe})">
+                    <div class="my-real-item-info">
+                        <div class="my-real-item-title">${cursoNombre}</div>
+                        <div class="my-real-item-meta">
+                            <span class="my-real-item-chip" style="color: #60a5fa; border-color: rgba(59,130,246,0.35); background: rgba(59,130,246,0.12);">${sala}</span>
+                            ${sec ? `<span class="my-real-item-chip">${sec}</span>` : ''}
+                            ${codigo ? `<span class="my-real-item-chip" style="opacity: 0.8;">${codigo}</span>` : ''}
+                            ${profe ? `<span style="font-size: 11px; opacity: 0.85;">👨‍🏫 ${profe}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="my-real-select-btn">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        <span>Elegir</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function filtrarClasesRealesModal(query) {
+        const clearBtn = document.getElementById('modal-clear-real-btn');
+        if (clearBtn) clearBtn.style.display = query ? 'block' : 'none';
+
+        if (modalBusquedaRealTimeout) clearTimeout(modalBusquedaRealTimeout);
+
+        const q = (query || '').trim();
+        const diaNum = document.getElementById('modal-add-dia').value;
+        const horaInicio = document.getElementById('modal-add-hora-inicio').value;
+        const badgeEl = document.getElementById('modal-real-badge');
+
+        if (!q) {
+            if (badgeEl) badgeEl.textContent = `${modalClasesRealesBloqueActual.length} clases en bloque`;
+            renderListaClasesRealesModal(modalClasesRealesBloqueActual, false);
+            return;
+        }
+
+        modalBusquedaRealTimeout = setTimeout(async () => {
+            // 1. Filtrar primero dentro de las clases de este bloque en memoria
+            const normQ = normStr(q);
+            const matchesLocal = modalClasesRealesBloqueActual.filter(c => {
+                return normStr(c.curso || '').includes(normQ) ||
+                       normStr(c.codigo || '').includes(normQ) ||
+                       normStr(c.profe || '').includes(normQ) ||
+                       normStr(c.sala || '').includes(normQ);
+            });
+
+            if (matchesLocal.length > 0) {
+                if (badgeEl) badgeEl.textContent = `${matchesLocal.length} en este bloque`;
+                renderListaClasesRealesModal(matchesLocal, false);
+                return;
+            }
+
+            // 2. Si no hay en este bloque exacto, buscar en toda la base de datos de cursos UDP
+            const listEl = document.getElementById('modal-real-classes-list');
+            if (listEl) {
+                listEl.innerHTML = `<div style="padding: 12px; text-align:center; color:#94a3b8; font-size:12px;">Buscando en toda la base de datos UDP...</div>`;
+            }
+
+            try {
+                const resp = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+                if (!resp.ok) throw new Error('Error al buscar');
+                const data = await resp.json();
+                const cursos = data.cursos || [];
+                if (badgeEl) badgeEl.textContent = `${cursos.length} en toda la UDP`;
+                renderListaClasesRealesModal(cursos.slice(0, 30), true);
+            } catch (err) {
+                console.error('Error buscando clases:', err);
+            }
+        }, 200);
+    }
+
+    function limpiarBusquedaRealModal() {
+        const inp = document.getElementById('modal-input-real-search');
+        if (inp) inp.value = '';
+        filtrarClasesRealesModal('');
+        if (inp) inp.focus();
+    }
+
+    function seleccionarClaseRealPorObj(c) {
+        if (!c) return;
+
+        const inpCurso = document.getElementById('modal-add-curso');
+        const inpSala = document.getElementById('modal-add-sala');
+        const inpSec = document.getElementById('modal-add-seccion');
+        const inpProf = document.getElementById('modal-add-profesor');
+
+        if (inpCurso) {
+            inpCurso.value = c.curso || '';
+            inpCurso.classList.add('field-autofilled');
+            setTimeout(() => inpCurso.classList.remove('field-autofilled'), 1200);
+        }
+
+        if (inpSala) {
+            inpSala.value = (c.sala && c.sala !== '-') ? c.sala : '';
+            inpSala.classList.add('field-autofilled');
+            setTimeout(() => inpSala.classList.remove('field-autofilled'), 1200);
+        }
+
+        if (inpSec) {
+            const numSec = (c.seccion !== undefined && c.seccion !== null) ? String(c.seccion) : '';
+            inpSec.value = numSec ? (numSec.toLowerCase().startsWith('sec') ? numSec : `Sec. ${numSec}`) : '';
+            inpSec.classList.add('field-autofilled');
+            setTimeout(() => inpSec.classList.remove('field-autofilled'), 1200);
+        }
+
+        if (inpProf) {
+            inpProf.value = c.profe || '';
+            inpProf.classList.add('field-autofilled');
+            setTimeout(() => inpProf.classList.remove('field-autofilled'), 1200);
+        }
+
+        // Detección automática de tipo
+        const lowerCurso = (c.curso || '').toLowerCase();
+        let tipoDetectado = 'Cátedra';
+        if (lowerCurso.includes('ayudant')) tipoDetectado = 'Ayudantía';
+        else if (lowerCurso.includes('laborat') || lowerCurso.includes('lab.')) tipoDetectado = 'Laboratorio';
+        else if (lowerCurso.includes('taller')) tipoDetectado = 'Taller';
+        else if (lowerCurso.includes('estudio')) tipoDetectado = 'Estudio';
+
+        setModalTipo(tipoDetectado);
+
+        mostrarToast(`¡Autocompletado con ${c.curso}!`);
     }
 
     function guardarNuevaClaseModal(ev) {
@@ -5375,8 +5888,8 @@
         const bloqueNum = parseInt(document.getElementById('modal-add-bloque').value, 10);
         const curso = (document.getElementById('modal-add-curso').value || '').trim();
         const sala = (document.getElementById('modal-add-sala').value || '').trim().toUpperCase();
-        const seccion = (document.getElementById('modal-add-seccion').value || 'Sec. 1').trim();
-        const tipo = document.getElementById('modal-add-tipo').value;
+        const seccion = (document.getElementById('modal-add-seccion').value || '').trim();
+        const tipo = (document.getElementById('modal-add-tipo').value || 'Cátedra').trim();
         const profesor = (document.getElementById('modal-add-profesor').value || '').trim();
         const rol = modalRolSeleccionado;
 
@@ -5512,7 +6025,7 @@
                                 </div>
                                 <div class="my-card-title">${c.curso}</div>
                                 <div class="my-card-meta">
-                                    <span class="my-type-tag">${c.tipo} • ${c.seccion}</span>
+                                    <span class="my-type-tag">${c.tipo}${c.seccion ? (' • ' + c.seccion) : ''}</span>
                                     ${c.profesor ? `<span class="my-prof-name" title="Docente: ${c.profesor}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> ${c.profesor}</span>` : ''}
                                 </div>
                                 <div class="my-card-footer">
@@ -5592,7 +6105,7 @@
                                 </div>
                                 <div class="my-info-meta">
                                     ${c.rol === 'assistant' ? '<span class="my-role-badge badge-assistant">✍️ Ayudante</span><span>•</span>' : ''}
-                                    <span class="my-type-tag">${c.tipo} (${c.seccion})</span>
+                                    <span class="my-type-tag">${c.tipo}${c.seccion ? (' (' + c.seccion + ')') : ''}</span>
                                     ${c.profesor ? `<span>• Prof: ${c.profesor}</span>` : ''}
                                 </div>
                             </div>

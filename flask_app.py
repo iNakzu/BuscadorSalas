@@ -348,8 +348,8 @@ def buscar_profesor(nombre_buscado, dia_filtro=None, hora_filtro=None):
 def buscar_curso(query, dia_filtro=None, hora_filtro=None):
     clases = dm.get_classes()
     resultados = []
-    tokens = [t for t in normalize_str(query).split() if len(t) > 0]
-    if not tokens:
+    tokens = [t for t in normalize_str(query).split() if len(t) > 0] if query else []
+    if not tokens and not (dia_filtro and hora_filtro):
         return []
 
     dia_int = None
@@ -366,27 +366,34 @@ def buscar_curso(query, dia_filtro=None, hora_filtro=None):
         nodo = clase.get('node', {})
         curso = nodo.get('course', "")
         codigo = nodo.get('code', "")
+        profe = nodo.get('teacher', "")
         norm_c = normalize_str(curso)
         norm_code = normalize_str(codigo)
-        if all(t in norm_c for t in tokens) or all(t in norm_code for t in tokens):
-            if dia_int is not None and nodo.get('day') != dia_int:
+        norm_p = normalize_str(profe)
+
+        if tokens:
+            if not (all(t in norm_c for t in tokens) or all(t in norm_code for t in tokens) or all(t in norm_p for t in tokens)):
                 continue
-            c_start = format_time(nodo.get('start', ''))
-            if hora_filtro:
-                h_q = str(hora_filtro).strip()
-                if not (h_q.startswith(c_start) or c_start.startswith(h_q.replace(":00", "")) or h_q in nodo.get('start', '')):
-                    continue
-            resultados.append({
-                'sala': nodo.get('place', '-'),
-                'curso': curso,
-                'codigo': codigo,
-                'seccion': nodo.get('section', '-'),
-                'profe': nodo.get('teacher', 'No informado'),
-                'dia': nombre_dia(nodo.get('day')),
-                'dia_numero': nodo.get('day'),
-                'hora_inicio': c_start,
-                'hora_termino': format_time(nodo.get('finish', '')),
-            })
+
+        if dia_int is not None and nodo.get('day') != dia_int:
+            continue
+        c_start = format_time(nodo.get('start', ''))
+        if hora_filtro:
+            h_q = str(hora_filtro).strip()
+            if not (h_q.startswith(c_start) or c_start.startswith(h_q.replace(":00", "")) or h_q in nodo.get('start', '')):
+                continue
+
+        resultados.append({
+            'sala': nodo.get('place', '-'),
+            'curso': curso,
+            'codigo': codigo,
+            'seccion': nodo.get('section', '-'),
+            'profe': nodo.get('teacher', 'No informado'),
+            'dia': nombre_dia(nodo.get('day')),
+            'dia_numero': nodo.get('day'),
+            'hora_inicio': c_start,
+            'hora_termino': format_time(nodo.get('finish', '')),
+        })
     resultados.sort(key=lambda x: (x['curso'], x['dia_numero'], to_minutes(x['hora_inicio'])))
     return resultados
 
@@ -738,12 +745,12 @@ def api_search():
     q = request.args.get("q", "").strip()
     dia = request.args.get("dia", "").strip()
     hora = request.args.get("hora", "").strip()
-    if not q or len(q) < 2:
+    if not q and not (dia and hora):
         return jsonify({"query": q, "dia": dia, "hora": hora, "profesores": [], "cursos": [], "salas": []})
 
-    profes = buscar_profesor(q, dia_filtro=dia, hora_filtro=hora)
+    profes = buscar_profesor(q, dia_filtro=dia, hora_filtro=hora) if q and len(q) >= 2 else []
     cursos = buscar_curso(q, dia_filtro=dia, hora_filtro=hora)
-    salas_coincidentes = [s for s in dm.all_rooms if normalize_str(q) in normalize_str(s)]
+    salas_coincidentes = [s for s in dm.all_rooms if normalize_str(q) in normalize_str(s)] if q and len(q) >= 2 else []
 
     return jsonify({
         "query": q,
@@ -754,6 +761,7 @@ def api_search():
         "ramos": cursos[:60],
         "salas": salas_coincidentes[:25]
     })
+
 
 @app.route("/api/sala/<nombre_sala>", methods=["GET"])
 def api_horario_sala(nombre_sala):
