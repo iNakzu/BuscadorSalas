@@ -17,3 +17,7 @@ ENV/
 # OS
 Thumbs.db
 .DS_Store
+
+# Scripts locales de la VM
+start_agy.sh
+
