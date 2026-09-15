@@ -196,7 +196,7 @@ function renderSolemnes() {
         for (let d = 1; d <= 5; d++) {
             const cellData = SOLEMNES_DATA.find(item => item.dia === d && item.horario === b.raw);
             const ramos = cellData ? cellData.ramos : [];
-            const matches = query ? ramos.filter(r => normStr(r).includes(query)) : ramos;
+            const matches = query ? ramos.filter(r => normStr(r.nombre).includes(query)) : ramos;
             const hasMatch = matches.length > 0;
             
             // Opacity logic: if searching and no matches in this cell, dim the whole cell heavily
@@ -211,34 +211,35 @@ function renderSolemnes() {
                 continue;
             }
 
-
             let cellContent = '';
             ramos.forEach(r => {
-                const isMatch = query ? normStr(r).includes(query) : true;
+                const isMatch = query ? normStr(r.nombre).includes(query) : true;
                 
-                let theme = { bg: 'rgba(56, 189, 248, 0.15)', border: 'rgba(56, 189, 248, 0.4)', color: '#38bdf8' }; // Default Blue (Industrial/General)
+                let theme = { bg: 'rgba(56, 189, 248, 0.15)', border: 'rgba(56, 189, 248, 0.4)', color: '#38bdf8' }; // Default Celeste
                 
-                const rLower = r.toLowerCase();
-                if (rLower.includes('álgebra') || rLower.includes('algebra') || rLower.includes('cálculo') || rLower.includes('calculo') || rLower.includes('física') || rLower.includes('fisica') || rLower.includes('química') || rLower.includes('quimica') || rLower.includes('probabilidades') || rLower.includes('termodinámica') || rLower.includes('calor y ondas') || rLower.includes('electricidad') || rLower.includes('mecánica') && !rLower.includes('suelos')) {
-                    theme = { bg: 'rgba(250, 204, 21, 0.15)', border: 'rgba(250, 204, 21, 0.4)', color: '#facc15' }; // Yellow (Ciencias Básicas)
-                } else if (rLower.includes('programación') || rLower.includes('programacion') || rLower.includes('datos') || rLower.includes('data') || rLower.includes('redes') || rLower.includes('sistemas') || rLower.includes('computadores') || rLower.includes('software') || rLower.includes('inteligencia') || rLower.includes('arquitectura') || rLower.includes('tics')) {
-                    theme = { bg: 'rgba(52, 211, 153, 0.15)', border: 'rgba(52, 211, 153, 0.4)', color: '#34d399' }; // Green (Informática / Teleco)
-                } else if (rLower.includes('topografía') || rLower.includes('hidrología') || rLower.includes('hidráulica') || rLower.includes('materiales') || rLower.includes('suelos') || rLower.includes('estructuras') || rLower.includes('estructural') || rLower.includes('hormigón') || rLower.includes('acero') || rLower.includes('caminos') || rLower.includes('fundaciones') || rLower.includes('edificación') || rLower.includes('estática')) {
-                    theme = { bg: 'rgba(251, 146, 60, 0.15)', border: 'rgba(251, 146, 60, 0.4)', color: '#fb923c' }; // Orange (Obras Civiles)
-                } else if (rLower.includes('electivo') || rLower.includes('gestión') || rLower.includes('administración') || rLower.includes('economía') || rLower.includes('marketing') || rLower.includes('finanzas') || rLower.includes('liderazgo') || rLower.includes('proyectos') || rLower.includes('contabilidad')) {
-                    theme = { bg: 'rgba(168, 85, 247, 0.15)', border: 'rgba(168, 85, 247, 0.4)', color: '#c084fc' }; // Purple (Electivos / Gestión)
+                if (r.color_txt) {
+                    const cLower = r.color_txt.toLowerCase();
+                    if (cLower.includes('amarillo')) {
+                        theme = { bg: 'rgba(250, 204, 21, 0.15)', border: 'rgba(250, 204, 21, 0.4)', color: '#facc15' };
+                    } else if (cLower.includes('verde')) {
+                        theme = { bg: 'rgba(52, 211, 153, 0.15)', border: 'rgba(52, 211, 153, 0.4)', color: '#34d399' };
+                    } else if (cLower.includes('naranjo')) {
+                        theme = { bg: 'rgba(251, 146, 60, 0.15)', border: 'rgba(251, 146, 60, 0.4)', color: '#fb923c' };
+                    } else if (cLower.includes('morado')) {
+                        theme = { bg: 'rgba(168, 85, 247, 0.15)', border: 'rgba(168, 85, 247, 0.4)', color: '#c084fc' };
+                    } else if (cLower.includes('blanco') || cLower.includes('sin color')) {
+                        theme = { bg: 'rgba(255, 255, 255, 0.05)', border: 'rgba(255, 255, 255, 0.2)', color: '#cbd5e1' };
+                    }
                 }
                 
-                const pillClass = isMatch ? 'sol-ramo-pill matched' : 'sol-ramo-pill dimmed';
                 const styleAttr = isMatch ? `style="background: ${theme.bg}; border-color: ${theme.border}; border-left-color: ${theme.color};"` : '';
                 
                 cellContent += `
                     <div class="sol-ramo-pill ${isMatch ? 'matched' : 'dimmed'}" ${styleAttr}>
-                        ${escapeHtml(r)}
+                        ${escapeHtml(r.nombre)}
                     </div>
                 `;
             });
-
 
             gridHtml += `
                 <div class="sol-day-cell" style="opacity: ${cellOpacity};">
