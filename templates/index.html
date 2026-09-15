@@ -2301,29 +2301,17 @@
            TAB 6: MI HORARIO (ESTILO MODERNO GLASSMORPHISM PREMIUM)
            ========================================================= */
         .my-schedule-hero {
-            background: linear-gradient(135deg, rgba(30, 41, 69, 0.88) 0%, rgba(15, 23, 42, 0.94) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--surface);
+            border: 1px solid var(--border);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border-radius: var(--radius-md);
             padding: 18px 22px;
             margin-bottom: 22px;
-            box-shadow: 0 12px 36px -10px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            box-shadow: var(--shadow-card);
             position: relative;
-            overflow: hidden;
         }
 
-        .my-schedule-hero::before {
-            content: '';
-            position: absolute;
-            top: -40px;
-            right: -40px;
-            width: 180px;
-            height: 180px;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.22) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-        }
 
         .my-hero-top {
             display: flex;
