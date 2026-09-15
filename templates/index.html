@@ -2474,6 +2474,28 @@
     <!-- TAB 2: BUSCAR PROFESOR CON FILTRO DE DÍA -->
     <section id="tab-profes" class="panel">
         <div class="control-card">
+            <!-- Cabecera de filtros con botón Bloque Actual -->
+            <div class="filter-header-row">
+                <div class="filter-header-title">Búsqueda de Docentes</div>
+                <button type="button" class="btn-bloque-actual" onclick="irABloqueActual('profes')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span>Bloque Actual</span>
+                </button>
+            </div>
+
+            <!-- Banner de alerta si está fuera de ventana académica -->
+            <div class="window-alert-banner" id="banner-alerta-prof">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                <div id="texto-alerta-prof"></div>
+            </div>
+
             <!-- Barra de búsqueda con lupa -->
             <div class="search-field">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -2519,6 +2541,28 @@
     <!-- TAB: BUSCAR RAMO / ASIGNATURA CON FILTRO DE DÍA -->
     <section id="tab-ramos" class="panel">
         <div class="control-card">
+            <!-- Cabecera de filtros con botón Bloque Actual -->
+            <div class="filter-header-row">
+                <div class="filter-header-title">Búsqueda de Asignaturas</div>
+                <button type="button" class="btn-bloque-actual" onclick="irABloqueActual('ramos')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span>Bloque Actual</span>
+                </button>
+            </div>
+
+            <!-- Banner de alerta si está fuera de ventana académica -->
+            <div class="window-alert-banner" id="banner-alerta-ramo">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                <div id="texto-alerta-ramo"></div>
+            </div>
+
             <!-- Barra de búsqueda con lupa para ramo -->
             <div class="search-field">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -2609,12 +2653,28 @@
         <div class="control-card">
             <div class="filter-header-row">
                 <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
-                    <div class="filter-header-title" style="margin: 0;">Malla Curricular y Secciones por Semestre</div>
+                    <div class="filter-header-title" style="margin: 0;">Malla Curricular y Secciones</div>
                     <span class="status-pill" style="margin: 0; display: inline-flex;">
                         <span style="font-weight: 700;">Ingeniería Civil en Informática y Telecomunicaciones</span>
                     </span>
                 </div>
-                <span style="font-size: 12px; color: var(--text-muted);">Compara horarios y salas entre secciones para asistir a otras</span>
+                <button type="button" class="btn-bloque-actual" onclick="irABloqueActual('malla')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span>Bloque Actual</span>
+                </button>
+            </div>
+
+            <!-- Banner de alerta si está fuera de ventana académica -->
+            <div class="window-alert-banner" id="banner-alerta-malla">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                <div id="texto-alerta-malla"></div>
             </div>
 
             <!-- Selector de Semestre Personalizado Ultra Moderno -->
@@ -2844,32 +2904,90 @@
         }
     }
 
-    async function irABloqueActual() {
-        const banner = document.getElementById('banner-alerta-horario');
-        const alertaTxt = document.getElementById('texto-alerta-horario');
+    async function irABloqueActual(tipo = 'salas') {
+        const bannerIdMap = {
+            'salas': ['banner-alerta-horario', 'texto-alerta-horario'],
+            'profes': ['banner-alerta-prof', 'texto-alerta-prof'],
+            'ramos': ['banner-alerta-ramo', 'texto-alerta-ramo'],
+            'malla': ['banner-alerta-malla', 'texto-alerta-malla']
+        };
+
+        const [bId, tId] = bannerIdMap[tipo] || bannerIdMap['salas'];
+        const banner = document.getElementById(bId);
+        const alertaTxt = document.getElementById(tId);
+
         try {
             const resp = await fetch(`/api/ahora?facultad=${encodeURIComponent(state.facultad)}`);
             const data = await resp.json();
             
-            state.dia = String(data.dia);
-            state.hora = data.bloque.id;
+            const diaStr = String(data.dia);
+            const rawHora = data.bloque.id;
+            const horaActual = data.hora_actual || (data.hora_chile ? data.hora_chile.substring(0, 5) : new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' }));
 
-            if (!data.en_horario_valido) {
-                const horaActual = data.hora_actual || (data.hora_chile ? data.hora_chile.substring(0, 5) : new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' }));
-                alertaTxt.innerHTML = `<strong>Fuera de horario académico (hora actual: ${horaActual}):</strong> ${data.mensaje_horario} Mostrando de referencia el primer bloque (${data.dia_nombre} ${data.bloque.label}).`;
-                banner.classList.add('show');
-            } else {
-                banner.classList.remove('show');
+            if (banner && alertaTxt) {
+                if (!data.en_horario_valido) {
+                    alertaTxt.innerHTML = `<strong>Fuera de horario académico (hora actual: ${horaActual}):</strong> ${data.mensaje_horario} Mostrando de referencia el primer bloque (${data.dia_nombre} ${data.bloque.label}).`;
+                    banner.classList.add('show');
+                } else {
+                    banner.classList.remove('show');
+                }
             }
 
-            document.querySelectorAll('#bar-dia .pill-btn').forEach(b => {
-                b.classList.toggle('active', b.dataset.val === state.dia);
-            });
-            document.querySelectorAll('#bar-hora .pill-btn').forEach(b => {
-                b.classList.toggle('active', b.dataset.val === state.hora);
-            });
+            const coincideHora = (dh, th) => {
+                if (!dh || !th) return false;
+                return dh === th || dh.replace(/^0/, '') === th.replace(/^0/, '');
+            };
 
-            cargarSalas();
+            if (tipo === 'salas') {
+                state.dia = diaStr;
+                state.hora = rawHora;
+                document.querySelectorAll('#bar-dia .pill-btn').forEach(b => {
+                    b.classList.toggle('active', b.dataset.val === state.dia);
+                });
+                document.querySelectorAll('#bar-hora .pill-btn').forEach(b => {
+                    b.classList.toggle('active', coincideHora(b.dataset.val, state.hora));
+                });
+                cargarSalas();
+            } else if (tipo === 'profes') {
+                state.profDia = diaStr;
+                document.querySelectorAll('#bar-prof-dia .pill-btn').forEach(b => {
+                    b.classList.toggle('active', b.dataset.dia === state.profDia);
+                });
+                let horaSeleccionada = '';
+                document.querySelectorAll('#bar-prof-hora .pill-btn').forEach(b => {
+                    const match = coincideHora(b.dataset.hora, rawHora);
+                    b.classList.toggle('active', match);
+                    if (match) horaSeleccionada = b.dataset.hora;
+                });
+                state.profHora = horaSeleccionada || rawHora;
+                ejecutarBusquedaDocente();
+            } else if (tipo === 'ramos') {
+                state.ramoDia = diaStr;
+                document.querySelectorAll('#bar-ramo-dia .pill-btn').forEach(b => {
+                    b.classList.toggle('active', b.dataset.dia === state.ramoDia);
+                });
+                let horaSeleccionada = '';
+                document.querySelectorAll('#bar-ramo-hora .pill-btn').forEach(b => {
+                    const match = coincideHora(b.dataset.hora, rawHora);
+                    b.classList.toggle('active', match);
+                    if (match) horaSeleccionada = b.dataset.hora;
+                });
+                state.ramoHora = horaSeleccionada || rawHora;
+                ejecutarBusquedaRamo();
+            } else if (tipo === 'malla') {
+                state.mallaDia = diaStr;
+                document.querySelectorAll('#bar-malla-dia .pill-btn').forEach(b => {
+                    b.classList.toggle('active', b.dataset.dia === state.mallaDia);
+                });
+                let horaSeleccionada = '';
+                document.querySelectorAll('#bar-malla-hora .pill-btn').forEach(b => {
+                    const match = coincideHora(b.dataset.hora, rawHora);
+                    b.classList.toggle('active', match);
+                    if (match) horaSeleccionada = b.dataset.hora;
+                });
+                state.mallaHora = horaSeleccionada || rawHora;
+                cargarClasesMalla(false);
+            }
         } catch (e) {
             console.error(e);
         }
