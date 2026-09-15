@@ -143,13 +143,12 @@ function generarHorarioCruce() {
     const diasNombres = {1: 'Lunes', 2: 'Martes', 3: 'Miércoles', 4: 'Jueves', 5: 'Viernes'};
     for (let dia = 1; dia <= 5; dia++) {
         for (let b of BLOQUES_HORARIOS) {
-            const yo = MI_HORARIO_DATA.find(c => c.dia === dia && c.bloqueNum === b.num);
-            if (yo) continue;
-            
             let alguienOcupado = false;
             for (const amigo of cruceSeleccionados) {
-                const el = HORARIOS_GUARDADOS[amigo]?.find(c => c.dia === dia && c.bloqueNum === b.num);
-                if (el) {
+                let items = (amigo === 'yo') ? MI_HORARIO_DATA : HORARIOS_GUARDADOS[amigo];
+                if (!items) continue;
+                const clase = items.find(c => c.dia === dia && c.bloqueNum === b.num);
+                if (clase) {
                     alguienOcupado = true;
                     break;
                 }
@@ -1056,20 +1055,28 @@ function abrirModalCruce() {
     const container = document.getElementById('cruce-checkboxes');
     if (!modal || !container) return;
 
-    let html = '';
+    const options = [{id: 'yo', name: 'Nakzu'}];
     for (const amigo in HORARIOS_GUARDADOS) {
-        if (amigo === 'yo') continue;
-        const nombre = amigo.charAt(0).toUpperCase() + amigo.slice(1);
+        if (amigo !== 'yo') {
+            options.push({id: amigo, name: amigo.charAt(0).toUpperCase() + amigo.slice(1)});
+        }
+    }
+
+    let html = '';
+    for (const opt of options) {
+        // Por defecto Nakzu activo y otro amigo también activo
+        const isChecked = cruceSeleccionados.length > 0 ? cruceSeleccionados.includes(opt.id) : true;
+        
         html += `
-            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: var(--text-main); font-size: 14px;">
-                <input type="checkbox" value="${amigo}" checked style="accent-color: #a855f7; width: 18px; height: 18px;">
-                <span>Horario de ${escapeHtml(nombre)}</span>
+            <label class="cruce-option">
+                <div class="cruce-info">
+                    <div class="cruce-avatar" style="${opt.id === 'yo' ? 'background: linear-gradient(135deg, #3b82f6, #06b6d4);' : ''}">${opt.name.charAt(0)}</div>
+                    <span>${escapeHtml(opt.name)}</span>
+                </div>
+                <input type="checkbox" value="${opt.id}" ${isChecked ? 'checked' : ''} class="cruce-checkbox">
+                <div class="cruce-toggle"></div>
             </label>
         `;
-    }
-    
-    if (html === '') {
-        html = '<div style="color: var(--text-dim);">No hay amigos agregados aún.</div>';
     }
 
     container.innerHTML = html;
