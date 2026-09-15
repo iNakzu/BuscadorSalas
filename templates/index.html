@@ -6734,6 +6734,11 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         inicializarMiHorario();
+        const hash = window.location.hash.replace('#', '') || (new URLSearchParams(window.location.search)).get('tab');
+        if (hash) {
+            const btn = document.querySelector(`.tab-btn[onclick*="${hash}"]`);
+            if (btn) cambiarTab(hash, btn);
+        }
     });
 </script>
 
