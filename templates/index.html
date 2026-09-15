@@ -1558,9 +1558,9 @@
             max-width: calc(100vw - 32px);
             height: 540px;
             max-height: calc(100vh - 110px);
-            background: rgba(15, 23, 42, 0.88);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
+            background: rgba(15, 23, 42, 0.94);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: 18px;
             box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.75), 0 0 30px rgba(59, 130, 246, 0.15);
@@ -1568,6 +1568,8 @@
             flex-direction: column;
             overflow: hidden;
             z-index: 1000;
+            contain: layout;
+            transform: translateZ(0);
             animation: modalFadeUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
@@ -1674,6 +1676,8 @@
             flex-direction: column;
             gap: 12px;
             scrollbar-width: thin;
+            contain: content;
+            transform: translateZ(0);
         }
 
         .ai-msg {
@@ -1979,29 +1983,35 @@
 
         .ai-input-row {
             padding: 10px 12px;
-            background: rgba(15, 23, 42, 0.95);
+            background: #0f172a;
             border-top: 1px solid rgba(255, 255, 255, 0.08);
             display: flex;
             align-items: center;
             gap: 8px;
+            contain: layout paint;
+            transform: translateZ(0);
+            isolation: isolate;
         }
 
         .ai-input-row input {
             flex: 1;
-            background: rgba(30, 41, 69, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: 10px;
             color: #f8fafc;
             padding: 9px 12px;
-            font-size: 12.5px;
+            font-size: 13px;
             outline: none;
-            transition: all 0.2s ease;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+            contain: layout paint style;
+            transform: translateZ(0);
+            -webkit-appearance: none;
         }
 
         .ai-input-row input:focus {
             border-color: #3b82f6;
             box-shadow: 0 0 10px rgba(59, 130, 246, 0.25);
-            background: rgba(30, 41, 69, 0.95);
+            background: #1e2942;
         }
 
         .ai-send-btn {
@@ -3976,7 +3986,7 @@
                 <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
             </svg>
         </button>
-        <input type="text" id="ai-chat-input" placeholder="Pregúntame algo o adjunta una foto..." onkeydown="handleChatKey(event)" autocomplete="off">
+        <input type="text" id="ai-chat-input" placeholder="Pregúntame algo o adjunta una foto..." onkeydown="handleChatKey(event)" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off">
         <button type="button" class="ai-send-btn" id="ai-send-btn" onclick="enviarMensajeIA()" title="Enviar mensaje">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="22" y1="2" x2="11" y2="13"></line>
