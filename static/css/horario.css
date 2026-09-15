@@ -1302,3 +1302,29 @@
     border-top: 3px solid #4ade80;
     background: linear-gradient(145deg, rgba(34, 197, 94, 0.05) 0%, rgba(22, 30, 49, 0.8) 100%);
 }
+
+/* COLORES POR TIPO DE CLASE */
+.my-class-card.tipo-laboratorio {
+    border-top: 3px solid #a855f7 !important; /* Morado */
+    background: linear-gradient(145deg, rgba(168, 85, 247, 0.08) 0%, rgba(22, 30, 49, 0.85) 100%) !important;
+}
+
+.my-class-card.tipo-ayudantia.is-student {
+    border-top: 3px solid #f43f5e !important; /* Rosa/Rojo suave */
+    background: linear-gradient(145deg, rgba(244, 63, 94, 0.08) 0%, rgba(22, 30, 49, 0.85) 100%) !important;
+}
+
+.my-timeline-card.tipo-laboratorio {
+    border-left-color: #a855f7 !important;
+    background: linear-gradient(90deg, rgba(168, 85, 247, 0.08) 0%, rgba(22, 30, 49, 0.4) 100%) !important;
+}
+
+.my-timeline-card.tipo-ayudantia.is-student {
+    border-left-color: #f43f5e !important;
+    background: linear-gradient(90deg, rgba(244, 63, 94, 0.08) 0%, rgba(22, 30, 49, 0.4) 100%) !important;
+}
+
+.my-timeline-card.is-cruce {
+    border-left-color: #4ade80;
+    background: linear-gradient(90deg, rgba(34, 197, 94, 0.08) 0%, rgba(22, 30, 49, 0.4) 100%);
+}

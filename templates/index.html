@@ -478,7 +478,7 @@
         <div class="pill-bar" id="pill-bar-horarios" style="margin-bottom: 20px; justify-content: flex-start; overflow-x: auto; padding-bottom: 4px;">
             <button type="button" class="pill-btn active" onclick="cambiarVistaHorario('yo', this)">Mi Horario</button>
             <button type="button" class="pill-btn" onclick="cambiarVistaHorario('aleex1s', this)">Aleex1s</button>
-            <button type="button" class="pill-btn" onclick="cambiarVistaHorario('cruce', this)" style="border-color: #a855f7; color: #d8b4fe;">🔥 Topes Libres</button>
+            <button type="button" class="pill-btn" onclick="abrirModalCruce()" style="border-color: #a855f7; color: #d8b4fe;">Topes Libres</button>
         </div>
         <!-- WIDGET HERO EN TIEMPO REAL -->
         <div class="my-schedule-hero" id="my-schedule-hero">
@@ -641,6 +641,24 @@
         </div>
 
 
+        <!-- MODAL SELECCIÓN DE CRUCE -->
+        <div class="my-modal-overlay" id="modal-cruce" style="display: none;" onclick="if(event.target === this) cerrarModalCruce()">
+            <div class="my-modal-dialog" role="dialog" aria-modal="true" style="max-width: 400px;">
+                <div class="my-modal-header">
+                    <div>
+                        <div class="my-modal-title">Comparar Horarios</div>
+                        <div class="my-modal-subtitle">Selecciona con quién ver topes libres</div>
+                    </div>
+                    <button type="button" class="my-modal-close" onclick="cerrarModalCruce()" aria-label="Cerrar">&times;</button>
+                </div>
+                <div class="my-modal-body">
+                    <div id="cruce-checkboxes" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
+                        <!-- Checkboxes inyectados por JS -->
+                    </div>
+                    <button type="button" class="my-btn-primary" style="width: 100%;" onclick="ejecutarCruce()">Buscar Topes Libres</button>
+                </div>
+            </div>
+        </div>
     </section>
 </div>
 

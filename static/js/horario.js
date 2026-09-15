@@ -144,8 +144,18 @@ function generarHorarioCruce() {
     for (let dia = 1; dia <= 5; dia++) {
         for (let b of BLOQUES_HORARIOS) {
             const yo = MI_HORARIO_DATA.find(c => c.dia === dia && c.bloqueNum === b.num);
-            const el = HORARIOS_GUARDADOS['aleex1s'].find(c => c.dia === dia && c.bloqueNum === b.num);
-            if (!yo && !el) {
+            if (yo) continue;
+            
+            let alguienOcupado = false;
+            for (const amigo of cruceSeleccionados) {
+                const el = HORARIOS_GUARDADOS[amigo]?.find(c => c.dia === dia && c.bloqueNum === b.num);
+                if (el) {
+                    alguienOcupado = true;
+                    break;
+                }
+            }
+            
+            if (!alguienOcupado) {
                 cruce.push({
                     id: 'cruce-' + id_counter++,
                     dia: dia,
@@ -154,7 +164,7 @@ function generarHorarioCruce() {
                     bloqueLabel: b.label,
                     horaInicio: b.inicio,
                     horaFin: b.fin,
-                    curso: '¡Libres para estudiar/almorzar!',
+                    curso: '¡Todos libres!',
                     tipo: 'Cruce Libre',
                     seccion: '-',
                     sala: '-',
@@ -888,7 +898,7 @@ function renderMiHorario() {
                     const tipoHtml = `<span class="my-type-tag ${tipoCls}"><span>${escapeHtml(c.tipo || 'Cátedra')}</span>${secText}</span>`;
 
                     cardsHtml += `
-                        <div class="my-class-card ${c.rol === 'assistant' ? 'is-assistant' : (c.rol === 'cruce' ? 'is-cruce' : 'is-student')} ${isCurrent ? 'is-current-class' : ''}" id="card-${c.id}">
+                        <div class="my-class-card ${tipoCls} ${c.rol === 'assistant' ? 'is-assistant' : (c.rol === 'cruce' ? 'is-cruce' : 'is-student')} ${isCurrent ? 'is-current-class' : ''}" id="card-${c.id}">
                             <div class="my-card-header">
                                 <span class="my-card-time">
                                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
@@ -984,7 +994,7 @@ function renderMiHorario() {
                 const tipoHtml = `<span class="my-type-tag ${tipoCls}"><span>${escapeHtml(c.tipo || 'Cátedra')}</span>${secText}</span>`;
 
                 timelineCardsHtml += `
-                    <div class="my-timeline-card ${c.rol === 'assistant' ? 'is-assistant' : (c.rol === 'cruce' ? 'is-cruce' : 'is-student')} ${isCurrent ? 'is-current-class' : ''}" id="card-${c.id}">
+                    <div class="my-timeline-card ${tipoCls} ${c.rol === 'assistant' ? 'is-assistant' : (c.rol === 'cruce' ? 'is-cruce' : 'is-student')} ${isCurrent ? 'is-current-class' : ''}" id="card-${c.id}">
                         <div class="my-time-box">
                             <div class="my-time-range">${c.bloqueLabel}</div>
                             <div class="my-bloque-badge">Bloque ${c.bloqueNum} (80 min)</div>
@@ -1038,3 +1048,50 @@ function renderMiHorario() {
 }
 
 
+let cruceSeleccionados = [];
+
+function abrirModalCruce() {
+    const modal = document.getElementById('modal-cruce');
+    const container = document.getElementById('cruce-checkboxes');
+    if (!modal || !container) return;
+
+    let html = '';
+    for (const amigo in HORARIOS_GUARDADOS) {
+        if (amigo === 'yo') continue;
+        const nombre = amigo.charAt(0).toUpperCase() + amigo.slice(1);
+        html += `
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: var(--text-main); font-size: 14px;">
+                <input type="checkbox" value="${amigo}" checked style="accent-color: #a855f7; width: 18px; height: 18px;">
+                <span>Horario de ${escapeHtml(nombre)}</span>
+            </label>
+        `;
+    }
+    
+    if (html === '') {
+        html = '<div style="color: var(--text-dim);">No hay amigos agregados aún.</div>';
+    }
+
+    container.innerHTML = html;
+    modal.style.display = 'flex';
+}
+
+function cerrarModalCruce() {
+    const modal = document.getElementById('modal-cruce');
+    if (modal) modal.style.display = 'none';
+}
+
+function ejecutarCruce() {
+    const container = document.getElementById('cruce-checkboxes');
+    const checkboxes = container.querySelectorAll('input[type="checkbox"]:checked');
+    cruceSeleccionados = Array.from(checkboxes).map(cb => cb.value);
+
+    if (cruceSeleccionados.length === 0) {
+        mostrarToast('Debes seleccionar al menos un horario para comparar.');
+        return;
+    }
+
+    cerrarModalCruce();
+    
+    const btnCruce = document.querySelector('.pill-btn[onclick*="abrirModalCruce"]');
+    cambiarVistaHorario('cruce', btnCruce);
+}
