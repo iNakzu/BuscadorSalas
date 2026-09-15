@@ -1041,6 +1041,9 @@ function renderMiHorario() {
                 `;
             }
         });
+
+        container.innerHTML = `
+            <div class="my-timeline-container">
                 ${timelineCardsHtml}
             </div>
         `;
