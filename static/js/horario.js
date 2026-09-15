@@ -233,7 +233,7 @@ function actualizarHeroMiHorario() {
             <div class="my-hero-top">
                 <div class="my-hero-status-pill now">
                     <span class="pulse-dot"></span>
-                    <span>¡En Clase Ahora Mismo!</span>
+                    <span>${vistaHorarioActual === 'cruce' ? '¡Tope Libre Ahora Mismo!' : '¡En Clase Ahora Mismo!'}</span>
                 </div>
                 <div class="my-hero-top-badges">
                     <span class="my-room-pill ${claseActual.rol === 'assistant' ? 'is-assistant-room' : ''}" onclick="verHorarioDirecto('${claseActual.sala}')" title="Ver horario de la sala ${claseActual.sala}">
@@ -276,7 +276,7 @@ function actualizarHeroMiHorario() {
             <div class="my-hero-top">
                 <div class="my-hero-status-pill next">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                    <span>Próxima Clase Hoy en ${diffTexto}</span>
+                    <span>${vistaHorarioActual === 'cruce' ? `Próximo Tope Libre Hoy en ${diffTexto}` : `Próxima Clase Hoy en ${diffTexto}`}</span>
                 </div>
                 <div class="my-hero-top-badges">
                     <span class="my-room-pill ${proximaHoy.rol === 'assistant' ? 'is-assistant-room' : ''}" onclick="verHorarioDirecto('${proximaHoy.sala}')" title="Ver horario de la sala ${proximaHoy.sala}">
@@ -319,18 +319,20 @@ function actualizarHeroMiHorario() {
     }
 
     const msgSiguiente = siguienteClase
-        ? `Tu próxima clase es el <strong>${siguienteClase.diaNombre} a las ${siguienteClase.horaInicio}</strong> (${siguienteClase.curso} en sala <code class="my-room-pill" onclick="verHorarioDirecto('${siguienteClase.sala}')">${siguienteClase.sala}</code>).`
-        : '';
+        ? (vistaHorarioActual === 'cruce' 
+            ? `Próximo tope libre el <strong>${siguienteClase.diaNombre} a las ${siguienteClase.horaInicio}</strong>.`
+            : `Tu próxima clase es el <strong>${siguienteClase.diaNombre} a las ${siguienteClase.horaInicio}</strong> (${siguienteClase.curso} en sala <code class="my-room-pill" onclick="verHorarioDirecto('${siguienteClase.sala}')">${siguienteClase.sala}</code>).`)
+        : (vistaHorarioActual === 'cruce' ? 'No hay topes libres programados.' : 'No tienes más clases programadas.');
 
     heroEl.innerHTML = `
         <div class="my-hero-top">
             <div class="my-hero-status-pill done">
-                <span>✨ Jornada de Hoy Finalizada</span>
+                <span>✨ ${vistaHorarioActual === 'cruce' ? 'No hay más topes libres por hoy' : 'Jornada de Hoy Finalizada'}</span>
             </div>
         </div>
         <div class="my-hero-body">
             <div class="my-hero-class-info">
-                <div class="my-hero-title">¡No tienes más clases por hoy!</div>
+                <div class="my-hero-title">${vistaHorarioActual === 'cruce' ? 'Ya no quedan topes libres hoy' : '¡No tienes más clases por hoy!'}</div>
                 <div class="my-hero-subtitle">
                     <span>${msgSiguiente}</span>
                 </div>

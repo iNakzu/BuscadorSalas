@@ -475,10 +475,12 @@
     <!-- TAB 6: MI HORARIO (HORARIO PERSONALIZADO 2026-02) -->
     <section id="tab-mihorario" class="panel">
         <!-- SELECTOR DE HORARIOS -->
-        <div class="pill-bar" id="pill-bar-horarios" style="margin-bottom: 20px; justify-content: flex-start; overflow-x: auto; padding-bottom: 4px;">
-            <button type="button" class="pill-btn active" onclick="cambiarVistaHorario('yo', this)">Mi Horario</button>
-            <button type="button" class="pill-btn" onclick="cambiarVistaHorario('aleex1s', this)">Aleex1s</button>
-            <button type="button" class="pill-btn" onclick="abrirModalCruce()" style="border-color: #a855f7; color: #d8b4fe;">Topes Libres</button>
+        <div class="pill-bar" id="pill-bar-horarios" style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; overflow-x: auto; padding-bottom: 4px;">
+            <div style="display: flex; gap: 8px;">
+                <button type="button" class="pill-btn active" onclick="cambiarVistaHorario('yo', this)">Mi Horario</button>
+                <button type="button" class="pill-btn" onclick="cambiarVistaHorario('aleex1s', this)">Aleex1s</button>
+            </div>
+            <button type="button" class="pill-btn" onclick="abrirModalCruce()" style="border-color: #a855f7; color: #d8b4fe; white-space: nowrap;">Topes Libres</button>
         </div>
         <!-- WIDGET HERO EN TIEMPO REAL -->
         <div class="my-schedule-hero" id="my-schedule-hero">
