@@ -3367,26 +3367,6 @@
             color: #93c5fd;
         }
 
-        .my-type-tag.tipo-ayudantia {
-            color: #fde68a;
-        }
-
-        .my-type-tag.tipo-catedra {
-            color: #93c5fd;
-        }
-
-        .my-type-tag.tipo-laboratorio {
-            color: #d8b4fe;
-        }
-
-        .my-type-tag.tipo-taller {
-            color: #6ee7b7;
-        }
-
-        .my-type-tag.tipo-estudio {
-            color: #38bdf8;
-        }
-
         .my-type-sec {
             color: #94a3b8;
             font-size: 11px;
@@ -6170,8 +6150,11 @@
                         const startM = timeToMinutes(c.horaInicio);
                         const endM = timeToMinutes(c.horaFin);
                         const isCurrent = isToday && (totalMinutes >= startM && totalMinutes < endM);
+                        const isMyAssistant = (c.rol === 'assistant');
+                        const showTipo = !isMyAssistant;
                         const tipoCls = 'tipo-' + (c.tipo || 'Cátedra').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
-                        const secText = (c.seccion && !c.seccion.toLowerCase().includes('ayudantía que impartes')) ? `<span class="my-type-sec">• ${escapeHtml(c.seccion)}</span>` : '';
+                        const secText = (c.seccion && !c.seccion.toLowerCase().includes('ayudantía que impartes')) ? (showTipo ? `<span class="my-type-sec">• ${escapeHtml(c.seccion)}</span>` : `<span class="my-type-sec" style="margin-left:0;">${escapeHtml(c.seccion)}</span>`) : '';
+                        const tipoHtml = showTipo ? `<span class="my-type-tag ${tipoCls}"><span>${escapeHtml(c.tipo || 'Cátedra')}</span>${secText}</span>` : (secText ? `<span class="my-type-tag">${secText}</span>` : '');
 
                         cardsHtml += `
                             <div class="my-class-card ${c.rol === 'assistant' ? 'is-assistant' : 'is-student'} ${isCurrent ? 'is-current-class' : ''}" id="card-${c.id}">
@@ -6192,7 +6175,7 @@
                                 </div>
                                 <div class="my-card-title">${escapeHtml(c.curso)}</div>
                                 <div class="my-card-meta">
-                                    <span class="my-type-tag ${tipoCls}"><span>${escapeHtml(c.tipo || 'Cátedra')}</span>${secText}</span>
+                                    ${tipoHtml}
                                     ${c.profesor ? `<span class="my-prof-name" title="Docente: ${escapeHtml(c.profesor)}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> <span>${escapeHtml(c.profesor)}</span></span>` : ''}
                                 </div>
                                 <div class="my-card-footer">
@@ -6262,8 +6245,11 @@
                     const startM = timeToMinutes(c.horaInicio);
                     const endM = timeToMinutes(c.horaFin);
                     const isCurrent = isToday && (totalMinutes >= startM && totalMinutes < endM);
+                    const isMyAssistant = (c.rol === 'assistant');
+                    const showTipo = !isMyAssistant;
                     const tipoCls = 'tipo-' + (c.tipo || 'Cátedra').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
-                    const secText = (c.seccion && !c.seccion.toLowerCase().includes('ayudantía que impartes')) ? `<span class="my-type-sec">• ${escapeHtml(c.seccion)}</span>` : '';
+                    const secText = (c.seccion && !c.seccion.toLowerCase().includes('ayudantía que impartes')) ? (showTipo ? `<span class="my-type-sec">• ${escapeHtml(c.seccion)}</span>` : `<span class="my-type-sec" style="margin-left:0;">${escapeHtml(c.seccion)}</span>`) : '';
+                    const tipoHtml = showTipo ? `<span class="my-type-tag ${tipoCls}"><span>${escapeHtml(c.tipo || 'Cátedra')}</span>${secText}</span>` : (secText ? `<span class="my-type-tag">${secText}</span>` : '');
 
                     timelineCardsHtml += `
                         <div class="my-timeline-card ${c.rol === 'assistant' ? 'is-assistant' : 'is-student'} ${isCurrent ? 'is-current-class' : ''}" id="card-${c.id}">
@@ -6276,8 +6262,9 @@
                                     <span>${escapeHtml(c.curso)}</span>
                                 </div>
                                 <div class="my-info-meta">
-                                    ${c.rol === 'assistant' ? '<span class="my-role-badge badge-assistant">✍️ Ayudante</span><span>•</span>' : ''}
-                                    <span class="my-type-tag ${tipoCls}"><span>${escapeHtml(c.tipo || 'Cátedra')}</span>${secText}</span>
+                                    ${c.rol === 'assistant' ? '<span class="my-role-badge badge-assistant">✍️ Ayudante</span>' : ''}
+                                    ${(c.rol === 'assistant' && tipoHtml) ? '<span>•</span>' : ''}
+                                    ${tipoHtml}
                                     ${c.profesor ? `<span>• Prof: ${escapeHtml(c.profesor)}</span>` : ''}
                                 </div>
                             </div>
