@@ -8,6 +8,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Renderizado de fórmulas matemáticas KaTeX (LaTeX) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
     <style>
         :root {
             /* Diseño y colores originales aprobados */
@@ -1706,6 +1711,27 @@
             transform: translateY(-1px);
         }
 
+        /* FÓRMULAS MATEMÁTICAS KATEX */
+        .ai-msg .katex {
+            font-size: 1.08em;
+            color: #f1f5f9;
+        }
+        .ai-msg .katex-display {
+            margin: 10px 0;
+            padding: 10px 14px;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scrollbar-width: thin;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        .ai-msg .katex-display > .katex {
+            text-align: center;
+            display: block;
+        }
+
         /* ESTRUCTURA Y ELEMENTOS DE MENSAJES */
         .ai-section-title {
             font-size: 13.5px;
@@ -3232,6 +3258,42 @@
         enviarMensajeIA(displayText, queryText);
     }
 
+    function renderMathOnElement(element) {
+        if (!element) return;
+        const doRender = () => {
+            if (window.renderMathInElement) {
+                try {
+                    window.renderMathInElement(element, {
+                        delimiters: [
+                            {left: '$$', right: '$$', display: true},
+                            {left: '$', right: '$', display: false},
+                            {left: '\\[', right: '\\]', display: true},
+                            {left: '\\(', right: '\\)', display: false}
+                        ],
+                        throwOnError: false
+                    });
+                } catch (e) {
+                    console.warn('KaTeX render warning:', e);
+                }
+            }
+        };
+
+        if (window.renderMathInElement) {
+            doRender();
+        } else {
+            let tries = 0;
+            const checkTimer = setInterval(() => {
+                tries++;
+                if (window.renderMathInElement) {
+                    clearInterval(checkTimer);
+                    doRender();
+                } else if (tries > 25) {
+                    clearInterval(checkTimer);
+                }
+            }, 80);
+        }
+    }
+
     function buscarSalaEnApp(sala) {
         if (typeof verHorarioDirecto === 'function') {
             verHorarioDirecto(sala);
@@ -3241,10 +3303,36 @@
     function simpleMarkdown(text) {
         if (!text) return '';
         
-        // 1. Limpieza preventiva de cualquier placeholder o residuo de comando interno
+        // 1. Limpieza preventiva de residuos de comandos
         text = text.replace(/\[\s*(?:ACCION|ACCIÓN|accion)\s*:[^\]]*consulta a enviar[^\]]*\]/gi, '');
         text = text.replace(/(?:ACCION|ACCIÓN|accion)\s*:\s*consulta a enviar[^\n]*/gi, '');
         text = text.replace(/consulta a enviar/gi, '');
+
+        // 2. Proteger expresiones matemáticas LaTeX ($$...$$ y $...$) para que no sean alteradas por markdown
+        const mathBlocks = [];
+        // Fórmulas en bloque ($$...$$ o \[...\])
+        text = text.replace(/\$\$([\s\S]*?)\$\$/g, function(match) {
+            const token = `@@MATH_BLOCK_${mathBlocks.length}@@`;
+            mathBlocks.push({ token, content: match });
+            return `\n${token}\n`;
+        });
+        text = text.replace(/\\\[([\s\S]*?)\\\]/g, function(match, inner) {
+            const token = `@@MATH_BLOCK_${mathBlocks.length}@@`;
+            mathBlocks.push({ token, content: `$$${inner}$$` });
+            return `\n${token}\n`;
+        });
+
+        // Fórmulas en línea ($...$ o \(...\))
+        text = text.replace(/(^|[^\\])\$([^\$\n]+?)\$/g, function(match, prefix, inner) {
+            const token = `@@MATH_INLINE_${mathBlocks.length}@@`;
+            mathBlocks.push({ token, content: `$${inner}$` });
+            return `${prefix}${token}`;
+        });
+        text = text.replace(/\\\(([\s\S]*?)\\\)/g, function(match, inner) {
+            const token = `@@MATH_INLINE_${mathBlocks.length}@@`;
+            mathBlocks.push({ token, content: `$${inner}$` });
+            return token;
+        });
 
         let lines = text.split('\n');
         let htmlLines = [];
@@ -3264,6 +3352,12 @@
             }
             if (l.startsWith('## ')) {
                 htmlLines.push('<div class="ai-section-title"><span class="status-dot"></span> ' + l.substring(3) + '</div>');
+                continue;
+            }
+
+            // Si es un bloque de fórmula matemática aislado
+            if (/^@@MATH_BLOCK_\d+@@$/.test(l)) {
+                htmlLines.push('<div class="ai-math-container">' + l + '</div>');
                 continue;
             }
 
@@ -3350,6 +3444,11 @@
         // Salas y códigos en backticks (`V432.3.S315`)
         out = out.replace(/`([^`]+)`/g, '<code class="ai-room-pill" onclick="buscarSalaEnApp(\'$1\')" title="Ver horario de $1">$1</code>');
         
+        // Restaurar fórmulas matemáticas protegidas
+        for (let item of mathBlocks) {
+            out = out.split(item.token).join(item.content);
+        }
+
         return out;
     }
 
@@ -3397,6 +3496,7 @@
             const botDiv = document.createElement('div');
             botDiv.className = 'ai-msg bot';
             botDiv.innerHTML = simpleMarkdown(data.respuesta || 'Sin respuesta.');
+            renderMathOnElement(botDiv);
             area.appendChild(botDiv);
             area.scrollTop = area.scrollHeight;
         } catch (e) {

@@ -1492,7 +1492,8 @@ def responder_con_ia(mensaje_usuario):
         "5. FORMATO DE CLASES Y RAMOS: Cuando listes clases o asignaturas, usa SIEMPRE este formato:\n"
         "* [CLASE] HH:MM - HH:MM | `CODIGO_SALA` | Nombre del Curso | Sec. X\n"
         "6. LENGUAJE NATURAL: NUNCA inventes comandos internos, ni uses la palabra 'ACCION:' ni 'consulta a enviar'. Responde en lenguaje natural fluido.\n"
-        "7. Proporciona EXCLUSIVAMENTE la respuesta final redactada para el usuario, sin notas de verificación interna ni etiquetas como <thought>."
+        "7. FÓRMULAS MATEMÁTICAS Y CIENCIAS: La interfaz cuenta con renderizador KaTeX (LaTeX). Para fórmulas matemáticas, usa SIEMPRE notación LaTeX estándar con $$...$$ para fórmulas en bloque y $...$ para variables o expresiones en línea (por ejemplo: $x$, $f(x)$, $$\\int_{a}^{b} f(x)\\,dx$$, $$\\frac{df}{dx}$$).\n"
+        "8. Proporciona EXCLUSIVAMENTE la respuesta final redactada para el usuario, sin notas de verificación interna ni etiquetas como <thought>."
     )
 
     payload = {
