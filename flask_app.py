@@ -909,8 +909,11 @@ def extraer_hora_y_bloque(texto):
     return None, None
 
 def buscar_sala_en_texto(texto):
+    if not texto:
+        return None
     texto_norm = normalize_str(texto)
-    # Coincidencia directa exacta con límites de palabra para no confundir palabras comunes (ej. 'loca') con salas (ej. 'LOC')
+
+    # 1. Coincidencia directa exacta de código de sala completo (ej: E441.2.S203, V432.3.S315, LOC, ONLINE)
     for s in dm.all_rooms:
         s_norm = normalize_str(s)
         if '.' in s_norm or '-' in s_norm:
@@ -920,23 +923,98 @@ def buscar_sala_en_texto(texto):
             if re.search(rf'\b{re.escape(s_norm)}\b', texto_norm):
                 return s
 
+    # 2. Casos especiales: Auditorios y laboratorios específicos con nombre
+    if 'auditorio' in texto_norm or re.search(r'\bau\b', texto_norm):
+        if any(w in texto_norm for w in ['vergara', '432', 'v432']):
+            return 'V432.3.AU'
+        return 'E441.-1.AU'
+
+    if 'lab inf' in texto_norm or ('informatica' in texto_norm and 'lab' in texto_norm):
+        return 'E441.5. LAB INF'
+    if 'lab tel' in texto_norm or ('telecomunicaciones' in texto_norm and 'lab' in texto_norm):
+        return 'E441.5. LAB TEL'
+    if 'lab d' in texto_norm or 'laboratorio d' in texto_norm:
+        return 'E441.4.L.D'
+    if 'lab o' in texto_norm or 'laboratorio o' in texto_norm:
+        return 'E441.4.L.O'
+    if 'lab u' in texto_norm or 'laboratorio u' in texto_norm:
+        return 'E441.4.L.U'
+    if 'sim' in texto_norm and any(w in texto_norm for w in ['lab', 'sala', 'simulacion', 'v432']):
+        return 'V432.-1.SIM'
+    if 'erp' in texto_norm and any(w in texto_norm for w in ['lab', 'sala', 'v432']):
+        return 'V432.-1.ERP'
+    if 'fisica' in texto_norm and any(w in texto_norm for w in ['lab', 'laboratorio', 'v432']):
+        return 'V432.-1. FIS'
+
+    # 3. Extracción de número de sala (ej. 203, 315, 401, 102, etc.)
+    num_matches = re.findall(r'\b(?:sala|lab|laboratorio)?\s*([sSlL]?\d{3}[a-zA-Z]?)\b', texto, re.IGNORECASE)
+    sala_nums = []
+    for nm in num_matches:
+        digits = re.sub(r'^[SLsl]', '', nm)
+        if digits.isdigit() and len(digits) == 3:
+            sala_nums.append((digits, nm.upper()))
+
+    if not sala_nums:
+        for d in re.findall(r'\b\d{3}\b', texto):
+            sala_nums.append((d, f'S{d}'))
+
+    if sala_nums:
+        sala_num, raw_code = sala_nums[0]
+        edif = None
+        if '441' in texto_norm:
+            edif = 'E441'
+        elif '432' in texto_norm:
+            edif = 'V432'
+        elif '306' in texto_norm:
+            edif = 'E306'
+        elif '326' in texto_norm:
+            edif = 'E326'
+        elif '333' in texto_norm:
+            edif = 'E333'
+        elif '278' in texto_norm:
+            edif = 'E278'
+        elif '253' in texto_norm or 'manuel rodriguez' in texto_norm:
+            edif = 'M253'
+        elif 'vergara' in texto_norm:
+            edif = 'V432'
+        elif 'ejercito' in texto_norm:
+            edif = 'E441'  # Edificio principal de ingeniería
+
+        candidatos = []
+        for s in dm.all_rooms:
+            partes = s.split('.')
+            pref = partes[0]
+            last = partes[-1].upper()
+            last_digits = re.sub(r'\D', '', last)
+            if last_digits == sala_num:
+                candidatos.append((pref, s))
+
+        if candidatos:
+            if edif:
+                for pref, s in candidatos:
+                    if pref.startswith(edif):
+                        return s
+            for pref, s in candidatos:
+                if pref.startswith('E441') or pref.startswith('V432'):
+                    return s
+            return candidatos[0][1]
+
+    # 4. Coincidencia por tokens si hay al menos 2 tokens
     tokens = [w for w in clean_tokens(texto) if w not in STOPWORDS]
-    if not tokens:
-        return None
+    if tokens:
+        candidatos = []
+        for s in dm.all_rooms:
+            s_tokens = clean_tokens(s)
+            matches = [t for t in s_tokens if any(t == w for w in tokens)]
+            if matches:
+                score = len(matches) / len(s_tokens)
+                candidatos.append((len(matches), score, s))
+        if candidatos:
+            candidatos.sort(key=lambda x: (-x[0], -x[1]))
+            best = candidatos[0]
+            if best[0] >= 2:
+                return best[2]
 
-    candidatos = []
-    for s in dm.all_rooms:
-        s_tokens = clean_tokens(s)
-        matches = [t for t in s_tokens if any(t == w for w in tokens)]
-        if matches:
-            score = len(matches) / len(s_tokens)
-            candidatos.append((len(matches), score, s))
-
-    if candidatos:
-        candidatos.sort(key=lambda x: (-x[0], -x[1]))
-        best = candidatos[0]
-        if best[0] >= 2 or (len(clean_tokens(best[2])) == 1 and best[2].lower() in tokens and len(best[2]) >= 4):
-            return best[2]
     return None
 
 def consultar_estado_sala(sala_code, dia_id=None, bloque=None):
@@ -1013,43 +1091,98 @@ def consultar_docente_en_vivo(p_name):
 def generar_respuesta_horario_sala(sala_sel, dia_id=None):
     horario = horario_de_sala(sala_sel)
 
+    partes = sala_sel.split('.')
+    pref = partes[0]
+    edificios_nombres = {
+        'E441': 'Ejército 441 (Facultad de Ingeniería)',
+        'V432': 'Vergara 432 (Facultad de Ingeniería)',
+        'E306': 'Edificio Ejército 306',
+        'E326': 'Edificio Ejército 326',
+        'E333': 'Edificio Ejército 333',
+        'E278A': 'Edificio Ejército 278A',
+        'E278B': 'Edificio Ejército 278B',
+        'M253A': 'Edificio Manuel Rodríguez 253A',
+        'M253B': 'Edificio Manuel Rodríguez 253B',
+        'V275': 'Edificio Vergara 275',
+        'V210': 'Edificio Vergara 210',
+        'R105': 'Edificio República 105'
+    }
+    edif_label = edificios_nombres.get(pref, f"Edificio {pref}")
+    piso_label = f", Piso {partes[1]}" if len(partes) > 1 and partes[1].isdigit() else ""
+
+    dias_nombres = {1: 'Lunes', 2: 'Martes', 3: 'Miércoles', 4: 'Jueves', 5: 'Viernes'}
+
     if dia_id is None:
-        botones = ' '.join(f"[ACCION:horario sala {sala_sel} {DIAS_SEMANA[d].lower()}|{DIAS_SEMANA[d]}]" for d in range(1, 6))
+        botones = ' '.join(f"[ACCION:horario sala {sala_sel} {dias_nombres[d].lower()}|{dias_nombres[d]}]" for d in range(1, 6))
         botones += f" [ACCION:horario sala {sala_sel} toda la semana|Ver toda la semana]"
         return (
-            f"Encontré la sala `{sala_sel}`.\n\n"
-            f"¿Para qué día deseas consultar su programación de clases?\n\n"
+            f"Encontré la sala `{sala_sel}` ({edif_label}{piso_label}).\n\n"
+            f"¿Para qué día deseas consultar su programación de clases y horarios libres?\n\n"
             f"{botones}"
         )
 
     if dia_id == 'TODOS':
-        lineas = [f"Horario semanal completo para la sala `{sala_sel}`:\n"]
+        lineas = [f"Horario semanal completo para la sala `{sala_sel}` ({edif_label}{piso_label}):\n"]
         for d in range(1, 6):
             cl_dia = horario.get(d, [])
-            lineas.append(f"### {nombre_dia(d)}")
+            lineas.append(f"### {dias_nombres[d]}")
             if cl_dia:
                 for c in cl_dia:
                     sec = f"Sec. {c['seccion']}" if c['seccion'] != '-' else ""
-                    lineas.append(f"* [CLASE] {c['start']} - {c['finish']} | `{sala_sel}` | {format_title(c['curso'])} | {sec}")
+                    profe = f" ({c['profe'].title()})" if c['profe'] != 'No informado' else ""
+                    lineas.append(f"* [CLASE] {c['start']} - {c['finish']} | `{sala_sel}` | {format_title(c['curso'])}{profe} | {sec}")
             else:
-                lineas.append("* Sin clases programadas (sala desocupada todo el día)")
+                lineas.append("* [LIBRE] Jornada Completa | Sala Vacía (Disponible todo el día)")
             lineas.append("")
         return "\n".join(lineas)
 
-    dia_nom = nombre_dia(dia_id)
+    dia_nom = dias_nombres.get(dia_id, 'Lunes')
     cl_dia = horario.get(dia_id, [])
-    lineas = [f"Programación de clases para la sala `{sala_sel}` el día **{dia_nom}**:\n"]
-    if cl_dia:
+    total_clases = len(cl_dia)
+
+    bloques_info = []
+    for b in STANDARD_BLOCKS:
+        clase_en_bloque = None
         for c in cl_dia:
-            sec = f"Sec. {c['seccion']}" if c['seccion'] != '-' else ""
-            lineas.append(f"* [CLASE] {c['start']} - {c['finish']} | `{sala_sel}` | {format_title(c['curso'])} | {sec}")
+            ini = to_minutes(c['start'])
+            fin = to_minutes(c['finish'])
+            if ini <= b['end_min'] and fin >= b['start_min']:
+                clase_en_bloque = c
+                break
+        if clase_en_bloque:
+            sec = f"Sec. {clase_en_bloque['seccion']}" if clase_en_bloque['seccion'] != '-' else ""
+            profe = f" ({clase_en_bloque['profe'].title()})" if clase_en_bloque['profe'] != 'No informado' else ""
+            nombre_curso = format_title(clase_en_bloque['curso'])
+            bloques_info.append(f"* [CLASE] {clase_en_bloque['start']} - {clase_en_bloque['finish']} | `{sala_sel}` | {nombre_curso}{profe} | {sec}")
+        else:
+            bloques_info.append(f"* [LIBRE] {b['label']} | Sala Vacía (Disponible)")
+
+    lineas = []
+    if total_clases == 0:
+        lineas.append(f"El día **{dia_nom}**, la sala `{sala_sel}` ({edif_label}{piso_label}) **no tiene clases programadas**.\n")
+        lineas.append("🟢 **Sala completamente disponible durante toda la jornada** (08:30 a 18:45):\n")
+        for b in STANDARD_BLOCKS:
+            lineas.append(f"* [LIBRE] {b['label']} | Sala Vacía (Disponible)")
     else:
-        lineas.append("* Sin clases programadas en este día (sala disponible toda la jornada).")
+        cant_texto = f"**{total_clases} clases programadas**" if total_clases > 1 else "**1 clase programada**"
+        lineas.append(f"El día **{dia_nom}**, la sala `{sala_sel}` ({edif_label}{piso_label}) tiene {cant_texto} y está **disponible durante los demás bloques**:\n")
+        lineas.extend(bloques_info)
+
+        lineas.append("\n**Resumen:**")
+        clases_horas = [f"**{format_title(c['curso'])}** a las {c['start']}" for c in cl_dia]
+        lineas.append(f"- Hay {', '.join(clases_horas)}.")
+        libres_horas = []
+        for b in STANDARD_BLOCKS:
+            if not any(to_minutes(c['start']) <= b['end_min'] and to_minutes(c['finish']) >= b['start_min'] for c in cl_dia):
+                libres_horas.append(b['label'].split(' - ')[0])
+        if libres_horas:
+            lineas.append(f"- Horarios libres: {', '.join(libres_horas)}.")
 
     otros_dias = [d for d in range(1, 6) if d != dia_id]
-    botones = ' '.join(f"[ACCION:horario sala {sala_sel} {DIAS_SEMANA[d].lower()}|{DIAS_SEMANA[d]}]" for d in otros_dias)
+    botones = ' '.join(f"[ACCION:horario sala {sala_sel} {dias_nombres[d].lower()}|{dias_nombres[d]}]" for d in otros_dias)
     botones += f" [ACCION:horario sala {sala_sel} toda la semana|Ver toda la semana]"
     lineas.append(f"\n{botones}")
+
     return "\n".join(lineas)
 
 def generar_listado_todas_las_salas():
@@ -1325,11 +1458,11 @@ def responder_con_ia(mensaje_usuario, historial=None, imagen=None):
     bloque_detectado, hora_detectada = extraer_hora_y_bloque(mensaje_usuario)
     es_en_vivo = any(p in norm_msg for p in ['ahora', 'ahorita', 'en este momento', 'en vivo', 'actualmente', 'ya'])
 
-    # 4. Coincidencia de sala específica por código (ej: V432.3.S315, E441.4.L.D)
+    # 4. Coincidencia de sala específica por código o mención en texto (ej: V432.3.S315, E441.2.S203, sala 203 de ejercito)
     sala_especifica = buscar_sala_en_texto(mensaje_usuario)
     if sala_especifica:
-        pide_estado = any(w in norm_msg for w in ['libre', 'ocupada', 'vacia', 'ahora', 'estado', 'disponible', 'desocupada'])
-        if pide_estado or es_en_vivo:
+        pide_bloque_especifico = (es_en_vivo or bloque_detectado) and not any(w in norm_msg for w in ['horario', 'horarios', 'programacion', 'todas las clases', 'que clases', 'dime los horarios', 'cuando hay clase', 'cuando hay'])
+        if pide_bloque_especifico:
             return consultar_estado_sala(sala_especifica, dia_id=dia_detectado, bloque=bloque_detectado)
         return generar_respuesta_horario_sala(sala_especifica, dia_id=dia_detectado)
 
@@ -1493,6 +1626,23 @@ def generar_respuesta_gemini(mensaje_usuario, historial=None, imagen=None, dia_d
     vacias_ref, _, _ = obtener_salas(dia_bloque, bloque_ref['id'], "INGENIERIA")
 
     dia_detectado_val = dia_detectado if not imagen else None
+
+    # Inyectar programación real verificada si el usuario mencionó alguna sala, para blindar a Gemini contra alucinaciones
+    contexto_sala_real = ""
+    sala_en_query = buscar_sala_en_texto(mensaje_usuario)
+    if sala_en_query:
+        h_sala = horario_de_sala(sala_en_query)
+        lineas_h = []
+        for d in range(1, 6):
+            cl_d = h_sala.get(d, [])
+            d_nom = DIAS_SEMANA.get(d, "")
+            if cl_d:
+                detalles = [f"{c['start']}-{c['finish']}: {c['curso']} ({c['profe']}, Sec. {c['seccion']})" for c in cl_d]
+                lineas_h.append(f"  * {d_nom}: {', '.join(detalles)}")
+            else:
+                lineas_h.append(f"  * {d_nom}: Sin clases programadas (sala libre todo el día)")
+        contexto_sala_real = f"\nPROGRAMACIÓN OFICIAL VERIFICADA DE LA SALA `{sala_en_query}` (DATOS REALES DEL SISTEMA):\n" + "\n".join(lineas_h) + "\n"
+
     contexto_datos = (
         f"HORA Y FECHA EN TIEMPO REAL (Santiago de Chile):\n"
         f"- Hora actual exacta de Chile: {hora_actual_str}\n"
@@ -1501,6 +1651,7 @@ def generar_respuesta_gemini(mensaje_usuario, historial=None, imagen=None, dia_d
         f"- Salas libres en campus ahora: {len(vacias_ref)} salas disponibles en Ingeniería.\n"
         f"- Total salas registradas: {len(dm.all_rooms)} salas.\n"
         f"Día consultado o detectado: {nombre_dia(dia_detectado_val) if dia_detectado_val and dia_detectado_val != 'TODOS' else dia_nom_actual}\n"
+        f"{contexto_sala_real}"
     )
 
     prompt_sistema = (
@@ -1509,7 +1660,7 @@ def generar_respuesta_gemini(mensaje_usuario, historial=None, imagen=None, dia_d
         "1. VERSATILIDAD Y AMPLITUD: Si el usuario te pregunta por la hora, fecha, dudas de asignaturas, programación, ciencias, matemáticas, cultura general, o cualquier tema no relacionado a las salas, RESPONDE DE FORMA DIRECTA, EXACTA Y ÚTIL a lo que preguntó. No restrinjas tu respuesta ni intentes forzar temas de salas si la pregunta no viene al caso.\n"
         "2. ANÁLISIS DE IMÁGENES: Si el usuario adjunta una imagen (foto de ejercicio, pizarra, apunte, horario, diagrama, código o captura), analízala con máxima atención y responde resolviendo o explicando lo que solicita de forma clara y detallada.\n"
         "3. HORA Y FECHA EXACTA: Tienes la hora y fecha actual exacta de Santiago de Chile en el contexto ('HORA Y FECHA EN TIEMPO REAL'). Si el usuario te pregunta qué hora es, qué día es hoy o la fecha, responde con esa información exacta con total seguridad.\n"
-        "4. DISPONIBILIDAD DE SALAS Y DOCENCIA: Si la pregunta sí trata sobre disponibilidad de salas, horarios, docentes o asignaturas, responde con precisión usando la información del sistema. NUNCA menciones la sigla 'UDP' ni 'Universidad Diego Portales'; refiérete únicamente como 'Disponibilidad de Salas'.\n"
+        "4. DATOS REALES OBLIGATORIOS Y CERO ALUCINACIONES: NUNCA INVENTES clases, horarios, profesores ni salas que no existan en el sistema oficial. Si el usuario te pregunta por las clases de una sala, guíate EXCLUSIVAMENTE por los datos del contexto ('PROGRAMACIÓN OFICIAL VERIFICADA'). Si no tienes la programación exacta en tus datos, indícale amablemente que use el buscador de salas de la plataforma en vez de inventar asignaturas ficticias (como 'Cálculo', 'Álgebra', etc.). NUNCA menciones la sigla 'UDP' ni 'Universidad Diego Portales'; refiérete únicamente como 'Disponibilidad de Salas'.\n"
         "5. DIRECTO AL GRANO: Responde de forma clara y concisa, sin saludos largos ni introducciones innecesarias.\n"
         "6. FORMATO DE CLASES Y RAMOS: Cuando listes clases o asignaturas, usa SIEMPRE este formato:\n"
         "* [CLASE] HH:MM - HH:MM | `CODIGO_SALA` | Nombre del Curso | Sec. X\n"

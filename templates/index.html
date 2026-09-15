@@ -3657,6 +3657,36 @@
                 continue;
             }
 
+            // Detectar formato de bloque disponible / sala libre: * [LIBRE] 10:00 - 11:20 | Sala Vacía (Disponible)
+            if (l.startsWith('* [LIBRE] ') || l.startsWith('- [LIBRE] ') || l.startsWith('[LIBRE] ')) {
+                let raw = l.replace(/^(\*|-)?\s*\[LIBRE\]\s*/i, '').trim();
+                let parts = raw.split('|').map(p => p.trim());
+                let time = parts[0] || '';
+                let label = parts[1] || 'Sala Vacía (Disponible)';
+
+                htmlLines.push(`
+                    <div class="ai-class-card ai-free-card" style="border-color: rgba(16, 185, 129, 0.25); background: rgba(16, 185, 129, 0.05);">
+                        <span class="ai-list-dot" style="background: #10b981; box-shadow: 0 0 8px #10b981;"></span>
+                        <div class="ai-class-body">
+                            <div class="ai-course-row">
+                                <span class="ai-course-title" style="color: #34d399; font-weight: 600;">${label}</span>
+                                <span class="ai-sec-badge" style="background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border-color: rgba(16, 185, 129, 0.3);">Disponible</span>
+                            </div>
+                            <div class="ai-class-meta">
+                                <span class="ai-time-pill" style="color: #34d399; border-color: rgba(52, 211, 153, 0.3); background: rgba(52, 211, 153, 0.1);">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                    </svg>
+                                    ${time}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `);
+                continue;
+            }
+
             // Viñeta estándar con punto intermitente animado
             if (l.startsWith('* ') || l.startsWith('- ')) {
                 let content = l.substring(2);
