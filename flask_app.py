@@ -1668,7 +1668,7 @@ def generar_respuesta_gemini(mensaje_usuario, historial=None, imagen=None, dia_d
         f"  * 16:00 - 17:20 | `E441.3.S302` | Evaluación de Proyectos TIC | Sec. 1 (Cátedra, Prof. Eduardo Faivovich) [Estudiante]\n"
         f"  * 17:25 - 18:45 | `E441.3.S302` | Arquitecturas Emergentes | Sec. 2 (Cátedra, Prof. Carlos García) [Estudiante]\n"
         f"- Martes:\n"
-        f"  * 11:30 - 12:50 | `E306.1.S107` | Álgebra Lineal A. [Ayudante que imparte el usuario]\n"
+        f"  * 11:30 - 12:50 | `E306.1.S107` | Álgebra Lineal A. | Sec. 19 (Ayudantía, Prof. Matías Robotham) [Ayudante que imparte el usuario]\n"
         f"  * 13:00 - 14:20 | `E441.4.S402` | Introducción a la Economía | Sec. 4 (Cátedra, Prof. Jaime Calcagno) [Estudiante]\n"
         f"  * 17:25 - 18:45 | `V432.3.S315` | Inteligencia Artificial A. | Sec. 2 (Ayudantía) [Estudiante]\n"
         f"- Miércoles:\n"
@@ -1682,10 +1682,10 @@ def generar_respuesta_gemini(mensaje_usuario, historial=None, imagen=None, dia_d
         f"  * 16:00 - 17:20 | `E441.3.S302` | Evaluación de Proyectos TIC | Sec. 1 (Cátedra, Prof. Eduardo Faivovich) [Estudiante]\n"
         f"  * 17:25 - 18:45 | `E441.3.S302` | Arquitecturas Emergentes | Sec. 2 (Cátedra, Prof. Carlos García) [Estudiante]\n"
         f"- Viernes:\n"
-        f"  * 11:30 - 12:50 | `E441.4.S401` | Mecánica A. [Ayudante que imparte el usuario]\n"
+        f"  * 11:30 - 12:50 | `E441.4.S401` | Mecánica A. | Sec. 13 (Ayudantía, Prof. Karina Arancibia) [Ayudante que imparte el usuario]\n"
         f"  * 13:00 - 14:20 | `E441.4.S402` | Introducción a la Economía | Sec. 4 (Cátedra, Prof. Jaime Calcagno) [Estudiante]\n"
-        f"  * 14:30 - 15:50 | `E306.1.S101` | Introducción al Álgebra A. [Ayudante que imparte el usuario]\n"
-        f"  * 16:00 - 17:20 | `E306.2.S208` | Álgebra Lineal A. [Ayudante que imparte el usuario]\n"
+        f"  * 14:30 - 15:50 | `E306.1.S101` | Introducción al Álgebra A. | Sec. 3 (Ayudantía, Prof. Jaime Contreras) [Ayudante que imparte el usuario]\n"
+        f"  * 16:00 - 17:20 | `E306.2.S208` | Álgebra Lineal A. | Sec. 11 (Ayudantía, Prof. Rosa Rivero) [Ayudante que imparte el usuario]\n"
     )
 
     prompt_sistema = (

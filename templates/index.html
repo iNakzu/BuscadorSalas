@@ -3367,6 +3367,11 @@
             color: #93c5fd;
         }
 
+        .my-class-card.is-assistant .my-type-tag,
+        .my-timeline-card.is-assistant .my-type-tag {
+            color: #fbbf24;
+        }
+
         .my-type-sec {
             color: #94a3b8;
             font-size: 11px;
@@ -5147,9 +5152,9 @@
             horaFin: '12:50',
             curso: 'Álgebra Lineal A.',
             tipo: 'Ayudantía',
-            seccion: '',
+            seccion: 'Sec. 19',
             sala: 'E306.1.S107',
-            profesor: '',
+            profesor: 'Matías Robotham',
             rol: 'assistant'
         },
         {
@@ -5318,9 +5323,9 @@
             horaFin: '12:50',
             curso: 'Mecánica A.',
             tipo: 'Ayudantía',
-            seccion: '',
+            seccion: 'Sec. 13',
             sala: 'E441.4.S401',
-            profesor: '',
+            profesor: 'Karina Arancibia',
             rol: 'assistant'
         },
         {
@@ -5348,9 +5353,9 @@
             horaFin: '15:50',
             curso: 'Introducción al Álgebra A.',
             tipo: 'Ayudantía',
-            seccion: '',
+            seccion: 'Sec. 3',
             sala: 'E306.1.S101',
-            profesor: '',
+            profesor: 'Jaime Contreras',
             rol: 'assistant'
         },
         {
@@ -5363,9 +5368,9 @@
             horaFin: '17:20',
             curso: 'Álgebra Lineal A.',
             tipo: 'Ayudantía',
-            seccion: '',
+            seccion: 'Sec. 11',
             sala: 'E306.2.S208',
-            profesor: '',
+            profesor: 'Rosa Rivero',
             rol: 'assistant'
         }
     ];
@@ -5386,10 +5391,27 @@
         if (!list) {
             list = JSON.parse(JSON.stringify(MI_HORARIO_DEFAULT_DATA));
         }
-        // Limpiar "Ayudantía que impartes" de cualquier dato precargado o persistido
+        // Limpiar "Ayudantía que impartes" y sincronizar secciones y profesores de ayudantías
         list.forEach(c => {
             if (c.seccion && c.seccion.toLowerCase().includes('ayudantía que impartes')) {
                 c.seccion = '';
+            }
+            if (c.id === 'mar-1') {
+                c.seccion = 'Sec. 19';
+                c.profesor = 'Matías Robotham';
+                c.tipo = 'Ayudantía';
+            } else if (c.id === 'vie-1') {
+                c.seccion = 'Sec. 13';
+                c.profesor = 'Karina Arancibia';
+                c.tipo = 'Ayudantía';
+            } else if (c.id === 'vie-3') {
+                c.seccion = 'Sec. 3';
+                c.profesor = 'Jaime Contreras';
+                c.tipo = 'Ayudantía';
+            } else if (c.id === 'vie-4') {
+                c.seccion = 'Sec. 11';
+                c.profesor = 'Rosa Rivero';
+                c.tipo = 'Ayudantía';
             }
         });
         return list;
@@ -6170,11 +6192,9 @@
                         const startM = timeToMinutes(c.horaInicio);
                         const endM = timeToMinutes(c.horaFin);
                         const isCurrent = isToday && (totalMinutes >= startM && totalMinutes < endM);
-                        const isMyAssistant = (c.rol === 'assistant');
-                        const showTipo = !isMyAssistant;
                         const tipoCls = 'tipo-' + (c.tipo || 'Cátedra').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
-                        const secText = (c.seccion && !c.seccion.toLowerCase().includes('ayudantía que impartes')) ? (showTipo ? `<span class="my-type-sec">• ${escapeHtml(c.seccion)}</span>` : `<span class="my-type-sec" style="margin-left:0;">${escapeHtml(c.seccion)}</span>`) : '';
-                        const tipoHtml = showTipo ? `<span class="my-type-tag ${tipoCls}"><span>${escapeHtml(c.tipo || 'Cátedra')}</span>${secText}</span>` : (secText ? `<span class="my-type-tag">${secText}</span>` : '');
+                        const secText = (c.seccion && !c.seccion.toLowerCase().includes('ayudantía que impartes')) ? `<span class="my-type-sec">• ${escapeHtml(c.seccion)}</span>` : '';
+                        const tipoHtml = `<span class="my-type-tag ${tipoCls}"><span>${escapeHtml(c.tipo || 'Cátedra')}</span>${secText}</span>`;
 
                         cardsHtml += `
                             <div class="my-class-card ${c.rol === 'assistant' ? 'is-assistant' : 'is-student'} ${isCurrent ? 'is-current-class' : ''}" id="card-${c.id}">
@@ -6265,11 +6285,9 @@
                     const startM = timeToMinutes(c.horaInicio);
                     const endM = timeToMinutes(c.horaFin);
                     const isCurrent = isToday && (totalMinutes >= startM && totalMinutes < endM);
-                    const isMyAssistant = (c.rol === 'assistant');
-                    const showTipo = !isMyAssistant;
                     const tipoCls = 'tipo-' + (c.tipo || 'Cátedra').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
-                    const secText = (c.seccion && !c.seccion.toLowerCase().includes('ayudantía que impartes')) ? (showTipo ? `<span class="my-type-sec">• ${escapeHtml(c.seccion)}</span>` : `<span class="my-type-sec" style="margin-left:0;">${escapeHtml(c.seccion)}</span>`) : '';
-                    const tipoHtml = showTipo ? `<span class="my-type-tag ${tipoCls}"><span>${escapeHtml(c.tipo || 'Cátedra')}</span>${secText}</span>` : (secText ? `<span class="my-type-tag">${secText}</span>` : '');
+                    const secText = (c.seccion && !c.seccion.toLowerCase().includes('ayudantía que impartes')) ? `<span class="my-type-sec">• ${escapeHtml(c.seccion)}</span>` : '';
+                    const tipoHtml = `<span class="my-type-tag ${tipoCls}"><span>${escapeHtml(c.tipo || 'Cátedra')}</span>${secText}</span>`;
 
                     timelineCardsHtml += `
                         <div class="my-timeline-card ${c.rol === 'assistant' ? 'is-assistant' : 'is-student'} ${isCurrent ? 'is-current-class' : ''}" id="card-${c.id}">
