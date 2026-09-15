@@ -177,9 +177,9 @@ function generarHorarioCruce() {
 }
 
 function getHorarioActivo() {
-    if (vistaHorarioActual === 'aleex1s') return HORARIOS_GUARDADOS['aleex1s'];
     if (vistaHorarioActual === 'cruce') return generarHorarioCruce();
-    return MI_HORARIO_DATA;
+    if (vistaHorarioActual === 'yo') return MI_HORARIO_DATA;
+    return HORARIOS_GUARDADOS[vistaHorarioActual] || MI_HORARIO_DATA;
 }
 
 function actualizarHeroMiHorario() {

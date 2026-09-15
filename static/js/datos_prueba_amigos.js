@@ -403,21 +403,7 @@ const HORARIOS_GUARDADOS = {
         "profesor": "-",
         "rol": "student"
     },
-    {
-        "id": "mie-1-2",
-        "dia": 3,
-        "diaNombre": "Miércoles",
-        "bloqueNum": 1,
-        "bloqueLabel": "08:30 - 09:50",
-        "horaInicio": "08:30",
-        "horaFin": "09:50",
-        "curso": "Tecnologías Inalámbricas",
-        "tipo": "Ayudantía",
-        "seccion": "-",
-        "sala": "-",
-        "profesor": "-",
-        "rol": "student"
-    },
+
     {
         "id": "mie-6",
         "dia": 3,
