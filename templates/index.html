@@ -2746,9 +2746,9 @@
             -webkit-backdrop-filter: blur(8px);
             z-index: 9999;
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             justify-content: center;
-            padding: 16px 16px;
+            padding: 24px 16px;
             overflow-y: auto;
             animation: modalFadeIn 0.2s ease-out;
         }
@@ -2764,12 +2764,11 @@
             border-radius: 20px;
             width: 100%;
             max-width: 600px;
-            min-height: min(840px, 92vh);
-            max-height: calc(100vh - 32px);
+            max-height: calc(100vh - 48px);
             overflow-y: auto;
             box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.85);
             padding: 26px 28px;
-            margin-bottom: 16px;
+            margin: auto;
             display: flex;
             flex-direction: column;
             animation: modalScaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
@@ -2863,8 +2862,8 @@
         }
 
         .my-real-classes-list {
-            max-height: 330px;
-            min-height: 180px;
+            max-height: 240px;
+            min-height: 130px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
@@ -3039,36 +3038,47 @@
             color: #ffffff;
         }
 
-        /* SELECTOR DE TIPO POR PÍLDORAS (NO NATIVO) */
+        /* SELECTOR DE TIPO POR PÍLDORAS - SEGMENTED CONTROL DOCK */
         .my-tipo-pills {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 4px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 4px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .my-tipo-pill {
-            background: rgba(15, 23, 42, 0.65);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: transparent;
+            border: 1px solid transparent;
             color: #94a3b8;
-            padding: 6px 12px;
+            padding: 8px 4px;
             border-radius: 8px;
-            font-size: 12px;
+            font-size: 12.5px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            user-select: none;
         }
 
         .my-tipo-pill:hover {
-            border-color: rgba(255, 255, 255, 0.25);
             color: #f1f5f9;
+            background: rgba(255, 255, 255, 0.05);
         }
 
         .my-tipo-pill.active {
-            background: rgba(59, 130, 246, 0.2);
-            border-color: #3b82f6;
-            color: #93c5fd;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.35) 0%, rgba(37, 99, 235, 0.25) 100%);
+            border: 1px solid rgba(96, 165, 250, 0.55);
+            color: #ffffff;
             font-weight: 700;
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.25);
+            box-shadow: 0 2px 10px rgba(37, 99, 235, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
         }
 
         /* EFECTO DE AUTOCOMPLETADO SUAVE */
@@ -3081,43 +3091,63 @@
             animation: fieldAutofillGlow 1.2s ease-out;
         }
 
+        /* SELECTOR DE ROL - SEGMENTED CONTROL DOCK */
         .my-role-selector {
-            display: flex;
-            gap: 10px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 4px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .my-role-btn {
-            flex: 1;
-            padding: 9px 14px;
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(15, 23, 42, 0.6);
+            background: transparent;
+            border: 1px solid transparent;
             color: #94a3b8;
+            padding: 9px 16px;
+            border-radius: 8px;
             font-size: 13px;
-            font-weight: 700;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 8px;
+            user-select: none;
         }
 
         .my-role-btn:hover {
-            border-color: rgba(255, 255, 255, 0.25);
             color: #f8fafc;
+            background: rgba(255, 255, 255, 0.05);
         }
 
         .my-role-btn.active#btn-modal-rol-student {
-            background: rgba(56, 189, 248, 0.15);
-            border-color: #38bdf8;
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.25) 0%, rgba(37, 99, 235, 0.2) 100%);
+            border: 1px solid rgba(56, 189, 248, 0.6);
             color: #38bdf8;
+            font-weight: 700;
+            box-shadow: 0 2px 12px rgba(56, 189, 248, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
         }
 
         .my-role-btn.active#btn-modal-rol-assistant {
-            background: rgba(245, 158, 11, 0.15);
-            border-color: #f59e0b;
-            color: #f59e0b;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(217, 119, 6, 0.2) 100%);
+            border: 1px solid rgba(245, 158, 11, 0.6);
+            color: #fbbf24;
+            font-weight: 700;
+            box-shadow: 0 2px 12px rgba(245, 158, 11, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        @media (max-width: 480px) {
+            .my-tipo-pills {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .my-modal-dialog {
+                padding: 20px 16px;
+            }
         }
 
 
@@ -4075,22 +4105,15 @@
                         <input type="text" class="my-form-input" id="modal-add-curso" placeholder="Ej. Cálculo II, Redes de Datos, Mecánica, Física..." required autocomplete="off">
                     </div>
 
-                    <div class="my-form-row">
-                        <div class="my-form-group" style="flex: 1.1; position: relative;">
-                            <label class="my-form-label" for="modal-add-sala">Sala Asignada *</label>
-                            <input type="text" class="my-form-input" id="modal-add-sala" placeholder="Ej. E441.2.S201, V432.3.S312..." required autocomplete="off" oninput="filtrarSalasDropdown(this.value)" onfocus="abrirSalasDropdown()">
-                            <div class="my-custom-dropdown" id="modal-salas-dropdown" style="display: none;"></div>
-                        </div>
-                        <div class="my-form-group" style="flex: 1.3;">
-                            <label class="my-form-label">Tipo de Clase</label>
-                            <input type="hidden" id="modal-add-tipo" value="Cátedra">
-                            <div class="my-tipo-pills" id="modal-tipo-pills">
-                                <button type="button" class="my-tipo-pill active" onclick="setModalTipo('Cátedra', this)">Cátedra</button>
-                                <button type="button" class="my-tipo-pill" onclick="setModalTipo('Ayudantía', this)">Ayudantía</button>
-                                <button type="button" class="my-tipo-pill" onclick="setModalTipo('Laboratorio', this)">Lab</button>
-                                <button type="button" class="my-tipo-pill" onclick="setModalTipo('Taller', this)">Taller</button>
-                                <button type="button" class="my-tipo-pill" onclick="setModalTipo('Estudio', this)">Estudio</button>
-                            </div>
+                    <div class="my-form-group">
+                        <label class="my-form-label">Tipo de Clase</label>
+                        <input type="hidden" id="modal-add-tipo" value="Cátedra">
+                        <div class="my-tipo-pills" id="modal-tipo-pills">
+                            <button type="button" class="my-tipo-pill active" data-tipo="Cátedra" onclick="setModalTipo('Cátedra', this)">Cátedra</button>
+                            <button type="button" class="my-tipo-pill" data-tipo="Ayudantía" onclick="setModalTipo('Ayudantía', this)">Ayudantía</button>
+                            <button type="button" class="my-tipo-pill" data-tipo="Laboratorio" onclick="setModalTipo('Laboratorio', this)">Lab</button>
+                            <button type="button" class="my-tipo-pill" data-tipo="Taller" onclick="setModalTipo('Taller', this)">Taller</button>
+                            <button type="button" class="my-tipo-pill" data-tipo="Estudio" onclick="setModalTipo('Estudio', this)">Estudio</button>
                         </div>
                     </div>
 
@@ -4107,14 +4130,20 @@
                     </div>
 
                     <div class="my-form-row">
-                        <div class="my-form-group" style="flex: 1;">
+                        <div class="my-form-group" style="flex: 1.1; position: relative;">
+                            <label class="my-form-label" for="modal-add-sala">Sala Asignada *</label>
+                            <input type="text" class="my-form-input" id="modal-add-sala" placeholder="Ej. E441.2.S201, V432.3.S312..." required autocomplete="off" oninput="filtrarSalasDropdown(this.value)" onfocus="abrirSalasDropdown()">
+                            <div class="my-custom-dropdown" id="modal-salas-dropdown" style="display: none;"></div>
+                        </div>
+                        <div class="my-form-group" style="flex: 0.9;">
                             <label class="my-form-label" for="modal-add-seccion">Sección (opcional)</label>
                             <input type="text" class="my-form-input" id="modal-add-seccion" placeholder="Ej. Sec. 1" value="" autocomplete="off">
                         </div>
-                        <div class="my-form-group" style="flex: 1.3;">
-                            <label class="my-form-label" for="modal-add-profesor">Profesor (opcional)</label>
-                            <input type="text" class="my-form-input" id="modal-add-profesor" placeholder="Nombre del docente" value="" autocomplete="off">
-                        </div>
+                    </div>
+
+                    <div class="my-form-group">
+                        <label class="my-form-label" for="modal-add-profesor">Profesor (opcional)</label>
+                        <input type="text" class="my-form-input" id="modal-add-profesor" placeholder="Nombre del docente" value="" autocomplete="off">
                     </div>
 
                     <div class="my-modal-actions">
@@ -5680,8 +5709,9 @@
             const pills = container.querySelectorAll('.my-tipo-pill');
             pills.forEach(p => {
                 const txt = p.textContent.trim().toLowerCase();
+                const dtipo = (p.dataset.tipo || '').trim().toLowerCase();
                 const target = (tipo || '').trim().toLowerCase();
-                if (txt === target || (target.startsWith('lab') && txt === 'lab') || (target.startsWith('estud') && txt === 'estudio')) {
+                if (txt === target || dtipo === target || (target.startsWith('lab') && (txt === 'lab' || dtipo.startsWith('lab'))) || (target.startsWith('estud') && (txt === 'estudio' || dtipo.startsWith('estud')))) {
                     p.classList.add('active');
                 }
             });
