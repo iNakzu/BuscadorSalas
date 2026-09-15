@@ -4172,7 +4172,7 @@
                                 <span>🎓 Estudiante</span>
                             </button>
                             <button type="button" class="my-role-btn" id="btn-modal-rol-assistant" onclick="setModalRol('assistant')">
-                                <span>✍️ Ayudante</span>
+                                <span>Ayudante</span>
                             </button>
                         </div>
                     </div>
@@ -5551,7 +5551,6 @@
                         <span>¡En Clase Ahora Mismo!</span>
                     </div>
                     <div class="my-hero-top-badges">
-                        ${claseActual.rol === 'assistant' ? '<span class="my-role-badge badge-assistant">✍️ Ayudante</span>' : ''}
                         <span class="my-room-pill ${claseActual.rol === 'assistant' ? 'is-assistant-room' : ''}" onclick="verHorarioDirecto('${claseActual.sala}')" title="Ver horario de la sala ${claseActual.sala}">
                             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
                             <span>Sala ${claseActual.sala}</span>
@@ -5595,7 +5594,6 @@
                         <span>Próxima Clase Hoy en ${diffTexto}</span>
                     </div>
                     <div class="my-hero-top-badges">
-                        ${proximaHoy.rol === 'assistant' ? '<span class="my-role-badge badge-assistant">✍️ Ayudante</span>' : ''}
                         <span class="my-room-pill ${proximaHoy.rol === 'assistant' ? 'is-assistant-room' : ''}" onclick="verHorarioDirecto('${proximaHoy.sala}')" title="Ver horario de la sala ${proximaHoy.sala}">
                             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
                             <span>Sala ${proximaHoy.sala}</span>
@@ -6218,15 +6216,12 @@
                                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                                         <span>${c.bloqueLabel}</span>
                                     </span>
-                                    <div style="display: flex; align-items: center; gap: 5px;">
-                                        ${c.rol === 'assistant' ? '<span class="my-role-emoji" title="Ayudante">✍️</span>' : ''}
-                                        <button type="button" class="my-btn-delete" onclick="eliminarClaseMiHorario('${c.id}', event)" title="Eliminar asignatura de este bloque">
-                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M3 6h18"></path>
-                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                            </svg>
-                                        </button>
-                                    </div>
+                                    <button type="button" class="my-btn-delete" onclick="eliminarClaseMiHorario('${c.id}', event)" title="Eliminar asignatura de este bloque">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M3 6h18"></path>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                        </svg>
+                                    </button>
                                 </div>
                                 <div class="my-card-title">${escapeHtml(c.curso)}</div>
                                 <div class="my-card-meta">
@@ -6321,8 +6316,6 @@
                                     <span>${escapeHtml(c.curso)}</span>
                                 </div>
                                 <div class="my-info-meta">
-                                    ${c.rol === 'assistant' ? '<span class="my-role-badge badge-assistant">✍️ Ayudante</span>' : ''}
-                                    ${(c.rol === 'assistant' && tipoHtml) ? '<span>•</span>' : ''}
                                     ${tipoHtml}
                                     ${c.profesor ? `<span>• Prof: ${escapeHtml(c.profesor)}</span>` : ''}
                                 </div>
