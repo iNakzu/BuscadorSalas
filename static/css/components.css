@@ -1,0 +1,984 @@
+/* GRILLA Y CASILLAS DE SALAS LIBRES (VERDE REDISEÑADO) */
+.rooms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 28px;
+}
+
+.room-card {
+    position: relative;
+    background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(15, 23, 42, 0.72) 100%);
+    border: 1px solid rgba(16, 185, 129, 0.24);
+    border-radius: 12px;
+    padding: 11px 13px 10px;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(52, 211, 153, 0.16);
+    overflow: hidden;
+}
+
+.room-card-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.room-time-indicator {
+    font-size: 11px;
+    font-weight: 600;
+    color: #6ee7b7;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+    transition: color 0.18s ease;
+}
+
+.room-card:hover .room-time-indicator {
+    color: #a7f3d0;
+}
+
+.room-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 20%;
+    right: 20%;
+    height: 1.5px;
+    background: linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.75), transparent);
+    transition: all 0.25s ease;
+}
+
+.room-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(52, 211, 153, 0.6);
+    background: linear-gradient(180deg, rgba(16, 185, 129, 0.16) 0%, rgba(15, 23, 42, 0.88) 100%);
+    box-shadow: 0 10px 24px -4px rgba(16, 185, 129, 0.3), inset 0 1px 0 rgba(52, 211, 153, 0.35);
+}
+
+.room-card:hover::before {
+    left: 5%;
+    right: 5%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #34d399, transparent);
+    box-shadow: 0 0 8px #34d399;
+}
+
+.room-code {
+    font-size: 14px;
+    font-weight: 700;
+    color: #f8fafc;
+    letter-spacing: 0.02em;
+    transition: color 0.18s ease;
+}
+
+.room-card:hover .room-code {
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(52, 211, 153, 0.4);
+}
+
+.room-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #34d399;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(52, 211, 153, 0.24);
+    padding: 3px 9px;
+    border-radius: 20px;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    transition: all 0.18s ease;
+}
+
+.room-card:hover .room-status-badge {
+    background: rgba(16, 185, 129, 0.22);
+    border-color: rgba(52, 211, 153, 0.45);
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 6px #10b981;
+    display: inline-block;
+    animation: pulseDot 2.2s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+    0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 6px #10b981; }
+    50% { opacity: 0.6; transform: scale(0.85); box-shadow: 0 0 2px #10b981; }
+}
+
+/* TARJETAS DE SALAS OCUPADAS (MISMO DISEÑO ELEGANTE QUE LAS VERDES) */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+}
+
+.item-card {
+    position: relative;
+    background: linear-gradient(180deg, rgba(244, 63, 94, 0.08) 0%, rgba(15, 23, 42, 0.72) 100%);
+    border: 1px solid rgba(244, 63, 94, 0.24);
+    border-radius: 12px;
+    padding: 15px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(251, 113, 133, 0.16);
+}
+
+/* Línea de resplandor superior (igual a la casilla verde, en tono coral) */
+.item-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 20%;
+    right: 20%;
+    height: 1.5px;
+    background: linear-gradient(90deg, transparent, rgba(251, 113, 133, 0.75), transparent);
+    transition: all 0.25s ease;
+}
+
+.item-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(251, 113, 133, 0.6);
+    background: linear-gradient(180deg, rgba(244, 63, 94, 0.16) 0%, rgba(15, 23, 42, 0.88) 100%);
+    box-shadow: 0 10px 24px -4px rgba(244, 63, 94, 0.3), inset 0 1px 0 rgba(251, 113, 133, 0.35);
+}
+
+.item-card:hover::before {
+    left: 5%;
+    right: 5%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #fb7185, transparent);
+    box-shadow: 0 0 8px #fb7185;
+}
+
+/* Tarjeta de profesores (mismo diseño, acento púrpura) */
+.item-card.prof {
+    background: linear-gradient(180deg, rgba(168, 85, 247, 0.08) 0%, rgba(15, 23, 42, 0.72) 100%);
+    border-color: rgba(168, 85, 247, 0.24);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(192, 132, 252, 0.16);
+}
+
+.item-card.prof::before {
+    background: linear-gradient(90deg, transparent, rgba(192, 132, 252, 0.75), transparent);
+}
+
+.item-card.prof:hover {
+    border-color: rgba(192, 132, 252, 0.6);
+    background: linear-gradient(180deg, rgba(168, 85, 247, 0.16) 0%, rgba(15, 23, 42, 0.88) 100%);
+    box-shadow: 0 10px 24px -4px rgba(168, 85, 247, 0.3), inset 0 1px 0 rgba(192, 132, 252, 0.35);
+}
+
+.item-card.prof:hover::before {
+    background: linear-gradient(90deg, transparent, #c084fc, transparent);
+    box-shadow: 0 0 8px #c084fc;
+}
+
+/* Casilla de sala morada en la tarjeta del profesor (a tono con la casilla padre) */
+.item-card.prof .room-pill {
+    background: rgba(168, 85, 247, 0.14);
+    color: #c084fc;
+    border-color: rgba(192, 132, 252, 0.3);
+}
+
+.item-card.prof .room-pill:hover {
+    background: rgba(168, 85, 247, 0.25);
+    border-color: rgba(192, 132, 252, 0.55);
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
+}
+
+.item-card.prof .status-dot.occ {
+    background: #c084fc;
+    box-shadow: 0 0 6px #9333ea;
+    animation: pulseDotProf 2.2s infinite ease-in-out;
+}
+
+@keyframes pulseDotProf {
+    0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 6px #9333ea; }
+    50% { opacity: 0.6; transform: scale(0.85); box-shadow: 0 0 2px #9333ea; }
+}
+
+/* Tarjeta de Ramos / Asignaturas (Acento Cian Eléctrico / Zafiro) */
+.item-card.ramo {
+    background: linear-gradient(180deg, rgba(14, 165, 233, 0.08) 0%, rgba(15, 23, 42, 0.72) 100%);
+    border-color: rgba(56, 189, 248, 0.24);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(56, 189, 248, 0.16);
+}
+
+.item-card.ramo::before {
+    background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.75), transparent);
+}
+
+.item-card.ramo:hover {
+    border-color: rgba(56, 189, 248, 0.6);
+    background: linear-gradient(180deg, rgba(14, 165, 233, 0.16) 0%, rgba(15, 23, 42, 0.88) 100%);
+    box-shadow: 0 10px 24px -4px rgba(14, 165, 233, 0.3), inset 0 1px 0 rgba(56, 189, 248, 0.35);
+}
+
+.item-card.ramo:hover::before {
+    background: linear-gradient(90deg, transparent, #38bdf8, transparent);
+    box-shadow: 0 0 8px #38bdf8;
+}
+
+.item-card.ramo .room-pill {
+    background: rgba(56, 189, 248, 0.12);
+    color: #38bdf8;
+    border-color: rgba(56, 189, 248, 0.28);
+}
+
+.item-card.ramo .room-pill:hover {
+    background: rgba(56, 189, 248, 0.22);
+    border-color: rgba(56, 189, 248, 0.55);
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+}
+
+.time-pill.ramo-time {
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.08);
+    border-color: rgba(56, 189, 248, 0.22);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.item-card.ramo .status-dot.occ {
+    background: #38bdf8;
+    box-shadow: 0 0 6px #0ea5e9;
+    animation: pulseDotRamo 2.2s infinite ease-in-out;
+}
+
+@keyframes pulseDotRamo {
+    0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 6px #0ea5e9; }
+    50% { opacity: 0.6; transform: scale(0.85); box-shadow: 0 0 2px #0ea5e9; }
+}
+
+/* Tarjeta de Salas Libres (Mismo tamaño y estructura que las salas ocupadas) */
+.item-card.free {
+    background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(15, 23, 42, 0.72) 100%);
+    border-color: rgba(16, 185, 129, 0.24);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(52, 211, 153, 0.16);
+    cursor: pointer;
+}
+
+.item-card.free::before {
+    background: linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.75), transparent);
+}
+
+.item-card.free:hover {
+    border-color: rgba(52, 211, 153, 0.6);
+    background: linear-gradient(180deg, rgba(16, 185, 129, 0.16) 0%, rgba(15, 23, 42, 0.88) 100%);
+    box-shadow: 0 10px 24px -4px rgba(16, 185, 129, 0.3), inset 0 1px 0 rgba(52, 211, 153, 0.35);
+}
+
+.item-card.free:hover::before {
+    background: linear-gradient(90deg, transparent, #34d399, transparent);
+    box-shadow: 0 0 8px #34d399;
+}
+
+.item-card.free .room-pill {
+    background: rgba(16, 185, 129, 0.14);
+    color: #34d399;
+    border-color: rgba(52, 211, 153, 0.3);
+}
+
+.item-card.free .room-pill:hover {
+    background: rgba(16, 185, 129, 0.25);
+    border-color: rgba(52, 211, 153, 0.55);
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+}
+
+.item-card.free .time-pill {
+    color: #34d399;
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(52, 211, 153, 0.25);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.item-card.free:hover .course-name {
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(52, 211, 153, 0.35);
+}
+
+/* DROPDOWN PERSONALIZADO ULTRA-MODERNO (CYBER / GLASSMORPHIC) */
+.custom-dropdown {
+    position: relative;
+    max-width: 320px;
+    width: 100%;
+    user-select: none;
+}
+
+.dropdown-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(15, 23, 42, 0.78);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    padding: 9px 14px;
+    color: #f8fafc;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    backdrop-filter: blur(16px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    transition: all 0.2s ease;
+}
+
+.dropdown-trigger:hover, .custom-dropdown.open .dropdown-trigger {
+    border-color: rgba(56, 189, 248, 0.6);
+    background: rgba(15, 23, 42, 0.95);
+    box-shadow: 0 6px 20px rgba(14, 165, 233, 0.25), inset 0 1px 0 rgba(56, 189, 248, 0.25);
+}
+
+.dropdown-chevron {
+    color: var(--text-muted);
+    transition: transform 0.25s ease, color 0.2s ease;
+    flex-shrink: 0;
+    margin-left: 10px;
+}
+
+.dropdown-trigger:hover .dropdown-chevron, .custom-dropdown.open .dropdown-chevron {
+    color: #38bdf8;
+}
+
+.custom-dropdown.open .dropdown-chevron {
+    transform: rotate(180deg);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: rgba(15, 23, 42, 0.96);
+    border: 1px solid rgba(56, 189, 248, 0.28);
+    border-radius: 12px;
+    backdrop-filter: blur(24px);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6), 0 0 18px rgba(14, 165, 233, 0.18);
+    max-height: 270px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+    padding: 6px;
+}
+
+.custom-dropdown.open .dropdown-menu {
+    display: block;
+    animation: dropdownFade 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes dropdownFade {
+    from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8.5px 12px;
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.dropdown-item:hover {
+    background: rgba(56, 189, 248, 0.14);
+    color: #ffffff;
+    transform: translateX(3px);
+}
+
+.dropdown-item.active {
+    background: linear-gradient(90deg, rgba(56, 189, 248, 0.22) 0%, rgba(14, 165, 233, 0.08) 100%);
+    color: #ffffff;
+    font-weight: 700;
+    border-left: 3px solid #38bdf8;
+}
+
+.dropdown-item .active-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: rgba(56, 189, 248, 0.25);
+    color: #7dd3fc;
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.item-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+.room-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(244, 63, 94, 0.12);
+    color: #fb7185;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3.5px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(251, 113, 133, 0.24);
+    cursor: pointer;
+    transition: all 0.18s ease;
+    letter-spacing: 0.01em;
+    line-height: 1;
+}
+.room-pill:hover {
+    background: rgba(244, 63, 94, 0.22);
+    border-color: rgba(251, 113, 133, 0.5);
+    transform: translateY(-1px);
+}
+
+.status-dot.occ {
+    background: #fb7185;
+    box-shadow: 0 0 6px #f43f5e;
+    animation: pulseDotOcc 2.2s infinite ease-in-out;
+}
+
+@keyframes pulseDotOcc {
+    0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 6px #f43f5e; }
+    50% { opacity: 0.6; transform: scale(0.85); box-shadow: 0 0 2px #f43f5e; }
+}
+
+.time-pill {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 3.5px 9px;
+    border-radius: 6px;
+    font-variant-numeric: tabular-nums;
+}
+
+.course-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #f8fafc;
+    line-height: 1.35;
+    letter-spacing: 0.01em;
+    transition: color 0.18s ease;
+}
+
+.item-card:hover .course-name {
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(251, 113, 133, 0.35);
+}
+
+.item-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    gap: 2.5px;
+    margin-top: 2px;
+}
+
+.item-meta strong {
+    color: #e2e8f0;
+    font-weight: 600;
+}
+
+/* ESTADO VACÍO */
+.empty-state {
+    padding: 36px 20px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-sub);
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-md);
+    grid-column: 1 / -1;
+}
+
+/* HORARIO POR SALA: REDISEÑO MODERNO DE ALTA GAMA */
+.timetable-header-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px 20px;
+    margin-bottom: 22px;
+    background: linear-gradient(135deg, rgba(22, 30, 49, 0.85) 0%, rgba(15, 23, 42, 0.9) 100%);
+    border: 1px solid rgba(56, 189, 248, 0.22);
+    border-radius: 14px;
+    box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(56, 189, 248, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.timetable-header-banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, #38bdf8 0%, #3b82f6 100%);
+    box-shadow: 0 0 10px #38bdf8;
+}
+
+.timetable-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.timetable-pill-tag {
+    font-size: 10px;
+    font-weight: 800;
+    color: #38bdf8;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.timetable-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.timetable-room-indicator {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.timetable-room-indicator.e441 {
+    background: #38bdf8;
+    box-shadow: 0 0 8px #38bdf8;
+}
+.timetable-room-indicator.v432 {
+    background: #a855f7;
+    box-shadow: 0 0 8px #a855f7;
+}
+
+.timetable-room-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: 0.01em;
+    margin: 0;
+}
+
+.timetable-campus-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+.timetable-day-card {
+    background: linear-gradient(180deg, rgba(22, 30, 49, 0.85) 0%, rgba(15, 23, 42, 0.9) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 14px;
+    margin-bottom: 18px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.35);
+    position: relative;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.timetable-day-card:hover {
+    border-color: rgba(56, 189, 248, 0.22);
+    box-shadow: 0 10px 28px -4px rgba(0, 0, 0, 0.45);
+}
+
+.timetable-day-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 15%;
+    right: 15%;
+    height: 1.5px;
+    background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.65), transparent);
+}
+
+.timetable-day-card.free-day {
+    border-color: rgba(16, 185, 129, 0.22);
+}
+.timetable-day-card.free-day::before {
+    background: linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.65), transparent);
+}
+
+.timetable-day-head {
+    background: rgba(13, 19, 33, 0.72);
+    padding: 13px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.day-title-group {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 0.01em;
+}
+
+.day-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #38bdf8;
+    box-shadow: 0 0 8px #0284c7;
+    display: inline-block;
+    animation: pulseDotRamo 2.2s infinite ease-in-out;
+}
+
+.day-dot.free {
+    background: #34d399;
+    box-shadow: 0 0 8px #10b981;
+    animation: pulseDot 2.2s infinite ease-in-out;
+}
+
+.day-count-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(56, 189, 248, 0.12);
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    padding: 3.5px 12px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+}
+
+.day-count-badge.free {
+    background: rgba(16, 185, 129, 0.12);
+    color: #34d399;
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.timetable-slot {
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-left: 3px solid transparent;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    transition: background 0.18s ease, border-color 0.18s ease, padding 0.18s ease;
+}
+
+.timetable-slot:last-child {
+    border-bottom: none;
+}
+
+.timetable-slot:hover {
+    background: rgba(56, 189, 248, 0.04);
+    border-left-color: #38bdf8;
+    padding-left: 20px;
+}
+
+.slot-time {
+    background: rgba(56, 189, 248, 0.08);
+    border: 1px solid rgba(56, 189, 248, 0.22);
+    color: #38bdf8;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 124px;
+    justify-content: center;
+    flex-shrink: 0;
+    letter-spacing: 0.02em;
+    transition: all 0.18s ease;
+}
+
+.timetable-slot:hover .slot-time {
+    background: rgba(56, 189, 248, 0.16);
+    border-color: rgba(56, 189, 248, 0.45);
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+}
+
+.slot-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.slot-course-row {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+}
+
+.slot-course-title {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #f8fafc;
+    letter-spacing: 0.01em;
+    line-height: 1.35;
+}
+
+.slot-meta-pill {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    color: #94a3b8;
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+.slot-teacher {
+    font-size: 12px;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1.4;
+}
+
+.slot-teacher svg {
+    flex-shrink: 0;
+    opacity: 0.75;
+}
+
+.slot-teacher strong {
+    color: #e2e8f0;
+    font-weight: 600;
+}
+
+.slot-teacher .teacher-empty {
+    color: #64748b;
+    font-style: italic;
+}
+
+/* Bloques sin clases: Sala Vacía */
+.timetable-slot.slot-free {
+    background: rgba(16, 185, 129, 0.02);
+    border-left: 3px solid rgba(16, 185, 129, 0.25);
+}
+
+.timetable-slot.slot-free:hover {
+    background: rgba(16, 185, 129, 0.07);
+    border-left-color: #10b981;
+    padding-left: 20px;
+}
+
+.timetable-slot.slot-free .slot-time {
+    background: rgba(16, 185, 129, 0.07);
+    border-color: rgba(16, 185, 129, 0.22);
+    color: #34d399;
+}
+
+.timetable-slot.slot-free:hover .slot-time {
+    background: rgba(16, 185, 129, 0.16);
+    border-color: rgba(52, 211, 153, 0.45);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.25);
+}
+
+.slot-free-row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+}
+
+.slot-free-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #34d399;
+    letter-spacing: 0.01em;
+}
+
+.slot-free-tag {
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    color: #6ee7b7;
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+.day-free-body {
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: #34d399;
+    font-weight: 600;
+    background: rgba(16, 185, 129, 0.04);
+}
+
+/* BLOQUE REDISEÑADO: SALAS SUGERIDAS (ABIERTAS, SIN CASILLAS ENCERRADAS) */
+.suggested-rooms-block {
+    margin: 22px 0 16px;
+}
+
+.suggested-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.building-switch {
+    display: flex;
+    gap: 6px;
+    background: rgba(15, 23, 42, 0.65);
+    padding: 4px;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+}
+
+.switch-chip {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-muted);
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.16s ease;
+}
+
+.switch-chip:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.switch-chip.active {
+    background: rgba(59, 130, 246, 0.2);
+    color: #93c5fd;
+    border-color: rgba(59, 130, 246, 0.45);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+/* Nube abierta de salas: abierta en la página, sin casilla contenedora interior ni scrollbars */
+.room-chips-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-bottom: 26px;
+    padding: 2px 0;
+}
+
+.room-chip {
+    background: rgba(22, 30, 49, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: #cbd5e1;
+    padding: 7px 14px;
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.room-chip:hover {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.07);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px -2px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.room-chip:hover .chip-dot {
+    transform: scale(1.2);
+    filter: brightness(1.2);
+}
+
+.room-chip.active {
+    background: rgba(30, 41, 69, 0.95);
+    border-color: #38bdf8;
+    color: #ffffff;
+    font-weight: 700;
+    box-shadow: 0 0 14px rgba(56, 189, 248, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    transform: translateY(-2px);
+}
+
+.room-chip.active:hover {
+    background: rgba(30, 41, 69, 1);
+    border-color: #7dd3fc;
+    box-shadow: 0 0 18px rgba(56, 189, 248, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.chip-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.chip-dot.e441 {
+    background: #38bdf8;
+    box-shadow: 0 0 7px rgba(56, 189, 248, 0.9);
+    animation: pulseDotRamo 2.2s infinite ease-in-out;
+}
+
+.chip-dot.v432 {
+    background: #a855f7;
+    box-shadow: 0 0 7px rgba(168, 85, 247, 0.9);
+    animation: pulseDotProf 2.2s infinite ease-in-out;
+}
+
