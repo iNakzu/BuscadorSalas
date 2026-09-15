@@ -885,10 +885,11 @@ function renderMiHorario() {
             let cardsHtml = '';
             BLOQUES_HORARIOS.forEach(b => {
                 const c = dayItems.find(item => item.bloqueNum === b.num);
+                const startM = timeToMinutes(b.inicio);
+                const endM = timeToMinutes(b.fin);
+                const isCurrent = isToday && (totalMinutes >= startM && totalMinutes < endM);
+
                 if (c) {
-                    const startM = timeToMinutes(c.horaInicio);
-                    const endM = timeToMinutes(c.horaFin);
-                    const isCurrent = isToday && (totalMinutes >= startM && totalMinutes < endM);
                     const tipoCls = 'tipo-' + (c.tipo || 'Cátedra').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
                     let cleanSec = (c.seccion || '').trim();
                     if (cleanSec.toLowerCase().startsWith('sec.')) {
@@ -903,7 +904,7 @@ function renderMiHorario() {
                         <div class="my-class-card ${tipoCls} ${c.rol === 'assistant' ? 'is-assistant' : (c.rol === 'cruce' ? 'is-cruce' : 'is-student')} ${isCurrent ? 'is-current-class' : ''}" id="card-${c.id}">
                             <div class="my-card-header">
                                 <span class="my-card-time">
-                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                                    ${isCurrent ? '<span class="pulse-dot-white"></span>' : '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>'}
                                     <span>${c.bloqueLabel}</span>
                                 </span>
                                 ${vistaHorarioActual === 'yo' ? `<button type="button" class="my-btn-delete" onclick="eliminarClaseMiHorario('${c.id}', event)" title="Eliminar asignatura de este bloque">` : '<div style="display:none">'}
@@ -928,18 +929,17 @@ function renderMiHorario() {
                         </div>
                     `;
                 } else {
-                    // Casilla vacía / sin clases en este bloque (clicable para agregar)
                     cardsHtml += `
-                        <div class="my-empty-slot" ${vistaHorarioActual === 'yo' ? `onclick="abrirModalAgregarClase(${d.num}, ${b.num})" title="Haz clic para agregar una asignatura en este bloque (${b.label})"` : `title="Bloque libre"`} style="${vistaHorarioActual !== 'yo' ? 'cursor: default;' : ''}">
+                        <div class="my-empty-slot ${isCurrent ? 'is-current-empty' : ''}" ${vistaHorarioActual === 'yo' ? `onclick="abrirModalAgregarClase(${d.num}, ${b.num})" title="Haz clic para agregar una asignatura en este bloque (${b.label})"` : `title="Bloque libre"`} style="${vistaHorarioActual !== 'yo' ? 'cursor: default;' : ''}">
                             <div class="my-empty-header">
                                 <span class="my-empty-time">
-                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                                    ${isCurrent ? '<span class="pulse-dot-white"></span>' : '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>'}
                                     <span>${b.label}</span>
                                 </span>
                                 <span class="my-card-bloque-num">Bloque ${b.num}</span>
                             </div>
                             <div class="my-empty-body">
-                                <span class="my-empty-text">Sin clases</span>
+                                <span class="my-empty-text">${isCurrent ? (vistaHorarioActual === 'cruce' ? '¡Están libres ahora!' : '¡Bloque libre!') : 'Sin clases'}</span>
                                 <span class="my-empty-add-hint">
                                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                                     Agregar ramo
@@ -980,11 +980,13 @@ function renderMiHorario() {
 
         let timelineCardsHtml = '';
         BLOQUES_HORARIOS.forEach(b => {
+        BLOQUES_HORARIOS.forEach(b => {
             const c = dayItems.find(item => item.bloqueNum === b.num);
+            const startM = timeToMinutes(b.inicio);
+            const endM = timeToMinutes(b.fin);
+            const isCurrent = isToday && (totalMinutes >= startM && totalMinutes < endM);
+
             if (c) {
-                const startM = timeToMinutes(c.horaInicio);
-                const endM = timeToMinutes(c.horaFin);
-                const isCurrent = isToday && (totalMinutes >= startM && totalMinutes < endM);
                 const tipoCls = 'tipo-' + (c.tipo || 'Cátedra').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
                 let cleanSec = (c.seccion || '').trim();
                 if (cleanSec.toLowerCase().startsWith('sec.')) {
@@ -998,7 +1000,7 @@ function renderMiHorario() {
                 timelineCardsHtml += `
                     <div class="my-timeline-card ${tipoCls} ${c.rol === 'assistant' ? 'is-assistant' : (c.rol === 'cruce' ? 'is-cruce' : 'is-student')} ${isCurrent ? 'is-current-class' : ''}" id="card-${c.id}">
                         <div class="my-time-box">
-                            <div class="my-time-range">${c.bloqueLabel}</div>
+                            <div class="my-time-range">${isCurrent ? '<span class="pulse-dot-white"></span>' : ''}${c.bloqueLabel}</div>
                             <div class="my-bloque-badge">Bloque ${c.bloqueNum} (80 min)</div>
                         </div>
                         <div class="my-info-box">
@@ -1018,19 +1020,19 @@ function renderMiHorario() {
                             ${vistaHorarioActual === 'yo' ? `<button type="button" class="my-btn-delete-timeline" onclick="eliminarClaseMiHorario('${c.id}', event)" title="Eliminar asignatura de este bloque">` : '<div style="display:none">'}
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                                 <span>Eliminar</span>
-                            </button>
+                            ${vistaHorarioActual === 'yo' ? '</button>' : '</div>'}
                         </div>
                     </div>
                 `;
             } else {
                 timelineCardsHtml += `
-                    <div class="my-timeline-empty-card" onclick="abrirModalAgregarClase(${diaNum}, ${b.num})" title="Haz clic para agregar una asignatura en este bloque (${b.label})">
+                    <div class="my-timeline-empty-card ${isCurrent ? 'is-current-empty-timeline' : ''}" ${vistaHorarioActual === 'yo' ? `onclick="abrirModalAgregarClase(${diaNum}, ${b.num})" title="Haz clic para agregar una asignatura en este bloque (${b.label})"` : `title="Bloque libre"`} style="${vistaHorarioActual !== 'yo' ? 'cursor: default;' : ''}">
                         <div class="my-time-box">
-                            <div class="my-time-range" style="color: #64748b;">${b.label}</div>
+                            <div class="my-time-range" style="color: ${isCurrent ? '#ffffff' : '#64748b'};">${isCurrent ? '<span class="pulse-dot-white"></span>' : ''}${b.label}</div>
                             <div class="my-bloque-badge">Bloque ${b.num} (80 min)</div>
                         </div>
                         <div class="my-empty-body" style="justify-content: space-between; padding-right: 6px;">
-                            <span class="my-empty-text">Sin clases</span>
+                            <span class="my-empty-text">${isCurrent ? (vistaHorarioActual === 'cruce' ? '¡Están libres ahora!' : '¡Bloque libre!') : 'Sin clases'}</span>
                             <span class="my-empty-timeline-btn">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                                 Agregar Asignatura
@@ -1040,9 +1042,6 @@ function renderMiHorario() {
                 `;
             }
         });
-
-        container.innerHTML = `
-            <div class="my-timeline-container">
                 ${timelineCardsHtml}
             </div>
         `;
