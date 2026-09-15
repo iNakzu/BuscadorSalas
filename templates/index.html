@@ -3445,6 +3445,26 @@
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
         }
 
+        /* PÍLDORA DE SALA EN AYUDANTÍAS DEL USUARIO (COLOR AMARILLO/ÁMBAR) */
+        .my-room-pill.is-assistant-room,
+        .my-class-card.is-assistant .my-room-pill,
+        .my-timeline-card.is-assistant .my-room-pill {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(217, 119, 6, 0.16) 100%);
+            border: 1px solid rgba(251, 191, 36, 0.45);
+            color: #fbbf24;
+            box-shadow: 0 1px 5px rgba(245, 158, 11, 0.2);
+        }
+
+        .my-room-pill.is-assistant-room:hover,
+        .my-class-card.is-assistant .my-room-pill:hover,
+        .my-timeline-card.is-assistant .my-room-pill:hover {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.35) 0%, rgba(217, 119, 6, 0.25) 100%);
+            border-color: rgba(251, 191, 36, 0.7);
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+        }
+
         .my-card-bloque-num {
             font-size: 10px;
             font-weight: 600;
@@ -5502,7 +5522,7 @@
                     </div>
                     <div class="my-hero-top-badges">
                         ${claseActual.rol === 'assistant' ? '<span class="my-role-badge badge-assistant">✍️ Ayudante</span>' : ''}
-                        <span class="my-room-pill" onclick="verHorarioDirecto('${claseActual.sala}')" title="Ver horario de la sala ${claseActual.sala}">
+                        <span class="my-room-pill ${claseActual.rol === 'assistant' ? 'is-assistant-room' : ''}" onclick="verHorarioDirecto('${claseActual.sala}')" title="Ver horario de la sala ${claseActual.sala}">
                             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
                             <span>Sala ${claseActual.sala}</span>
                         </span>
@@ -5546,7 +5566,7 @@
                     </div>
                     <div class="my-hero-top-badges">
                         ${proximaHoy.rol === 'assistant' ? '<span class="my-role-badge badge-assistant">✍️ Ayudante</span>' : ''}
-                        <span class="my-room-pill" onclick="verHorarioDirecto('${proximaHoy.sala}')" title="Ver horario de la sala ${proximaHoy.sala}">
+                        <span class="my-room-pill ${proximaHoy.rol === 'assistant' ? 'is-assistant-room' : ''}" onclick="verHorarioDirecto('${proximaHoy.sala}')" title="Ver horario de la sala ${proximaHoy.sala}">
                             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
                             <span>Sala ${proximaHoy.sala}</span>
                         </span>
