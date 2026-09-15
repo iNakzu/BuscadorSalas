@@ -928,7 +928,16 @@
 
 /* DISTINCIÓN DE ROLES */
 .my-class-card.is-student {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(6, 182, 212, 0.15));
+    border: 1px solid rgba(56, 189, 248, 0.4);
     border-left: 3.5px solid #38bdf8;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.my-class-card.is-student:hover {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.22), rgba(6, 182, 212, 0.22));
+    border-color: rgba(56, 189, 248, 0.6);
+    box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.5);
 }
 
 .my-class-card.is-assistant {
