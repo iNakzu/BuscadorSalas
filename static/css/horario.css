@@ -1305,12 +1305,12 @@
 
 /* COLORES POR TIPO DE CLASE */
 .my-class-card.tipo-laboratorio {
-    border-top: 3px solid #a855f7 !important; /* Morado */
+    border-left-color: #a855f7 !important;
     background: linear-gradient(145deg, rgba(168, 85, 247, 0.08) 0%, rgba(22, 30, 49, 0.85) 100%) !important;
 }
 
 .my-class-card.tipo-ayudantia.is-student {
-    border-top: 3px solid #f43f5e !important; /* Rosa/Rojo suave */
+    border-left-color: #f43f5e !important;
     background: linear-gradient(145deg, rgba(244, 63, 94, 0.08) 0%, rgba(22, 30, 49, 0.85) 100%) !important;
 }
 
@@ -1327,4 +1327,47 @@
 .my-timeline-card.is-cruce {
     border-left-color: #4ade80;
     background: linear-gradient(90deg, rgba(34, 197, 94, 0.08) 0%, rgba(22, 30, 49, 0.4) 100%);
+}
+
+
+/* TIPO TAG Y ROOM PILL PARA LABORATORIO (Morado) */
+.my-class-card.tipo-laboratorio .my-type-tag,
+.my-timeline-card.tipo-laboratorio .my-type-tag {
+    color: #c084fc !important;
+}
+
+.my-class-card.tipo-laboratorio .my-room-pill,
+.my-timeline-card.tipo-laboratorio .my-room-pill {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.22) 0%, rgba(147, 51, 234, 0.16) 100%) !important;
+    border: 1px solid rgba(192, 132, 252, 0.45) !important;
+    color: #c084fc !important;
+    box-shadow: 0 1px 5px rgba(168, 85, 247, 0.2) !important;
+}
+.my-class-card.tipo-laboratorio .my-room-pill:hover,
+.my-timeline-card.tipo-laboratorio .my-room-pill:hover {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.35) 0%, rgba(147, 51, 234, 0.25) 100%) !important;
+    border-color: rgba(192, 132, 252, 0.7) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.35) !important;
+}
+
+/* TIPO TAG Y ROOM PILL PARA AYUDANTIA ESTUDIANTE (Rosa) */
+.my-class-card.tipo-ayudantia.is-student .my-type-tag,
+.my-timeline-card.tipo-ayudantia.is-student .my-type-tag {
+    color: #fb7185 !important;
+}
+
+.my-class-card.tipo-ayudantia.is-student .my-room-pill,
+.my-timeline-card.tipo-ayudantia.is-student .my-room-pill {
+    background: linear-gradient(135deg, rgba(244, 63, 94, 0.22) 0%, rgba(225, 29, 72, 0.16) 100%) !important;
+    border: 1px solid rgba(251, 113, 133, 0.45) !important;
+    color: #fb7185 !important;
+    box-shadow: 0 1px 5px rgba(244, 63, 94, 0.2) !important;
+}
+.my-class-card.tipo-ayudantia.is-student .my-room-pill:hover,
+.my-timeline-card.tipo-ayudantia.is-student .my-room-pill:hover {
+    background: linear-gradient(135deg, rgba(244, 63, 94, 0.35) 0%, rgba(225, 29, 72, 0.25) 100%) !important;
+    border-color: rgba(251, 113, 133, 0.7) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(244, 63, 94, 0.35) !important;
 }
