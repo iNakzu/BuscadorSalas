@@ -910,13 +910,20 @@ def extraer_hora_y_bloque(texto):
 
 def buscar_sala_en_texto(texto):
     texto_norm = normalize_str(texto)
-    # Coincidencia directa exacta
+    # Coincidencia directa exacta con límites de palabra para no confundir palabras comunes (ej. 'loca') con salas (ej. 'LOC')
     for s in dm.all_rooms:
         s_norm = normalize_str(s)
-        if s_norm in texto_norm or s_norm.replace('.', '') in texto_norm.replace('.', ''):
-            return s
+        if '.' in s_norm or '-' in s_norm:
+            if s_norm in texto_norm or s_norm.replace('.', '') in texto_norm.replace('.', ''):
+                return s
+        else:
+            if re.search(rf'\b{re.escape(s_norm)}\b', texto_norm):
+                return s
 
     tokens = [w for w in clean_tokens(texto) if w not in STOPWORDS]
+    if not tokens:
+        return None
+
     candidatos = []
     for s in dm.all_rooms:
         s_tokens = clean_tokens(s)
@@ -928,7 +935,7 @@ def buscar_sala_en_texto(texto):
     if candidatos:
         candidatos.sort(key=lambda x: (-x[0], -x[1]))
         best = candidatos[0]
-        if best[0] >= 2 or len(clean_tokens(best[2])) <= 1:
+        if best[0] >= 2 or (len(clean_tokens(best[2])) == 1 and best[2].lower() in tokens and len(best[2]) >= 4):
             return best[2]
     return None
 
