@@ -2523,6 +2523,8 @@
             flex-direction: column;
             gap: 7px;
             position: relative;
+            min-height: 108px;
+            justify-content: space-between;
             transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
@@ -2533,6 +2535,77 @@
             transform: translateY(-2px);
             box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.5);
             border-color: rgba(255, 255, 255, 0.16);
+        }
+
+        /* CASILLA VACÍA CUANDO NO HAY CLASES EN UN BLOQUE (ESTILO SEGÚN DISEÑO) */
+        .my-empty-slot {
+            background: rgba(15, 23, 42, 0.42);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 12px;
+            padding: 10px 11px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 108px;
+            transition: all 0.2s ease;
+        }
+
+        .my-empty-slot:hover {
+            background: rgba(22, 30, 49, 0.6);
+            border-color: rgba(255, 255, 255, 0.14);
+        }
+
+        .my-empty-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .my-empty-time {
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .my-empty-body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 0;
+            margin: auto 0;
+        }
+
+        .my-empty-text {
+            font-size: 13px;
+            font-weight: 500;
+            color: #64748b;
+            letter-spacing: 0.01em;
+        }
+
+        .my-empty-slot:hover .my-empty-text {
+            color: #94a3b8;
+        }
+
+
+        .my-timeline-empty-card {
+            background: rgba(15, 23, 42, 0.32);
+            border: 1px dashed rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 14px 18px;
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .my-timeline-empty-card:hover {
+            background: rgba(22, 30, 49, 0.45);
+            border-color: rgba(255, 255, 255, 0.14);
         }
 
         /* DISTINCIÓN DE ROLES */
@@ -4543,12 +4616,7 @@
         const heroEl = document.getElementById('my-schedule-hero');
         if (!heroEl) return;
 
-        const { dayOfWeek, hours, minutes, seconds, totalMinutes, totalSeconds } = getChileTime();
-        const timeStr = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-
-        const totalClases = MI_HORARIO_DATA.length;
-        const totalEstudiante = MI_HORARIO_DATA.filter(c => c.rol === 'student').length;
-        const totalAyudante = MI_HORARIO_DATA.filter(c => c.rol === 'assistant').length;
+        const { dayOfWeek, totalMinutes, totalSeconds } = getChileTime();
 
         // Si es fin de semana
         if (dayOfWeek === 0 || dayOfWeek === 6) {
@@ -4556,12 +4624,6 @@
                 <div class="my-hero-top">
                     <div class="my-hero-status-pill done">
                         <span>🌴 Fin de Semana Libre</span>
-                    </div>
-                    <div class="my-hero-stats-row">
-                        <span class="my-hero-stat-badge">🕒 Santiago: <strong>${timeStr}</strong></span>
-                        <span class="my-hero-stat-badge">📚 ${totalClases} Clases/semana</span>
-                        <span class="my-hero-stat-badge">🎓 ${totalEstudiante} Estudiante</span>
-                        <span class="my-hero-stat-badge">✍️ ${totalAyudante} Ayudante</span>
                     </div>
                 </div>
                 <div class="my-hero-body">
@@ -4602,20 +4664,12 @@
                         <span class="pulse-dot"></span>
                         <span>¡En Clase Ahora Mismo!</span>
                     </div>
-                    <div class="my-hero-stats-row">
-                        <span class="my-hero-stat-badge">🕒 Santiago: <strong>${timeStr}</strong></span>
-                        <span class="my-hero-stat-badge">📚 ${totalClases} Clases</span>
-                        <span class="my-hero-stat-badge">🎓 ${totalEstudiante} Estudiante</span>
-                        <span class="my-hero-stat-badge">✍️ ${totalAyudante} Ayudante</span>
-                    </div>
                 </div>
                 <div class="my-hero-body">
                     <div class="my-hero-class-info">
                         <div class="my-hero-title">
                             <span>${claseActual.curso}</span>
-                            <span class="my-role-badge ${claseActual.rol === 'assistant' ? 'badge-assistant' : 'badge-student'}">
-                                ${claseActual.rol === 'assistant' ? '✍️ Ayudante que Impartes' : '🎓 Estudiante'}
-                            </span>
+                            ${claseActual.rol === 'assistant' ? '<span class="my-role-badge badge-assistant">✍️ Ayudante</span>' : ''}
                         </div>
                         <div class="my-hero-subtitle">
                             <span>Bloque ${claseActual.bloqueNum} (${claseActual.bloqueLabel})</span>
@@ -4653,20 +4707,12 @@
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                         <span>Próxima Clase Hoy en ${diffTexto}</span>
                     </div>
-                    <div class="my-hero-stats-row">
-                        <span class="my-hero-stat-badge">🕒 Santiago: <strong>${timeStr}</strong></span>
-                        <span class="my-hero-stat-badge">📚 ${totalClases} Clases</span>
-                        <span class="my-hero-stat-badge">🎓 ${totalEstudiante} Estudiante</span>
-                        <span class="my-hero-stat-badge">✍️ ${totalAyudante} Ayudante</span>
-                    </div>
                 </div>
                 <div class="my-hero-body">
                     <div class="my-hero-class-info">
                         <div class="my-hero-title">
                             <span>${proximaHoy.curso}</span>
-                            <span class="my-role-badge ${proximaHoy.rol === 'assistant' ? 'badge-assistant' : 'badge-student'}">
-                                ${proximaHoy.rol === 'assistant' ? '✍️ Ayudante' : '🎓 Estudiante'}
-                            </span>
+                            ${proximaHoy.rol === 'assistant' ? '<span class="my-role-badge badge-assistant">✍️ Ayudante</span>' : ''}
                         </div>
                         <div class="my-hero-subtitle">
                             <span>Inicia a las <strong>${proximaHoy.horaInicio}</strong> (Bloque ${proximaHoy.bloqueNum})</span>
@@ -4709,12 +4755,6 @@
             <div class="my-hero-top">
                 <div class="my-hero-status-pill done">
                     <span>✨ Jornada de Hoy Finalizada</span>
-                </div>
-                <div class="my-hero-stats-row">
-                    <span class="my-hero-stat-badge">🕒 Santiago: <strong>${timeStr}</strong></span>
-                    <span class="my-hero-stat-badge">📚 ${totalClases} Clases</span>
-                    <span class="my-hero-stat-badge">🎓 ${totalEstudiante} Estudiante</span>
-                    <span class="my-hero-stat-badge">✍️ ${totalAyudante} Ayudante</span>
                 </div>
             </div>
             <div class="my-hero-body">
@@ -4760,6 +4800,16 @@
         return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
     }
 
+    const BLOQUES_HORARIOS = [
+        { num: 1, label: '08:30 - 09:50', inicio: '08:30', fin: '09:50' },
+        { num: 2, label: '10:00 - 11:20', inicio: '10:00', fin: '11:20' },
+        { num: 3, label: '11:30 - 12:50', inicio: '11:30', fin: '12:50' },
+        { num: 4, label: '13:00 - 14:20', inicio: '13:00', fin: '14:20' },
+        { num: 5, label: '14:30 - 15:50', inicio: '14:30', fin: '15:50' },
+        { num: 6, label: '16:00 - 17:20', inicio: '16:00', fin: '17:20' },
+        { num: 7, label: '17:25 - 18:45', inicio: '17:25', fin: '18:45' }
+    ];
+
     function renderMiHorario() {
         const container = document.getElementById('mihorario-display-container');
         if (!container) return;
@@ -4780,16 +4830,7 @@
             return true;
         });
 
-        if (items.length === 0) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    No se encontraron asignaturas con los filtros seleccionados.
-                </div>
-            `;
-            return;
-        }
-
-        // Vista de toda la semana
+        // Vista de toda la semana (5 Columnas)
         if (state.miHorarioDia === 'ALL') {
             const diasConfig = [
                 { num: 1, nombre: 'Lunes' },
@@ -4801,18 +4842,13 @@
 
             let colsHtml = '';
             diasConfig.forEach(d => {
-                const dayItems = items.filter(c => c.dia === d.num).sort((a, b) => timeToMinutes(a.horaInicio) - timeToMinutes(b.horaInicio));
+                const dayItems = items.filter(c => c.dia === d.num);
                 const isToday = (dayOfWeek === d.num);
 
                 let cardsHtml = '';
-                if (dayItems.length === 0) {
-                    cardsHtml = `
-                        <div style="padding: 20px 8px; text-align: center; color: var(--text-sub); font-size: 11.5px;">
-                            Sin clases
-                        </div>
-                    `;
-                } else {
-                    dayItems.forEach(c => {
+                BLOQUES_HORARIOS.forEach(b => {
+                    const c = dayItems.find(item => item.bloqueNum === b.num);
+                    if (c) {
                         const startM = timeToMinutes(c.horaInicio);
                         const endM = timeToMinutes(c.horaFin);
                         const isCurrent = isToday && (totalMinutes >= startM && totalMinutes < endM);
@@ -4824,9 +4860,7 @@
                                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                                         ${c.bloqueLabel}
                                     </span>
-                                    <span class="my-role-badge ${c.rol === 'assistant' ? 'badge-assistant' : 'badge-student'}">
-                                        ${c.rol === 'assistant' ? '✍️ Ayudante' : '🎓 Estudiante'}
-                                    </span>
+                                    ${c.rol === 'assistant' ? '<span class="my-role-badge badge-assistant">✍️ Ayudante</span>' : ''}
                                 </div>
                                 <div class="my-card-title">${c.curso}</div>
                                 <div class="my-card-meta">
@@ -4842,8 +4876,21 @@
                                 </div>
                             </div>
                         `;
-                    });
-                }
+                    } else {
+                        // Casilla vacía / sin clases en este bloque
+                        cardsHtml += `
+                            <div class="my-empty-slot" title="${b.label} (Bloque ${b.num}): Sin clases">
+                                <div class="my-empty-header">
+                                    <span class="my-empty-time">${b.label}</span>
+                                    <span class="my-card-bloque-num">Bloque ${b.num}</span>
+                                </div>
+                                <div class="my-empty-body">
+                                    <span class="my-empty-text">Sin clases</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
 
                 colsHtml += `
                     <div class="my-day-col ${isToday ? 'is-today-col' : ''}" id="my-day-col-${d.num}">
@@ -4869,52 +4916,55 @@
         } else {
             // Vista de día individual
             const diaNum = parseInt(state.miHorarioDia, 10);
-            const dayItems = items.filter(c => c.dia === diaNum).sort((a, b) => timeToMinutes(a.horaInicio) - timeToMinutes(b.horaInicio));
+            const dayItems = items.filter(c => c.dia === diaNum);
             const isToday = (dayOfWeek === diaNum);
             const diaNombre = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'][diaNum - 1] || 'Día';
 
-            if (dayItems.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        No hay clases programadas para el ${diaNombre} con los filtros activos.
-                    </div>
-                `;
-                return;
-            }
-
             let timelineCardsHtml = '';
-            dayItems.forEach(c => {
-                const startM = timeToMinutes(c.horaInicio);
-                const endM = timeToMinutes(c.horaFin);
-                const isCurrent = isToday && (totalMinutes >= startM && totalMinutes < endM);
+            BLOQUES_HORARIOS.forEach(b => {
+                const c = dayItems.find(item => item.bloqueNum === b.num);
+                if (c) {
+                    const startM = timeToMinutes(c.horaInicio);
+                    const endM = timeToMinutes(c.horaFin);
+                    const isCurrent = isToday && (totalMinutes >= startM && totalMinutes < endM);
 
-                timelineCardsHtml += `
-                    <div class="my-timeline-card ${c.rol === 'assistant' ? 'is-assistant' : 'is-student'} ${isCurrent ? 'is-current-class' : ''}" id="card-${c.id}">
-                        <div class="my-time-box">
-                            <div class="my-time-range">${c.bloqueLabel}</div>
-                            <div class="my-bloque-badge">Bloque ${c.bloqueNum} (80 min)</div>
-                        </div>
-                        <div class="my-info-box">
-                            <div class="my-info-title">
-                                <span>${c.curso}</span>
+                    timelineCardsHtml += `
+                        <div class="my-timeline-card ${c.rol === 'assistant' ? 'is-assistant' : 'is-student'} ${isCurrent ? 'is-current-class' : ''}" id="card-${c.id}">
+                            <div class="my-time-box">
+                                <div class="my-time-range">${c.bloqueLabel}</div>
+                                <div class="my-bloque-badge">Bloque ${c.bloqueNum} (80 min)</div>
                             </div>
-                            <div class="my-info-meta">
-                                <span class="my-role-badge ${c.rol === 'assistant' ? 'badge-assistant' : 'badge-student'}">
-                                    ${c.rol === 'assistant' ? '✍️ Ayudante' : '🎓 Estudiante'}
+                            <div class="my-info-box">
+                                <div class="my-info-title">
+                                    <span>${c.curso}</span>
+                                </div>
+                                <div class="my-info-meta">
+                                    ${c.rol === 'assistant' ? '<span class="my-role-badge badge-assistant">✍️ Ayudante</span><span>•</span>' : ''}
+                                    <span class="my-type-tag">${c.tipo} (${c.seccion})</span>
+                                    ${c.profesor ? `<span>• Prof: ${c.profesor}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="my-actions-box">
+                                <span class="my-room-pill" onclick="verHorarioDirecto('${c.sala}')" title="Ver horario de la sala ${c.sala}" style="font-size: 12px; padding: 6px 11px;">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+                                    Sala ${c.sala}
                                 </span>
-                                <span>•</span>
-                                <span class="my-type-tag">${c.tipo} (${c.seccion})</span>
-                                ${c.profesor ? `<span>• Prof: ${c.profesor}</span>` : ''}
                             </div>
                         </div>
-                        <div class="my-actions-box">
-                            <span class="my-room-pill" onclick="verHorarioDirecto('${c.sala}')" title="Ver horario de la sala ${c.sala}" style="font-size: 12px; padding: 6px 11px;">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-                                Sala ${c.sala}
-                            </span>
+                    `;
+                } else {
+                    timelineCardsHtml += `
+                        <div class="my-timeline-empty-card" title="${b.label}: Sin clases">
+                            <div class="my-time-box">
+                                <div class="my-time-range" style="color: #64748b;">${b.label}</div>
+                                <div class="my-bloque-badge">Bloque ${b.num} (80 min)</div>
+                            </div>
+                            <div class="my-empty-body" style="justify-content: flex-start;">
+                                <span class="my-empty-text">Sin clases</span>
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                }
             });
 
             container.innerHTML = `
