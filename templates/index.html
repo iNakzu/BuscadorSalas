@@ -3266,6 +3266,16 @@
             box-shadow: 0 0 8px rgba(245, 158, 11, 0.2);
         }
 
+        .my-role-emoji {
+            font-size: 13px;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            cursor: default;
+        }
+
         .my-card-title {
             font-size: 13px;
             font-weight: 700;
@@ -3995,7 +4005,7 @@
             </div>
 
             <!-- Filtro por Día / Semana completa -->
-            <div class="control-group">
+            <div class="control-group" style="margin-bottom: 0;">
                 <div class="section-label">Ver por Día o Semana Completa</div>
                 <div class="pill-bar" id="bar-mihorario-dia">
                     <button type="button" class="pill-btn active" data-dia="ALL" onclick="setMiHorarioDia('ALL', this)">Toda la semana (20)</button>
@@ -4004,16 +4014,6 @@
                     <button type="button" class="pill-btn" data-dia="3" onclick="setMiHorarioDia('3', this)">Miércoles (4)</button>
                     <button type="button" class="pill-btn" data-dia="4" onclick="setMiHorarioDia('4', this)">Jueves (4)</button>
                     <button type="button" class="pill-btn" data-dia="5" onclick="setMiHorarioDia('5', this)">Viernes (4)</button>
-                </div>
-            </div>
-
-            <!-- Filtro por Rol: Estudiante vs Ayudante -->
-            <div class="control-group" style="margin-bottom: 0;">
-                <div class="section-label">Filtrar por Rol</div>
-                <div class="pill-bar" id="bar-mihorario-rol">
-                    <button type="button" class="pill-btn active" data-rol="ALL" onclick="setMiHorarioRol('ALL', this)">Todos los roles (20)</button>
-                    <button type="button" class="pill-btn" data-rol="student" onclick="setMiHorarioRol('student', this)">🎓 Estudiante (16)</button>
-                    <button type="button" class="pill-btn" data-rol="assistant" onclick="setMiHorarioRol('assistant', this)">✍️ Ayudante (4)</button>
                 </div>
             </div>
         </div>
@@ -5068,7 +5068,7 @@
             horaFin: '12:50',
             curso: 'Álgebra Lineal A.',
             tipo: 'Ayudantía',
-            seccion: 'Ayudantía que impartes',
+            seccion: '',
             sala: 'E306.1.S107',
             profesor: '',
             rol: 'assistant'
@@ -5239,7 +5239,7 @@
             horaFin: '12:50',
             curso: 'Mecánica A.',
             tipo: 'Ayudantía',
-            seccion: 'Ayudantía que impartes',
+            seccion: '',
             sala: 'E441.4.S401',
             profesor: '',
             rol: 'assistant'
@@ -5269,7 +5269,7 @@
             horaFin: '15:50',
             curso: 'Introducción al Álgebra A.',
             tipo: 'Ayudantía',
-            seccion: 'Ayudantía que impartes',
+            seccion: '',
             sala: 'E306.1.S101',
             profesor: '',
             rol: 'assistant'
@@ -5284,7 +5284,7 @@
             horaFin: '17:20',
             curso: 'Álgebra Lineal A.',
             tipo: 'Ayudantía',
-            seccion: 'Ayudantía que impartes',
+            seccion: '',
             sala: 'E306.2.S208',
             profesor: '',
             rol: 'assistant'
@@ -5292,18 +5292,28 @@
     ];
 
     function cargarMiHorarioDesdeStorage() {
+        let list = null;
         try {
             if (typeof localStorage !== 'undefined') {
                 const stored = localStorage.getItem('mi_horario_custom_v1');
                 if (stored) {
                     const parsed = JSON.parse(stored);
-                    if (Array.isArray(parsed)) return parsed;
+                    if (Array.isArray(parsed)) list = parsed;
                 }
             }
         } catch (e) {
             console.error('Error al cargar mi horario desde localStorage', e);
         }
-        return JSON.parse(JSON.stringify(MI_HORARIO_DEFAULT_DATA));
+        if (!list) {
+            list = JSON.parse(JSON.stringify(MI_HORARIO_DEFAULT_DATA));
+        }
+        // Limpiar "Ayudantía que impartes" de cualquier dato precargado o persistido
+        list.forEach(c => {
+            if (c.seccion && c.seccion.toLowerCase().includes('ayudantía que impartes')) {
+                c.seccion = '';
+            }
+        });
+        return list;
     }
 
     let MI_HORARIO_DATA = cargarMiHorarioDesdeStorage();
@@ -5574,8 +5584,6 @@
         const miercoles = MI_HORARIO_DATA.filter(c => c.dia === 3).length;
         const jueves = MI_HORARIO_DATA.filter(c => c.dia === 4).length;
         const viernes = MI_HORARIO_DATA.filter(c => c.dia === 5).length;
-        const estud = MI_HORARIO_DATA.filter(c => c.rol === 'student').length;
-        const asist = MI_HORARIO_DATA.filter(c => c.rol === 'assistant').length;
 
         const bSemana = document.querySelector('#bar-mihorario-dia button[data-dia="ALL"]');
         if (bSemana) bSemana.textContent = `Toda la semana (${total})`;
@@ -5589,13 +5597,6 @@
         if (bJueves) bJueves.textContent = `Jueves (${jueves})`;
         const bViernes = document.querySelector('#bar-mihorario-dia button[data-dia="5"]');
         if (bViernes) bViernes.textContent = `Viernes (${viernes})`;
-
-        const bTodosRoles = document.querySelector('#bar-mihorario-rol button[data-rol="ALL"]');
-        if (bTodosRoles) bTodosRoles.textContent = `Todos los roles (${total})`;
-        const bEst = document.querySelector('#bar-mihorario-rol button[data-rol="student"]');
-        if (bEst) bEst.textContent = `🎓 Estudiante (${estud})`;
-        const bAsist = document.querySelector('#bar-mihorario-rol button[data-rol="assistant"]');
-        if (bAsist) bAsist.textContent = `✍️ Ayudante (${asist})`;
     }
 
     function restablecerHorarioDefault() {
@@ -6096,7 +6097,7 @@
                                         <span>${c.bloqueLabel}</span>
                                     </span>
                                     <div style="display: flex; align-items: center; gap: 5px;">
-                                        ${c.rol === 'assistant' ? '<span class="my-role-badge badge-assistant">✍️ Ayudante</span>' : ''}
+                                        ${c.rol === 'assistant' ? '<span class="my-role-emoji" title="Ayudante">✍️</span>' : ''}
                                         <button type="button" class="my-btn-delete" onclick="eliminarClaseMiHorario('${c.id}', event)" title="Eliminar asignatura de este bloque">
                                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                                 <path d="M3 6h18"></path>
@@ -6107,7 +6108,7 @@
                                 </div>
                                 <div class="my-card-title">${c.curso}</div>
                                 <div class="my-card-meta">
-                                    <span class="my-type-tag">${c.tipo}${c.seccion ? (' • ' + c.seccion) : ''}</span>
+                                    <span class="my-type-tag">${c.tipo}${(c.seccion && !c.seccion.toLowerCase().includes('ayudantía que impartes')) ? (' • ' + c.seccion) : ''}</span>
                                     ${c.profesor ? `<span class="my-prof-name" title="Docente: ${c.profesor}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> ${c.profesor}</span>` : ''}
                                 </div>
                                 <div class="my-card-footer">
@@ -6190,7 +6191,7 @@
                                 </div>
                                 <div class="my-info-meta">
                                     ${c.rol === 'assistant' ? '<span class="my-role-badge badge-assistant">✍️ Ayudante</span><span>•</span>' : ''}
-                                    <span class="my-type-tag">${c.tipo}${c.seccion ? (' (' + c.seccion + ')') : ''}</span>
+                                    <span class="my-type-tag">${c.tipo}${(c.seccion && !c.seccion.toLowerCase().includes('ayudantía que impartes')) ? (' (' + c.seccion + ')') : ''}</span>
                                     ${c.profesor ? `<span>• Prof: ${c.profesor}</span>` : ''}
                                 </div>
                             </div>
