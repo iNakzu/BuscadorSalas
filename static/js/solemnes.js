@@ -22,6 +22,14 @@ function renderSolemnes() {
 
     let html = '';
 
+    const mapDias = {
+        1: "24 de Septiembre",
+        2: "25 de Septiembre",
+        3: "28 de Septiembre",
+        4: "29 de Septiembre",
+        5: "30 de Septiembre"
+    };
+
     // Agrupar por días
     for (let d = 1; d <= 5; d++) {
         // Filtrar los bloques de este día
@@ -31,7 +39,10 @@ function renderSolemnes() {
         let dayHtml = `
             <div class="my-day-col" style="background: rgba(30, 41, 59, 0.4); border-radius: 12px; padding: 16px; border: 1px solid rgba(255, 255, 255, 0.05);">
                 <div class="my-day-header" style="margin-bottom: 16px;">
-                    <span class="my-day-title" style="color: #e2e8f0; font-size: 18px;">Día ${d}</span>
+                    <span class="my-day-title" style="color: #e2e8f0; font-size: 18px; display: flex; flex-direction: column;">
+                        <span>Día ${d}</span>
+                        <span style="font-size: 14px; color: #94a3b8; font-weight: normal; margin-top: 4px;">${mapDias[d]}</span>
+                    </span>
                 </div>
                 <div class="my-day-cards" style="display: flex; flex-direction: column; gap: 12px;">
         `;
