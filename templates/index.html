@@ -3630,7 +3630,7 @@
                 let parts = raw.split('|').map(p => p.trim());
                 let time = parts[0] || '';
                 let room = (parts[1] || '').replace(/[`*]/g, '');
-                let course = (parts[2] || '').replace(/[*]/g, '');
+                let course = (parts[2] || '').replace(/[*]/g, '').replace(/\s*\(\s*\)/g, '').trim();
                 let sec = parts[3] || '';
 
                 htmlLines.push(`

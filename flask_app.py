@@ -1129,8 +1129,8 @@ def generar_respuesta_horario_sala(sala_sel, dia_id=None):
             if cl_dia:
                 for c in cl_dia:
                     sec = f"Sec. {c['seccion']}" if c['seccion'] != '-' else ""
-                    profe = f" ({c['profe'].title()})" if c['profe'] != 'No informado' else ""
-                    lineas.append(f"* [CLASE] {c['start']} - {c['finish']} | `{sala_sel}` | {format_title(c['curso'])}{profe} | {sec}")
+                    nombre_curso = format_title(c['curso'])
+                    lineas.append(f"* [CLASE] {c['start']} - {c['finish']} | `{sala_sel}` | {nombre_curso} | {sec}")
             else:
                 lineas.append("* [LIBRE] Jornada Completa | Sala Vacía (Disponible todo el día)")
             lineas.append("")
@@ -1151,9 +1151,8 @@ def generar_respuesta_horario_sala(sala_sel, dia_id=None):
                 break
         if clase_en_bloque:
             sec = f"Sec. {clase_en_bloque['seccion']}" if clase_en_bloque['seccion'] != '-' else ""
-            profe = f" ({clase_en_bloque['profe'].title()})" if clase_en_bloque['profe'] != 'No informado' else ""
             nombre_curso = format_title(clase_en_bloque['curso'])
-            bloques_info.append(f"* [CLASE] {clase_en_bloque['start']} - {clase_en_bloque['finish']} | `{sala_sel}` | {nombre_curso}{profe} | {sec}")
+            bloques_info.append(f"* [CLASE] {clase_en_bloque['start']} - {clase_en_bloque['finish']} | `{sala_sel}` | {nombre_curso} | {sec}")
         else:
             bloques_info.append(f"* [LIBRE] {b['label']} | Sala Vacía (Disponible)")
 
@@ -1637,7 +1636,7 @@ def generar_respuesta_gemini(mensaje_usuario, historial=None, imagen=None, dia_d
             cl_d = h_sala.get(d, [])
             d_nom = DIAS_SEMANA.get(d, "")
             if cl_d:
-                detalles = [f"{c['start']}-{c['finish']}: {c['curso']} ({c['profe']}, Sec. {c['seccion']})" for c in cl_d]
+                detalles = [f"{c['start']}-{c['finish']}: {c['curso']} (Sec. {c['seccion']})" for c in cl_d]
                 lineas_h.append(f"  * {d_nom}: {', '.join(detalles)}")
             else:
                 lineas_h.append(f"  * {d_nom}: Sin clases programadas (sala libre todo el día)")
