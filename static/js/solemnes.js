@@ -55,7 +55,7 @@ const customStyles = `
     }
 
     .sol-time-cell {
-        background: rgba(15, 23, 42, 0.4);
+        background: rgba(30, 41, 59, 0.6);
         border-radius: 12px;
         padding: 12px;
         display: flex;
@@ -63,7 +63,7 @@ const customStyles = `
         align-items: center;
         justify-content: center;
         text-align: center;
-        border: 1px solid rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
     }
     .sol-time-num {
         color: #94a3b8;
@@ -81,7 +81,7 @@ const customStyles = `
 
     .sol-day-cell {
         background: rgba(15, 23, 42, 0.3);
-        border: 1px solid rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
         border-radius: 12px;
         padding: 10px;
         display: flex;
