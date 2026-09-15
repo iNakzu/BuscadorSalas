@@ -2030,27 +2030,27 @@
             transform: none;
         }
 
-        /* PREVIEW DE IMAGEN ADJUNTA */
+        /* PREVIEW DE IMAGEN ADJUNTA (COMPACTO Y MINIMALISTA) */
         .ai-attachment-preview {
-            padding: 8px 12px 6px 12px;
+            padding: 6px 12px;
             background: rgba(15, 23, 42, 0.95);
             border-top: 1px solid rgba(255, 255, 255, 0.08);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             animation: modalFadeUp 0.18s ease forwards;
         }
 
         .ai-preview-thumb-container {
             position: relative;
-            width: 42px;
-            height: 42px;
+            width: 36px;
+            height: 36px;
             border-radius: 8px;
             overflow: hidden;
-            border: 1px solid rgba(59, 130, 246, 0.4);
+            border: 1px solid rgba(59, 130, 246, 0.35);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
             flex-shrink: 0;
-            background: rgba(0, 0, 0, 0.3);
+            background: #090e1a;
         }
 
         .ai-preview-thumb-container img {
@@ -2064,8 +2064,8 @@
             position: absolute;
             top: 2px;
             right: 2px;
-            width: 16px;
-            height: 16px;
+            width: 15px;
+            height: 15px;
             border-radius: 50%;
             background: rgba(15, 23, 42, 0.85);
             color: #ffffff;
@@ -2074,7 +2074,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 11px;
+            font-size: 10px;
             line-height: 1;
             padding: 0;
             transition: all 0.15s ease;
@@ -2088,7 +2088,7 @@
         .ai-preview-meta {
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: 1px;
             min-width: 0;
             flex: 1;
         }
@@ -2139,16 +2139,117 @@
             box-shadow: 0 0 10px rgba(56, 189, 248, 0.35);
         }
 
-        /* IMAGEN EN LA BURBUJA DEL MENSAJE DEL USUARIO */
-        .ai-msg-img {
-            max-width: 100%;
-            max-height: 220px;
+        /* MENSAJE DE USUARIO CON IMAGEN (TARJETA MODERNA SIN CÁPSULA GIGANTE AZUL) */
+        .ai-msg.user.has-image {
+            background: rgba(22, 33, 58, 0.85) !important;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.14) !important;
+            border-radius: 14px !important;
+            padding: 5px !important;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35) !important;
+            max-width: 82% !important;
+            width: fit-content;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .ai-msg.user.has-image .ai-msg-img-container {
+            position: relative;
             border-radius: 10px;
-            margin-bottom: 8px;
+            overflow: hidden;
+            background: #090e1a;
+            cursor: zoom-in;
+            display: block;
+        }
+
+        .ai-msg.user.has-image .ai-msg-img {
+            max-width: 100%;
+            max-height: 190px;
+            width: auto;
+            border-radius: 10px;
+            margin: 0;
             display: block;
             object-fit: contain;
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            border: none !important;
+            box-shadow: none !important;
+            transition: opacity 0.18s ease, transform 0.18s ease;
+        }
+
+        .ai-msg.user.has-image .ai-msg-img-container:hover .ai-msg-img {
+            opacity: 0.92;
+            transform: scale(1.015);
+        }
+
+        .ai-msg.user.has-image .ai-msg-caption {
+            padding: 5px 8px 3px 8px;
+            font-size: 13px;
+            color: #f1f5f9;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        /* LIGHTBOX PARA VER FOTOS EN TAMAÑO COMPLETO */
+        .ai-image-lightbox {
+            position: fixed;
+            inset: 0;
+            background: rgba(3, 7, 18, 0.88);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 3000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            animation: modalFadeUp 0.15s ease forwards;
+        }
+
+        .ai-image-lightbox.open {
+            display: flex;
+        }
+
+        .ai-lightbox-content {
+            position: relative;
+            max-width: 92vw;
+            max-height: 88vh;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: #0b1120;
+        }
+
+        .ai-lightbox-content img {
+            max-width: 92vw;
+            max-height: 88vh;
+            object-fit: contain;
+            display: block;
+        }
+
+        .ai-lightbox-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(15, 23, 42, 0.85);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.15s ease;
+            z-index: 10;
+        }
+
+        .ai-lightbox-close:hover {
+            background: #ef4444;
+            border-color: #ef4444;
+            transform: scale(1.08);
         }
 
         @media (max-width: 768px) {
@@ -3578,6 +3679,21 @@
     let chatHistory = [];
     let currentAttachedImage = null;
 
+    function abrirLightboxIA(src) {
+        if (!src) return;
+        const lb = document.getElementById('ai-image-lightbox');
+        const img = document.getElementById('ai-lightbox-img');
+        if (!lb || !img) return;
+        img.src = src;
+        lb.classList.add('open');
+    }
+
+    function cerrarLightboxIA(e) {
+        if (e) e.stopPropagation();
+        const lb = document.getElementById('ai-image-lightbox');
+        if (lb) lb.classList.remove('open');
+    }
+
     function limpiarChatIA() {
         chatHistory = [];
         removerImagenAdjunta();
@@ -3705,25 +3821,31 @@
 
         // Añadir mensaje del usuario a la vista
         const userDiv = document.createElement('div');
-        userDiv.className = 'ai-msg user';
 
         if (imageToSend) {
+            userDiv.className = 'ai-msg user has-image';
+
+            const imgContainer = document.createElement('div');
+            imgContainer.className = 'ai-msg-img-container';
+            imgContainer.title = 'Haz clic para ampliar la imagen';
+            imgContainer.onclick = function() { abrirLightboxIA(imageToSend.dataUrl); };
+
             const imgEl = document.createElement('img');
             imgEl.src = imageToSend.dataUrl;
             imgEl.className = 'ai-msg-img';
             imgEl.alt = 'Imagen adjunta';
-            userDiv.appendChild(imgEl);
-        }
+            imgContainer.appendChild(imgEl);
+            userDiv.appendChild(imgContainer);
 
-        if (msgToShow) {
-            const textSpan = document.createElement('div');
-            textSpan.textContent = msgToShow;
-            userDiv.appendChild(textSpan);
-        } else if (imageToSend) {
-            const textSpan = document.createElement('div');
-            textSpan.style.fontStyle = 'italic';
-            textSpan.textContent = 'Analizar imagen adjunta';
-            userDiv.appendChild(textSpan);
+            if (msgToShow) {
+                const capSpan = document.createElement('div');
+                capSpan.className = 'ai-msg-caption';
+                capSpan.textContent = msgToShow;
+                userDiv.appendChild(capSpan);
+            }
+        } else {
+            userDiv.className = 'ai-msg user';
+            userDiv.textContent = msgToShow;
         }
 
         area.appendChild(userDiv);
@@ -3861,6 +3983,14 @@
                 <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
             </svg>
         </button>
+    </div>
+</div>
+
+<!-- VISOR LIGHTBOX PARA AMPLIAR IMÁGENES -->
+<div class="ai-image-lightbox" id="ai-image-lightbox" onclick="cerrarLightboxIA(event)">
+    <div class="ai-lightbox-content" onclick="event.stopPropagation()">
+        <button type="button" class="ai-lightbox-close" onclick="cerrarLightboxIA(event)" title="Cerrar">&times;</button>
+        <img id="ai-lightbox-img" src="" alt="Imagen ampliada">
     </div>
 </div>
 
