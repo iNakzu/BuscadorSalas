@@ -324,8 +324,8 @@ const HORARIOS_GUARDADOS = {
         "curso": "Electricidad y Magnetismo",
         "tipo": "Cátedra",
         "seccion": "Sección 20",
-        "sala": "Por asignar",
-        "profesor": "Por asignar",
+        "sala": "-",
+        "profesor": "-",
         "rol": "student"
     },
     {
@@ -339,8 +339,8 @@ const HORARIOS_GUARDADOS = {
         "curso": "Electrónica y Electrotecnia",
         "tipo": "Cátedra",
         "seccion": "Sección 6",
-        "sala": "Por asignar",
-        "profesor": "Por asignar",
+        "sala": "-",
+        "profesor": "-",
         "rol": "student"
     },
     {
@@ -354,8 +354,8 @@ const HORARIOS_GUARDADOS = {
         "curso": "Desarrollo Web y Móvil",
         "tipo": "Ayudantía",
         "seccion": "Sección 2",
-        "sala": "Por asignar",
-        "profesor": "Por asignar",
+        "sala": "-",
+        "profesor": "-",
         "rol": "student"
     },
     {
@@ -369,8 +369,8 @@ const HORARIOS_GUARDADOS = {
         "curso": "Bases de Datos",
         "tipo": "Cátedra",
         "seccion": "Sección 4",
-        "sala": "Por asignar",
-        "profesor": "Por asignar",
+        "sala": "-",
+        "profesor": "-",
         "rol": "student"
     },
     {
@@ -384,8 +384,8 @@ const HORARIOS_GUARDADOS = {
         "curso": "Probabilidades y Estadísticas",
         "tipo": "Cátedra",
         "seccion": "Sección 2",
-        "sala": "Por asignar",
-        "profesor": "Por asignar",
+        "sala": "-",
+        "profesor": "-",
         "rol": "student"
     },
     {
@@ -399,8 +399,8 @@ const HORARIOS_GUARDADOS = {
         "curso": "Electricidad y Magnetismo",
         "tipo": "Ayudantía",
         "seccion": "Sección 20",
-        "sala": "Por asignar",
-        "profesor": "Por asignar",
+        "sala": "-",
+        "profesor": "-",
         "rol": "student"
     },
     {
@@ -414,8 +414,8 @@ const HORARIOS_GUARDADOS = {
         "curso": "Electrónica y Electrotecnia",
         "tipo": "Ayudantía",
         "seccion": "Sección 6",
-        "sala": "Por asignar",
-        "profesor": "Por asignar",
+        "sala": "-",
+        "profesor": "-",
         "rol": "student"
     },
     {
@@ -429,8 +429,8 @@ const HORARIOS_GUARDADOS = {
         "curso": "Desarrollo Web y Móvil",
         "tipo": "Cátedra",
         "seccion": "Sección 2",
-        "sala": "Por asignar",
-        "profesor": "Por asignar",
+        "sala": "-",
+        "profesor": "-",
         "rol": "student"
     },
     {
@@ -444,8 +444,8 @@ const HORARIOS_GUARDADOS = {
         "curso": "Probabilidades y Estadísticas",
         "tipo": "Ayudantía",
         "seccion": "Sección 2",
-        "sala": "Por asignar",
-        "profesor": "Por asignar",
+        "sala": "-",
+        "profesor": "-",
         "rol": "student"
     },
     {
@@ -459,8 +459,8 @@ const HORARIOS_GUARDADOS = {
         "curso": "Electricidad y Magnetismo",
         "tipo": "Cátedra",
         "seccion": "Sección 20",
-        "sala": "Por asignar",
-        "profesor": "Por asignar",
+        "sala": "-",
+        "profesor": "-",
         "rol": "student"
     },
     {
@@ -474,8 +474,8 @@ const HORARIOS_GUARDADOS = {
         "curso": "Electrónica y Electrotecnia",
         "tipo": "Cátedra",
         "seccion": "Sección 6",
-        "sala": "Por asignar",
-        "profesor": "Por asignar",
+        "sala": "-",
+        "profesor": "-",
         "rol": "student"
     },
     {
@@ -489,8 +489,8 @@ const HORARIOS_GUARDADOS = {
         "curso": "Bases de Datos",
         "tipo": "Cátedra",
         "seccion": "Sección 4",
-        "sala": "Por asignar",
-        "profesor": "Por asignar",
+        "sala": "-",
+        "profesor": "-",
         "rol": "student"
     },
     {
@@ -504,8 +504,8 @@ const HORARIOS_GUARDADOS = {
         "curso": "Probabilidades y Estadísticas",
         "tipo": "Cátedra",
         "seccion": "Sección 2",
-        "sala": "Por asignar",
-        "profesor": "Por asignar",
+        "sala": "-",
+        "profesor": "-",
         "rol": "student"
     },
     {
@@ -519,8 +519,8 @@ const HORARIOS_GUARDADOS = {
         "curso": "Electricidad y Magnetismo",
         "tipo": "Laboratorio",
         "seccion": "Sección 20",
-        "sala": "Por asignar",
-        "profesor": "Por asignar",
+        "sala": "-",
+        "profesor": "-",
         "rol": "student"
     },
     {
@@ -534,8 +534,8 @@ const HORARIOS_GUARDADOS = {
         "curso": "Electrónica y Electrotecnia",
         "tipo": "Laboratorio",
         "seccion": "Sección 6",
-        "sala": "Por asignar",
-        "profesor": "Por asignar",
+        "sala": "-",
+        "profesor": "-",
         "rol": "student"
     },
     {
@@ -549,8 +549,8 @@ const HORARIOS_GUARDADOS = {
         "curso": "Bases de Datos",
         "tipo": "Ayudantía",
         "seccion": "Sección 4",
-        "sala": "Por asignar",
-        "profesor": "Por asignar",
+        "sala": "-",
+        "profesor": "-",
         "rol": "student"
     },
     {
@@ -564,8 +564,8 @@ const HORARIOS_GUARDADOS = {
         "curso": "Desarrollo Web y Móvil",
         "tipo": "Cátedra",
         "seccion": "Sección 2",
-        "sala": "Por asignar",
-        "profesor": "Por asignar",
+        "sala": "-",
+        "profesor": "-",
         "rol": "student"
     }
 ]

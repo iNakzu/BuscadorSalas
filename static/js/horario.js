@@ -125,6 +125,54 @@ function inicializarMiHorario() {
     }
 }
 
+
+let vistaHorarioActual = 'yo'; // 'yo', 'aleex1s', 'cruce'
+
+function cambiarVistaHorario(vista, btn) {
+    vistaHorarioActual = vista;
+    const bar = document.getElementById('pill-bar-horarios');
+    if (bar) bar.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    renderMiHorario();
+    actualizarHeroMiHorario();
+}
+
+function generarHorarioCruce() {
+    const cruce = [];
+    let id_counter = 1;
+    const diasNombres = {1: 'Lunes', 2: 'Martes', 3: 'Miércoles', 4: 'Jueves', 5: 'Viernes'};
+    for (let dia = 1; dia <= 5; dia++) {
+        for (let b of BLOQUES_HORARIOS) {
+            const yo = MI_HORARIO_DATA.find(c => c.dia === dia && c.bloqueNum === b.num);
+            const el = HORARIOS_GUARDADOS['aleex1s'].find(c => c.dia === dia && c.bloqueNum === b.num);
+            if (!yo && !el) {
+                cruce.push({
+                    id: 'cruce-' + id_counter++,
+                    dia: dia,
+                    diaNombre: diasNombres[dia],
+                    bloqueNum: b.num,
+                    bloqueLabel: b.label,
+                    horaInicio: b.inicio,
+                    horaFin: b.fin,
+                    curso: '¡Libres para estudiar/almorzar!',
+                    tipo: 'Cruce Libre',
+                    seccion: '-',
+                    sala: '-',
+                    profesor: '-',
+                    rol: 'cruce'
+                });
+            }
+        }
+    }
+    return cruce;
+}
+
+function getHorarioActivo() {
+    if (vistaHorarioActual === 'aleex1s') return HORARIOS_GUARDADOS['aleex1s'];
+    if (vistaHorarioActual === 'cruce') return generarHorarioCruce();
+    return MI_HORARIO_DATA;
+}
+
 function actualizarHeroMiHorario() {
     const heroEl = document.getElementById('my-schedule-hero');
     if (!heroEl) return;
@@ -152,7 +200,7 @@ function actualizarHeroMiHorario() {
     }
 
     // Clases de hoy
-    const clasesHoy = MI_HORARIO_DATA.filter(c => c.dia === dayOfWeek).sort((a, b) => timeToMinutes(a.horaInicio) - timeToMinutes(b.horaInicio));
+    const clasesHoy = getHorarioActivo().filter(c => c.dia === dayOfWeek).sort((a, b) => timeToMinutes(a.horaInicio) - timeToMinutes(b.horaInicio));
 
     // 1. ¿Está en clase ahora?
     let claseActual = null;
@@ -252,7 +300,7 @@ function actualizarHeroMiHorario() {
     for (let d = 1; d <= 7; d++) {
         const checkDia = ((dayOfWeek - 1 + d) % 7) + 1;
         if (checkDia >= 1 && checkDia <= 5) {
-            const clasesDelDia = MI_HORARIO_DATA.filter(c => c.dia === checkDia).sort((a, b) => timeToMinutes(a.horaInicio) - timeToMinutes(b.horaInicio));
+            const clasesDelDia = getHorarioActivo().filter(c => c.dia === checkDia).sort((a, b) => timeToMinutes(a.horaInicio) - timeToMinutes(b.horaInicio));
             if (clasesDelDia.length > 0) {
                 siguienteClase = clasesDelDia[0];
                 break;
@@ -314,12 +362,12 @@ function normStr(str) {
 }
 
 function actualizarContadoresFiltrosMiHorario() {
-    const total = MI_HORARIO_DATA.length;
-    const lunes = MI_HORARIO_DATA.filter(c => c.dia === 1).length;
-    const martes = MI_HORARIO_DATA.filter(c => c.dia === 2).length;
-    const miercoles = MI_HORARIO_DATA.filter(c => c.dia === 3).length;
-    const jueves = MI_HORARIO_DATA.filter(c => c.dia === 4).length;
-    const viernes = MI_HORARIO_DATA.filter(c => c.dia === 5).length;
+    const total = getHorarioActivo().length;
+    const lunes = getHorarioActivo().filter(c => c.dia === 1).length;
+    const martes = getHorarioActivo().filter(c => c.dia === 2).length;
+    const miercoles = getHorarioActivo().filter(c => c.dia === 3).length;
+    const jueves = getHorarioActivo().filter(c => c.dia === 4).length;
+    const viernes = getHorarioActivo().filter(c => c.dia === 5).length;
 
     const bSemana = document.querySelector('#bar-mihorario-dia button[data-dia="ALL"]');
     if (bSemana) bSemana.textContent = `Toda la semana (${total})`;
@@ -336,6 +384,7 @@ function actualizarContadoresFiltrosMiHorario() {
 }
 
 function restablecerHorarioDefault() {
+    if (vistaHorarioActual !== 'yo') { mostrarToast('Solo puedes restablecer tu propio horario'); return; }
     if (confirm('¿Deseas restablecer tu horario al original de 20 clases predeterminadas? Se revertirán las asignaturas agregadas o eliminadas.')) {
         try {
             if (typeof localStorage !== 'undefined') {
@@ -352,6 +401,7 @@ function restablecerHorarioDefault() {
 }
 
 function eliminarClaseMiHorario(id, ev) {
+    if (vistaHorarioActual !== 'yo') return;
     if (ev) ev.stopPropagation();
     const idx = MI_HORARIO_DATA.findIndex(c => c.id === id);
     if (idx === -1) return;
@@ -477,6 +527,7 @@ if (typeof document !== 'undefined' && document.addEventListener) {
 }
 
 function abrirModalAgregarClase(diaNum, bloqueNum) {
+    if (vistaHorarioActual !== 'yo') { mostrarToast('Solo puedes editar tu propio horario'); return; }
     const bloque = BLOQUES_HORARIOS.find(b => b.num === bloqueNum);
     const diasNombres = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
     const diaNombre = diasNombres[diaNum] || 'Día';
@@ -791,7 +842,7 @@ function renderMiHorario() {
     const { dayOfWeek, totalMinutes } = getChileTime();
 
     // Filtrado por rol y texto insensible a tildes
-    let items = MI_HORARIO_DATA.filter(c => {
+    let items = getHorarioActivo().filter(c => {
         if (state.miHorarioRol !== 'ALL' && c.rol !== state.miHorarioRol) return false;
         if (state.miHorarioSearch) {
             const s = normStr(state.miHorarioSearch);
@@ -837,18 +888,18 @@ function renderMiHorario() {
                     const tipoHtml = `<span class="my-type-tag ${tipoCls}"><span>${escapeHtml(c.tipo || 'Cátedra')}</span>${secText}</span>`;
 
                     cardsHtml += `
-                        <div class="my-class-card ${c.rol === 'assistant' ? 'is-assistant' : 'is-student'} ${isCurrent ? 'is-current-class' : ''}" id="card-${c.id}">
+                        <div class="my-class-card ${c.rol === 'assistant' ? 'is-assistant' : (c.rol === 'cruce' ? 'is-cruce' : 'is-student')} ${isCurrent ? 'is-current-class' : ''}" id="card-${c.id}">
                             <div class="my-card-header">
                                 <span class="my-card-time">
                                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                                     <span>${c.bloqueLabel}</span>
                                 </span>
-                                <button type="button" class="my-btn-delete" onclick="eliminarClaseMiHorario('${c.id}', event)" title="Eliminar asignatura de este bloque">
+                                ${vistaHorarioActual === 'yo' ? `<button type="button" class="my-btn-delete" onclick="eliminarClaseMiHorario('${c.id}', event)" title="Eliminar asignatura de este bloque">` : '<div style="display:none">'}
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M3 6h18"></path>
                                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                                     </svg>
-                                </button>
+                                ${vistaHorarioActual === 'yo' ? '</button>' : '</div>'}
                             </div>
                             <div class="my-card-title">${escapeHtml(c.curso)}</div>
                             <div class="my-card-meta">
@@ -867,7 +918,7 @@ function renderMiHorario() {
                 } else {
                     // Casilla vacía / sin clases en este bloque (clicable para agregar)
                     cardsHtml += `
-                        <div class="my-empty-slot" onclick="abrirModalAgregarClase(${d.num}, ${b.num})" title="Haz clic para agregar una asignatura en este bloque (${b.label})">
+                        <div class="my-empty-slot" ${vistaHorarioActual === 'yo' ? `onclick="abrirModalAgregarClase(${d.num}, ${b.num})" title="Haz clic para agregar una asignatura en este bloque (${b.label})"` : `title="Bloque libre"`} style="${vistaHorarioActual !== 'yo' ? 'cursor: default;' : ''}">
                             <div class="my-empty-header">
                                 <span class="my-empty-time">
                                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
@@ -933,7 +984,7 @@ function renderMiHorario() {
                 const tipoHtml = `<span class="my-type-tag ${tipoCls}"><span>${escapeHtml(c.tipo || 'Cátedra')}</span>${secText}</span>`;
 
                 timelineCardsHtml += `
-                    <div class="my-timeline-card ${c.rol === 'assistant' ? 'is-assistant' : 'is-student'} ${isCurrent ? 'is-current-class' : ''}" id="card-${c.id}">
+                    <div class="my-timeline-card ${c.rol === 'assistant' ? 'is-assistant' : (c.rol === 'cruce' ? 'is-cruce' : 'is-student')} ${isCurrent ? 'is-current-class' : ''}" id="card-${c.id}">
                         <div class="my-time-box">
                             <div class="my-time-range">${c.bloqueLabel}</div>
                             <div class="my-bloque-badge">Bloque ${c.bloqueNum} (80 min)</div>
@@ -952,7 +1003,7 @@ function renderMiHorario() {
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
                                 <span>Sala ${c.sala}</span>
                             </span>
-                            <button type="button" class="my-btn-delete-timeline" onclick="eliminarClaseMiHorario('${c.id}', event)" title="Eliminar asignatura de este bloque">
+                            ${vistaHorarioActual === 'yo' ? `<button type="button" class="my-btn-delete-timeline" onclick="eliminarClaseMiHorario('${c.id}', event)" title="Eliminar asignatura de este bloque">` : '<div style="display:none">'}
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                                 <span>Eliminar</span>
                             </button>

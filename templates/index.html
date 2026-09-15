@@ -81,7 +81,7 @@
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
                 </svg>
-                <span>Mi Horario</span>
+                <span>Horarios</span>
             </button>
         </nav>
     </div>
@@ -474,6 +474,12 @@
 
     <!-- TAB 6: MI HORARIO (HORARIO PERSONALIZADO 2026-02) -->
     <section id="tab-mihorario" class="panel">
+        <!-- SELECTOR DE HORARIOS -->
+        <div class="pill-bar" id="pill-bar-horarios" style="margin-bottom: 20px; justify-content: flex-start; overflow-x: auto; padding-bottom: 4px;">
+            <button type="button" class="pill-btn active" onclick="cambiarVistaHorario('yo', this)">Mi Horario</button>
+            <button type="button" class="pill-btn" onclick="cambiarVistaHorario('aleex1s', this)">Aleex1s</button>
+            <button type="button" class="pill-btn" onclick="cambiarVistaHorario('cruce', this)" style="border-color: #a855f7; color: #d8b4fe;">🔥 Topes Libres</button>
+        </div>
         <!-- WIDGET HERO EN TIEMPO REAL -->
         <div class="my-schedule-hero" id="my-schedule-hero">
             <!-- Renderizado dinámico desde JS -->
