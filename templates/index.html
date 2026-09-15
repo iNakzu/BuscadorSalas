@@ -2296,6 +2296,497 @@
             .timetable-slot { flex-direction: column; align-items: flex-start; gap: 9px; }
             .slot-time { align-self: flex-start; }
         }
+
+        /* =========================================================
+           TAB 6: MI HORARIO (ESTILO MODERNO GLASSMORPHISM PREMIUM)
+           ========================================================= */
+        .my-schedule-hero {
+            background: linear-gradient(135deg, rgba(30, 41, 69, 0.88) 0%, rgba(15, 23, 42, 0.94) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: var(--radius-md);
+            padding: 18px 22px;
+            margin-bottom: 22px;
+            box-shadow: 0 12px 36px -10px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .my-schedule-hero::before {
+            content: '';
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.22) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .my-hero-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .my-hero-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 13px;
+            border-radius: 9999px;
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .my-hero-status-pill.now {
+            background: rgba(16, 185, 129, 0.18);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            box-shadow: 0 0 14px rgba(16, 185, 129, 0.25);
+        }
+
+        .my-hero-status-pill.next {
+            background: rgba(59, 130, 246, 0.18);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.4);
+        }
+
+        .my-hero-status-pill.done {
+            background: rgba(148, 163, 184, 0.14);
+            color: #cbd5e1;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+        }
+
+        .my-hero-stats-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .my-hero-stat-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .my-hero-body {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .my-hero-class-info {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .my-hero-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .my-hero-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .my-hero-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .my-hero-progress-container {
+            width: 100%;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 99px;
+            overflow: hidden;
+            margin-top: 14px;
+        }
+
+        .my-hero-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981 0%, #3b82f6 100%);
+            border-radius: 99px;
+            transition: width 0.5s ease;
+        }
+
+        /* GRID SEMANAL (5 COLUMNAS BENTO MODERNO) */
+        .my-week-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 14px;
+            align-items: start;
+        }
+
+        .my-day-col {
+            background: rgba(15, 23, 42, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: var(--radius-md);
+            padding: 12px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 0;
+            transition: border-color 0.2s ease, background 0.2s ease;
+        }
+
+        .my-day-col.is-today-col {
+            border-color: rgba(59, 130, 246, 0.35);
+            background: rgba(22, 30, 49, 0.6);
+            box-shadow: 0 4px 20px -5px rgba(59, 130, 246, 0.15);
+        }
+
+        .my-day-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px 6px 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .my-day-title-box {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .my-day-title {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #f1f5f9;
+            letter-spacing: -0.01em;
+        }
+
+        .my-day-col.is-today-col .my-day-title {
+            color: #60a5fa;
+        }
+
+        .my-today-chip {
+            background: rgba(59, 130, 246, 0.2);
+            color: #93c5fd;
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            font-size: 10px;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 999px;
+            text-transform: uppercase;
+        }
+
+        .my-day-count {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-sub);
+        }
+
+        .my-day-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+        }
+
+        /* TARJETAS DE CLASE DENTRO DE LA SEMANA */
+        .my-class-card {
+            background: rgba(22, 30, 49, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 10px 11px;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            position: relative;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .my-class-card:hover {
+            background: rgba(30, 41, 69, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.5);
+            border-color: rgba(255, 255, 255, 0.16);
+        }
+
+        /* DISTINCIÓN DE ROLES */
+        .my-class-card.is-student {
+            border-left: 3.5px solid #38bdf8;
+        }
+
+        .my-class-card.is-assistant {
+            border-left: 3.5px solid #f59e0b;
+            background: linear-gradient(145deg, rgba(245, 158, 11, 0.06) 0%, rgba(22, 30, 49, 0.75) 100%);
+        }
+
+        .my-class-card.is-assistant:hover {
+            border-color: rgba(245, 158, 11, 0.35);
+            border-left-color: #fbbf24;
+            box-shadow: 0 8px 24px -6px rgba(245, 158, 11, 0.22);
+        }
+
+        .my-class-card.is-current-class {
+            border-color: #10b981 !important;
+            border-left: 4px solid #10b981 !important;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.35) !important;
+            background: linear-gradient(145deg, rgba(16, 185, 129, 0.12) 0%, rgba(22, 30, 49, 0.85) 100%) !important;
+            animation: currentClassPulse 3s infinite ease-in-out;
+        }
+
+        @keyframes currentClassPulse {
+            0%, 100% { box-shadow: 0 0 16px rgba(16, 185, 129, 0.28); }
+            50% { box-shadow: 0 0 26px rgba(16, 185, 129, 0.55); }
+        }
+
+        .my-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+        }
+
+        .my-card-time {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #94a3b8;
+            letter-spacing: 0.01em;
+        }
+
+        .my-class-card.is-current-class .my-card-time {
+            color: #34d399;
+        }
+
+        .my-role-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 6px;
+            letter-spacing: 0.01em;
+            white-space: nowrap;
+        }
+
+        .badge-student {
+            background: rgba(56, 189, 248, 0.14);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        .badge-assistant {
+            background: rgba(245, 158, 11, 0.18);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.2);
+        }
+
+        .my-card-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #f8fafc;
+            line-height: 1.35;
+            letter-spacing: -0.01em;
+        }
+
+        .my-card-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .my-type-tag {
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .my-prof-name {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: #64748b;
+            font-size: 10.5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .my-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            margin-top: 2px;
+            padding-top: 6px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* SALA CLICABLE PREMIUM */
+        .my-room-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.18) 0%, rgba(14, 165, 233, 0.14) 100%);
+            border: 1px solid rgba(125, 211, 252, 0.35);
+            color: #93c5fd;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            text-decoration: none;
+            user-select: none;
+        }
+
+        .my-room-pill:hover {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.35) 0%, rgba(14, 165, 233, 0.3) 100%);
+            border-color: rgba(147, 197, 253, 0.7);
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+        }
+
+        .my-card-bloque-num {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-sub);
+        }
+
+        /* VISTA TIMELINE DIARIO (CUANDO SE FILTRA POR UN DÍA ESPECÍFICO) */
+        .my-timeline-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 820px;
+            margin: 0 auto;
+        }
+
+        .my-timeline-card {
+            background: rgba(22, 30, 49, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 14px 18px;
+            display: grid;
+            grid-template-columns: 140px 1fr auto;
+            align-items: center;
+            gap: 16px;
+            position: relative;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(10px);
+        }
+
+        .my-timeline-card:hover {
+            background: rgba(30, 41, 69, 0.9);
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.16);
+            box-shadow: 0 8px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .my-timeline-card.is-student {
+            border-left: 4px solid #38bdf8;
+        }
+
+        .my-timeline-card.is-assistant {
+            border-left: 4px solid #f59e0b;
+            background: linear-gradient(145deg, rgba(245, 158, 11, 0.05) 0%, rgba(22, 30, 49, 0.8) 100%);
+        }
+
+        .my-timeline-card.is-current-class {
+            border-color: #10b981 !important;
+            border-left: 5px solid #10b981 !important;
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.35) !important;
+        }
+
+        .my-time-box {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .my-time-range {
+            font-size: 15px;
+            font-weight: 800;
+            color: #f8fafc;
+            letter-spacing: -0.01em;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .my-bloque-badge {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .my-info-box {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            min-width: 0;
+        }
+
+        .my-info-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.01em;
+        }
+
+        .my-info-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .my-actions-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        @media (max-width: 900px) {
+            .my-week-grid {
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            }
+            .my-timeline-card {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            .my-actions-box {
+                justify-content: flex-start;
+            }
+        }
     </style>
 </head>
 <body>
@@ -2356,6 +2847,12 @@
                     <line x1="3" y1="10" x2="21" y2="10"></line>
                 </svg>
                 <span>Horario por Sala</span>
+            </button>
+            <button type="button" class="tab-btn" onclick="cambiarTab('tab-mihorario', this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                </svg>
+                <span>Mi Horario</span>
             </button>
         </nav>
     </div>
@@ -2745,6 +3242,76 @@
             <div class="empty-state">Escribe o selecciona una sala del listado superior para consultar su calendario de clases.</div>
         </div>
     </section>
+
+    <!-- TAB 6: MI HORARIO (HORARIO PERSONALIZADO 2026-02) -->
+    <section id="tab-mihorario" class="panel">
+        <!-- WIDGET HERO EN TIEMPO REAL -->
+        <div class="my-schedule-hero" id="my-schedule-hero">
+            <!-- Renderizado dinámico desde JS -->
+        </div>
+
+        <!-- TARJETA DE CONTROL Y FILTROS -->
+        <div class="control-card" style="margin-bottom: 22px;">
+            <div class="filter-header-row">
+                <div class="filter-header-title">Mi Horario Semanal • Semestre 2026-02</div>
+                <button type="button" class="btn-bloque-actual" onclick="irABloqueActual('mihorario')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span>Bloque Actual</span>
+                </button>
+            </div>
+
+            <!-- Banner de alerta de horario -->
+            <div class="window-alert-banner" id="banner-alerta-mihorario">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                <div id="texto-alerta-mihorario"></div>
+            </div>
+
+            <!-- Buscador rápido por asignatura o sala -->
+            <div class="search-field" style="margin-bottom: 14px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="input-mihorario-search" placeholder="Buscar por asignatura o sala (ej. Inalámbricas, Álgebra, Economía, E441, S302)..." oninput="filtrarMiHorarioTexto(this.value)" autocomplete="off">
+                <button type="button" class="clear-btn" id="clear-mihorario-btn" onclick="limpiarMiHorarioTexto()">&times;</button>
+            </div>
+
+            <!-- Filtro por Día / Semana completa -->
+            <div class="control-group">
+                <div class="section-label">Ver por Día o Semana Completa</div>
+                <div class="pill-bar" id="bar-mihorario-dia">
+                    <button type="button" class="pill-btn active" data-dia="ALL" onclick="setMiHorarioDia('ALL', this)">Toda la semana (20)</button>
+                    <button type="button" class="pill-btn" data-dia="1" onclick="setMiHorarioDia('1', this)">Lunes (5)</button>
+                    <button type="button" class="pill-btn" data-dia="2" onclick="setMiHorarioDia('2', this)">Martes (3)</button>
+                    <button type="button" class="pill-btn" data-dia="3" onclick="setMiHorarioDia('3', this)">Miércoles (4)</button>
+                    <button type="button" class="pill-btn" data-dia="4" onclick="setMiHorarioDia('4', this)">Jueves (4)</button>
+                    <button type="button" class="pill-btn" data-dia="5" onclick="setMiHorarioDia('5', this)">Viernes (4)</button>
+                </div>
+            </div>
+
+            <!-- Filtro por Rol: Estudiante vs Ayudante -->
+            <div class="control-group" style="margin-bottom: 0;">
+                <div class="section-label">Filtrar por Rol</div>
+                <div class="pill-bar" id="bar-mihorario-rol">
+                    <button type="button" class="pill-btn active" data-rol="ALL" onclick="setMiHorarioRol('ALL', this)">Todos los roles (20)</button>
+                    <button type="button" class="pill-btn" data-rol="student" onclick="setMiHorarioRol('student', this)">🎓 Estudiante (16)</button>
+                    <button type="button" class="pill-btn" data-rol="assistant" onclick="setMiHorarioRol('assistant', this)">✍️ Ayudante (4)</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTENEDOR PRINCIPAL DE HORARIO (GRILLA SEMANAL O TIMELINE DIARIO) -->
+        <div id="mihorario-display-container">
+            <!-- Renderizado dinámico -->
+        </div>
+    </section>
 </div>
 
 <script>
@@ -2761,7 +3328,10 @@
         mallaHora: '',
         mallaRamo: '',
         salaDia: '1',
-        salaActiva: ''
+        salaActiva: '',
+        miHorarioDia: 'ALL',
+        miHorarioRol: 'ALL',
+        miHorarioSearch: ''
     };
 
     const TODAS_LAS_SALAS = {{ todas_las_salas | tojson }};
@@ -2784,6 +3354,9 @@
         if (target) target.classList.add('active');
         if (panelId === 'tab-malla' && !mallaLoadedOnce) {
             cargarClasesMalla(true);
+        }
+        if (panelId === 'tab-mihorario') {
+            inicializarMiHorario();
         }
     }
 
@@ -2909,7 +3482,8 @@
             'salas': ['banner-alerta-horario', 'texto-alerta-horario'],
             'profes': ['banner-alerta-prof', 'texto-alerta-prof'],
             'ramos': ['banner-alerta-ramo', 'texto-alerta-ramo'],
-            'malla': ['banner-alerta-malla', 'texto-alerta-malla']
+            'malla': ['banner-alerta-malla', 'texto-alerta-malla'],
+            'mihorario': ['banner-alerta-mihorario', 'texto-alerta-mihorario']
         };
 
         const [bId, tId] = bannerIdMap[tipo] || bannerIdMap['salas'];
@@ -2987,6 +3561,19 @@
                 });
                 state.mallaHora = horaSeleccionada || rawHora;
                 cargarClasesMalla(false);
+            } else if (tipo === 'mihorario') {
+                const diaNum = parseInt(diaStr, 10);
+                state.miHorarioDia = (diaNum >= 1 && diaNum <= 5) ? diaStr : '1';
+                document.querySelectorAll('#bar-mihorario-dia .pill-btn').forEach(b => {
+                    b.classList.toggle('active', b.dataset.dia === state.miHorarioDia);
+                });
+                renderMiHorario();
+                setTimeout(() => {
+                    const activeCard = document.querySelector('.my-class-card.is-current-class') || document.querySelector('.my-timeline-card.is-current-class');
+                    if (activeCard) {
+                        activeCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 100);
             }
         } catch (e) {
             console.error(e);
@@ -3580,6 +4167,764 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    /* =========================================================
+       TAB 6: MI HORARIO - DATOS Y LÓGICA REACTIVA EN TIEMPO REAL
+       ========================================================= */
+    const MI_HORARIO_DATA = [
+        // LUNES (Día 1)
+        {
+            id: 'lun-1',
+            dia: 1,
+            diaNombre: 'Lunes',
+            bloqueNum: 3,
+            bloqueLabel: '11:30 - 12:50',
+            horaInicio: '11:30',
+            horaFin: '12:50',
+            curso: 'Tecnologías Inalámbricas',
+            tipo: 'Cátedra',
+            seccion: 'Sección 1',
+            sala: 'V432.3.S312',
+            profesor: 'Diego Dujovne',
+            rol: 'student'
+        },
+        {
+            id: 'lun-2',
+            dia: 1,
+            diaNombre: 'Lunes',
+            bloqueNum: 4,
+            bloqueLabel: '13:00 - 14:20',
+            horaInicio: '13:00',
+            horaFin: '14:20',
+            curso: 'Inteligencia Artificial',
+            tipo: 'Cátedra',
+            seccion: 'Sección 2',
+            sala: 'E441.2.S201',
+            profesor: 'Víctor Reyes',
+            rol: 'student'
+        },
+        {
+            id: 'lun-3',
+            dia: 1,
+            diaNombre: 'Lunes',
+            bloqueNum: 5,
+            bloqueLabel: '14:30 - 15:50',
+            horaInicio: '14:30',
+            horaFin: '15:50',
+            curso: 'Tecnologías Inalámbricas L.',
+            tipo: 'Laboratorio',
+            seccion: 'Sección 1',
+            sala: 'E441.5. LAB INF',
+            profesor: 'Andrés Cruz',
+            rol: 'student'
+        },
+        {
+            id: 'lun-4',
+            dia: 1,
+            diaNombre: 'Lunes',
+            bloqueNum: 6,
+            bloqueLabel: '16:00 - 17:20',
+            horaInicio: '16:00',
+            horaFin: '17:20',
+            curso: 'Evaluación de Proyectos TIC',
+            tipo: 'Cátedra',
+            seccion: 'Sección 1',
+            sala: 'E441.3.S302',
+            profesor: 'Eduardo Faivovich',
+            rol: 'student'
+        },
+        {
+            id: 'lun-5',
+            dia: 1,
+            diaNombre: 'Lunes',
+            bloqueNum: 7,
+            bloqueLabel: '17:25 - 18:45',
+            horaInicio: '17:25',
+            horaFin: '18:45',
+            curso: 'Arquitecturas Emergentes',
+            tipo: 'Cátedra',
+            seccion: 'Sección 2',
+            sala: 'E441.3.S302',
+            profesor: 'Carlos García',
+            rol: 'student'
+        },
+
+        // MARTES (Día 2)
+        {
+            id: 'mar-1',
+            dia: 2,
+            diaNombre: 'Martes',
+            bloqueNum: 3,
+            bloqueLabel: '11:30 - 12:50',
+            horaInicio: '11:30',
+            horaFin: '12:50',
+            curso: 'Álgebra Lineal A.',
+            tipo: 'Ayudantía',
+            seccion: 'Ayudantía que impartes',
+            sala: 'E306.1.S107',
+            profesor: '',
+            rol: 'assistant'
+        },
+        {
+            id: 'mar-2',
+            dia: 2,
+            diaNombre: 'Martes',
+            bloqueNum: 4,
+            bloqueLabel: '13:00 - 14:20',
+            horaInicio: '13:00',
+            horaFin: '14:20',
+            curso: 'Introducción a la Economía',
+            tipo: 'Cátedra',
+            seccion: 'Sección 4',
+            sala: 'E441.4.S402',
+            profesor: 'Jaime Calcagno',
+            rol: 'student'
+        },
+        {
+            id: 'mar-3',
+            dia: 2,
+            diaNombre: 'Martes',
+            bloqueNum: 7,
+            bloqueLabel: '17:25 - 18:45',
+            horaInicio: '17:25',
+            horaFin: '18:45',
+            curso: 'Inteligencia Artificial A.',
+            tipo: 'Ayudantía',
+            seccion: 'Sección 2',
+            sala: 'V432.3.S315',
+            profesor: '',
+            rol: 'student'
+        },
+
+        // MIÉRCOLES (Día 3)
+        {
+            id: 'mie-1',
+            dia: 3,
+            diaNombre: 'Miércoles',
+            bloqueNum: 1,
+            bloqueLabel: '08:30 - 09:50',
+            horaInicio: '08:30',
+            horaFin: '09:50',
+            curso: 'Tecnologías Inalámbricas A.',
+            tipo: 'Ayudantía',
+            seccion: 'Sección 1',
+            sala: 'V432.4.S415',
+            profesor: '',
+            rol: 'student'
+        },
+        {
+            id: 'mie-2',
+            dia: 3,
+            diaNombre: 'Miércoles',
+            bloqueNum: 5,
+            bloqueLabel: '14:30 - 15:50',
+            horaInicio: '14:30',
+            horaFin: '15:50',
+            curso: 'Introducción a la Economía A.',
+            tipo: 'Ayudantía',
+            seccion: 'Sección 4',
+            sala: 'E441.1.S106',
+            profesor: '',
+            rol: 'student'
+        },
+        {
+            id: 'mie-3',
+            dia: 3,
+            diaNombre: 'Miércoles',
+            bloqueNum: 6,
+            bloqueLabel: '16:00 - 17:20',
+            horaInicio: '16:00',
+            horaFin: '17:20',
+            curso: 'Evaluación de Proyectos TIC A.',
+            tipo: 'Ayudantía',
+            seccion: 'Sección 1',
+            sala: 'E441.2.S204',
+            profesor: '',
+            rol: 'student'
+        },
+        {
+            id: 'mie-4',
+            dia: 3,
+            diaNombre: 'Miércoles',
+            bloqueNum: 7,
+            bloqueLabel: '17:25 - 18:45',
+            horaInicio: '17:25',
+            horaFin: '18:45',
+            curso: 'Arquitecturas Emergentes A.',
+            tipo: 'Ayudantía',
+            seccion: 'Sección 2',
+            sala: 'E441.1.S105',
+            profesor: '',
+            rol: 'student'
+        },
+
+        // JUEVES (Día 4)
+        {
+            id: 'jue-1',
+            dia: 4,
+            diaNombre: 'Jueves',
+            bloqueNum: 3,
+            bloqueLabel: '11:30 - 12:50',
+            horaInicio: '11:30',
+            horaFin: '12:50',
+            curso: 'Tecnologías Inalámbricas',
+            tipo: 'Cátedra',
+            seccion: 'Sección 1',
+            sala: 'V432.3.S312',
+            profesor: 'Diego Dujovne',
+            rol: 'student'
+        },
+        {
+            id: 'jue-2',
+            dia: 4,
+            diaNombre: 'Jueves',
+            bloqueNum: 4,
+            bloqueLabel: '13:00 - 14:20',
+            horaInicio: '13:00',
+            horaFin: '14:20',
+            curso: 'Inteligencia Artificial',
+            tipo: 'Cátedra',
+            seccion: 'Sección 2',
+            sala: 'E441.2.S201',
+            profesor: 'Víctor Reyes',
+            rol: 'student'
+        },
+        {
+            id: 'jue-3',
+            dia: 4,
+            diaNombre: 'Jueves',
+            bloqueNum: 6,
+            bloqueLabel: '16:00 - 17:20',
+            horaInicio: '16:00',
+            horaFin: '17:20',
+            curso: 'Evaluación de Proyectos TIC',
+            tipo: 'Cátedra',
+            seccion: 'Sección 1',
+            sala: 'E441.3.S302',
+            profesor: 'Eduardo Faivovich',
+            rol: 'student'
+        },
+        {
+            id: 'jue-4',
+            dia: 4,
+            diaNombre: 'Jueves',
+            bloqueNum: 7,
+            bloqueLabel: '17:25 - 18:45',
+            horaInicio: '17:25',
+            horaFin: '18:45',
+            curso: 'Arquitecturas Emergentes',
+            tipo: 'Cátedra',
+            seccion: 'Sección 2',
+            sala: 'E441.3.S302',
+            profesor: 'Carlos García',
+            rol: 'student'
+        },
+
+        // VIERNES (Día 5)
+        {
+            id: 'vie-1',
+            dia: 5,
+            diaNombre: 'Viernes',
+            bloqueNum: 3,
+            bloqueLabel: '11:30 - 12:50',
+            horaInicio: '11:30',
+            horaFin: '12:50',
+            curso: 'Mecánica A.',
+            tipo: 'Ayudantía',
+            seccion: 'Ayudantía que impartes',
+            sala: 'E441.4.S401',
+            profesor: '',
+            rol: 'assistant'
+        },
+        {
+            id: 'vie-2',
+            dia: 5,
+            diaNombre: 'Viernes',
+            bloqueNum: 4,
+            bloqueLabel: '13:00 - 14:20',
+            horaInicio: '13:00',
+            horaFin: '14:20',
+            curso: 'Introducción a la Economía',
+            tipo: 'Cátedra',
+            seccion: 'Sección 4',
+            sala: 'E441.4.S402',
+            profesor: 'Jaime Calcagno',
+            rol: 'student'
+        },
+        {
+            id: 'vie-3',
+            dia: 5,
+            diaNombre: 'Viernes',
+            bloqueNum: 5,
+            bloqueLabel: '14:30 - 15:50',
+            horaInicio: '14:30',
+            horaFin: '15:50',
+            curso: 'Introducción al Álgebra A.',
+            tipo: 'Ayudantía',
+            seccion: 'Ayudantía que impartes',
+            sala: 'E306.1.S101',
+            profesor: '',
+            rol: 'assistant'
+        },
+        {
+            id: 'vie-4',
+            dia: 5,
+            diaNombre: 'Viernes',
+            bloqueNum: 6,
+            bloqueLabel: '16:00 - 17:20',
+            horaInicio: '16:00',
+            horaFin: '17:20',
+            curso: 'Álgebra Lineal A.',
+            tipo: 'Ayudantía',
+            seccion: 'Ayudantía que impartes',
+            sala: 'E306.2.S208',
+            profesor: '',
+            rol: 'assistant'
+        }
+    ];
+
+    let miHorarioInitialized = false;
+    let miHorarioTimer = null;
+
+    function getChileTime() {
+        const now = new Date();
+        const parts = new Intl.DateTimeFormat('en-US', {
+            timeZone: 'America/Santiago',
+            weekday: 'short',
+            hour: 'numeric',
+            minute: 'numeric',
+            second: 'numeric',
+            hour12: false
+        }).formatToParts(now);
+
+        let dayOfWeek = now.getDay();
+        let hours = now.getHours();
+        let minutes = now.getMinutes();
+        let seconds = now.getSeconds();
+
+        parts.forEach(p => {
+            if (p.type === 'weekday') {
+                const map = { 'Mon': 1, 'Tue': 2, 'Wed': 3, 'Thu': 4, 'Fri': 5, 'Sat': 6, 'Sun': 0 };
+                if (map[p.value] !== undefined) dayOfWeek = map[p.value];
+            } else if (p.type === 'hour') {
+                hours = parseInt(p.value, 10);
+            } else if (p.type === 'minute') {
+                minutes = parseInt(p.value, 10);
+            } else if (p.type === 'second') {
+                seconds = parseInt(p.value, 10);
+            }
+        });
+
+        const totalMinutes = hours * 60 + minutes;
+        const totalSeconds = totalMinutes * 60 + seconds;
+        return { dayOfWeek, hours, minutes, seconds, totalMinutes, totalSeconds };
+    }
+
+    function timeToMinutes(str) {
+        if (!str) return 0;
+        const [h, m] = str.split(':').map(Number);
+        return h * 60 + (m || 0);
+    }
+
+    function inicializarMiHorario() {
+        if (!miHorarioInitialized) {
+            miHorarioInitialized = true;
+            renderMiHorario();
+            actualizarHeroMiHorario();
+            if (!miHorarioTimer) {
+                miHorarioTimer = setInterval(actualizarHeroMiHorario, 1000);
+            }
+        } else {
+            renderMiHorario();
+            actualizarHeroMiHorario();
+        }
+    }
+
+    function actualizarHeroMiHorario() {
+        const heroEl = document.getElementById('my-schedule-hero');
+        if (!heroEl) return;
+
+        const { dayOfWeek, hours, minutes, seconds, totalMinutes, totalSeconds } = getChileTime();
+        const timeStr = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+        const totalClases = MI_HORARIO_DATA.length;
+        const totalEstudiante = MI_HORARIO_DATA.filter(c => c.rol === 'student').length;
+        const totalAyudante = MI_HORARIO_DATA.filter(c => c.rol === 'assistant').length;
+
+        // Si es fin de semana
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+            heroEl.innerHTML = `
+                <div class="my-hero-top">
+                    <div class="my-hero-status-pill done">
+                        <span>🌴 Fin de Semana Libre</span>
+                    </div>
+                    <div class="my-hero-stats-row">
+                        <span class="my-hero-stat-badge">🕒 Santiago: <strong>${timeStr}</strong></span>
+                        <span class="my-hero-stat-badge">📚 ${totalClases} Clases/semana</span>
+                        <span class="my-hero-stat-badge">🎓 ${totalEstudiante} Estudiante</span>
+                        <span class="my-hero-stat-badge">✍️ ${totalAyudante} Ayudante</span>
+                    </div>
+                </div>
+                <div class="my-hero-body">
+                    <div class="my-hero-class-info">
+                        <div class="my-hero-title">¡Descanso de fin de semana!</div>
+                        <div class="my-hero-subtitle">
+                            <span>Tu próxima clase es el <strong>Lunes a las 11:30</strong> (Tecnologías Inalámbricas en sala <code class="my-room-pill" onclick="verHorarioDirecto('V432.3.S312')">V432.3.S312</code>).</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        // Clases de hoy
+        const clasesHoy = MI_HORARIO_DATA.filter(c => c.dia === dayOfWeek).sort((a, b) => timeToMinutes(a.horaInicio) - timeToMinutes(b.horaInicio));
+
+        // 1. ¿Está en clase ahora?
+        let claseActual = null;
+        for (const c of clasesHoy) {
+            const startM = timeToMinutes(c.horaInicio);
+            const endM = timeToMinutes(c.horaFin);
+            if (totalMinutes >= startM && totalMinutes < endM) {
+                claseActual = c;
+                break;
+            }
+        }
+
+        if (claseActual) {
+            const startSec = timeToMinutes(claseActual.horaInicio) * 60;
+            const endSec = timeToMinutes(claseActual.horaFin) * 60;
+            const progress = Math.min(100, Math.max(0, ((totalSeconds - startSec) / (endSec - startSec)) * 100));
+            const minRestantes = Math.max(1, Math.ceil((endSec - totalSeconds) / 60));
+
+            heroEl.innerHTML = `
+                <div class="my-hero-top">
+                    <div class="my-hero-status-pill now">
+                        <span class="pulse-dot"></span>
+                        <span>¡En Clase Ahora Mismo!</span>
+                    </div>
+                    <div class="my-hero-stats-row">
+                        <span class="my-hero-stat-badge">🕒 Santiago: <strong>${timeStr}</strong></span>
+                        <span class="my-hero-stat-badge">📚 ${totalClases} Clases</span>
+                        <span class="my-hero-stat-badge">🎓 ${totalEstudiante} Estudiante</span>
+                        <span class="my-hero-stat-badge">✍️ ${totalAyudante} Ayudante</span>
+                    </div>
+                </div>
+                <div class="my-hero-body">
+                    <div class="my-hero-class-info">
+                        <div class="my-hero-title">
+                            <span>${claseActual.curso}</span>
+                            <span class="my-role-badge ${claseActual.rol === 'assistant' ? 'badge-assistant' : 'badge-student'}">
+                                ${claseActual.rol === 'assistant' ? '✍️ Ayudante que Impartes' : '🎓 Estudiante'}
+                            </span>
+                        </div>
+                        <div class="my-hero-subtitle">
+                            <span>Bloque ${claseActual.bloqueNum} (${claseActual.bloqueLabel})</span>
+                            <span>•</span>
+                            <span class="my-room-pill" onclick="verHorarioDirecto('${claseActual.sala}')" title="Ver horario de la sala">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+                                Sala ${claseActual.sala}
+                            </span>
+                            ${claseActual.profesor ? `<span>• Prof: ${claseActual.profesor}</span>` : ''}
+                            <span>• Quedan aprox. <strong>${minRestantes} min</strong></span>
+                        </div>
+                    </div>
+                    <div class="my-hero-actions">
+                        <button type="button" class="btn-sync" onclick="verHorarioDirecto('${claseActual.sala}')">
+                            <span>Ver Sala en Vivo</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="my-hero-progress-container" title="Progreso de la clase: ${Math.round(progress)}%">
+                    <div class="my-hero-progress-bar" style="width: ${progress.toFixed(1)}%;"></div>
+                </div>
+            `;
+            return;
+        }
+
+        // 2. ¿Tiene una próxima clase hoy?
+        const proximaHoy = clasesHoy.find(c => timeToMinutes(c.horaInicio) > totalMinutes);
+        if (proximaHoy) {
+            const diffMin = timeToMinutes(proximaHoy.horaInicio) - totalMinutes;
+            const diffTexto = diffMin >= 60 ? `${Math.floor(diffMin / 60)}h ${diffMin % 60}m` : `${diffMin} min`;
+
+            heroEl.innerHTML = `
+                <div class="my-hero-top">
+                    <div class="my-hero-status-pill next">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        <span>Próxima Clase Hoy en ${diffTexto}</span>
+                    </div>
+                    <div class="my-hero-stats-row">
+                        <span class="my-hero-stat-badge">🕒 Santiago: <strong>${timeStr}</strong></span>
+                        <span class="my-hero-stat-badge">📚 ${totalClases} Clases</span>
+                        <span class="my-hero-stat-badge">🎓 ${totalEstudiante} Estudiante</span>
+                        <span class="my-hero-stat-badge">✍️ ${totalAyudante} Ayudante</span>
+                    </div>
+                </div>
+                <div class="my-hero-body">
+                    <div class="my-hero-class-info">
+                        <div class="my-hero-title">
+                            <span>${proximaHoy.curso}</span>
+                            <span class="my-role-badge ${proximaHoy.rol === 'assistant' ? 'badge-assistant' : 'badge-student'}">
+                                ${proximaHoy.rol === 'assistant' ? '✍️ Ayudante' : '🎓 Estudiante'}
+                            </span>
+                        </div>
+                        <div class="my-hero-subtitle">
+                            <span>Inicia a las <strong>${proximaHoy.horaInicio}</strong> (Bloque ${proximaHoy.bloqueNum})</span>
+                            <span>•</span>
+                            <span class="my-room-pill" onclick="verHorarioDirecto('${proximaHoy.sala}')" title="Ver horario de la sala">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+                                Sala ${proximaHoy.sala}
+                            </span>
+                            ${proximaHoy.profesor ? `<span>• Prof: ${proximaHoy.profesor}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="my-hero-actions">
+                        <button type="button" class="btn-sync" onclick="verHorarioDirecto('${proximaHoy.sala}')">
+                            <span>Consultar Sala</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        // 3. Ya terminaron todas las clases de hoy (o aún no empiezan y el día tiene clases)
+        let siguienteClase = null;
+        for (let d = 1; d <= 7; d++) {
+            const checkDia = ((dayOfWeek - 1 + d) % 7) + 1;
+            if (checkDia >= 1 && checkDia <= 5) {
+                const clasesDelDia = MI_HORARIO_DATA.filter(c => c.dia === checkDia).sort((a, b) => timeToMinutes(a.horaInicio) - timeToMinutes(b.horaInicio));
+                if (clasesDelDia.length > 0) {
+                    siguienteClase = clasesDelDia[0];
+                    break;
+                }
+            }
+        }
+
+        const msgSiguiente = siguienteClase
+            ? `Tu próxima clase es el <strong>${siguienteClase.diaNombre} a las ${siguienteClase.horaInicio}</strong> (${siguienteClase.curso} en sala <code class="my-room-pill" onclick="verHorarioDirecto('${siguienteClase.sala}')">${siguienteClase.sala}</code>).`
+            : '';
+
+        heroEl.innerHTML = `
+            <div class="my-hero-top">
+                <div class="my-hero-status-pill done">
+                    <span>✨ Jornada de Hoy Finalizada</span>
+                </div>
+                <div class="my-hero-stats-row">
+                    <span class="my-hero-stat-badge">🕒 Santiago: <strong>${timeStr}</strong></span>
+                    <span class="my-hero-stat-badge">📚 ${totalClases} Clases</span>
+                    <span class="my-hero-stat-badge">🎓 ${totalEstudiante} Estudiante</span>
+                    <span class="my-hero-stat-badge">✍️ ${totalAyudante} Ayudante</span>
+                </div>
+            </div>
+            <div class="my-hero-body">
+                <div class="my-hero-class-info">
+                    <div class="my-hero-title">¡No tienes más clases por hoy!</div>
+                    <div class="my-hero-subtitle">
+                        <span>${msgSiguiente}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function setMiHorarioDia(diaVal, btn) {
+        document.querySelectorAll('#bar-mihorario-dia .pill-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        state.miHorarioDia = diaVal;
+        renderMiHorario();
+    }
+
+    function setMiHorarioRol(rolVal, btn) {
+        document.querySelectorAll('#bar-mihorario-rol .pill-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        state.miHorarioRol = rolVal;
+        renderMiHorario();
+    }
+
+    function filtrarMiHorarioTexto(val) {
+        state.miHorarioSearch = (val || '').trim().toLowerCase();
+        const clearBtn = document.getElementById('clear-mihorario-btn');
+        if (clearBtn) clearBtn.style.display = state.miHorarioSearch.length > 0 ? 'inline-block' : 'none';
+        renderMiHorario();
+    }
+
+    function limpiarMiHorarioTexto() {
+        const inp = document.getElementById('input-mihorario-search');
+        if (inp) inp.value = '';
+        filtrarMiHorarioTexto('');
+    }
+
+    function normStr(str) {
+        if (!str) return '';
+        return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    }
+
+    function renderMiHorario() {
+        const container = document.getElementById('mihorario-display-container');
+        if (!container) return;
+
+        const { dayOfWeek, totalMinutes } = getChileTime();
+
+        // Filtrado por rol y texto insensible a tildes
+        let items = MI_HORARIO_DATA.filter(c => {
+            if (state.miHorarioRol !== 'ALL' && c.rol !== state.miHorarioRol) return false;
+            if (state.miHorarioSearch) {
+                const s = normStr(state.miHorarioSearch);
+                const matchCurso = normStr(c.curso).includes(s);
+                const matchSala = normStr(c.sala).includes(s);
+                const matchProf = normStr(c.profesor).includes(s);
+                const matchTipo = normStr(c.tipo).includes(s);
+                if (!matchCurso && !matchSala && !matchProf && !matchTipo) return false;
+            }
+            return true;
+        });
+
+        if (items.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    No se encontraron asignaturas con los filtros seleccionados.
+                </div>
+            `;
+            return;
+        }
+
+        // Vista de toda la semana
+        if (state.miHorarioDia === 'ALL') {
+            const diasConfig = [
+                { num: 1, nombre: 'Lunes' },
+                { num: 2, nombre: 'Martes' },
+                { num: 3, nombre: 'Miércoles' },
+                { num: 4, nombre: 'Jueves' },
+                { num: 5, nombre: 'Viernes' }
+            ];
+
+            let colsHtml = '';
+            diasConfig.forEach(d => {
+                const dayItems = items.filter(c => c.dia === d.num).sort((a, b) => timeToMinutes(a.horaInicio) - timeToMinutes(b.horaInicio));
+                const isToday = (dayOfWeek === d.num);
+
+                let cardsHtml = '';
+                if (dayItems.length === 0) {
+                    cardsHtml = `
+                        <div style="padding: 20px 8px; text-align: center; color: var(--text-sub); font-size: 11.5px;">
+                            Sin clases
+                        </div>
+                    `;
+                } else {
+                    dayItems.forEach(c => {
+                        const startM = timeToMinutes(c.horaInicio);
+                        const endM = timeToMinutes(c.horaFin);
+                        const isCurrent = isToday && (totalMinutes >= startM && totalMinutes < endM);
+
+                        cardsHtml += `
+                            <div class="my-class-card ${c.rol === 'assistant' ? 'is-assistant' : 'is-student'} ${isCurrent ? 'is-current-class' : ''}" id="card-${c.id}">
+                                <div class="my-card-header">
+                                    <span class="my-card-time">
+                                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                                        ${c.bloqueLabel}
+                                    </span>
+                                    <span class="my-role-badge ${c.rol === 'assistant' ? 'badge-assistant' : 'badge-student'}">
+                                        ${c.rol === 'assistant' ? '✍️ Ayudante' : '🎓 Estudiante'}
+                                    </span>
+                                </div>
+                                <div class="my-card-title">${c.curso}</div>
+                                <div class="my-card-meta">
+                                    <span class="my-type-tag">${c.tipo} • ${c.seccion}</span>
+                                    ${c.profesor ? `<span class="my-prof-name" title="Docente: ${c.profesor}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> ${c.profesor}</span>` : ''}
+                                </div>
+                                <div class="my-card-footer">
+                                    <span class="my-room-pill" onclick="verHorarioDirecto('${c.sala}')" title="Ver horario de la sala ${c.sala}">
+                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+                                        ${c.sala}
+                                    </span>
+                                    <span class="my-card-bloque-num">Bloque ${c.bloqueNum}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                colsHtml += `
+                    <div class="my-day-col ${isToday ? 'is-today-col' : ''}" id="my-day-col-${d.num}">
+                        <div class="my-day-header">
+                            <div class="my-day-title-box">
+                                <span class="my-day-title">${d.nombre}</span>
+                                ${isToday ? '<span class="my-today-chip">Hoy</span>' : ''}
+                            </div>
+                            <span class="my-day-count">${dayItems.length}</span>
+                        </div>
+                        <div class="my-day-cards">
+                            ${cardsHtml}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = `
+                <div class="my-week-grid">
+                    ${colsHtml}
+                </div>
+            `;
+        } else {
+            // Vista de día individual
+            const diaNum = parseInt(state.miHorarioDia, 10);
+            const dayItems = items.filter(c => c.dia === diaNum).sort((a, b) => timeToMinutes(a.horaInicio) - timeToMinutes(b.horaInicio));
+            const isToday = (dayOfWeek === diaNum);
+            const diaNombre = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'][diaNum - 1] || 'Día';
+
+            if (dayItems.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        No hay clases programadas para el ${diaNombre} con los filtros activos.
+                    </div>
+                `;
+                return;
+            }
+
+            let timelineCardsHtml = '';
+            dayItems.forEach(c => {
+                const startM = timeToMinutes(c.horaInicio);
+                const endM = timeToMinutes(c.horaFin);
+                const isCurrent = isToday && (totalMinutes >= startM && totalMinutes < endM);
+
+                timelineCardsHtml += `
+                    <div class="my-timeline-card ${c.rol === 'assistant' ? 'is-assistant' : 'is-student'} ${isCurrent ? 'is-current-class' : ''}" id="card-${c.id}">
+                        <div class="my-time-box">
+                            <div class="my-time-range">${c.bloqueLabel}</div>
+                            <div class="my-bloque-badge">Bloque ${c.bloqueNum} (80 min)</div>
+                        </div>
+                        <div class="my-info-box">
+                            <div class="my-info-title">
+                                <span>${c.curso}</span>
+                            </div>
+                            <div class="my-info-meta">
+                                <span class="my-role-badge ${c.rol === 'assistant' ? 'badge-assistant' : 'badge-student'}">
+                                    ${c.rol === 'assistant' ? '✍️ Ayudante' : '🎓 Estudiante'}
+                                </span>
+                                <span>•</span>
+                                <span class="my-type-tag">${c.tipo} (${c.seccion})</span>
+                                ${c.profesor ? `<span>• Prof: ${c.profesor}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="my-actions-box">
+                            <span class="my-room-pill" onclick="verHorarioDirecto('${c.sala}')" title="Ver horario de la sala ${c.sala}" style="font-size: 12px; padding: 6px 11px;">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+                                Sala ${c.sala}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = `
+                <div class="my-timeline-container">
+                    ${timelineCardsHtml}
+                </div>
+            `;
+        }
+    }
+
     filtrarSalasLista('');
 
     /* --- LÓGICA ASISTENTE DE IA --- */
@@ -4077,6 +5422,10 @@
             if (sendBtn) sendBtn.disabled = false;
         }
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        inicializarMiHorario();
+    });
 </script>
 
 <!-- BOTÓN FLOTANTE MINIMALISTA Y VENTANA DE CHAT -->
