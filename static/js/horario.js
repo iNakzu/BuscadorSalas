@@ -938,7 +938,7 @@ function renderMiHorario() {
                                 <span class="my-card-bloque-num">Bloque ${b.num}</span>
                             </div>
                             <div class="my-empty-body">
-                                <span class="my-empty-text">${isCurrent ? (vistaHorarioActual === 'cruce' ? '¡Están libres ahora!' : '¡Bloque libre!') : 'Sin clases'}</span>
+                                <span class="my-empty-text">Sin clases</span>
                                 <span class="my-empty-add-hint">
                                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                                     Agregar ramo
@@ -1030,7 +1030,7 @@ function renderMiHorario() {
                             <div class="my-bloque-badge">Bloque ${b.num} (80 min)</div>
                         </div>
                         <div class="my-empty-body" style="justify-content: space-between; padding-right: 6px;">
-                            <span class="my-empty-text">${isCurrent ? (vistaHorarioActual === 'cruce' ? '¡Están libres ahora!' : '¡Bloque libre!') : 'Sin clases'}</span>
+                            <span class="my-empty-text">Sin clases</span>
                             <span class="my-empty-timeline-btn">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                                 Agregar Asignatura
