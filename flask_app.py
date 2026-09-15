@@ -1376,14 +1376,24 @@ def responder_con_ia(mensaje_usuario, historial=None, imagen=None):
         # Caso 5.5: Especificó AMBOS (Día y Hora) -> Mostrar resultado completo con botones
         return generar_respuesta_salas_libres(dia_detectado, dia_nombre_detectado, bloque_detectado)
 
-    # 6. Detección de intenciones vs preguntas generales / conversacionales
+    # 6. Detección de intenciones vs preguntas generales / conversacionales / memoria
     palabras_pregunta_general = [
         'que hora', 'la hora', 'hora es', 'hora actual', 'hora tienes', 'que dia', 'que fecha',
         'que es', 'que son', 'que significa', 'como funciona', 'como se hace', 'por que', 'porque',
         'quien fue', 'quien invento', 'donde queda', 'capital de', 'receta', 'clima', 'tiempo en',
-        'cuenta un', 'cuentame', 'dime un', 'chiste', 'calcula', 'cuanto es', 'ayuda con'
+        'cuenta un', 'cuentame', 'dime un', 'chiste', 'calcula', 'cuanto es', 'ayuda con',
+        'recuerdas', 'te acuerdas', 'quien soy', 'como me llamo', 'que te dije', 'de que hablamos',
+        'que hablamos', 'mi nombre', 'mi carrera', 'mi fruta', 'favorita', 'preferida', 'olvides'
     ]
-    es_pregunta_general = any(p in norm_msg for p in palabras_pregunta_general) or norm_msg.startswith(('como ', 'cual ', 'cuales ', 'por que ', 'porque ', 'cuando ', 'cuanto ', 'explica ', 'explicame '))
+    es_pregunta_general = (
+        any(p in norm_msg for p in palabras_pregunta_general) or
+        norm_msg.startswith(('como ', 'cual ', 'cuales ', 'por que ', 'porque ', 'cuando ', 'cuanto ', 'explica ', 'explicame ', 'recuerdas ', 'sabes ')) or
+        any(w in norm_msg for w in ['recuerdas', 'acuerdas', 'mencione', 'dije', 'hablamos', 'anterior'])
+    )
+
+    # Si es una pregunta conversacional, general o de memoria, delegar directamente a Gemini con historial completo
+    if es_pregunta_general:
+        return generar_respuesta_gemini(mensaje_usuario, historial=historial, imagen=imagen, dia_detectado=dia_detectado)
 
     intencion_profesor = any(w in norm_msg for w in ['profe', 'profesor', 'profesora', 'docente', 'enseña', 'dicta', 'hace clases'])
     intencion_curso = any(w in norm_msg for w in ['ramo', 'curso', 'asignatura', 'materia', 'catedra', 'taller', 'seccion'])
