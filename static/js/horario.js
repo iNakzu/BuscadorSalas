@@ -1026,7 +1026,7 @@ function renderMiHorario() {
                 timelineCardsHtml += `
                     <div class="my-timeline-empty-card ${isCurrent ? 'is-current-empty-timeline' : ''}" ${vistaHorarioActual === 'yo' ? `onclick="abrirModalAgregarClase(${diaNum}, ${b.num})" title="Haz clic para agregar una asignatura en este bloque (${b.label})"` : `title="Bloque libre"`} style="${vistaHorarioActual !== 'yo' ? 'cursor: default;' : ''}">
                         <div class="my-time-box">
-                            <div class="my-time-range" style="color: ${isCurrent ? '#ffffff' : '#64748b'};">${isCurrent ? '<span class="pulse-dot-white"></span>' : ''}${b.label}</div>
+                            <div class="my-time-range" style="color: #64748b;">${isCurrent ? '<span class="pulse-dot-white"></span>' : ''}${b.label}</div>
                             <div class="my-bloque-badge">Bloque ${b.num} (80 min)</div>
                         </div>
                         <div class="my-empty-body" style="justify-content: space-between; padding-right: 6px;">
