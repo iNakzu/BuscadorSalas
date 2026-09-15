@@ -20,119 +20,156 @@ function renderSolemnes() {
     const searchInput = document.getElementById('solemnes-search');
     const query = searchInput ? normStr(searchInput.value) : '';
 
-    let html = '';
-
     const mapDias = {
-        1: "24 de Septiembre",
-        2: "25 de Septiembre",
-        3: "28 de Septiembre",
-        4: "29 de Septiembre",
-        5: "30 de Septiembre"
+        1: { title: "Día 1", sub: "Jueves 24 Sept" },
+        2: { title: "Día 2", sub: "Viernes 25 Sept" },
+        3: { title: "Día 3", sub: "Lunes 28 Sept" },
+        4: { title: "Día 4", sub: "Martes 29 Sept" },
+        5: { title: "Día 5", sub: "Miérc 30 Sept" }
     };
 
-    // Agrupar por días
+    const bloques = [
+        { num: 1, label: "8:30 - 10:30", raw: "8:30 a 10:30" },
+        { num: 2, label: "10:45 - 12:45", raw: "10:45 a 12:45" },
+        { num: 3, label: "13:00 - 15:00", raw: "13:00 a 15:00" },
+        { num: 4, label: "15:15 - 17:15", raw: "15:15 a 17:15" },
+        { num: 5, label: "17:30 - 19:30", raw: "17:30 a 19:30" }
+    ];
+
+    let colsHtml = '';
+
     for (let d = 1; d <= 5; d++) {
-        // Filtrar los bloques de este día
-        const dayBlocks = SOLEMNES_DATA.filter(item => item.dia === d);
+        let cardsHtml = '';
         
-        let hasMatches = false;
-        let dayHtml = `
-            <div class="my-day-col" style="background: rgba(30, 41, 59, 0.4); border-radius: 12px; padding: 16px; border: 1px solid rgba(255, 255, 255, 0.05);">
-                <div class="my-day-header" style="margin-bottom: 16px;">
-                    <span class="my-day-title" style="color: #e2e8f0; font-size: 18px; display: flex; flex-direction: column;">
-                        <span>Día ${d}</span>
-                        <span style="font-size: 14px; color: #94a3b8; font-weight: normal; margin-top: 4px;">${mapDias[d]}</span>
-                    </span>
-                </div>
-                <div class="my-day-cards" style="display: flex; flex-direction: column; gap: 12px;">
-        `;
-
-        dayBlocks.forEach(b => {
-            const matches = query ? b.ramos.filter(r => normStr(r).includes(query)) : b.ramos;
+        bloques.forEach(b => {
+            const cellData = SOLEMNES_DATA.find(item => item.dia === d && item.horario === b.raw);
+            const ramos = cellData ? cellData.ramos : [];
+            const matches = query ? ramos.filter(r => normStr(r).includes(query)) : ramos;
+            const hasMatch = matches.length > 0;
             
-            if (matches.length > 0) {
-                hasMatches = true;
-                
-                dayHtml += `
-                    <div class="my-timeline-card" style="padding: 12px 16px; background: rgba(15, 23, 42, 0.6);">
-                        <div class="my-time-box" style="margin-bottom: 8px;">
-                            <div class="my-time-range" style="color: #38bdf8; font-weight: 600;">${b.horario}</div>
-                        </div>
-                        <div class="my-info-box" style="gap: 8px;">
-                `;
+            // Si buscamos y no hay match en este bloque, opacamos la cápsula
+            const cardOpacity = (query && !hasMatch && ramos.length > 0) ? '0.25' : '1';
 
-                b.ramos.forEach(r => {
+            if (ramos.length > 0) {
+                let innerHtml = '';
+                ramos.forEach(r => {
                     const isMatch = query && normStr(r).includes(query);
-                    const opacity = query ? (isMatch ? '1' : '0.3') : '1';
-                    const fw = isMatch ? '600' : '400';
-                    const color = isMatch ? '#ffffff' : '#94a3b8';
-                    const bg = isMatch ? 'rgba(56, 189, 248, 0.15)' : 'rgba(255, 255, 255, 0.03)';
-                    const border = isMatch ? '1px solid rgba(56, 189, 248, 0.4)' : '1px solid transparent';
-                    
-                    dayHtml += `
-                        <div style="opacity: ${opacity}; font-weight: ${fw}; color: ${color}; background: ${bg}; border: ${border}; padding: 6px 12px; border-radius: 8px; font-size: 14px; transition: all 0.2s;">
+                    const isHighlighted = query ? isMatch : true;
+                    // En solemnes todos pueden ser "tipo-catedra" para tener el azul default, o podemos darles distintos.
+                    // Le daremos el color azul bonito
+                    const bgColor = isHighlighted ? 'rgba(56, 189, 248, 0.15)' : 'rgba(255,255,255,0.03)';
+                    const fw = isHighlighted ? '600' : '400';
+                    const color = isHighlighted ? '#ffffff' : '#94a3b8';
+                    const border = isHighlighted ? '1px solid rgba(56, 189, 248, 0.4)' : '1px solid transparent';
+                    innerHtml += `
+                        <div style="background: ${bgColor}; border: ${border}; color: ${color}; font-weight: ${fw}; padding: 6px; border-radius: 6px; font-size: 11.5px; margin-top: 6px; text-align: center; transition: all 0.2s;">
                             ${escapeHtml(r)}
                         </div>
                     `;
                 });
 
-                dayHtml += `
+                // Renderizamos una class-card de horario
+                cardsHtml += `
+                    <div class="my-class-card tipo-catedra" style="opacity: ${cardOpacity}; transition: opacity 0.3s; min-height: 120px;">
+                        <div class="my-card-header">
+                            <span class="my-card-time">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                                <span>${b.label}</span>
+                            </span>
+                            <div style="display:none"></div>
+                        </div>
+                        <div style="padding: 0 12px 12px 12px;">
+                            ${innerHtml}
+                        </div>
+                        <div class="my-card-footer" style="margin-top: auto;">
+                            <span class="my-card-bloque-num">Bloque ${b.num}</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Bloque vacío
+                const emptyOpacity = query ? '0.1' : '1';
+                cardsHtml += `
+                    <div class="my-empty-slot" style="opacity: ${emptyOpacity}; min-height: 120px; transition: opacity 0.3s;" title="Sin Solemnes en este bloque">
+                        <div class="my-empty-header">
+                            <span class="my-empty-time">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                                <span>${b.label}</span>
+                            </span>
+                            <span class="my-card-bloque-num">Bloque ${b.num}</span>
+                        </div>
+                        <div class="my-empty-body">
+                            <span class="my-empty-text">Sin Solemnes</span>
                         </div>
                     </div>
                 `;
             }
         });
 
-        dayHtml += `
+        colsHtml += `
+            <div class="my-day-col">
+                <div class="my-day-header">
+                    <div class="my-day-title-box" style="flex-direction: column; align-items: flex-start; gap: 2px;">
+                        <span class="my-day-title" style="font-size: 15px;">${mapDias[d].title}</span>
+                        <span style="font-size: 12px; color: #94a3b8; font-weight: 500;">${mapDias[d].sub}</span>
+                    </div>
+                    <span class="my-day-count">${SOLEMNES_DATA.filter(item => item.dia === d).length} blq</span>
+                </div>
+                <div class="my-day-cards">
+                    ${cardsHtml}
                 </div>
             </div>
         `;
-
-        if (hasMatches || !query) {
-            html += dayHtml;
-        }
     }
 
-    if (!html) {
-        html = `
-            <div style="text-align: center; padding: 40px 20px; color: #64748b;">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto 16px auto; display: block; opacity: 0.5;">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-                <p>No se encontraron solemnes para "${escapeHtml(searchInput.value)}"</p>
+    const finalHtml = `
+        <style>
+            #tab-solemnes .my-week-grid {
+                display: flex !important;
+                min-width: 900px; /* Forzar scroll horizontal en móviles */
+                padding-bottom: 12px;
+            }
+            .solemnes-scroll-wrapper {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .solemnes-scroll-wrapper::-webkit-scrollbar {
+                height: 8px;
+            }
+            .solemnes-scroll-wrapper::-webkit-scrollbar-track {
+                background: rgba(0,0,0,0.2);
+                border-radius: 4px;
+            }
+            .solemnes-scroll-wrapper::-webkit-scrollbar-thumb {
+                background: rgba(255,255,255,0.2);
+                border-radius: 4px;
+            }
+        </style>
+        <div class="solemnes-scroll-wrapper">
+            <div class="my-week-grid">
+                ${colsHtml}
             </div>
-        `;
-    }
+        </div>
+    `;
 
-    container.innerHTML = html;
+    container.innerHTML = finalHtml;
 }
 
-// Hook into DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {
-    // Si la tab activa llega a ser solemnes (ej si es la default), renderizamos
     renderSolemnes();
-    
-    // Override cambiarTab to auto-render solemnes when clicked
     const originalCambiarTab = window.cambiarTab;
     if (originalCambiarTab) {
         window.cambiarTab = function(tabId, btn) {
             originalCambiarTab(tabId, btn);
-            if (tabId === 'tab-solemnes') {
-                renderSolemnes();
-            }
+            if (tabId === 'tab-solemnes') renderSolemnes();
         };
     } else {
-        // En caso de que se defina después (app.js se carga diferido pero esto tmb)
-        // Ya que app.js define cambiarTab en global, podemos interceptarlo
         const interceptTab = setInterval(() => {
             if (typeof cambiarTab === 'function') {
                 const old = cambiarTab;
                 cambiarTab = function(tabId, btn) {
                     old(tabId, btn);
-                    if (tabId === 'tab-solemnes') {
-                        renderSolemnes();
-                    }
+                    if (tabId === 'tab-solemnes') renderSolemnes();
                 };
                 clearInterval(interceptTab);
             }
