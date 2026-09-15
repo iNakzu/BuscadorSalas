@@ -2536,11 +2536,15 @@
             justify-content: space-between;
             min-height: 108px;
             transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
         }
 
         .my-empty-slot:hover {
-            background: rgba(22, 30, 49, 0.6);
-            border-color: rgba(255, 255, 255, 0.14);
+            background: rgba(22, 38, 68, 0.65);
+            border-color: rgba(59, 130, 246, 0.45);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px -4px rgba(37, 99, 235, 0.25);
         }
 
         .my-empty-header {
@@ -2572,12 +2576,26 @@
             font-weight: 500;
             color: #64748b;
             letter-spacing: 0.01em;
+            transition: opacity 0.15s ease;
+        }
+
+        .my-empty-add-hint {
+            display: none;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #60a5fa;
+            letter-spacing: 0.01em;
         }
 
         .my-empty-slot:hover .my-empty-text {
-            color: #94a3b8;
+            display: none;
         }
 
+        .my-empty-slot:hover .my-empty-add-hint {
+            display: inline-flex;
+        }
 
         .my-timeline-empty-card {
             background: rgba(15, 23, 42, 0.32);
@@ -2589,12 +2607,336 @@
             align-items: center;
             gap: 16px;
             transition: all 0.2s ease;
+            cursor: pointer;
         }
 
         .my-timeline-empty-card:hover {
-            background: rgba(22, 30, 49, 0.45);
-            border-color: rgba(255, 255, 255, 0.14);
+            background: rgba(22, 38, 68, 0.45);
+            border-color: rgba(59, 130, 246, 0.4);
+            border-style: solid;
         }
+
+        .my-empty-timeline-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(59, 130, 246, 0.14);
+            border: 1px solid rgba(59, 130, 246, 0.35);
+            color: #93c5fd;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .my-timeline-empty-card:hover .my-empty-timeline-btn {
+            background: rgba(59, 130, 246, 0.3);
+            color: #ffffff;
+            border-color: rgba(59, 130, 246, 0.6);
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
+        }
+
+        /* BOTONES DE ACCIÓN: ELIMINAR Y RESTABLECER */
+        .btn-reset-horario {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 5px 11px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-reset-horario:hover {
+            background: rgba(239, 68, 68, 0.12);
+            border-color: rgba(239, 68, 68, 0.35);
+            color: #fca5a5;
+        }
+
+        .my-btn-delete {
+            background: transparent;
+            border: none;
+            color: #64748b;
+            padding: 2px 4px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.18s ease;
+            opacity: 0.45;
+        }
+
+        .my-class-card:hover .my-btn-delete {
+            opacity: 0.85;
+        }
+
+        .my-btn-delete:hover {
+            background: rgba(239, 68, 68, 0.2) !important;
+            color: #ef4444 !important;
+            opacity: 1 !important;
+            transform: scale(1.1);
+        }
+
+        .my-btn-delete-timeline {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(239, 68, 68, 0.09);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            color: #f87171;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .my-btn-delete-timeline:hover {
+            background: rgba(239, 68, 68, 0.22);
+            border-color: rgba(239, 68, 68, 0.45);
+            color: #fca5a5;
+            transform: translateY(-1px);
+        }
+
+        /* MODAL AGREGAR ASIGNATURA */
+        .my-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(4, 7, 15, 0.78);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            animation: modalFadeIn 0.2s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .my-modal-dialog {
+            background: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 18px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75);
+            padding: 24px;
+            animation: modalScaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes modalScaleIn {
+            from { transform: scale(0.93); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .my-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .my-modal-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #f8fafc;
+            letter-spacing: -0.01em;
+        }
+
+        .my-modal-subtitle {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #60a5fa;
+            margin-top: 4px;
+        }
+
+        .my-modal-close {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 24px;
+            line-height: 1;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .my-modal-close:hover {
+            color: #f8fafc;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .my-form-group {
+            margin-bottom: 15px;
+        }
+
+        .my-form-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .my-form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: #cbd5e1;
+            margin-bottom: 6px;
+        }
+
+        .my-form-input, .my-form-select {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 10px;
+            padding: 9px 12px;
+            font-size: 13.5px;
+            color: #f8fafc;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .my-form-input:focus, .my-form-select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+        }
+
+        .my-form-select option {
+            background: #0f172a;
+            color: #f8fafc;
+        }
+
+        .my-role-selector {
+            display: flex;
+            gap: 10px;
+        }
+
+        .my-role-btn {
+            flex: 1;
+            padding: 9px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(15, 23, 42, 0.6);
+            color: #94a3b8;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .my-role-btn:hover {
+            border-color: rgba(255, 255, 255, 0.25);
+            color: #f8fafc;
+        }
+
+        .my-role-btn.active#btn-modal-rol-student {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: #38bdf8;
+            color: #38bdf8;
+        }
+
+        .my-role-btn.active#btn-modal-rol-assistant {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: #f59e0b;
+            color: #f59e0b;
+        }
+
+        .my-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .my-btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #cbd5e1;
+            padding: 9px 16px;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .my-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+        }
+
+        .my-btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            color: #ffffff;
+            padding: 9px 18px;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+            transition: all 0.2s;
+        }
+
+        .my-btn-primary:hover {
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+            transform: translateY(-1px);
+        }
+
+        /* TOAST NOTIFICACIÓN SUTIL */
+        .my-toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1e293b;
+            color: #f8fafc;
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transform: translateY(12px);
+            pointer-events: none;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+
+        .my-toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
 
         /* DISTINCIÓN DE ROLES */
         .my-class-card.is-student {
@@ -3315,13 +3657,22 @@
         <div class="control-card" style="margin-bottom: 22px;">
             <div class="filter-header-row">
                 <div class="filter-header-title">Mi Horario Semanal • Semestre 2026-02</div>
-                <button type="button" class="btn-bloque-actual" onclick="irABloqueActual('mihorario')">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 16 14"></polyline>
-                    </svg>
-                    <span>Bloque Actual</span>
-                </button>
+                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                    <button type="button" class="btn-reset-horario" onclick="restablecerHorarioDefault()" title="Restablecer el horario a las 20 clases predeterminadas">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                            <path d="M3 3v5h5"></path>
+                        </svg>
+                        <span>Restablecer</span>
+                    </button>
+                    <button type="button" class="btn-bloque-actual" onclick="irABloqueActual('mihorario')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <span>Bloque Actual</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Banner de alerta de horario -->
@@ -3372,6 +3723,76 @@
         <div id="mihorario-display-container">
             <!-- Renderizado dinámico -->
         </div>
+
+        <!-- MODAL AGREGAR ASIGNATURA A UN BLOQUE -->
+        <div class="my-modal-overlay" id="modal-agregar-ramo" style="display: none;" onclick="if(event.target === this) cerrarModalAgregarClase()">
+            <div class="my-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-titulo-bloque">
+                <div class="my-modal-header">
+                    <div>
+                        <div class="my-modal-title" id="modal-titulo-bloque">Agregar Asignatura</div>
+                        <div class="my-modal-subtitle" id="modal-bloque-badge">Lunes • Bloque 1 (08:30 - 09:50)</div>
+                    </div>
+                    <button type="button" class="my-modal-close" onclick="cerrarModalAgregarClase()" title="Cerrar">&times;</button>
+                </div>
+
+                <form id="form-agregar-clase" onsubmit="guardarNuevaClaseModal(event)">
+                    <input type="hidden" id="modal-add-dia" value="1">
+                    <input type="hidden" id="modal-add-bloque" value="1">
+
+                    <div class="my-form-group">
+                        <label class="my-form-label" for="modal-add-curso">Nombre de la Asignatura / Actividad *</label>
+                        <input type="text" class="my-form-input" id="modal-add-curso" placeholder="Ej. Cálculo II, Redes de Datos, Mecánica, Física..." required autocomplete="off">
+                    </div>
+
+                    <div class="my-form-row">
+                        <div class="my-form-group" style="flex: 1.2;">
+                            <label class="my-form-label" for="modal-add-sala">Sala Asignada *</label>
+                            <input type="text" class="my-form-input" id="modal-add-sala" placeholder="Ej. E441.2.S201, V432.3.S312..." list="lista-salas-sugeridas" required autocomplete="off">
+                            <datalist id="lista-salas-sugeridas"></datalist>
+                        </div>
+                        <div class="my-form-group" style="flex: 1;">
+                            <label class="my-form-label" for="modal-add-tipo">Tipo</label>
+                            <select class="my-form-select" id="modal-add-tipo">
+                                <option value="Cátedra" selected>Cátedra</option>
+                                <option value="Ayudantía">Ayudantía</option>
+                                <option value="Laboratorio">Laboratorio</option>
+                                <option value="Taller">Taller</option>
+                                <option value="Estudio">Estudio</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="my-form-group">
+                        <label class="my-form-label">Rol en este Ramo</label>
+                        <div class="my-role-selector">
+                            <button type="button" class="my-role-btn active" id="btn-modal-rol-student" onclick="setModalRol('student')">
+                                <span>🎓 Estudiante</span>
+                            </button>
+                            <button type="button" class="my-role-btn" id="btn-modal-rol-assistant" onclick="setModalRol('assistant')">
+                                <span>✍️ Ayudante</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="my-form-row">
+                        <div class="my-form-group" style="flex: 1;">
+                            <label class="my-form-label" for="modal-add-seccion">Sección (opcional)</label>
+                            <input type="text" class="my-form-input" id="modal-add-seccion" placeholder="Ej. Sec. 1" value="Sec. 1">
+                        </div>
+                        <div class="my-form-group" style="flex: 1.2;">
+                            <label class="my-form-label" for="modal-add-profesor">Profesor (opcional)</label>
+                            <input type="text" class="my-form-input" id="modal-add-profesor" placeholder="Nombre del docente">
+                        </div>
+                    </div>
+
+                    <div class="my-modal-actions">
+                        <button type="button" class="my-btn-secondary" onclick="cerrarModalAgregarClase()">Cancelar</button>
+                        <button type="submit" class="my-btn-primary">Guardar Asignatura</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
     </section>
 </div>
 
@@ -4231,8 +4652,9 @@
     /* =========================================================
        TAB 6: MI HORARIO - DATOS Y LÓGICA REACTIVA EN TIEMPO REAL
        ========================================================= */
-    const MI_HORARIO_DATA = [
+    const MI_HORARIO_DEFAULT_DATA = [
         // LUNES (Día 1)
+
         {
             id: 'lun-1',
             dia: 1,
@@ -4543,7 +4965,37 @@
         }
     ];
 
+    function cargarMiHorarioDesdeStorage() {
+        try {
+            if (typeof localStorage !== 'undefined') {
+                const stored = localStorage.getItem('mi_horario_custom_v1');
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    if (Array.isArray(parsed)) return parsed;
+                }
+            }
+        } catch (e) {
+            console.error('Error al cargar mi horario desde localStorage', e);
+        }
+        return JSON.parse(JSON.stringify(MI_HORARIO_DEFAULT_DATA));
+    }
+
+    let MI_HORARIO_DATA = cargarMiHorarioDesdeStorage();
+
+    function guardarMiHorarioEnStorage() {
+        try {
+            if (typeof localStorage !== 'undefined') {
+                localStorage.setItem('mi_horario_custom_v1', JSON.stringify(MI_HORARIO_DATA));
+            }
+        } catch (e) {
+            console.error('Error al guardar mi horario en localStorage', e);
+        }
+        actualizarContadoresFiltrosMiHorario();
+    }
+
+
     let miHorarioInitialized = false;
+
     let miHorarioTimer = null;
 
     function getChileTime() {
@@ -4587,6 +5039,7 @@
     }
 
     function inicializarMiHorario() {
+        actualizarContadoresFiltrosMiHorario();
         if (!miHorarioInitialized) {
             miHorarioInitialized = true;
             renderMiHorario();
@@ -4788,6 +5241,205 @@
         return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
     }
 
+    function actualizarContadoresFiltrosMiHorario() {
+        const total = MI_HORARIO_DATA.length;
+        const lunes = MI_HORARIO_DATA.filter(c => c.dia === 1).length;
+        const martes = MI_HORARIO_DATA.filter(c => c.dia === 2).length;
+        const miercoles = MI_HORARIO_DATA.filter(c => c.dia === 3).length;
+        const jueves = MI_HORARIO_DATA.filter(c => c.dia === 4).length;
+        const viernes = MI_HORARIO_DATA.filter(c => c.dia === 5).length;
+        const estud = MI_HORARIO_DATA.filter(c => c.rol === 'student').length;
+        const asist = MI_HORARIO_DATA.filter(c => c.rol === 'assistant').length;
+
+        const bSemana = document.querySelector('#bar-mihorario-dia button[data-dia="ALL"]');
+        if (bSemana) bSemana.textContent = `Toda la semana (${total})`;
+        const bLunes = document.querySelector('#bar-mihorario-dia button[data-dia="1"]');
+        if (bLunes) bLunes.textContent = `Lunes (${lunes})`;
+        const bMartes = document.querySelector('#bar-mihorario-dia button[data-dia="2"]');
+        if (bMartes) bMartes.textContent = `Martes (${martes})`;
+        const bMiercoles = document.querySelector('#bar-mihorario-dia button[data-dia="3"]');
+        if (bMiercoles) bMiercoles.textContent = `Miércoles (${miercoles})`;
+        const bJueves = document.querySelector('#bar-mihorario-dia button[data-dia="4"]');
+        if (bJueves) bJueves.textContent = `Jueves (${jueves})`;
+        const bViernes = document.querySelector('#bar-mihorario-dia button[data-dia="5"]');
+        if (bViernes) bViernes.textContent = `Viernes (${viernes})`;
+
+        const bTodosRoles = document.querySelector('#bar-mihorario-rol button[data-rol="ALL"]');
+        if (bTodosRoles) bTodosRoles.textContent = `Todos los roles (${total})`;
+        const bEst = document.querySelector('#bar-mihorario-rol button[data-rol="student"]');
+        if (bEst) bEst.textContent = `🎓 Estudiante (${estud})`;
+        const bAsist = document.querySelector('#bar-mihorario-rol button[data-rol="assistant"]');
+        if (bAsist) bAsist.textContent = `✍️ Ayudante (${asist})`;
+    }
+
+    function restablecerHorarioDefault() {
+        if (confirm('¿Deseas restablecer tu horario al original de 20 clases predeterminadas? Se revertirán las asignaturas agregadas o eliminadas.')) {
+            try {
+                if (typeof localStorage !== 'undefined') {
+                    localStorage.removeItem('mi_horario_custom_v1');
+                }
+            } catch (e) {}
+
+            MI_HORARIO_DATA = JSON.parse(JSON.stringify(MI_HORARIO_DEFAULT_DATA));
+            guardarMiHorarioEnStorage();
+            renderMiHorario();
+            actualizarHeroMiHorario();
+            mostrarToast('Horario restablecido a la versión inicial');
+        }
+    }
+
+    function eliminarClaseMiHorario(id, ev) {
+        if (ev) ev.stopPropagation();
+        const idx = MI_HORARIO_DATA.findIndex(c => c.id === id);
+        if (idx === -1) return;
+        const c = MI_HORARIO_DATA[idx];
+        if (confirm(`¿Eliminar "${c.curso}" de este bloque (${c.diaNombre} ${c.bloqueLabel})?`)) {
+            MI_HORARIO_DATA.splice(idx, 1);
+            guardarMiHorarioEnStorage();
+            renderMiHorario();
+            actualizarHeroMiHorario();
+            mostrarToast(`"${c.curso}" eliminada de tu horario`);
+        }
+    }
+
+    let modalRolSeleccionado = 'student';
+
+    function setModalRol(rol) {
+        modalRolSeleccionado = rol;
+        const btnEst = document.getElementById('btn-modal-rol-student');
+        const btnAyu = document.getElementById('btn-modal-rol-assistant');
+        if (btnEst && btnAyu) {
+            if (rol === 'assistant') {
+                btnEst.classList.remove('active');
+                btnAyu.classList.add('active');
+            } else {
+                btnEst.classList.add('active');
+                btnAyu.classList.remove('active');
+            }
+        }
+    }
+
+    function abrirModalAgregarClase(diaNum, bloqueNum) {
+        const bloque = BLOQUES_HORARIOS.find(b => b.num === bloqueNum);
+        const diasNombres = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
+        const diaNombre = diasNombres[diaNum] || 'Día';
+
+        const inpDia = document.getElementById('modal-add-dia');
+        const inpBloque = document.getElementById('modal-add-bloque');
+        const badge = document.getElementById('modal-bloque-badge');
+
+        if (inpDia) inpDia.value = diaNum;
+        if (inpBloque) inpBloque.value = bloqueNum;
+        if (badge) badge.textContent = `${diaNombre} • Bloque ${bloqueNum} (${bloque ? bloque.label : ''})`;
+
+        const inpCurso = document.getElementById('modal-add-curso');
+        const inpSala = document.getElementById('modal-add-sala');
+        const inpSec = document.getElementById('modal-add-seccion');
+        const inpTipo = document.getElementById('modal-add-tipo');
+        const inpProf = document.getElementById('modal-add-profesor');
+
+        if (inpCurso) inpCurso.value = '';
+        if (inpSala) inpSala.value = '';
+        if (inpSec) inpSec.value = 'Sec. 1';
+        if (inpTipo) inpTipo.value = 'Cátedra';
+        if (inpProf) inpProf.value = '';
+        setModalRol('student');
+
+        // Poblar datalist de salas si está vacío
+        const datalist = document.getElementById('lista-salas-sugeridas');
+        if (datalist && datalist.children.length === 0 && typeof TODAS_LAS_SALAS !== 'undefined' && Array.isArray(TODAS_LAS_SALAS)) {
+            TODAS_LAS_SALAS.forEach(sala => {
+                const opt = document.createElement('option');
+                opt.value = sala;
+                datalist.appendChild(opt);
+            });
+        }
+
+        const modal = document.getElementById('modal-agregar-ramo');
+        if (modal) {
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                if (inpCurso) inpCurso.focus();
+            }, 60);
+        }
+    }
+
+    function cerrarModalAgregarClase() {
+        const modal = document.getElementById('modal-agregar-ramo');
+        if (modal) modal.style.display = 'none';
+    }
+
+    function guardarNuevaClaseModal(ev) {
+        if (ev) ev.preventDefault();
+        const diaNum = parseInt(document.getElementById('modal-add-dia').value, 10);
+        const bloqueNum = parseInt(document.getElementById('modal-add-bloque').value, 10);
+        const curso = (document.getElementById('modal-add-curso').value || '').trim();
+        const sala = (document.getElementById('modal-add-sala').value || '').trim().toUpperCase();
+        const seccion = (document.getElementById('modal-add-seccion').value || 'Sec. 1').trim();
+        const tipo = document.getElementById('modal-add-tipo').value;
+        const profesor = (document.getElementById('modal-add-profesor').value || '').trim();
+        const rol = modalRolSeleccionado;
+
+        if (!curso) {
+            alert('Por favor escribe el nombre de la asignatura.');
+            document.getElementById('modal-add-curso').focus();
+            return;
+        }
+        if (!sala) {
+            alert('Por favor ingresa la sala asignada (ej. E441.2.S201).');
+            document.getElementById('modal-add-sala').focus();
+            return;
+        }
+
+        const bloque = BLOQUES_HORARIOS.find(b => b.num === bloqueNum);
+        const diasNombres = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
+
+        // Si ya existía alguna clase en este bloque exacto, se reemplaza
+        MI_HORARIO_DATA = MI_HORARIO_DATA.filter(c => !(c.dia === diaNum && c.bloqueNum === bloqueNum));
+
+        const nuevaClase = {
+            id: 'custom-' + Date.now(),
+            dia: diaNum,
+            diaNombre: diasNombres[diaNum] || 'Día',
+            bloqueNum: bloqueNum,
+            bloqueLabel: bloque ? bloque.label : '08:30 - 09:50',
+            horaInicio: bloque ? bloque.inicio : '08:30',
+            horaFin: bloque ? bloque.fin : '09:50',
+            curso: curso,
+            tipo: tipo,
+            seccion: seccion,
+            sala: sala,
+            profesor: profesor,
+            rol: rol
+        };
+
+        MI_HORARIO_DATA.push(nuevaClase);
+        guardarMiHorarioEnStorage();
+        cerrarModalAgregarClase();
+        renderMiHorario();
+        actualizarHeroMiHorario();
+        mostrarToast(`"${curso}" guardada en ${diasNombres[diaNum]} Bloque ${bloqueNum}`);
+    }
+
+    function mostrarToast(mensaje) {
+        let t = document.getElementById('my-toast');
+        if (!t) {
+            t = document.createElement('div');
+            t.id = 'my-toast';
+            t.className = 'my-toast';
+            document.body.appendChild(t);
+        }
+        t.innerHTML = `
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>${mensaje}</span>
+        `;
+        t.classList.add('show');
+        if (window._toastTimeout) clearTimeout(window._toastTimeout);
+        window._toastTimeout = setTimeout(() => {
+            t.classList.remove('show');
+        }, 2800);
+    }
+
     const BLOQUES_HORARIOS = [
         { num: 1, label: '08:30 - 09:50', inicio: '08:30', fin: '09:50' },
         { num: 2, label: '10:00 - 11:20', inicio: '10:00', fin: '11:20' },
@@ -4848,7 +5500,15 @@
                                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                                         ${c.bloqueLabel}
                                     </span>
-                                    ${c.rol === 'assistant' ? '<span class="my-role-badge badge-assistant">✍️ Ayudante</span>' : ''}
+                                    <div style="display: flex; align-items: center; gap: 5px;">
+                                        ${c.rol === 'assistant' ? '<span class="my-role-badge badge-assistant">✍️ Ayudante</span>' : ''}
+                                        <button type="button" class="my-btn-delete" onclick="eliminarClaseMiHorario('${c.id}', event)" title="Eliminar asignatura de este bloque">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M3 6h18"></path>
+                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="my-card-title">${c.curso}</div>
                                 <div class="my-card-meta">
@@ -4865,15 +5525,19 @@
                             </div>
                         `;
                     } else {
-                        // Casilla vacía / sin clases en este bloque
+                        // Casilla vacía / sin clases en este bloque (clicable para agregar)
                         cardsHtml += `
-                            <div class="my-empty-slot" title="${b.label} (Bloque ${b.num}): Sin clases">
+                            <div class="my-empty-slot" onclick="abrirModalAgregarClase(${d.num}, ${b.num})" title="Haz clic para agregar una asignatura en este bloque (${b.label})">
                                 <div class="my-empty-header">
                                     <span class="my-empty-time">${b.label}</span>
                                     <span class="my-card-bloque-num">Bloque ${b.num}</span>
                                 </div>
                                 <div class="my-empty-body">
                                     <span class="my-empty-text">Sin clases</span>
+                                    <span class="my-empty-add-hint">
+                                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                        Agregar ramo
+                                    </span>
                                 </div>
                             </div>
                         `;
@@ -4937,18 +5601,26 @@
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
                                     Sala ${c.sala}
                                 </span>
+                                <button type="button" class="my-btn-delete-timeline" onclick="eliminarClaseMiHorario('${c.id}', event)" title="Eliminar asignatura de este bloque">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                    <span>Eliminar</span>
+                                </button>
                             </div>
                         </div>
                     `;
                 } else {
                     timelineCardsHtml += `
-                        <div class="my-timeline-empty-card" title="${b.label}: Sin clases">
+                        <div class="my-timeline-empty-card" onclick="abrirModalAgregarClase(${diaNum}, ${b.num})" title="Haz clic para agregar una asignatura en este bloque (${b.label})">
                             <div class="my-time-box">
                                 <div class="my-time-range" style="color: #64748b;">${b.label}</div>
                                 <div class="my-bloque-badge">Bloque ${b.num} (80 min)</div>
                             </div>
-                            <div class="my-empty-body" style="justify-content: flex-start;">
+                            <div class="my-empty-body" style="justify-content: space-between; padding-right: 6px;">
                                 <span class="my-empty-text">Sin clases</span>
+                                <span class="my-empty-timeline-btn">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                    Agregar Asignatura
+                                </span>
                             </div>
                         </div>
                     `;
@@ -4962,6 +5634,7 @@
             `;
         }
     }
+
 
     filtrarSalasLista('');
 
