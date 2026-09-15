@@ -143,9 +143,12 @@ const customStyles = `
 </style>
 `;
 
+
 function renderSolemnes() {
     const container = document.getElementById('solemnes-container');
     if (!container) return;
+    try {
+
 
     const searchInput = document.getElementById('solemnes-search');
     const query = searchInput ? normStr(searchInput.value) : '';
@@ -254,8 +257,13 @@ function renderSolemnes() {
         </div>
     `;
 
+
     container.innerHTML = finalHtml;
+    } catch (e) {
+        container.innerHTML = '<div style="color:red; padding: 20px;">Error rendering solemnes: ' + e.message + ' ' + e.stack + '</div>';
+    }
 }
+
 
 document.addEventListener('DOMContentLoaded', () => {
     renderSolemnes();
