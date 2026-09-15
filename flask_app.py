@@ -34,6 +34,22 @@ DIAS_SEMANA = {
     7: "Domingo"
 }
 
+MESES_ES = {
+    1: "Enero", 2: "Febrero", 3: "Marzo", 4: "Abril", 5: "Mayo", 6: "Junio",
+    7: "Julio", 8: "Agosto", 9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre"
+}
+
+try:
+    import zoneinfo
+    CHILE_TZ = zoneinfo.ZoneInfo("America/Santiago")
+    _ = datetime.datetime.now(CHILE_TZ)
+except Exception:
+    CHILE_TZ = datetime.timezone(datetime.timedelta(hours=-3))
+
+def get_chile_now():
+    """Retorna la fecha y hora actual garantizada en la zona horaria de Chile (America/Santiago)."""
+    return datetime.datetime.now(CHILE_TZ)
+
 def to_minutes(time_str):
     if not time_str:
         return 0
@@ -77,7 +93,7 @@ class DataManager:
                 with open(LOCAL_DATA_FILE, 'r', encoding='utf-8') as f:
                     data = json.load(f)
                 self.cache = data
-                self.last_synced = datetime.datetime.fromtimestamp(os.path.getmtime(LOCAL_DATA_FILE)).strftime("%d/%m/%Y %H:%M:%S")
+                self.last_synced = datetime.datetime.fromtimestamp(os.path.getmtime(LOCAL_DATA_FILE), tz=CHILE_TZ).strftime("%d/%m/%Y %H:%M:%S")
                 self.source = "local_cache"
                 self._update_stats()
                 print(f"[DataManager] Cargado desde local_cache ({self.total_classes} clases, {self.total_rooms} salas)")
@@ -100,7 +116,7 @@ class DataManager:
             # Validamos que tenga la estructura requerida
             if 'data' in data and 'allSalasUdps' in data['data']:
                 self.cache = data
-                self.last_synced = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+                self.last_synced = get_chile_now().strftime("%d/%m/%Y %H:%M:%S")
                 self.source = "online_web"
                 self._update_stats()
 
@@ -178,7 +194,7 @@ def obtener_salas(dia_numero, hora_exacta, filtro_facultad):
     b_end = bloque_ref["end_min"]
     dia_int = int(dia_numero)
 
-    now = datetime.datetime.now()
+    now = get_chile_now()
     now_min = now.hour * 60 + now.minute
     is_today = (now.weekday() + 1 == dia_int)
 
@@ -340,7 +356,7 @@ def buscar_curso(query, dia_filtro=None, hora_filtro=None):
     if dia_filtro:
         d_str = str(dia_filtro).strip().lower()
         if d_str == 'hoy':
-            now = datetime.datetime.now()
+            now = get_chile_now()
             d_val = now.weekday() + 1
             dia_int = d_val if d_val <= 5 else 1
         elif d_str.isdigit() and 1 <= int(d_str) <= 7:
@@ -488,7 +504,7 @@ def obtener_clases_malla(semestre=8, dia_filtro=None, ramo_filtro=None, hora_fil
     if dia_filtro:
         d_str = str(dia_filtro).strip().lower()
         if d_str == 'hoy':
-            now = datetime.datetime.now()
+            now = get_chile_now()
             d_val = now.weekday() + 1
             dia_int = d_val if d_val <= 5 else 1
         elif d_str.isdigit() and 1 <= int(d_str) <= 7:
@@ -570,9 +586,9 @@ def horario_de_sala(nombre_sala):
 
     return horario_semanal
 
-def calcular_bloque_actual():
-    """Determina el día y bloque correspondiente a la hora local actual de Chile."""
-    now = datetime.datetime.now()
+def calcular_bloque_actual(ref_datetime=None):
+    """Determina el día y bloque correspondiente a la hora local actual de Chile (America/Santiago)."""
+    now = ref_datetime or get_chile_now()
     dia_real = now.weekday() + 1
     current_min = now.hour * 60 + now.minute
 
@@ -696,7 +712,8 @@ def api_salas():
 @app.route("/api/ahora", methods=["GET"])
 def api_ahora():
     facultad = request.args.get("facultad", "INGENIERIA")
-    dia_actual, bloque_actual, en_horario_valido, mensaje_horario = calcular_bloque_actual()
+    now_chile = get_chile_now()
+    dia_actual, bloque_actual, en_horario_valido, mensaje_horario = calcular_bloque_actual(now_chile)
     vacias, ocupadas, vacias_info = obtener_salas(dia_actual, bloque_actual['id'], facultad)
     
     return jsonify({
@@ -705,6 +722,8 @@ def api_ahora():
         "bloque": bloque_actual,
         "en_horario_valido": en_horario_valido,
         "mensaje_horario": mensaje_horario,
+        "hora_chile": now_chile.strftime("%H:%M:%S"),
+        "fecha_chile": f"{DIAS_SEMANA.get(dia_actual, '')} {now_chile.day} de {MESES_ES.get(now_chile.month, '')} de {now_chile.year}",
         "facultad": facultad,
         "total_libres": len(vacias),
         "total_ocupadas": len(ocupadas),
@@ -830,11 +849,11 @@ def extraer_dia_semana(texto):
         if re.search(rf'\b{d_nom}\b', texto_norm):
             return d_id, DIAS_SEMANA[d_id]
     if re.search(r'\bhoy\b', texto_norm):
-        now = datetime.datetime.now()
+        now = get_chile_now()
         d_val = now.weekday() + 1
         return (d_val if d_val <= 5 else 1), "Hoy"
     if re.search(r'\bmanana\b', texto_norm):
-        now = datetime.datetime.now()
+        now = get_chile_now()
         d_val = (now.weekday() + 1) % 7 + 1
         return (d_val if d_val <= 5 else 1), "Mañana"
     if any(p in texto_norm for p in ['toda la semana', 'toda semana', 'todos los dias', 'semana completa']):
@@ -1346,9 +1365,21 @@ def responder_con_ia(mensaje_usuario):
         # Caso 5.5: Especificó AMBOS (Día y Hora) -> Mostrar resultado completo con botones
         return generar_respuesta_salas_libres(dia_detectado, dia_nombre_detectado, bloque_detectado)
 
-    # 6. Coincidencia de profesor (filtrando stop-words para evitar falsos positivos)
+    # 6. Detección de intenciones vs preguntas generales / conversacionales
+    palabras_pregunta_general = [
+        'que hora', 'la hora', 'hora es', 'hora actual', 'hora tienes', 'que dia', 'que fecha',
+        'que es', 'que son', 'que significa', 'como funciona', 'como se hace', 'por que', 'porque',
+        'quien fue', 'quien invento', 'donde queda', 'capital de', 'receta', 'clima', 'tiempo en',
+        'cuenta un', 'cuentame', 'dime un', 'chiste', 'calcula', 'cuanto es', 'ayuda con'
+    ]
+    es_pregunta_general = any(p in norm_msg for p in palabras_pregunta_general) or norm_msg.startswith(('como ', 'cual ', 'cuales ', 'por que ', 'porque ', 'cuando ', 'cuanto ', 'explica ', 'explicame '))
+
+    intencion_profesor = any(w in norm_msg for w in ['profe', 'profesor', 'profesora', 'docente', 'enseña', 'dicta', 'hace clases'])
+    intencion_curso = any(w in norm_msg for w in ['ramo', 'curso', 'asignatura', 'materia', 'catedra', 'taller', 'seccion'])
+
     clases = dm.get_classes()
     if sig_tokens:
+        # Coincidencia de profesor
         profes_map = {}
         for c in clases:
             p = c.get('node', {}).get('teacher', '')
@@ -1365,12 +1396,24 @@ def responder_con_ia(mensaje_usuario):
             ]
             if matching:
                 score = len(matching) / len(p_tokens)
-                matched_profes.append((len(matching), score, p_name))
+                matched_profes.append((len(matching), score, p_name, matching))
 
         if matched_profes:
             matched_profes.sort(key=lambda x: (-x[0], -x[1]))
             best_match = matched_profes[0]
-            if best_match[0] >= 1:
+            # Solo asociar a profesor si hay intención explícita O no es pregunta general y tiene alta coincidencia
+            es_match_prof_valido = False
+            if intencion_profesor and best_match[0] >= 1:
+                es_match_prof_valido = True
+            elif not es_pregunta_general and not intencion_curso:
+                if best_match[0] >= 2:
+                    es_match_prof_valido = True
+                elif len(sig_tokens) <= 2 and best_match[1] >= 0.5:
+                    # Debe coincidir exactamente al menos un token de nombre (no fuzzy)
+                    if any(m in sig_tokens for m in best_match[3]):
+                        es_match_prof_valido = True
+
+            if es_match_prof_valido:
                 pide_donde_esta = any(f in norm_msg for f in ['donde esta', 'donde se encuentra', 'en que sala esta', 'ubicacion']) or (es_en_vivo and 'horario' not in norm_msg)
                 if pide_donde_esta:
                     return consultar_docente_en_vivo(best_match[2])
@@ -1393,36 +1436,56 @@ def responder_con_ia(mensaje_usuario):
             ]
             if matching:
                 score = len(matching) / len(cr_tokens)
-                matched_cursos.append((len(matching), score, cr_name))
+                matched_cursos.append((len(matching), score, cr_name, matching))
 
         if matched_cursos:
             matched_cursos.sort(key=lambda x: (-x[0], -x[1]))
             best_match_cr = matched_cursos[0]
-            if best_match_cr[0] >= 1:
+            es_match_curso_valido = False
+            if intencion_curso and best_match_cr[0] >= 1:
+                es_match_curso_valido = True
+            elif not es_pregunta_general and not intencion_profesor:
+                if best_match_cr[0] >= 2:
+                    es_match_curso_valido = True
+                elif len(sig_tokens) <= 2 and best_match_cr[1] >= 0.5:
+                    if any(m in sig_tokens for m in best_match_cr[3]):
+                        es_match_curso_valido = True
+
+            if es_match_curso_valido:
                 return generar_respuesta_curso(best_match_cr[2], dia_id=dia_detectado)
 
-    # 7. Fallback general a la API de Gemini para consultas abiertas / conversacionales
-    dia_bloque, bloque_ref, en_horario, msg_horario = calcular_bloque_actual()
+    # 8. Fallback general a la API de Gemini para consultas abiertas, hora en vivo y conocimiento general
+    now_chile = get_chile_now()
+    hora_actual_str = now_chile.strftime("%H:%M:%S")
+    dia_num_actual = now_chile.weekday() + 1
+    dia_nom_actual = DIAS_SEMANA.get(dia_num_actual, "Desconocido")
+    mes_nom_actual = MESES_ES.get(now_chile.month, "")
+    fecha_actual_str = f"{dia_nom_actual}, {now_chile.day} de {mes_nom_actual} de {now_chile.year}"
+
+    dia_bloque, bloque_ref, en_horario, msg_horario = calcular_bloque_actual(now_chile)
     vacias_ref, _, _ = obtener_salas(dia_bloque, bloque_ref['id'], "INGENIERIA")
 
     contexto_datos = (
-        f"CONSULTA DEL USUARIO: \"{mensaje_usuario}\"\n"
-        f"Día consultado o detectado: {nombre_dia(dia_detectado) if dia_detectado and dia_detectado != 'TODOS' else 'No especificado'}\n\n"
-        f"ESTADO EN VIVO:\n"
-        f"- {len(vacias_ref)} salas libres actualmente en Ingeniería en bloque {bloque_ref['label']} ({msg_horario or 'En horario lectivo'}).\n"
-        f"- Total de salas registradas en el sistema: {len(dm.all_rooms)} salas.\n"
+        f"HORA Y FECHA EN TIEMPO REAL (Santiago de Chile):\n"
+        f"- Hora actual exacta de Chile: {hora_actual_str}\n"
+        f"- Fecha de hoy: {fecha_actual_str}\n"
+        f"- Bloque horario académico actual: {bloque_ref['label']} ({msg_horario or 'En horario lectivo'}).\n"
+        f"- Salas libres en campus ahora: {len(vacias_ref)} salas disponibles en Ingeniería.\n"
+        f"- Total salas registradas: {len(dm.all_rooms)} salas.\n"
+        f"Día consultado o detectado: {nombre_dia(dia_detectado) if dia_detectado and dia_detectado != 'TODOS' else dia_nom_actual}\n"
     )
 
     prompt_sistema = (
-        "Eres el asistente inteligente de Disponibilidad de Salas.\n"
-        "Instrucciones estrictas de respuesta:\n"
-        "1. NUNCA menciones la sigla UDP ni 'Universidad Diego Portales', refiérete únicamente como 'Disponibilidad de Salas'.\n"
-        "2. DIRECTO AL GRANO: Responde directamente sin saludos largos ni introducciones repetitivas.\n"
-        "3. FORMATO DE CLASES Y RAMOS: Cuando listes clases o ramos, usa SIEMPRE este formato para cada una:\n"
+        "Eres el asistente inteligente de 'Disponibilidad de Salas', y además un asistente general versátil, amable y culto.\n"
+        "Directrices de respuesta:\n"
+        "1. VERSATILIDAD Y AMPLITUD: Si el usuario te pregunta por la hora, fecha, dudas de asignaturas, programación, ciencias, matemáticas, cultura general, o cualquier tema no relacionado a las salas, RESPONDE DE FORMA DIRECTA, EXACTA Y ÚTIL a lo que preguntó. No restrinjas tu respuesta ni intentes forzar temas de salas si la pregunta no viene al caso.\n"
+        "2. HORA Y FECHA EXACTA: Tienes la hora y fecha actual exacta de Santiago de Chile en el contexto ('HORA Y FECHA EN TIEMPO REAL'). Si el usuario te pregunta qué hora es, qué día es hoy o la fecha, responde con esa información exacta con total seguridad.\n"
+        "3. DISPONIBILIDAD DE SALAS Y DOCENCIA: Si la pregunta sí trata sobre disponibilidad de salas, horarios, docentes o asignaturas, responde con precisión usando la información del sistema. NUNCA menciones la sigla 'UDP' ni 'Universidad Diego Portales'; refiérete únicamente como 'Disponibilidad de Salas'.\n"
+        "4. DIRECTO AL GRANO: Responde de forma clara y concisa, sin saludos largos ni introducciones innecesarias.\n"
+        "5. FORMATO DE CLASES Y RAMOS: Cuando listes clases o asignaturas, usa SIEMPRE este formato:\n"
         "* [CLASE] HH:MM - HH:MM | `CODIGO_SALA` | Nombre del Curso | Sec. X\n"
-        "4. LENGUAJE NATURAL: NUNCA inventes comandos internos, ni uses la palabra 'ACCION:' ni 'consulta a enviar' en tus respuestas. Responde en lenguaje natural, amable y claro.\n"
-        "5. PUNTO INTERMITENTE: Cada viñeta debe usar * o - para que el sistema le añada el punto intermitente animado.\n"
-        "6. Proporciona EXCLUSIVAMENTE la respuesta final redactada para el usuario, sin notas de verificación ni pensamientos internos."
+        "6. LENGUAJE NATURAL: NUNCA inventes comandos internos, ni uses la palabra 'ACCION:' ni 'consulta a enviar'. Responde en lenguaje natural fluido.\n"
+        "7. Proporciona EXCLUSIVAMENTE la respuesta final redactada para el usuario, sin notas de verificación interna ni etiquetas como <thought>."
     )
 
     payload = {
@@ -1440,7 +1503,7 @@ def responder_con_ia(mensaje_usuario):
         }
     }
 
-    modelos = ["gemini-3.1-flash-lite", "gemini-3.5-flash-lite", "gemini-3.5-flash", "gemini-3.7-flash"]
+    modelos = ["gemini-3.5-flash-lite", "gemini-3.5-flash", "gemini-3.1-flash-lite", "gemini-3.7-flash"]
     ultimo_error = ""
     for modelo in modelos:
         try:

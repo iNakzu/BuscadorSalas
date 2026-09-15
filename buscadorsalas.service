@@ -1,0 +1,15 @@
+[Unit]
+Description=Buscador de Salas UDP - Flask App con Gunicorn
+After=network.target
+
+[Service]
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/BuscadorSalas
+Environment="PATH=/home/ubuntu/BuscadorSalas/venv/bin:/usr/local/bin:/usr/bin"
+ExecStart=/home/ubuntu/BuscadorSalas/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:5000 flask_app:app --timeout 60
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
