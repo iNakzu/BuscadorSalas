@@ -181,7 +181,7 @@ function renderNotasBuilder() {
     let remainingWeightNP = 100 - currentWeightEvaluatedNP;
     
     // NP actual (sobre el % evaluado)
-    let np_actual = currentWeightEvaluatedNP > 0 ? (currentWeightedSumNP / (currentWeightEvaluatedNP / 100)) : 0;
+    let np_actual = currentWeightedSumNP;
     
     // NP real (asumiendo 1.0 en lo que falta, si remainingWeight == 0, esto es igual a np_actual)
     let np_final = currentWeightedSumNP; // sum(nota * peso/100)
@@ -292,7 +292,7 @@ function renderNotasBuilder() {
                     <div style="text-align: center;">
                         <div class="notas-summary-title">Nota Presentación (NP)</div>
                         <div class="notas-summary-value" style="font-size: 36px;">${currentWeightEvaluatedNP > 0 ? np_actual.toFixed(2) : '-'}</div>
-                        <div class="notas-summary-subtitle">(${currentWeightEvaluatedNP}% evaluado de NP)</div>
+                        
                     </div>
                     
                     <div style="width: 1px; height: 60px; background: rgba(255,255,255,0.1);"></div>
@@ -300,7 +300,7 @@ function renderNotasBuilder() {
                     <div style="text-align: center;">
                         <div class="notas-summary-title" style="color: #38bdf8;">Nota Final Estimada</div>
                         <div class="notas-summary-value" style="font-size: 36px; color: #f8fafc;">${hasExamGrade && Math.abs(remainingWeightNP) < 0.1 ? notaFinalCalculada.toFixed(2) : '-'}</div>
-                        <div class="notas-summary-subtitle">(NP * ${(npW * 100).toFixed(0)}%) + (Examen * ${(eW * 100).toFixed(0)}%)</div>
+                        
                     </div>
                 </div>
             </div>
