@@ -267,7 +267,20 @@ function renderSolemnes() {
 
 
     const searchInput = document.getElementById('solemnes-search');
+    const friendSelect = document.getElementById('solemnes-friend-select');
     const query = searchInput ? normStr(searchInput.value) : '';
+    const friendId = friendSelect ? friendSelect.value : '';
+
+    let friendRamos = [];
+    if (friendId) {
+        let scheduleData = [];
+        if (friendId === 'yo' && typeof MI_HORARIO_DATA !== 'undefined') {
+            scheduleData = MI_HORARIO_DATA;
+        } else if (typeof HORARIOS_GUARDADOS !== 'undefined' && HORARIOS_GUARDADOS[friendId]) {
+            scheduleData = HORARIOS_GUARDADOS[friendId];
+        }
+        friendRamos = [...new Set(scheduleData.map(c => normStr(c.nombre)))];
+    }
 
     const mapDias = {
         1: { title: "Día 1", sub: "Jueves 24 Sept" },
@@ -312,11 +325,21 @@ function renderSolemnes() {
         for (let d = 1; d <= 5; d++) {
             const cellData = SOLEMNES_DATA.find(item => item.dia === d && item.horario === b.raw);
             const ramos = cellData ? cellData.ramos : [];
-            const matches = query ? ramos.filter(r => normStr(r.nombre).includes(query)) : ramos;
+            let matches = ramos;
+            if (query) {
+                matches = ramos.filter(r => normStr(r.nombre).includes(query));
+            } else if (friendId) {
+                matches = ramos.filter(r => {
+                    const normR = normStr(r.nombre);
+                    // Match if schedule subject is inside exam name, or exam name inside schedule subject
+                    return friendRamos.some(fr => fr.includes(normR) || normR.includes(fr));
+                });
+            }
             const hasMatch = matches.length > 0;
+            const isFiltering = query !== '' || friendId !== '';
             
-            // Opacity logic: if searching and no matches in this cell, dim the whole cell heavily
-            const cellOpacity = (query && !hasMatch && ramos.length > 0) ? '0.15' : '1';
+            // Opacity logic: if filtering and no matches in this cell, dim the whole cell heavily
+            const cellOpacity = (isFiltering && !hasMatch && ramos.length > 0) ? '0.15' : '1';
 
             if (ramos.length === 0) {
                 gridHtml += `
@@ -329,7 +352,13 @@ function renderSolemnes() {
 
             let cellContent = '';
             ramos.forEach(r => {
-                const isMatch = query ? normStr(r.nombre).includes(query) : true;
+                let isMatch = true;
+                if (query) {
+                    isMatch = normStr(r.nombre).includes(query);
+                } else if (friendId) {
+                    const normR = normStr(r.nombre);
+                    isMatch = friendRamos.some(fr => fr.includes(normR) || normR.includes(fr));
+                }
                 
                 let theme = { bg: 'rgba(56, 189, 248, 0.15)', border: 'rgba(56, 189, 248, 0.4)', color: '#38bdf8' }; // Default Celeste
                 
@@ -347,6 +376,11 @@ function renderSolemnes() {
                     } else if (cLower.includes('blanco') || cLower.includes('sin color')) {
                         theme = { bg: 'rgba(255, 255, 255, 0.05)', border: 'rgba(255, 255, 255, 0.2)', color: '#cbd5e1' };
                     }
+                }
+                
+                // If a friend schedule is selected and this is a match, color it stark white to easily spot it
+                if (friendId && isMatch) {
+                    theme = { bg: 'rgba(255, 255, 255, 0.15)', border: 'rgba(255, 255, 255, 0.7)', color: '#ffffff' };
                 }
                 
                 const styleAttr = isMatch ? `style="background: ${theme.bg}; border-color: ${theme.border}; border-left-color: ${theme.color};"` : '';

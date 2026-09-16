@@ -691,6 +691,15 @@
                     </svg>
                     <input type="text" id="solemnes-search" placeholder="Busca tu ramo (ej: Álgebra Lineal, Física)..." onkeyup="renderSolemnes()" autocomplete="off" style="width: 100%; background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 12px 12px 12px 42px; color: #f8fafc; font-size: 14px; outline: none; transition: border-color 0.2s;">
                 </div>
+                <div style="display: flex; gap: 8px; margin-top: 12px; align-items: center; flex-wrap: wrap;">
+                    <span style="color: #94a3b8; font-size: 13px; font-weight: 500;">Resaltar exámenes de:</span>
+                    <select id="solemnes-friend-select" onchange="renderSolemnes()" style="background: rgba(30,41,59,0.8); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 6px 12px; font-size: 13px; outline: none; cursor: pointer;">
+                        <option value="">Ninguno (Mostrar todos)</option>
+                        <option value="yo">Nakzu (Mis Ramos)</option>
+                        <option value="felipe">Felipe</option>
+                        <option value="aleex1s">Aleex1s</option>
+                    </select>
+                </div>
             </div>
         </div>
 
