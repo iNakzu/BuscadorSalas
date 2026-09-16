@@ -313,7 +313,17 @@ function renderSolemnes() {
         
         if (scheduleObj && scheduleObj.clases) {
             friendEscuela = scheduleObj.escuela || "";
-            friendRamos = [...new Set(scheduleObj.clases.map(c => normStr(c.curso)).filter(Boolean))];
+            friendRamos = [];
+            window.friendRamosRoles = {};
+            scheduleObj.clases.forEach(c => {
+                const n = normStr(c.curso);
+                if (n) {
+                    friendRamos.push(n);
+                    if (c.rol === 'assistant') window.friendRamosRoles[n] = 'assistant';
+                    else if (!window.friendRamosRoles[n]) window.friendRamosRoles[n] = 'student';
+                }
+            });
+            friendRamos = [...new Set(friendRamos)];
         }
     }
 
@@ -413,6 +423,7 @@ function renderSolemnes() {
                     isMatch = normStr(r.nombre).includes(query);
                 } else if (friendId) {
                     const normR = normStr(r.nombre);
+                    let matchedRole = 'student';
                     isMatch = friendRamos.some(fr => {
                         let baseMatched = false;
                         const examBaseName = normR.replace(/\s*\(.*?\)\s*/g, '').trim();
@@ -425,12 +436,16 @@ function renderSolemnes() {
                         }
 
                         if (baseMatched) {
+                            let isValid = false;
                             if (normR.includes('(')) {
                                 if (friendEscuela && normR.includes(friendEscuela.toLowerCase())) {
-                                    return true;
+                                    isValid = true;
                                 }
-                                return false;
                             } else {
+                                isValid = true;
+                            }
+                            if (isValid) {
+                                matchedRole = window.friendRamosRoles[fr] || 'student';
                                 return true;
                             }
                         }
@@ -458,7 +473,11 @@ function renderSolemnes() {
                 
                 // If a friend schedule is selected and this is a match, color it stark white to easily spot it
                 if (friendId && isMatch) {
-                    theme = { bg: 'rgba(255, 255, 255, 0.15)', border: 'rgba(255, 255, 255, 0.7)', color: '#ffffff' };
+                    if (matchedRole === 'assistant') {
+                        theme = { bg: 'linear-gradient(135deg, rgba(234,179,8,0.25), rgba(202,138,4,0.25))', border: 'rgba(234,179,8,0.7)', color: '#eab308' };
+                    } else {
+                        theme = { bg: 'rgba(255, 255, 255, 0.15)', border: 'rgba(255, 255, 255, 0.7)', color: '#ffffff' };
+                    }
                 }
                 
                 const styleAttr = isMatch ? `style="background: ${theme.bg}; border-color: ${theme.border}; border-left-color: ${theme.color};"` : '';
