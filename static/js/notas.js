@@ -250,11 +250,11 @@ function renderNotasBuilder() {
                         survivalHtml = `<div class="notas-info">Evaluación en progreso (Falta ${remainingWeightNP.toFixed(0)}%).<br>Necesitas promediar un <strong>${reqAverage.toFixed(1)}</strong> en lo restante para pasar.</div>`;
                     }
                 } else if (requiredInExam > 7.0) {
-                    survivalHtml = `<div class="notas-danger">Si mantienes tu rendimiento actual (NP proyectada: ${np_actual.toFixed(1)}), es matemáticamente imposible pasar.</div>`;
+                    survivalHtml = `<div class="notas-danger">Si mantienes tu rendimiento actual (NP proyectada: ${np_actual.toFixed(2)}), es matemáticamente imposible pasar.</div>`;
                 } else if (requiredInExam <= 1.0) {
-                     survivalHtml = `<div class="notas-success">Si mantienes tu rendimiento actual (NP proyectada: ${np_actual.toFixed(1)}), tienes la aprobación asegurada.</div>`;
+                     survivalHtml = `<div class="notas-success">Si mantienes tu rendimiento actual (NP proyectada: ${np_actual.toFixed(2)}), tienes la aprobación asegurada.</div>`;
                 } else {
-                    survivalHtml = `<div class="notas-info">Evaluación en progreso (Falta ${remainingWeightNP.toFixed(0)}%).<br>Si mantienes tu rendimiento actual (NP proyectada: ${np_actual.toFixed(1)}), necesitarás un <strong>${requiredInExam.toFixed(1)}</strong> en el Examen.</div>`;
+                    survivalHtml = `<div class="notas-info">Evaluación en progreso (Falta ${remainingWeightNP.toFixed(0)}%).<br>Si mantienes tu rendimiento actual (NP proyectada: ${np_actual.toFixed(2)}), necesitarás un <strong>${requiredInExam.toFixed(1)}</strong> en el Examen.</div>`;
                 }
             } else {
                 survivalHtml = `<div class="notas-info">Ingresa tus primeras notas para calcular tu pronóstico.</div>`;
