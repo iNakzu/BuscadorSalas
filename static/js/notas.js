@@ -4,7 +4,15 @@ function initNotas() {
     try {
         const stored = localStorage.getItem('mi_notas_v1');
         if (stored) {
-            NOTAS_DATA = JSON.parse(stored);
+            const parsed = JSON.parse(stored);
+            // Migración: si hay llaves sin prefijo (ej: "Mecánica" en vez de "nakzu|Mecánica"), envolverlas
+            for (const k of Object.keys(parsed)) {
+                if (!k.includes('|')) {
+                    NOTAS_DATA['nakzu|' + k] = parsed[k];
+                } else {
+                    NOTAS_DATA[k] = parsed[k];
+                }
+            }
         }
     } catch(e) { console.error(e); }
 }
@@ -46,14 +54,27 @@ function updateNotasDropdown() {
     });
     
     // Agregar ramos que ya tengan notas pero que quizás se borraron del horario
-    for (const r of Object.keys(NOTAS_DATA)) {
-        if (!myRamos.includes(r)) {
-            html += `<option value="${r}">${escapeHtml(r)} (Fuera de horario)</option>`;
+    for (const key of Object.keys(NOTAS_DATA)) {
+        if (key.startsWith(friendId + '|')) {
+            const r = key.split('|')[1];
+            // Fix case insensitivity bug: check if myRamos includes the normalized version
+            if (!myRamos.includes(normStr(r))) {
+                html += `<option value="${r}">${escapeHtml(r)} (Fuera de horario)</option>`;
+            }
         }
     }
     
     select.innerHTML = html;
-    if (currVal && Object.keys(NOTAS_DATA).includes(currVal)) {
+    
+    // Check if the previously selected option is still valid
+    let isCurrValValid = false;
+    for(let i=0; i<select.options.length; i++) {
+        if(select.options[i].value === currVal && currVal !== "") {
+            isCurrValValid = true; break;
+        }
+    }
+    
+    if (isCurrValValid) {
         select.value = currVal;
     } else {
         select.value = "";
@@ -67,14 +88,19 @@ function renderNotasBuilder() {
     if (!select || !container) return;
     
     const curso = select.value;
+    const friendSelect = document.getElementById('notas-friend-select');
+    const friendId = friendSelect ? friendSelect.value : 'nakzu';
+    
     if (!curso) {
         container.innerHTML = `<div style="text-align: center; color: #64748b; padding: 40px; font-size: 14px;">Selecciona una asignatura arriba para configurar o ver tus notas.</div>`;
         return;
     }
     
+    const dbKey = friendId + '|' + curso;
+    
     // Inicializar datos si no existen
-    if (!NOTAS_DATA[curso]) {
-        NOTAS_DATA[curso] = {
+    if (!NOTAS_DATA[dbKey]) {
+        NOTAS_DATA[dbKey] = {
             items: [
                 { id: Date.now(), name: "Solemne 1", weight: 30, grade: null },
                 { id: Date.now()+1, name: "Solemne 2", weight: 30, grade: null },
@@ -85,7 +111,7 @@ function renderNotasBuilder() {
         saveNotas();
     }
     
-    const data = NOTAS_DATA[curso];
+    const data = NOTAS_DATA[dbKey];
     let itemsHtml = '';
     let totalWeight = 0;
     let currentWeightedSum = 0;
@@ -103,14 +129,14 @@ function renderNotasBuilder() {
         
         itemsHtml += `
             <div class="notas-item-row">
-                <input type="text" class="notas-input-name" value="${escapeHtml(item.name)}" onchange="updateNotaItem('${curso}', ${index}, 'name', this.value)" placeholder="Nombre (ej: Solemne 1)">
+                <input type="text" class="notas-input-name" value="${escapeHtml(item.name)}" onchange="updateNotaItem('${dbKey}', ${index}, 'name', this.value)" placeholder="Nombre (ej: Solemne 1)">
                 <div style="display:flex; align-items:center; gap: 8px;">
                     <div class="notas-input-wrapper">
-                        <input type="number" class="notas-input-weight" value="${item.weight}" onchange="updateNotaItem('${curso}', ${index}, 'weight', this.value)" placeholder="%">
+                        <input type="number" class="notas-input-weight" value="${item.weight}" onchange="updateNotaItem('${dbKey}', ${index}, 'weight', this.value)" placeholder="%">
                         <span class="notas-percent-symbol">%</span>
                     </div>
-                    <input type="number" step="0.1" min="1.0" max="7.0" class="notas-input-grade" value="${item.grade !== null ? item.grade : ''}" onchange="updateNotaItem('${curso}', ${index}, 'grade', this.value)" placeholder="Nota">
-                    <button class="notas-btn-del" onclick="deleteNotaItem('${curso}', ${index})" title="Eliminar ítem">
+                    <input type="number" step="0.1" min="1.0" max="7.0" class="notas-input-grade" value="${item.grade !== null ? item.grade : ''}" onchange="updateNotaItem('${dbKey}', ${index}, 'grade', this.value)" placeholder="Nota">
+                    <button class="notas-btn-del" onclick="deleteNotaItem('${dbKey}', ${index})" title="Eliminar ítem">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
                 </div>
@@ -167,7 +193,7 @@ function renderNotasBuilder() {
             </div>
             
             <div class="notas-add-row">
-                <button class="notas-btn-add" onclick="addNotaItem('${curso}')">
+                <button class="notas-btn-add" onclick="addNotaItem('${dbKey}')">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                     Añadir Ítem de Evaluación
                 </button>
