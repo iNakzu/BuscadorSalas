@@ -52,30 +52,6 @@ function updateNotasDropdown() {
         const originalCourse = foundCourse ? foundCourse.curso : r;
         html += `<option value="${originalCourse}">${escapeHtml(originalCourse)}</option>`;
     });
-    
-    // Agregar ramos que ya tengan notas pero que quizás se borraron del horario
-    for (const key of Object.keys(NOTAS_DATA)) {
-        if (key.startsWith(friendId + '|')) {
-            const r = key.split('|')[1];
-            if (!myRamos.includes(normStr(r))) {
-                // Solo mostrar ramos fuera de horario si tienen alguna nota real ingresada (para limpiar basura)
-                const data = NOTAS_DATA[key];
-                let hasGrades = false;
-                if (data && data.items) {
-                    hasGrades = data.items.some(item => item.grade !== null && item.grade !== '');
-                }
-                
-                if (hasGrades) {
-                    html += `<option value="${r}">${escapeHtml(r)} (Fuera de horario)</option>`;
-                } else {
-                    // Si es un ramo fantasma sin notas, eliminarlo silenciosamente de la base de datos
-                    delete NOTAS_DATA[key];
-                    saveNotas();
-                }
-            }
-        }
-    }
-    
     select.innerHTML = html;
     
     // Check if the previously selected option is still valid
