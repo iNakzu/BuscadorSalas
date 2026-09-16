@@ -305,7 +305,7 @@ function renderSolemnes() {
     let friendEscuela = "";
     if (friendId) {
         let scheduleObj = null;
-        if (friendId === 'yo' && typeof MI_HORARIO_DATA !== 'undefined') {
+        if (friendId === 'nakzu' && typeof MI_HORARIO_DATA !== 'undefined') {
             scheduleObj = MI_HORARIO_DATA;
         } else if (typeof HORARIOS_GUARDADOS !== 'undefined' && HORARIOS_GUARDADOS[friendId]) {
             scheduleObj = HORARIOS_GUARDADOS[friendId];
