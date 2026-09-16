@@ -25,7 +25,7 @@ function isFuzzyMatch(str1, str2) {
     if (str1.length < 5 || str2.length < 5) return false;
     const dist = levenshtein(str1, str2);
     const maxLen = Math.max(str1.length, str2.length);
-    return dist <= 2 || (dist / maxLen) <= 0.15;
+    return dist <= 2;
 }
 
 const SOLEMNES_COLORS = {
