@@ -249,8 +249,9 @@ function renderNotasBuilder() {
             <div style="display:flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%;">
                 <div style="color: #e2e8f0; font-size: 14px; font-weight: 600; flex-grow: 1; min-width: 120px;">Examen</div>
                 <div style="display:flex; align-items:center; gap: 6px;">
-                    <div style="color: #94a3b8; font-size: 13px; font-weight: 600; padding-right: 12px;">30%</div>
+                    <div style="width: 60px; text-align: center; color: #94a3b8; font-size: 13px; font-weight: 600;">30%</div>
                     <input type="number" step="0.1" min="1.0" max="7.0" class="notas-input-grade" style="width: 80px;" value="${data.examGrade !== null ? data.examGrade : ''}" onchange="updateGlobalNota('${dbKey}', 'examGrade', this.value)" placeholder="Nota">
+                    <div style="width: 28px; height: 28px;"></div>
                 </div>
             </div>
         </div>
