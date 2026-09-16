@@ -279,7 +279,7 @@ function renderSolemnes() {
         } else if (typeof HORARIOS_GUARDADOS !== 'undefined' && HORARIOS_GUARDADOS[friendId]) {
             scheduleData = HORARIOS_GUARDADOS[friendId];
         }
-        friendRamos = [...new Set(scheduleData.map(c => normStr(c.nombre)))];
+        friendRamos = [...new Set(scheduleData.map(c => normStr(c.curso)).filter(Boolean))];
     }
 
     const mapDias = {
