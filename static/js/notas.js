@@ -17,18 +17,32 @@ function saveNotas() {
 
 function updateNotasDropdown() {
     const select = document.getElementById('notas-curso-select');
+    const friendSelect = document.getElementById('notas-friend-select');
     if (!select) return;
     
-    // Obtener cursos únicos del perfil activo (por defecto nakzu)
+    let friendId = friendSelect ? friendSelect.value : 'nakzu';
+    
+    let scheduleObj = null;
+    if (friendId === 'nakzu' && typeof MI_HORARIO_DATA !== 'undefined') {
+        scheduleObj = MI_HORARIO_DATA;
+    } else if (typeof HORARIOS_GUARDADOS !== 'undefined' && HORARIOS_GUARDADOS[friendId]) {
+        scheduleObj = HORARIOS_GUARDADOS[friendId];
+    }
+    
     let myRamos = [];
-    if (typeof MI_HORARIO_DATA !== 'undefined' && MI_HORARIO_DATA.clases) {
-        myRamos = [...new Set(MI_HORARIO_DATA.clases.map(c => c.curso))].filter(Boolean).sort();
+    if (scheduleObj && scheduleObj.clases) {
+        // Filtrar ramos donde el usuario NO es ayudante/profesor
+        const validClasses = scheduleObj.clases.filter(c => c.rol !== 'assistant');
+        myRamos = [...new Set(validClasses.map(c => normStr(c.curso)))].filter(Boolean).sort();
     }
     
     const currVal = select.value;
     let html = '<option value="">Selecciona una asignatura de tu horario...</option>';
     myRamos.forEach(r => {
-        html += `<option value="${r}">${escapeHtml(r)}</option>`;
+        // Find original casing if possible
+        const foundCourse = scheduleObj.clases.find(c => normStr(c.curso) === r);
+        const originalCourse = foundCourse ? foundCourse.curso : r;
+        html += `<option value="${originalCourse}">${escapeHtml(originalCourse)}</option>`;
     });
     
     // Agregar ramos que ya tengan notas pero que quizás se borraron del horario
@@ -41,7 +55,10 @@ function updateNotasDropdown() {
     select.innerHTML = html;
     if (currVal && Object.keys(NOTAS_DATA).includes(currVal)) {
         select.value = currVal;
+    } else {
+        select.value = "";
     }
+    renderNotasBuilder();
 }
 
 function renderNotasBuilder() {
@@ -102,7 +119,7 @@ function renderNotasBuilder() {
     });
     
     // Cálculos de supervivencia
-    let currentAverage = currentWeightEvaluated > 0 ? (currentWeightedSum / (currentWeightEvaluated / 100)) : 0;
+    let accumulatedScore = currentWeightedSum; // ej: 3.0 * 30% = 0.9
     let remainingWeight = totalWeight - currentWeightEvaluated;
     
     let survivalHtml = '';
@@ -139,8 +156,8 @@ function renderNotasBuilder() {
         <div class="notas-card ${statusClass}">
             <div class="notas-header-row">
                 <div class="notas-summary">
-                    <div class="notas-summary-title">Promedio Actual</div>
-                    <div class="notas-summary-value">${currentWeightEvaluated > 0 ? currentAverage.toFixed(1) : '-'}</div>
+                    <div class="notas-summary-title">Nota Acumulada</div>
+                    <div class="notas-summary-value">${currentWeightEvaluated > 0 ? accumulatedScore.toFixed(2) : '-'}</div>
                     <div class="notas-summary-subtitle">Calculado sobre el ${currentWeightEvaluated}% evaluado</div>
                 </div>
             </div>

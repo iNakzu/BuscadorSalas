@@ -722,16 +722,29 @@
     <section id="tab-notas" class="panel">
         <div class="panel-header" style="flex-direction: column; align-items: stretch; gap: 24px; border-bottom: none; padding-bottom: 0;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h2 style="margin-bottom: 8px;">Calculadora de Notas</h2>
-                <div style="font-size: 13px; color: #94a3b8; background: rgba(30,41,59,0.5); padding: 4px 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">Tus fórmulas se guardan solas</div>
+                <h2 style="margin-bottom: 8px; background: linear-gradient(to right, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Calculadora de Notas</h2>
+                <div style="font-size: 12px; color: #94a3b8; background: rgba(30,41,59,0.8); padding: 4px 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 4px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                    Autoguardado
+                </div>
             </div>
             
-            <div class="control-card" style="margin-bottom: 0; padding: 16px;">
+            <div class="control-card" style="margin-bottom: 0; padding: 16px; display: flex; flex-direction: column; gap: 12px; background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(56, 189, 248, 0.2);">
+                
                 <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-                    <span style="color: #94a3b8; font-size: 13px; font-weight: 500;">Selecciona un ramo:</span>
-                    <select id="notas-curso-select" onchange="renderNotasBuilder()" style="background: rgba(30,41,59,0.8); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 8px 12px; font-size: 14px; outline: none; cursor: pointer; flex-grow: 1;">
-                        <option value="">Selecciona una asignatura de tu horario...</option>
-                    </select>
+                    <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
+                        <div style="background: rgba(30, 41, 59, 0.6); border-radius: 8px; padding: 6px; display: flex; flex-grow: 1; border: 1px solid rgba(255, 255, 255, 0.05);">
+                            <select id="notas-friend-select" onchange="updateNotasDropdown()" style="background: transparent; color: #38bdf8; border: none; font-size: 14px; font-weight: 600; outline: none; cursor: pointer; padding: 4px 8px; border-right: 1px solid rgba(255,255,255,0.1);">
+                                <option value="nakzu">Nakzu</option>
+                                <option value="felipe">Felipe</option>
+                                <option value="alexis">Alexis</option>
+                            </select>
+                            
+                            <select id="notas-curso-select" onchange="renderNotasBuilder()" style="background: transparent; color: #e2e8f0; border: none; padding: 4px 12px; font-size: 14px; outline: none; cursor: pointer; flex-grow: 1;">
+                                <option value="">Selecciona una asignatura...</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
