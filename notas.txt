@@ -1,0 +1,58 @@
+TL;DR: Las imágenes contienen diferentes sistemas de evaluación (probablemente de distintos ramos). He estructurado la información separándola en 4 "casos" o ramos distintos, definiendo claramente las fórmulas matemáticas, ponderaciones y restricciones lógicas de cada uno para que puedas pasarlo directamente a tu IA o código.
+Aquí tienes toda la información estructurada, lista para copiar y pegar:
+Regla General (Aplica para la mayoría de los ramos)
+ * Fórmula General Nota Final (NF): NF = (0.7 * Nota_Presentacion) + (0.3 * Nota_Examen)
+Caso 1: Ramo Teórico Estándar (Basado en imgs 32023 y 32025)
+ * Componentes: Solemnes y Notas Parciales (tareas, trabajos, controles, laboratorios).
+ * Cálculo Nota Presentación (NP): Promedio de 2 evaluaciones solemnes junto con el promedio de notas parciales (la imagen sugiere un promedio simple o ponderado entre estas partes, revisa el syllabus específico para el peso exacto).
+ * Restricción de Reprobación Directa:
+   * SI Promedio_Notas_Parciales < 4.0 ENTONCES Reprueba
+   * NF = Promedio_Notas_Parciales
+ * Condición de Eximición:
+   * Debe rendir TODAS las evaluaciones.
+   * Nota Final >= 5.0 (El texto dice explícitamente "nota final", aunque suele referirse a la NP).
+Caso 2: Ramo con Laboratorio y Asistencia Estricta (Basado en imgs 32011, 32013, 32015, 32021)
+ * Componentes: 2 Solemnes, Notas Controles (NC), Promedio Laboratorios (PL).
+ * Cálculo Notas Controles (NC):
+   * Son 4 controles + 1 control recuperativo.
+   * NC = Promedio_Simple(Las 4 mejores notas) (Se elimina la peor).
+ * Restricción de Reprobación por Laboratorio:
+   * SI PL < 4.0 ENTONCES Reprueba
+   * NF = PL
+ * Cálculo Nota Presentación (NP): (Solo aplica si PL >= 4.0)
+   * NP = 0.7 * ((0.6 * Promedio_Solemnes) + (0.4 * NC)) + (0.3 * PL)
+ * Condiciones de Eximición: (Debe cumplir TODAS)
+   * NP >= 5.0
+   * Todos los Laboratorios (notas individuales) >= 4.0
+   * Asistencia a Clases >= 80%
+   * Asistencia a Laboratorios == 100%
+   * Asistencia a Ayudantías >= 80%
+   * Haber rendido TODAS las evaluaciones y laboratorios.
+Caso 3: Ramo con "Reglas del Juego" (Basado en img 32011)
+ * Componentes: Tareas (NT), Controles (NC), Solemne 1 (S1), Solemne 2 (S2). Son 3 tareas en total.
+ * Cálculo Nota Presentación (NP):
+   * NP = (0.3 * S1) + (0.3 * S2) + (0.20 * NT) + (0.20 * NC)
+ * Restricciones para dar Examen (Derecho a examen):
+   * NT >= 4.0
+   * NP >= 3.5
+ * Condiciones de Eximición: (Debe cumplir TODAS)
+   * NP >= 5.0
+   * NT >= 5.5 (Promedio de tareas)
+   * NT_i >= 4.0 (Cada una de las 3 tareas individuales debe ser mayor o igual a 4.0)
+Caso 4: Ramo con Nota por Asistencia (Basado en imgs 32017 y 32019)
+ * Cálculo Nota Presentación (NP): Este ramo define la NP en base a 100%, dividida así:
+   * Asistencia: 5%
+   * Pruebas / Controles: 20%
+   * Tarea / Trabajo: 25%
+   * Solemne 1: 25%
+   * Solemne 2: 25%
+   * Fórmula: NP = (Nota_Asistencia * 0.05) + (Promedio_Controles * 0.20) + (Nota_Tareas * 0.25) + (Solemne1 * 0.25) + (Solemne2 * 0.25)
+ * Regla de Pruebas/Controles:
+   * Se borra la peor nota de los controles ("Se borra uno").
+ * Regla de Nota por Asistencia: (Para calcular el 5% anterior)
+   * SI Asistencia > 70% ENTONCES Nota_Asistencia = 7.0
+   * SI Asistencia > 40% Y < 70% ENTONCES Nota_Asistencia = 5.0
+   * SI Asistencia < 40% ENTONCES Nota_Asistencia = 4.0
+ * Condiciones de Eximición:
+   * Rendir todas las evaluaciones.
+   * Promedio de notas (NP) >= 5.0
