@@ -277,7 +277,7 @@ function renderNotasBuilder() {
         </div>
     `;
     
-    let summaryBg = "background: rgba(15, 23, 42, 0.5);";
+    let summaryBg = "";
     
     container.innerHTML = `
         <div class="notas-card ${statusClass}">
@@ -292,7 +292,7 @@ function renderNotasBuilder() {
                     <div style="width: 1px; height: 60px; background: rgba(255,255,255,0.1);"></div>
                     
                     <div style="text-align: center;">
-                        <div class="notas-summary-title" style="color: #38bdf8;">Nota Final Estimada</div>
+                        <div class="notas-summary-title" style="color: #38bdf8;">Nota Final</div>
                         <div class="notas-summary-value" style="font-size: 36px; color: #f8fafc;">${hasExamGrade && Math.abs(remainingWeightNP) < 0.1 ? notaFinalCalculada.toFixed(2) : '-'}</div>
                         
                     </div>
