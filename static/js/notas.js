@@ -282,14 +282,15 @@ function renderNotasBuilder() {
             
             <div class="notas-items-list">
                 ${itemsHtml}
+                
+                <div class="notas-add-row" style="display: flex; gap: 12px; justify-content: center; margin-bottom: 16px; margin-top: 8px;">
+                    <button class="notas-btn-add" onclick="addNotaItem('${dbKey}')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        Añadir Evaluación Parcial
+                    </button>
+                </div>
+                
                 ${examRowHtml}
-            </div>
-            
-            <div class="notas-add-row" style="display: flex; gap: 12px; justify-content: center; margin-bottom: 24px; flex-wrap: wrap; margin-top: 16px;">
-                <button class="notas-btn-add" onclick="addNotaItem('${dbKey}')">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                    Añadir Evaluación Parcial
-                </button>
             </div>
             
             <div class="notas-survival-box">
