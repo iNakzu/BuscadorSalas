@@ -282,8 +282,6 @@ function renderNotasBuilder() {
     `;
     
     let summaryBg = "background: rgba(15, 23, 42, 0.5);";
-    if (statusClass === 'is-passed') summaryBg = "background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3);";
-    if (statusClass === 'is-failed') summaryBg = "background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3);";
     
     container.innerHTML = `
         <div class="notas-card ${statusClass}">
