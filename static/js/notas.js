@@ -57,9 +57,21 @@ function updateNotasDropdown() {
     for (const key of Object.keys(NOTAS_DATA)) {
         if (key.startsWith(friendId + '|')) {
             const r = key.split('|')[1];
-            // Fix case insensitivity bug: check if myRamos includes the normalized version
             if (!myRamos.includes(normStr(r))) {
-                html += `<option value="${r}">${escapeHtml(r)} (Fuera de horario)</option>`;
+                // Solo mostrar ramos fuera de horario si tienen alguna nota real ingresada (para limpiar basura)
+                const data = NOTAS_DATA[key];
+                let hasGrades = false;
+                if (data && data.items) {
+                    hasGrades = data.items.some(item => item.grade !== null && item.grade !== '');
+                }
+                
+                if (hasGrades) {
+                    html += `<option value="${r}">${escapeHtml(r)} (Fuera de horario)</option>`;
+                } else {
+                    // Si es un ramo fantasma sin notas, eliminarlo silenciosamente de la base de datos
+                    delete NOTAS_DATA[key];
+                    saveNotas();
+                }
             }
         }
     }
