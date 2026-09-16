@@ -312,9 +312,10 @@ const HORARIOS_GUARDADOS = {
         profesor: 'Rosa Rivero',
         rol: 'assistant'
     }
-    ],
-    "felipe": 
-[
+    ]},
+    "felipe": {
+    "escuela": "EIT",
+    "clases": [
     {
         "id": "lun-1",
         "dia": 1,
@@ -496,9 +497,10 @@ const HORARIOS_GUARDADOS = {
         "profesor": "GARCIA BUJANDA CARLOS ENRIQUE",
         "rol": "student"
     }
-],
-    "aleex1s": 
-[
+]},
+    "alexis": {
+    "escuela": "EIT",
+    "clases": [
     {
         "id": "lun-1",
         "dia": 1,
