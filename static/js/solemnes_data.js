@@ -4,32 +4,25 @@ const SOLEMNES_DATA = [
         "horario": "8:30 a 10:30",
         "ramos": [
             {
-                "nombre": "Mecánica de Fluidos (EII)",
-                "color_txt": "Celeste"
+                "nombre": "Mecánica de Fluidos (EII)"
             },
             {
-                "nombre": "Tecnologías Inalámbricas",
-                "color_txt": "Verde"
+                "nombre": "Tecnologías Inalámbricas"
             },
             {
-                "nombre": "Comunicaciones Digitales",
-                "color_txt": "Verde"
+                "nombre": "Comunicaciones Digitales"
             },
             {
-                "nombre": "Hidrología",
-                "color_txt": "Naranjo"
+                "nombre": "Hidrología"
             },
             {
-                "nombre": "Topografía",
-                "color_txt": "Naranjo"
+                "nombre": "Topografía"
             },
             {
-                "nombre": "Electivo EII: \"Fintech\"",
-                "color_txt": "Morado"
+                "nombre": "Electivo EII: \"Fintech\""
             },
             {
-                "nombre": "Electivo EII: \"Aplicación del Derecho Laboral\"",
-                "color_txt": "Morado"
+                "nombre": "Electivo EII: \"Aplicación del Derecho Laboral\""
             }
         ]
     },
@@ -38,24 +31,19 @@ const SOLEMNES_DATA = [
         "horario": "10:45 a 12:45",
         "ramos": [
             {
-                "nombre": "Señales y Sistemas",
-                "color_txt": "Verde"
+                "nombre": "Señales y Sistemas"
             },
             {
-                "nombre": "Edificación",
-                "color_txt": "Naranjo"
+                "nombre": "Edificación"
             },
             {
-                "nombre": "Seminario Cs Ingeniería",
-                "color_txt": "Naranjo"
+                "nombre": "Seminario Cs Ingeniería"
             },
             {
-                "nombre": "Electivo EII: \"Evaluación Social de Proyectos\"",
-                "color_txt": "Morado"
+                "nombre": "Electivo EII: \"Evaluación Social de Proyectos\""
             },
             {
-                "nombre": "Electivo EII: \"Energía Solar\"",
-                "color_txt": "Morado"
+                "nombre": "Electivo EII: \"Energía Solar\""
             }
         ]
     },
@@ -64,20 +52,16 @@ const SOLEMNES_DATA = [
         "horario": "13:00 a 15:00",
         "ramos": [
             {
-                "nombre": "Ecuaciones Diferenciales",
-                "color_txt": "Amarillo"
+                "nombre": "Ecuaciones Diferenciales"
             },
             {
-                "nombre": "Logística",
-                "color_txt": "Celeste"
+                "nombre": "Logística"
             },
             {
-                "nombre": "Electivo Profesional (EIT)",
-                "color_txt": "Verde"
+                "nombre": "Electivo Profesional (EIT)"
             },
             {
-                "nombre": "Hidráulica Urbana",
-                "color_txt": "Naranjo"
+                "nombre": "Hidráulica Urbana"
             }
         ]
     },
@@ -86,20 +70,16 @@ const SOLEMNES_DATA = [
         "horario": "15:15 a 17:15",
         "ramos": [
             {
-                "nombre": "Introducción al Álgebra / Álgebra y Geometría",
-                "color_txt": "Amarillo"
+                "nombre": "Introducción al Álgebra / Álgebra y Geometría"
             },
             {
-                "nombre": "Termodinámica",
-                "color_txt": "Celeste"
+                "nombre": "Termodinámica"
             },
             {
-                "nombre": "Proyectos Energéticos",
-                "color_txt": "Celeste"
+                "nombre": "Proyectos Energéticos"
             },
             {
-                "nombre": "BIM",
-                "color_txt": "Naranjo"
+                "nombre": "BIM"
             }
         ]
     },
@@ -108,20 +88,16 @@ const SOLEMNES_DATA = [
         "horario": "17:30 a 19:30",
         "ramos": [
             {
-                "nombre": "Álgebra Lineal",
-                "color_txt": "Amarillo"
+                "nombre": "Álgebra Lineal"
             },
             {
-                "nombre": "Electivo Profesional Diseño en Obras Hidráulicas",
-                "color_txt": "Naranjo"
+                "nombre": "Electivo Profesional Diseño en Obras Hidráulicas"
             },
             {
-                "nombre": "Electivo EII: \"Organización Industrial\"",
-                "color_txt": "Morado"
+                "nombre": "Electivo EII: \"Organización Industrial\""
             },
             {
-                "nombre": "Electivo EII: \"Análisis Estadístico Avanzado de Datos\"",
-                "color_txt": "Morado"
+                "nombre": "Electivo EII: \"Análisis Estadístico Avanzado de Datos\""
             }
         ]
     },
@@ -130,24 +106,19 @@ const SOLEMNES_DATA = [
         "horario": "8:30 a 10:30",
         "ramos": [
             {
-                "nombre": "Probabilidades y Estadística (EII EOC)",
-                "color_txt": "Amarillo"
+                "nombre": "Probabilidades y Estadística (EII EOC)"
             },
             {
-                "nombre": "Data Science (EII)",
-                "color_txt": "Celeste"
+                "nombre": "Data Science (EII)"
             },
             {
-                "nombre": "Inferencia Estadística",
-                "color_txt": "Celeste"
+                "nombre": "Inferencia Estadística"
             },
             {
-                "nombre": "Arquitectura y Organización de Computadores",
-                "color_txt": "Verde"
+                "nombre": "Arquitectura y Organización de Computadores"
             },
             {
-                "nombre": "Electivo Profesional Análisis de escenarios",
-                "color_txt": "Naranjo"
+                "nombre": "Electivo Profesional Análisis de escenarios"
             }
         ]
     },
@@ -156,32 +127,25 @@ const SOLEMNES_DATA = [
         "horario": "10:45 a 12:45",
         "ramos": [
             {
-                "nombre": "Programación Avanzada",
-                "color_txt": "Verde"
+                "nombre": "Programación Avanzada"
             },
             {
-                "nombre": "Bases de datos Avanzadas",
-                "color_txt": "Verde"
+                "nombre": "Bases de datos Avanzadas"
             },
             {
-                "nombre": "Data Science (EIT)",
-                "color_txt": "Verde"
+                "nombre": "Data Science (EIT)"
             },
             {
-                "nombre": "Bases de Datos (EIT)",
-                "color_txt": "Verde"
+                "nombre": "Bases de Datos (EIT)"
             },
             {
-                "nombre": "Electivo EII: \"Introducción a la Teoría de Juegos\"",
-                "color_txt": "Morado"
+                "nombre": "Electivo EII: \"Introducción a la Teoría de Juegos\""
             },
             {
-                "nombre": "Electivo EII: \"Nexo Agua-Energía\"",
-                "color_txt": "Morado"
+                "nombre": "Electivo EII: \"Nexo Agua-Energía\""
             },
             {
-                "nombre": "Electivo EII: \"Tópicos en Invest. Operativa\"",
-                "color_txt": "Morado"
+                "nombre": "Electivo EII: \"Tópicos en Invest. Operativa\""
             }
         ]
     },
@@ -190,28 +154,22 @@ const SOLEMNES_DATA = [
         "horario": "13:00 a 15:00",
         "ramos": [
             {
-                "nombre": "Programación",
-                "color_txt": "Celeste"
+                "nombre": "Programación"
             },
             {
-                "nombre": "Bases de Datos (EII)",
-                "color_txt": "Celeste"
+                "nombre": "Bases de Datos (EII)"
             },
             {
-                "nombre": "Ingeniería de Software",
-                "color_txt": "Naranjo"
+                "nombre": "Ingeniería de Software"
             },
             {
-                "nombre": "Tecnología del Hormigón",
-                "color_txt": "Naranjo"
+                "nombre": "Tecnología del Hormigón"
             },
             {
-                "nombre": "Electivo EII: \"Análisis de la Información Empresarial\"",
-                "color_txt": "Morado"
+                "nombre": "Electivo EII: \"Análisis de la Información Empresarial\""
             },
             {
-                "nombre": "Electivo EII: \"Métodos Estadísticos de Aprendizaje Automático\"",
-                "color_txt": "Morado"
+                "nombre": "Electivo EII: \"Métodos Estadísticos de Aprendizaje Automático\""
             }
         ]
     },
@@ -220,20 +178,16 @@ const SOLEMNES_DATA = [
         "horario": "15:15 a 17:15",
         "ramos": [
             {
-                "nombre": "Marketing",
-                "color_txt": "Celeste"
+                "nombre": "Marketing"
             },
             {
-                "nombre": "Estruct. De Datos y Algoritmos",
-                "color_txt": "Verde"
+                "nombre": "Estruct. De Datos y Algoritmos"
             },
             {
-                "nombre": "Inteligencia Artificial",
-                "color_txt": "Verde"
+                "nombre": "Inteligencia Artificial"
             },
             {
-                "nombre": "Electivo Profesional Hidrodinámica Ambiental",
-                "color_txt": "Naranjo"
+                "nombre": "Electivo Profesional Hidrodinámica Ambiental"
             }
         ]
     },
@@ -242,16 +196,13 @@ const SOLEMNES_DATA = [
         "horario": "17:30 a 19:30",
         "ramos": [
             {
-                "nombre": "Electivo Profesional (EIT)",
-                "color_txt": "Verde"
+                "nombre": "Electivo Profesional (EIT)"
             },
             {
-                "nombre": "Diseño en Acero",
-                "color_txt": "Naranjo"
+                "nombre": "Diseño en Acero"
             },
             {
-                "nombre": "Electivo EII: \"Gestión Cadena Abastecimiento & Operaciones\"",
-                "color_txt": "Morado"
+                "nombre": "Electivo EII: \"Gestión Cadena Abastecimiento & Operaciones\""
             }
         ]
     },
@@ -260,24 +211,19 @@ const SOLEMNES_DATA = [
         "horario": "8:30 a 10:30",
         "ramos": [
             {
-                "nombre": "Química",
-                "color_txt": "Amarillo"
+                "nombre": "Química"
             },
             {
-                "nombre": "Simulación",
-                "color_txt": "Celeste"
+                "nombre": "Simulación"
             },
             {
-                "nombre": "Criptografía y seguridad en Redes",
-                "color_txt": "Verde"
+                "nombre": "Criptografía y seguridad en Redes"
             },
             {
-                "nombre": "Ingeniería de Materiales",
-                "color_txt": "Naranjo"
+                "nombre": "Ingeniería de Materiales"
             },
             {
-                "nombre": "Planificación de Proyectos",
-                "color_txt": "Naranjo"
+                "nombre": "Planificación de Proyectos"
             }
         ]
     },
@@ -286,36 +232,28 @@ const SOLEMNES_DATA = [
         "horario": "10:45 a 12:45",
         "ramos": [
             {
-                "nombre": "Estática (EII)",
-                "color_txt": "Celeste"
+                "nombre": "Estática (EII)"
             },
             {
-                "nombre": "Redes de Datos",
-                "color_txt": "Verde"
+                "nombre": "Redes de Datos"
             },
             {
-                "nombre": "Electivo Profesional (EIT)",
-                "color_txt": "Verde"
+                "nombre": "Electivo Profesional (EIT)"
             },
             {
-                "nombre": "Administración de Proyectos Civiles",
-                "color_txt": "Naranjo"
+                "nombre": "Administración de Proyectos Civiles"
             },
             {
-                "nombre": "Electivo Profesional Análisis Sísmico de Estanques",
-                "color_txt": "Naranjo"
+                "nombre": "Electivo Profesional Análisis Sísmico de Estanques"
             },
             {
-                "nombre": "Electivo EII: \"Transformación digital\"",
-                "color_txt": "Morado"
+                "nombre": "Electivo EII: \"Transformación digital\""
             },
             {
-                "nombre": "Electivo EII: \"Gestión de procesos\"",
-                "color_txt": "Morado"
+                "nombre": "Electivo EII: \"Gestión de procesos\""
             },
             {
-                "nombre": "Electivo EII: \"Strategic Communication\"",
-                "color_txt": "Morado"
+                "nombre": "Electivo EII: \"Strategic Communication\""
             }
         ]
     },
@@ -324,24 +262,19 @@ const SOLEMNES_DATA = [
         "horario": "13:00 a 15:00",
         "ramos": [
             {
-                "nombre": "Herramientas de prog. en ing ind.",
-                "color_txt": "Celeste"
+                "nombre": "Herramientas de prog. en ing ind."
             },
             {
-                "nombre": "Finanzas",
-                "color_txt": "Celeste"
+                "nombre": "Finanzas"
             },
             {
-                "nombre": "Probabilidades y Estadística (EIT)",
-                "color_txt": "Verde"
+                "nombre": "Probabilidades y Estadística (EIT)"
             },
             {
-                "nombre": "Sistemas Distribuidos",
-                "color_txt": "Verde"
+                "nombre": "Sistemas Distribuidos"
             },
             {
-                "nombre": "Ingeniería Ambiental",
-                "color_txt": "Naranjo"
+                "nombre": "Ingeniería Ambiental"
             }
         ]
     },
@@ -350,20 +283,16 @@ const SOLEMNES_DATA = [
         "horario": "15:15 a 17:15",
         "ramos": [
             {
-                "nombre": "Ingeniería Económica",
-                "color_txt": "Celeste"
+                "nombre": "Ingeniería Económica"
             },
             {
-                "nombre": "Análisis Estructural",
-                "color_txt": "Naranjo"
+                "nombre": "Análisis Estructural"
             },
             {
-                "nombre": "Estática (EOC)",
-                "color_txt": "Naranjo"
+                "nombre": "Estática (EOC)"
             },
             {
-                "nombre": "Electivo Profesional Contención de Taludes",
-                "color_txt": "Naranjo"
+                "nombre": "Electivo Profesional Contención de Taludes"
             }
         ]
     },
@@ -372,20 +301,16 @@ const SOLEMNES_DATA = [
         "horario": "17:30 a 19:30",
         "ramos": [
             {
-                "nombre": "Contabilidad y Costos",
-                "color_txt": "Blanco / Sin color"
+                "nombre": "Contabilidad y Costos"
             },
             {
-                "nombre": "Electivo Profesional (EIT)",
-                "color_txt": "Verde"
+                "nombre": "Electivo Profesional (EIT)"
             },
             {
-                "nombre": "Mecánica de Fluidos (EOC)",
-                "color_txt": "Naranjo"
+                "nombre": "Mecánica de Fluidos (EOC)"
             },
             {
-                "nombre": "Electivo EII: \"Tópicos en Finanzas\"",
-                "color_txt": "Morado"
+                "nombre": "Electivo EII: \"Tópicos en Finanzas\""
             }
         ]
     },
@@ -394,28 +319,22 @@ const SOLEMNES_DATA = [
         "horario": "8:30 a 10:30",
         "ramos": [
             {
-                "nombre": "Liderazgo y Emprendimiento",
-                "color_txt": "Celeste"
+                "nombre": "Liderazgo y Emprendimiento"
             },
             {
-                "nombre": "Evaluación de Proyectos",
-                "color_txt": "Celeste"
+                "nombre": "Evaluación de Proyectos"
             },
             {
-                "nombre": "Electrónica y Electrotecnia",
-                "color_txt": "Verde"
+                "nombre": "Electrónica y Electrotecnia"
             },
             {
-                "nombre": "Arquitecturas Emergentes",
-                "color_txt": "Verde"
+                "nombre": "Arquitecturas Emergentes"
             },
             {
-                "nombre": "Mecánica de Sólidos",
-                "color_txt": "Naranjo"
+                "nombre": "Mecánica de Sólidos"
             },
             {
-                "nombre": "Fundaciones",
-                "color_txt": "Naranjo"
+                "nombre": "Fundaciones"
             }
         ]
     },
@@ -424,16 +343,13 @@ const SOLEMNES_DATA = [
         "horario": "10:45 a 12:45",
         "ramos": [
             {
-                "nombre": "Econometría",
-                "color_txt": "Celeste"
+                "nombre": "Econometría"
             },
             {
-                "nombre": "Gestión Organizacional",
-                "color_txt": "Verde"
+                "nombre": "Gestión Organizacional"
             },
             {
-                "nombre": "Mecánica de Suelos",
-                "color_txt": "Naranjo"
+                "nombre": "Mecánica de Suelos"
             }
         ]
     },
@@ -442,24 +358,19 @@ const SOLEMNES_DATA = [
         "horario": "13:00 a 15:00",
         "ramos": [
             {
-                "nombre": "Cálculo III",
-                "color_txt": "Amarillo"
+                "nombre": "Cálculo III"
             },
             {
-                "nombre": "Optimización",
-                "color_txt": "Blanco / Sin color"
+                "nombre": "Optimización"
             },
             {
-                "nombre": "Microeconomía",
-                "color_txt": "Celeste"
+                "nombre": "Microeconomía"
             },
             {
-                "nombre": "Electivo Profesional (EIT)",
-                "color_txt": "Verde"
+                "nombre": "Electivo Profesional (EIT)"
             },
             {
-                "nombre": "Ingeniería de Costos",
-                "color_txt": "Naranjo"
+                "nombre": "Ingeniería de Costos"
             }
         ]
     },
@@ -468,20 +379,16 @@ const SOLEMNES_DATA = [
         "horario": "15:15 a 17:15",
         "ramos": [
             {
-                "nombre": "Introducción al Cálculo/Cálculo I",
-                "color_txt": "Amarillo"
+                "nombre": "Introducción al Cálculo/Cálculo I"
             },
             {
-                "nombre": "Introducción a la Economía",
-                "color_txt": "Blanco / Sin color"
+                "nombre": "Introducción a la Economía"
             },
             {
-                "nombre": "Electivo Profesional Herramientas de Investigación",
-                "color_txt": "Naranjo"
+                "nombre": "Electivo Profesional Herramientas de Investigación"
             },
             {
-                "nombre": "Electivo EII: \"Fundamentos de la Inteligencia Artificial\"",
-                "color_txt": "Morado"
+                "nombre": "Electivo EII: \"Fundamentos de la Inteligencia Artificial\""
             }
         ]
     },
@@ -490,20 +397,16 @@ const SOLEMNES_DATA = [
         "horario": "17:30 a 19:30",
         "ramos": [
             {
-                "nombre": "Cálculo Dif. E Integral/Cálculo II",
-                "color_txt": "Verde"
+                "nombre": "Cálculo Dif. E Integral/Cálculo II"
             },
             {
-                "nombre": "Electivo Profesional (EIT)",
-                "color_txt": "Verde"
+                "nombre": "Electivo Profesional (EIT)"
             },
             {
-                "nombre": "Diseño de Caminos",
-                "color_txt": "Naranjo"
+                "nombre": "Diseño de Caminos"
             },
             {
-                "nombre": "Electivo EII: \"Importancia de la Última Milla en el Nivel de Servicio\"",
-                "color_txt": "Morado"
+                "nombre": "Electivo EII: \"Importancia de la Última Milla en el Nivel de Servicio\""
             }
         ]
     },
@@ -512,20 +415,16 @@ const SOLEMNES_DATA = [
         "horario": "8:30 a 10:30",
         "ramos": [
             {
-                "nombre": "Gestión Estratégica",
-                "color_txt": "Celeste"
+                "nombre": "Gestión Estratégica"
             },
             {
-                "nombre": "Teoría Organizacional",
-                "color_txt": "Celeste"
+                "nombre": "Teoría Organizacional"
             },
             {
-                "nombre": "Proyecto en TICS II",
-                "color_txt": "Verde"
+                "nombre": "Proyecto en TICS II"
             },
             {
-                "nombre": "Taller de Proyectos",
-                "color_txt": "Naranjo"
+                "nombre": "Taller de Proyectos"
             }
         ]
     },
@@ -534,28 +433,22 @@ const SOLEMNES_DATA = [
         "horario": "10:45 a 12:45",
         "ramos": [
             {
-                "nombre": "Modelos Estocásticos",
-                "color_txt": "Celeste"
+                "nombre": "Modelos Estocásticos"
             },
             {
-                "nombre": "Sistemas Operativos",
-                "color_txt": "Verde"
+                "nombre": "Sistemas Operativos"
             },
             {
-                "nombre": "Taller de Redes y Servicios",
-                "color_txt": "Verde"
+                "nombre": "Taller de Redes y Servicios"
             },
             {
-                "nombre": "Hidráulica",
-                "color_txt": "Naranjo"
+                "nombre": "Hidráulica"
             },
             {
-                "nombre": "Electivo EII: \"Economía y Econometría Espacial\"",
-                "color_txt": "Morado"
+                "nombre": "Electivo EII: \"Economía y Econometría Espacial\""
             },
             {
-                "nombre": "Electivo EII: \"Pensamiento Gerencial\"",
-                "color_txt": "Morado"
+                "nombre": "Electivo EII: \"Pensamiento Gerencial\""
             }
         ]
     },
@@ -564,20 +457,16 @@ const SOLEMNES_DATA = [
         "horario": "13:00 a 15:00",
         "ramos": [
             {
-                "nombre": "Calor y Ondas",
-                "color_txt": "Amarillo"
+                "nombre": "Calor y Ondas"
             },
             {
-                "nombre": "Producción",
-                "color_txt": "Celeste"
+                "nombre": "Producción"
             },
             {
-                "nombre": "Arquitectura de software",
-                "color_txt": "Verde"
+                "nombre": "Arquitectura de software"
             },
             {
-                "nombre": "Ingeniería Sísmica",
-                "color_txt": "Naranjo"
+                "nombre": "Ingeniería Sísmica"
             }
         ]
     },
@@ -586,16 +475,13 @@ const SOLEMNES_DATA = [
         "horario": "15:15 a 17:15",
         "ramos": [
             {
-                "nombre": "Electricidad y Magnetismo",
-                "color_txt": "Amarillo"
+                "nombre": "Electricidad y Magnetismo"
             },
             {
-                "nombre": "Evaluación de proyectos TIC",
-                "color_txt": "Verde"
+                "nombre": "Evaluación de proyectos TIC"
             },
             {
-                "nombre": "Electivo EII: \"Inteligencia Artificial y Cambio Climático\"",
-                "color_txt": "Morado"
+                "nombre": "Electivo EII: \"Inteligencia Artificial y Cambio Climático\""
             }
         ]
     },
@@ -604,20 +490,16 @@ const SOLEMNES_DATA = [
         "horario": "17:30 a 19:30",
         "ramos": [
             {
-                "nombre": "Mecánica",
-                "color_txt": "Amarillo"
+                "nombre": "Mecánica"
             },
             {
-                "nombre": "Taller de Ing. Industrial",
-                "color_txt": "Celeste"
+                "nombre": "Taller de Ing. Industrial"
             },
             {
-                "nombre": "Diseño Estructural",
-                "color_txt": "Naranjo"
+                "nombre": "Diseño Estructural"
             },
             {
-                "nombre": "Diseño en Hormigón",
-                "color_txt": "Naranjo"
+                "nombre": "Diseño en Hormigón"
             }
         ]
     }
