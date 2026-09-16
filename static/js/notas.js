@@ -13,6 +13,45 @@ function initNotas() {
                 }
             }
         }
+        
+        // Handle Shared Templates
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('plantilla')) {
+            const p = urlParams.get('plantilla');
+            const ex = urlParams.get('ex') || 30;
+            const exim = urlParams.get('exim') || 5.0;
+            
+            let newItems = [];
+            p.split(',').forEach(itemStr => {
+                const parts = itemStr.split(':');
+                if (parts.length === 2) {
+                    newItems.push({
+                        id: Date.now() + Math.random(),
+                        name: decodeURIComponent(parts[0]),
+                        weight: parseFloat(parts[1]) || 0,
+                        grade: null
+                    });
+                }
+            });
+            
+            if (newItems.length > 0) {
+                setTimeout(() => {
+                    if (confirm("Alguien te envió una plantilla de notas compartida.\n¿Quieres guardarla como un ramo nuevo llamado 'Ramo Compartido'?")) {
+                        NOTAS_DATA['nakzu|Ramo Compartido'] = {
+                            items: newItems,
+                            examWeight: parseFloat(ex),
+                            eximGrade: parseFloat(exim),
+                            examGrade: null
+                        };
+                        saveNotas();
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                        if (typeof window.cambiarTab === 'function') {
+                            window.cambiarTab('tab-notas');
+                        }
+                    }
+                }, 1000);
+            }
+        }
     } catch(e) { console.error(e); }
 }
 
@@ -121,12 +160,14 @@ function renderNotasBuilder() {
                 { id: Date.now()+3, name: "Tareas", weight: 15, grade: null }
             ],
             examGrade: null,
-            examWeight: 30
+            examWeight: 30,
+            eximGrade: 5.0
         };
         saveNotas();
     }
     
     const data = NOTAS_DATA[dbKey];
+    const exim = data.eximGrade !== undefined ? parseFloat(data.eximGrade) : 5.0;
     
     // Sanitizar posibles datos corruptos antiguos
     if (data.items) {
@@ -196,6 +237,7 @@ function renderNotasBuilder() {
     let npW = 1.0 - eW;
     let notaFinalCalculada = 0;
     
+    let isEximido = false;
     if (Math.abs(totalWeightNP - 100) > 0.1) {
         survivalHtml = `<div class="notas-warning">Sumatoria incorrecta. Tus evaluaciones de Presentación suman ${totalWeightNP.toFixed(1)}%, deberían sumar 100%.</div>`;
         statusClass = 'is-invalid';
@@ -203,7 +245,12 @@ function renderNotasBuilder() {
         // Todo suma 100%
         if (Math.abs(remainingWeightNP) < 0.1) {
             // NP está 100% ingresada
-            if (hasExamGrade) {
+            if (np_final >= exim && eW > 0) {
+                isEximido = true;
+                notaFinalCalculada = np_final;
+                survivalHtml = `<div class="notas-success" style="background: rgba(234, 179, 8, 0.15); color: #facc15; border-color: rgba(234, 179, 8, 0.3);">¡Eximido! Tu Nota de Presentación (${np_final.toFixed(1)}) supera la nota de eximición (${exim.toFixed(1)}).</div>`;
+                statusClass = 'is-passed';
+            } else if (hasExamGrade) {
                 notaFinalCalculada = (np_final * npW) + (examGradeVal * eW);
                 if (notaFinalCalculada >= 3.95) {
                     survivalHtml = `<div class="notas-success">Aprobado. Tu Nota Final es ${notaFinalCalculada.toFixed(1)}.</div>`;
@@ -263,16 +310,29 @@ function renderNotasBuilder() {
         }
     }
     
+    
+    let examStyle = "margin-top: 16px; transition: all 0.3s;";
+    let examLabel = "Examen";
+    let inputDisabled = "";
+    if (isEximido) {
+        examStyle += " background: rgba(234, 179, 8, 0.15); border-color: rgba(234, 179, 8, 0.4); opacity: 0.8;";
+        examLabel = "Examen (Eximido)";
+        inputDisabled = "disabled";
+    }
+
     let examRowHtml = `
-        <div class="notas-item-row" style="margin-top: 16px;">
-            <div style="color: #e2e8f0; font-size: 14px; font-weight: 600; flex-grow: 1; min-width: 120px;">Examen</div>
+        <div class="notas-item-row" style="${examStyle}">
+            <div style="color: ${isEximido ? '#facc15' : '#e2e8f0'}; font-size: 14px; font-weight: 600; flex-grow: 1; min-width: 120px;">${examLabel}</div>
                 <div style="display:flex; align-items:center; gap: 6px;">
+                    <div style="color: #94a3b8; font-size: 11px; margin-right: 4px; display: flex; align-items: center; gap: 4px;">
+                        Exime: <input type="number" step="0.1" style="width: 36px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: #38bdf8; padding: 2px; text-align: center; font-size: 11px; outline: none;" value="${exim}" onchange="updateGlobalNota('${dbKey}', 'eximGrade', this.value)" title="Nota mínima de NP para eximirse">
+                    </div>
                     <div class="notas-input-wrapper" style="width: 60px;">
-                        <input type="number" class="notas-input-weight" value="${data.examWeight !== undefined ? data.examWeight : 30}" onchange="updateGlobalNota('${dbKey}', 'examWeight', this.value)" placeholder="%">
+                        <input type="number" class="notas-input-weight" value="${data.examWeight !== undefined ? data.examWeight : 30}" onchange="updateGlobalNota('${dbKey}', 'examWeight', this.value)" placeholder="%" ${inputDisabled}>
                         <span class="notas-percent-symbol">%</span>
                     </div>
-                    <input type="number" step="0.1" min="1.0" max="7.0" class="notas-input-grade" style="width: 80px;" value="${data.examGrade !== null ? data.examGrade : ''}" onchange="updateGlobalNota('${dbKey}', 'examGrade', this.value)" placeholder="Nota">
-                    <div style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; color: #64748b;" title="El examen final no se puede eliminar">
+                    <input type="number" step="0.1" min="1.0" max="7.0" class="notas-input-grade" style="width: 80px; ${isEximido ? 'visibility: hidden;' : ''}" value="${data.examGrade !== null ? data.examGrade : ''}" onchange="updateGlobalNota('${dbKey}', 'examGrade', this.value)" placeholder="Nota" ${inputDisabled}>
+                    <div style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; color: ${isEximido ? '#facc15' : '#64748b'};" title="El examen final no se puede eliminar">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                     </div>
                 </div>
@@ -294,9 +354,17 @@ function renderNotasBuilder() {
                     
                     <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
                         <div class="notas-summary-title" style="color: #38bdf8;">Nota Final</div>
-                        <div class="notas-summary-value" style="font-size: 36px; color: #f8fafc;">${hasExamGrade && Math.abs(remainingWeightNP) < 0.1 ? notaFinalCalculada.toFixed(2) : '-'}</div>
+                        <div class="notas-summary-value" style="font-size: 36px; color: #f8fafc;">${(hasExamGrade || isEximido) && Math.abs(remainingWeightNP) < 0.1 ? notaFinalCalculada.toFixed(2) : '-'}</div>
                     </div>
                 </div>
+                
+                <!-- Barra de Progreso -->
+                <div style="margin-top: 24px; width: 100%; height: 6px; background: rgba(0,0,0,0.3); border-radius: 4px; overflow: hidden; position: relative;">
+                    <div style="position: absolute; left: 0; top: 0; height: 100%; width: ${(Math.min(7.0, ((isEximido || (hasExamGrade && Math.abs(remainingWeightNP)<0.1)) ? notaFinalCalculada : np_actual)) / 7.0) * 100}%; background: ${(((isEximido || (hasExamGrade && Math.abs(remainingWeightNP)<0.1)) ? notaFinalCalculada : np_actual) >= 3.95) ? '#10b981' : '#f43f5e'}; transition: width 0.5s ease-out, background 0.5s;"></div>
+                    <!-- Marcador de 4.0 -->
+                    <div style="position: absolute; left: ${(3.95 / 7.0) * 100}%; top: -2px; bottom: -2px; width: 2px; background: rgba(255,255,255,0.2); z-index: 1;"></div>
+                </div>
+                
             </div>
             
             <div class="notas-items-list">
