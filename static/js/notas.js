@@ -167,7 +167,7 @@ function renderNotasBuilder() {
     }
     
     const data = NOTAS_DATA[dbKey];
-    const exim = data.eximGrade !== undefined ? parseFloat(data.eximGrade) : 5.0;
+    const exim = 5.0;
     
     // Sanitizar posibles datos corruptos antiguos
     if (data.items) {
@@ -324,9 +324,7 @@ function renderNotasBuilder() {
         <div class="notas-item-row" style="${examStyle}">
             <div style="color: ${isEximido ? '#facc15' : '#e2e8f0'}; font-size: 14px; font-weight: 600; flex-grow: 1; min-width: 120px;">${examLabel}</div>
                 <div style="display:flex; align-items:center; gap: 6px;">
-                    <div style="color: #94a3b8; font-size: 11px; margin-right: 4px; display: flex; align-items: center; gap: 4px;">
-                        Exime: <input type="number" step="0.1" style="width: 36px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: #38bdf8; padding: 2px; text-align: center; font-size: 11px; outline: none;" value="${exim}" onchange="updateGlobalNota('${dbKey}', 'eximGrade', this.value)" title="Nota mínima de NP para eximirse">
-                    </div>
+
                     <div class="notas-input-wrapper" style="width: 60px;">
                         <input type="number" class="notas-input-weight" value="${data.examWeight !== undefined ? data.examWeight : 30}" onchange="updateGlobalNota('${dbKey}', 'examWeight', this.value)" placeholder="%" ${inputDisabled}>
                         <span class="notas-percent-symbol">%</span>
