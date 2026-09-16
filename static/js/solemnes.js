@@ -66,7 +66,7 @@ const customStyles = `
         border: 1px solid rgba(255, 255, 255, 0.05);
     }
     .sol-time-num {
-        color: #94a3b8;
+        color: #e2e8f0;
         font-size: 12px;
         font-weight: 500;
         margin-bottom: 4px;
