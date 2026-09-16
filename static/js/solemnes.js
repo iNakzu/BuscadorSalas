@@ -331,8 +331,14 @@ function renderSolemnes() {
             } else if (friendId) {
                 matches = ramos.filter(r => {
                     const normR = normStr(r.nombre);
-                    // Match if schedule subject is inside exam name, or exam name inside schedule subject
-                    return friendRamos.some(fr => fr.includes(normR) || normR.includes(fr));
+                    return friendRamos.some(fr => {
+                        if (fr === normR) return true;
+                        if (normR.includes('/')) {
+                            const parts = normR.split('/').map(p => p.trim());
+                            if (parts.includes(fr)) return true;
+                        }
+                        return false;
+                    });
                 });
             }
             const hasMatch = matches.length > 0;
@@ -357,7 +363,14 @@ function renderSolemnes() {
                     isMatch = normStr(r.nombre).includes(query);
                 } else if (friendId) {
                     const normR = normStr(r.nombre);
-                    isMatch = friendRamos.some(fr => fr.includes(normR) || normR.includes(fr));
+                    isMatch = friendRamos.some(fr => {
+                        if (fr === normR) return true;
+                        if (normR.includes('/')) {
+                            const parts = normR.split('/').map(p => p.trim());
+                            if (parts.includes(fr)) return true;
+                        }
+                        return false;
+                    });
                 }
                 
                 let theme = { bg: 'rgba(56, 189, 248, 0.15)', border: 'rgba(56, 189, 248, 0.4)', color: '#38bdf8' }; // Default Celeste
