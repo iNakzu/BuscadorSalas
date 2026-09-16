@@ -180,10 +180,14 @@ function renderNotasBuilder() {
                 ${itemsHtml}
             </div>
             
-            <div class="notas-add-row">
+            <div class="notas-add-row" style="display: flex; gap: 12px; justify-content: center; margin-bottom: 24px; flex-wrap: wrap;">
                 <button class="notas-btn-add" onclick="addNotaItem('${dbKey}')">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                    Añadir Ítem de Evaluación
+                    Añadir Ítem
+                </button>
+                <button onclick="if(confirm('¿Reiniciar este ramo a su fórmula por defecto? Se perderán las notas.')) resetNotaCurso('${dbKey}')" style="background: rgba(30, 41, 59, 0.8); border: 1px dashed rgba(239, 68, 68, 0.4); color: #f87171; font-size: 13px; font-weight: 500; padding: 8px 16px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.background='rgba(239, 68, 68, 0.1)'" onmouseout="this.style.background='rgba(30, 41, 59, 0.8)'">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><polyline points="3 3 3 8 8 8"></polyline></svg>
+                    Reiniciar Ramo
                 </button>
             </div>
             
@@ -215,11 +219,25 @@ function addNotaItem(curso) {
     renderNotasBuilder();
 }
 
-function deleteNotaItem(curso, index) {
-    if (!NOTAS_DATA[curso]) return;
-    NOTAS_DATA[curso].items.splice(index, 1);
+function deleteNotaItem(dbKey, index) {
+    if (!NOTAS_DATA[dbKey]) return;
+    NOTAS_DATA[dbKey].items.splice(index, 1);
     saveNotas();
     renderNotasBuilder();
+}
+
+function resetNotaCurso(dbKey) {
+    if (!NOTAS_DATA[dbKey]) return;
+    delete NOTAS_DATA[dbKey];
+    saveNotas();
+    renderNotasBuilder(); // lo recreará con valores por defecto
+}
+
+function resetAllNotas() {
+    NOTAS_DATA = {};
+    saveNotas();
+    renderNotasBuilder(); // actualizará UI a vacío
+    alert('Caché de notas reiniciada correctamente.');
 }
 
 // Inicializar cuando el DOM cargue
