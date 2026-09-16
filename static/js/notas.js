@@ -272,7 +272,9 @@ function renderNotasBuilder() {
                         <span class="notas-percent-symbol">%</span>
                     </div>
                     <input type="number" step="0.1" min="1.0" max="7.0" class="notas-input-grade" style="width: 80px;" value="${data.examGrade !== null ? data.examGrade : ''}" onchange="updateGlobalNota('${dbKey}', 'examGrade', this.value)" placeholder="Nota">
-                    <div style="width: 28px; height: 28px;"></div>
+                    <div style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; color: #64748b;" title="El examen final no se puede eliminar">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    </div>
                 </div>
         </div>
     `;
