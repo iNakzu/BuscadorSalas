@@ -284,7 +284,7 @@ function renderNotasBuilder() {
             <div class="notas-header-row" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">
                 <div class="notas-summary" style="display: flex; justify-content: center; align-items: center; gap: 24px; ${summaryBg} transition: all 0.3s;">
                     <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                        <div class="notas-summary-title">Nota Presentación (NP)</div>
+                        <div class="notas-summary-title">Nota Presentación</div>
                         <div class="notas-summary-value" style="font-size: 36px;">${currentWeightEvaluatedNP > 0 ? np_actual.toFixed(2) : '-'}</div>
                     </div>
                     
