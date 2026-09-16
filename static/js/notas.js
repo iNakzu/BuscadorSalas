@@ -282,19 +282,17 @@ function renderNotasBuilder() {
     container.innerHTML = `
         <div class="notas-card ${statusClass}">
             <div class="notas-header-row" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">
-                <div class="notas-summary" style="display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 16px; ${summaryBg} transition: all 0.3s;">
-                    <div style="text-align: center;">
+                <div class="notas-summary" style="display: flex; justify-content: center; align-items: center; gap: 32px; ${summaryBg} transition: all 0.3s;">
+                    <div style="text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
                         <div class="notas-summary-title">Nota Presentación (NP)</div>
                         <div class="notas-summary-value" style="font-size: 36px;">${currentWeightEvaluatedNP > 0 ? np_actual.toFixed(2) : '-'}</div>
-                        
                     </div>
                     
                     <div style="width: 1px; height: 60px; background: rgba(255,255,255,0.1);"></div>
                     
-                    <div style="text-align: center;">
+                    <div style="text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
                         <div class="notas-summary-title" style="color: #38bdf8;">Nota Final</div>
                         <div class="notas-summary-value" style="font-size: 36px; color: #f8fafc;">${hasExamGrade && Math.abs(remainingWeightNP) < 0.1 ? notaFinalCalculada.toFixed(2) : '-'}</div>
-                        
                     </div>
                 </div>
             </div>
