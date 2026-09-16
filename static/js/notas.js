@@ -158,20 +158,18 @@ function renderNotasBuilder() {
         }
         
         itemsHtml += `
-            <div class="notas-item-row" style="flex-direction: column; align-items: stretch; gap: 8px;">
-                <div style="display:flex; justify-content: space-between; align-items: center; gap: 8px;">
-                    <input type="text" class="notas-input-name" value="${escapeHtml(item.name)}" onchange="updateNotaItem('${dbKey}', ${index}, 'name', this.value)" placeholder="Nombre (ej: Controles)">
-                    <div style="display:flex; align-items:center; gap: 6px;">
-                        <div class="notas-input-wrapper" style="width: 60px;">
-                            <input type="number" class="notas-input-weight" value="${item.weight}" onchange="updateNotaItem('${dbKey}', ${index}, 'weight', this.value)" placeholder="%">
-                            <span class="notas-percent-symbol">%</span>
-                        </div>
-                        <input type="number" step="0.1" min="1.0" max="7.0" class="notas-input-grade" style="width: 80px;" value="${item.grade !== null ? item.grade : ''}" onchange="updateNotaItem('${dbKey}', ${index}, 'grade', this.value)" placeholder="Nota">
-                        
-                        <button class="notas-btn-del" onclick="deleteNotaItem('${dbKey}', ${index})" title="Eliminar ítem">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                        </button>
+            <div class="notas-item-row">
+                <input type="text" class="notas-input-name" value="${escapeHtml(item.name)}" onchange="updateNotaItem('${dbKey}', ${index}, 'name', this.value)" placeholder="Nombre (ej: Controles)">
+                <div style="display:flex; align-items:center; gap: 6px;">
+                    <div class="notas-input-wrapper" style="width: 60px;">
+                        <input type="number" class="notas-input-weight" value="${item.weight}" onchange="updateNotaItem('${dbKey}', ${index}, 'weight', this.value)" placeholder="%">
+                        <span class="notas-percent-symbol">%</span>
                     </div>
+                    <input type="number" step="0.1" min="1.0" max="7.0" class="notas-input-grade" style="width: 80px;" value="${item.grade !== null ? item.grade : ''}" onchange="updateNotaItem('${dbKey}', ${index}, 'grade', this.value)" placeholder="Nota">
+                    
+                    <button class="notas-btn-del" onclick="deleteNotaItem('${dbKey}', ${index})" title="Eliminar ítem">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
                 </div>
             </div>
         `;
@@ -266,9 +264,8 @@ function renderNotasBuilder() {
     }
     
     let examRowHtml = `
-        <div class="notas-item-row" style="background: rgba(30, 41, 59, 0.9); border: 1px solid rgba(56, 189, 248, 0.3); margin-top: 16px; align-items: center;">
-            <div style="display:flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%;">
-                <div style="color: #e2e8f0; font-size: 14px; font-weight: 600; flex-grow: 1; min-width: 120px;">Examen</div>
+        <div class="notas-item-row" style="margin-top: 16px;">
+            <div style="color: #e2e8f0; font-size: 14px; font-weight: 600; flex-grow: 1; min-width: 120px;">Examen</div>
                 <div style="display:flex; align-items:center; gap: 6px;">
                     <div class="notas-input-wrapper" style="width: 60px;">
                         <input type="number" class="notas-input-weight" value="${data.examWeight !== undefined ? data.examWeight : 30}" onchange="updateGlobalNota('${dbKey}', 'examWeight', this.value)" placeholder="%">
@@ -277,7 +274,6 @@ function renderNotasBuilder() {
                     <input type="number" step="0.1" min="1.0" max="7.0" class="notas-input-grade" style="width: 80px;" value="${data.examGrade !== null ? data.examGrade : ''}" onchange="updateGlobalNota('${dbKey}', 'examGrade', this.value)" placeholder="Nota">
                     <div style="width: 28px; height: 28px;"></div>
                 </div>
-            </div>
         </div>
     `;
     
@@ -318,7 +314,6 @@ function renderNotasBuilder() {
             
             <div class="notas-survival-box">
                 ${survivalHtml}
-            </div>
         </div>
     `;
 }
