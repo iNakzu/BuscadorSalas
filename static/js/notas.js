@@ -59,6 +59,8 @@ function updateNotasDropdown() {
                 if (data && data.items) {
                     hasGrades = data.items.some(item => item.grade !== null && item.grade !== '');
                 }
+                if (data.examGrade) hasGrades = true;
+                
                 if (hasGrades) {
                     html += `<option value="${r}">${escapeHtml(r)} (Fuera de horario)</option>`;
                 } else {
@@ -88,11 +90,7 @@ function updateNotasDropdown() {
 
 function updateGlobalNota(dbKey, field, value) {
     if (!NOTAS_DATA[dbKey]) return;
-    if (field === 'hasExam') {
-        NOTAS_DATA[dbKey].hasExam = value;
-    } else {
-        NOTAS_DATA[dbKey][field] = parseFloat(value) || 0;
-    }
+    NOTAS_DATA[dbKey][field] = parseFloat(value) || 0;
     saveNotas();
     renderNotasBuilder();
 }
@@ -113,7 +111,6 @@ function renderNotasBuilder() {
     
     const dbKey = friendId + '|' + curso;
     
-    // Init data if not exists
     if (!NOTAS_DATA[dbKey]) {
         NOTAS_DATA[dbKey] = {
             items: [
@@ -122,18 +119,16 @@ function renderNotasBuilder() {
                 { id: Date.now()+2, name: "Controles", weight: 30, grade: null, dropLowest: 0, isExcluding: false, minGradeReq: 4.0, showSettings: false }
             ],
             passingGrade: 4.0,
-            hasExam: false,
             examWeight: 30,
             eximicionGrade: 5.0,
-            examMinReq: 3.5
+            examMinReq: 3.5,
+            examGrade: null
         };
         saveNotas();
     }
     
     const data = NOTAS_DATA[dbKey];
     
-    // Retro-compatibilidad de campos nuevos
-    if (data.hasExam === undefined) data.hasExam = false;
     if (data.examWeight === undefined) data.examWeight = 30;
     if (data.eximicionGrade === undefined) data.eximicionGrade = 5.0;
     if (data.examMinReq === undefined) data.examMinReq = 3.5;
@@ -151,16 +146,12 @@ function renderNotasBuilder() {
         
         let displayGrade = '-';
         if (item.grade !== null && item.grade !== '') {
-            const rawStr = String(item.grade).replace(',', '.'); // Allow both formats
-            // Convert e.g. "5.0 4.0" to multiple, or "5.0-4.0", basically split by comma or space
             let rawArr = String(item.grade).split(/[\s\-]+/).map(s => parseFloat(s.replace(',', '.'))).filter(n => !isNaN(n));
             
             if (rawArr.length > 0) {
                 const dropN = parseInt(item.dropLowest) || 0;
                 let validGrades = [...rawArr].sort((a,b) => a - b);
-                let droppedCount = 0;
                 if (dropN > 0 && dropN < validGrades.length) {
-                    droppedCount = dropN;
                     validGrades = validGrades.slice(dropN);
                 }
                 
@@ -214,78 +205,113 @@ function renderNotasBuilder() {
         `;
     });
     
-    const targetTotalWeight = data.hasExam ? (100 - (parseFloat(data.examWeight) || 30)) : 100;
-    let accumulatedScore = currentWeightedSum;
+    const targetTotalWeight = 100 - (parseFloat(data.examWeight) || 0);
     let remainingWeight = targetTotalWeight - currentWeightEvaluated;
     
+    let np_actual = currentWeightEvaluated > 0 ? (currentWeightedSum / (currentWeightEvaluated / 100)) : 0;
+    // La NP real calculada sobre el 100% de la presentacion (asumiendo 1.0 en lo que falta si remainingWeight == 0)
+    let np_final = currentWeightedSum / (targetTotalWeight / 100); 
+    
+    const pExim = parseFloat(data.eximicionGrade) || 5.0;
+    const pMinEx = parseFloat(data.examMinReq) || 3.5;
+    const examW = parseFloat(data.examWeight) || 0;
+    
+    let isEximido = false;
+    let isReprobadoDirecto = failedDirectly;
+    
+    if (Math.abs(remainingWeight) < 0.1 && !isReprobadoDirecto) {
+        if (examW > 0) {
+            if (np_final >= pExim) isEximido = true;
+            if (np_final < pMinEx) isReprobadoDirecto = true;
+        }
+    }
+    
+    // Calcular Nota Final
+    let notaFinal = 0;
+    if (examW === 0) {
+        notaFinal = np_final;
+    } else {
+        if (isEximido) {
+            notaFinal = np_final;
+        } else if (isReprobadoDirecto) {
+            notaFinal = np_final; // o podria ser la reprobacion del lab
+        } else {
+            let eGrade = parseFloat(String(data.examGrade).replace(',','.')) || 1.0;
+            if (data.examGrade === null || data.examGrade === '') eGrade = 0; // pendiente
+            
+            if (eGrade > 0) {
+                notaFinal = (np_final * (targetTotalWeight/100)) + (eGrade * (examW/100));
+            } else {
+                notaFinal = np_final; // Se muestra solo la NP hasta que ponga examen
+            }
+        }
+    }
+
     let survivalHtml = '';
     let statusClass = '';
     
-    let np_actual = currentWeightEvaluated > 0 ? (currentWeightedSum / (currentWeightEvaluated / 100)) : 0;
-    let titleStr = data.hasExam ? "Nota de Presentación Parcial" : "Nota Acumulada Parcial";
-    
     if (failedDirectly) {
-        survivalHtml = `<div class="notas-danger">💀 ${escapeHtml(directFailReason)}</div>`;
+        survivalHtml = `<div class="notas-danger">Reprobado. ${escapeHtml(directFailReason)}</div>`;
         statusClass = 'is-failed';
     } else if (Math.abs(totalWeight - targetTotalWeight) > 0.1) {
-        survivalHtml = `<div class="notas-warning">⚠️ Sumatoria de porcentajes incorrecta. Tus evaluaciones suman ${totalWeight}%, deberían sumar ${targetTotalWeight}%${data.hasExam ? ' (sin contar el examen)' : ''}.</div>`;
+        survivalHtml = `<div class="notas-warning">Sumatoria incorrecta. Tus evaluaciones suman ${totalWeight}%, deberían sumar ${targetTotalWeight}% (sin contar el examen).</div>`;
         statusClass = 'is-invalid';
     } else if (Math.abs(remainingWeight) < 0.1) {
-        let np = currentWeightedSum / (targetTotalWeight / 100);
-        titleStr = data.hasExam ? "Nota de Presentación (NP)" : "Nota Final";
-        
-        if (!data.hasExam) {
-            if (np >= data.passingGrade) {
-                survivalHtml = `<div class="notas-success">🎉 ¡Aprobaste el ramo con un ${np.toFixed(1)}!</div>`;
+        if (examW === 0) {
+            if (np_final >= data.passingGrade) {
+                survivalHtml = `<div class="notas-success">Aprobado con Nota Final ${np_final.toFixed(1)}.</div>`;
                 statusClass = 'is-passed';
             } else {
-                survivalHtml = `<div class="notas-danger">💀 Reprobaste el ramo con un ${np.toFixed(1)}.</div>`;
+                survivalHtml = `<div class="notas-danger">Reprobado con Nota Final ${np_final.toFixed(1)}.</div>`;
                 statusClass = 'is-failed';
             }
         } else {
-            const pExim = parseFloat(data.eximicionGrade) || 5.0;
-            const pMinEx = parseFloat(data.examMinReq) || 3.5;
-            const examW = parseFloat(data.examWeight) || 30;
-            
-            if (np >= pExim) {
-                survivalHtml = `<div class="notas-success">🎉 ¡EXIMIDO! Tu Nota de Presentación es ${np.toFixed(1)} (>= ${pExim.toFixed(1)}).</div>`;
+            if (isEximido) {
+                survivalHtml = `<div class="notas-success">Eximido. Tu Nota de Presentación es ${np_final.toFixed(1)} (Requisito: ${pExim.toFixed(1)}).</div>`;
                 statusClass = 'is-passed';
-            } else if (np < pMinEx) {
-                survivalHtml = `<div class="notas-danger">💀 Reprobaste sin derecho a examen. Tu NP es ${np.toFixed(1)} (Necesitabas ${pMinEx.toFixed(1)}).</div>`;
+            } else if (isReprobadoDirecto) {
+                survivalHtml = `<div class="notas-danger">Reprobado sin derecho a examen. Tu NP es ${np_final.toFixed(1)} (Requisito mínimo: ${pMinEx.toFixed(1)}).</div>`;
                 statusClass = 'is-failed';
             } else {
                 const requiredInExam = (data.passingGrade - currentWeightedSum) / (examW / 100);
                 if (requiredInExam > 7.0) {
-                    survivalHtml = `<div class="notas-danger">💀 Imposible pasar. Tu NP es ${np.toFixed(1)}, necesitarías un ${requiredInExam.toFixed(1)} en el examen.</div>`;
+                    survivalHtml = `<div class="notas-danger">Imposible aprobar. Necesitas un ${requiredInExam.toFixed(1)} en el examen.</div>`;
                     statusClass = 'is-failed';
                 } else if (requiredInExam <= 1.0) {
-                     survivalHtml = `<div class="notas-success">🎉 ¡Ya pasaste el ramo! Tu NP es ${np.toFixed(1)}. Aunque saques un 1.0 en el examen, apruebas.</div>`;
+                     survivalHtml = `<div class="notas-success">Aprobado asegurado. Aún con un 1.0 en el examen, tu nota final será suficiente.</div>`;
                      statusClass = 'is-passed';
                 } else {
-                    survivalHtml = `<div class="notas-info">📚 Vas a examen (Vale ${examW}%). Tu NP es ${np.toFixed(1)}. Necesitas un <strong>${requiredInExam.toFixed(1)}</strong> en el examen para aprobar.</div>`;
-                    statusClass = 'is-pending';
+                    let eGrade = parseFloat(String(data.examGrade).replace(',','.')) || 0;
+                    if (eGrade > 0) {
+                        if (notaFinal >= data.passingGrade) {
+                            survivalHtml = `<div class="notas-success">Aprobado. Con un ${eGrade.toFixed(1)} en el examen, tu nota final es ${notaFinal.toFixed(1)}.</div>`;
+                            statusClass = 'is-passed';
+                        } else {
+                            survivalHtml = `<div class="notas-danger">Reprobado. Con un ${eGrade.toFixed(1)} en el examen, tu nota final es ${notaFinal.toFixed(1)} (Necesitabas ${requiredInExam.toFixed(1)}).</div>`;
+                            statusClass = 'is-failed';
+                        }
+                    } else {
+                        survivalHtml = `<div class="notas-info">Habilitado para examen. Necesitas un <strong>${requiredInExam.toFixed(1)}</strong> para aprobar.</div>`;
+                        statusClass = 'is-pending';
+                    }
                 }
             }
         }
     } else {
-        // En progreso
-        let np = currentWeightEvaluated > 0 ? (currentWeightedSum / (currentWeightEvaluated / 100)) : 0;
-        if (!data.hasExam) {
+        if (examW === 0) {
             const requiredWeighted = data.passingGrade - currentWeightedSum;
             const requiredAverage = requiredWeighted / (remainingWeight / 100);
             if (requiredAverage > 7.0) {
-                survivalHtml = `<div class="notas-danger">💀 Imposible pasar. Necesitas promediar ${requiredAverage.toFixed(1)} en el ${remainingWeight.toFixed(0)}% restante.</div>`;
+                survivalHtml = `<div class="notas-danger">Imposible aprobar. Necesitas promediar ${requiredAverage.toFixed(1)} en el ${remainingWeight.toFixed(0)}% restante.</div>`;
                 statusClass = 'is-failed';
             } else if (requiredAverage <= 1.0) {
-                survivalHtml = `<div class="notas-success">🎉 ¡Ya pasaste! Incluso con puros 1.0 en el ${remainingWeight.toFixed(0)}% restante apruebas.</div>`;
+                survivalHtml = `<div class="notas-success">Aprobación asegurada incluso con notas mínimas en lo restante.</div>`;
                 statusClass = 'is-passed';
             } else {
-                survivalHtml = `<div class="notas-info">📌 Necesitas promediar un <strong>${requiredAverage.toFixed(1)}</strong> en el ${remainingWeight.toFixed(0)}% restante para pasar.</div>`;
+                survivalHtml = `<div class="notas-info">Necesitas promediar <strong>${requiredAverage.toFixed(1)}</strong> en el ${remainingWeight.toFixed(0)}% restante para aprobar.</div>`;
                 statusClass = 'is-pending';
             }
         } else {
-            const pExim = parseFloat(data.eximicionGrade) || 5.0;
-            const pMinEx = parseFloat(data.examMinReq) || 3.5;
             const reqWeightExim = pExim * (targetTotalWeight / 100) - currentWeightedSum;
             const reqAvgExim = reqWeightExim / (remainingWeight / 100);
             
@@ -293,49 +319,80 @@ function renderNotasBuilder() {
             const reqAvgExam = reqWeightExam / (remainingWeight / 100);
             
             if (reqAvgExam > 7.0) {
-                survivalHtml = `<div class="notas-danger">💀 Ya reprobaste. Es imposible llegar al ${pMinEx.toFixed(1)} para dar examen.</div>`;
+                survivalHtml = `<div class="notas-danger">Reprobado. Matemáticamente imposible alcanzar el ${pMinEx.toFixed(1)} para dar examen.</div>`;
                 statusClass = 'is-failed';
             } else {
-                let txtExim = reqAvgExim <= 7.0 ? `Para eximirte (NP ${pExim.toFixed(1)}) necesitas promediar <strong>${Math.max(1.0, reqAvgExim).toFixed(1)}</strong>.` : `Ya no puedes eximirte.`;
+                let txtExim = reqAvgExim <= 7.0 ? `Para eximirte (NP ${pExim.toFixed(1)}) necesitas promediar <strong>${Math.max(1.0, reqAvgExim).toFixed(1)}</strong>.` : `No es posible eximirse matemáticamente.`;
                 let txtExamen = `Para dar examen (NP ${pMinEx.toFixed(1)}) necesitas promediar <strong>${Math.max(1.0, reqAvgExam).toFixed(1)}</strong>.`;
-                survivalHtml = `<div class="notas-info">📚 Te falta evaluar el ${remainingWeight.toFixed(0)}% de tu Nota de Presentación.<br><br>👉 ${txtExamen}<br>👉 ${txtExim}</div>`;
+                survivalHtml = `<div class="notas-info">Evaluación en progreso (Falta ${remainingWeight.toFixed(0)}% de la NP).<br><br>• ${txtExamen}<br>• ${txtExim}</div>`;
                 statusClass = 'is-pending';
             }
         }
     }
     
+    // Exam Row at the bottom
+    let examRowHtml = '';
+    if (examW > 0) {
+        let isExamDisabled = (Math.abs(remainingWeight) > 0.1) || isEximido || isReprobadoDirecto;
+        let examStatusText = 'Examen Final';
+        if (isEximido) examStatusText = 'Examen Final (Eximido)';
+        if (isReprobadoDirecto) examStatusText = 'Examen Final (Reprobado Directo)';
+        if (Math.abs(remainingWeight) > 0.1) examStatusText = 'Examen Final (Evaluación en curso)';
+        
+        examRowHtml = `
+            <div class="notas-item-row" style="background: rgba(30, 41, 59, 0.9); border: 1px solid rgba(56, 189, 248, 0.3); margin-top: 16px; align-items: center;">
+                <div style="display:flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%;">
+                    <div style="color: #e2e8f0; font-size: 14px; font-weight: 600; flex-grow: 1; min-width: 120px;">${examStatusText}</div>
+                    <div style="display:flex; align-items:center; gap: 6px;">
+                        <div style="color: #94a3b8; font-size: 13px; font-weight: 600; padding-right: 12px;">${examW}%</div>
+                        <input type="text" class="notas-input-grade" style="width: 80px; ${isExamDisabled ? 'opacity: 0.5; pointer-events: none;' : ''}" value="${data.examGrade !== null ? data.examGrade : ''}" onchange="updateGlobalNota('${dbKey}', 'examGrade', String(this.value).replace(',','.'))" placeholder="Nota" ${isExamDisabled ? 'disabled' : ''}>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    let summaryBg = "background: rgba(15, 23, 42, 0.5);";
+    if (statusClass === 'is-passed') summaryBg = "background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3);";
+    if (statusClass === 'is-failed') summaryBg = "background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3);";
+    
     container.innerHTML = `
         <div class="notas-card ${statusClass}">
-            <div class="notas-header-row">
-                <div class="notas-summary">
-                    <div class="notas-summary-title">${titleStr}</div>
-                    <div class="notas-summary-value">${currentWeightEvaluated > 0 ? np_actual.toFixed(2) : '-'}</div>
-                    <div class="notas-summary-subtitle">Tu nota equivalente en el ${currentWeightEvaluated}% evaluado</div>
+            <div class="notas-header-row" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">
+                <div class="notas-summary" style="display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 16px; ${summaryBg} transition: all 0.3s;">
+                    <div style="text-align: center;">
+                        <div class="notas-summary-title">Nota Presentación (NP)</div>
+                        <div class="notas-summary-value" style="font-size: 36px;">${currentWeightEvaluated > 0 ? np_actual.toFixed(2) : '-'}</div>
+                        <div class="notas-summary-subtitle">(${currentWeightEvaluated}% evaluado)</div>
+                    </div>
+                    
+                    <div style="width: 1px; height: 60px; background: rgba(255,255,255,0.1);"></div>
+                    
+                    <div style="text-align: center;">
+                        <div class="notas-summary-title" style="color: #38bdf8;">Nota Final</div>
+                        <div class="notas-summary-value" style="font-size: 36px; color: #f8fafc;">${(examW > 0 && Math.abs(remainingWeight) > 0.1) ? '?' : notaFinal.toFixed(2)}</div>
+                        <div class="notas-summary-subtitle">${examW > 0 ? (isEximido ? '(Eximido)' : (isReprobadoDirecto ? '(Reprobado directo)' : 'Considera NP + Examen')) : '(100% NP)'}</div>
+                    </div>
                 </div>
             </div>
             
             <div class="notas-global-settings" style="background: rgba(15,23,42,0.4); padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); font-size: 13px;">
-               <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-weight: 500; color: #e2e8f0;">
-                  <input type="checkbox" onchange="updateGlobalNota('${dbKey}', 'hasExam', this.checked)" ${data.hasExam ? 'checked' : ''}>
-                  ¿Este ramo tiene Examen Final?
-               </label>
-               ${data.hasExam ? `
-               <div style="display:flex; gap: 16px; margin-top: 12px; flex-wrap: wrap; align-items: center;">
+               <div style="display:flex; gap: 16px; flex-wrap: wrap; align-items: center;">
                    <label style="display:flex; align-items:center; gap:6px; color: #94a3b8;">Peso del Examen: <input type="number" style="width: 50px; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 4px 6px; border-radius: 4px;" value="${data.examWeight}" onchange="updateGlobalNota('${dbKey}', 'examWeight', this.value)">%</label>
                    <label style="display:flex; align-items:center; gap:6px; color: #94a3b8;">Nota Eximición: <input type="number" step="0.1" style="width: 50px; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 4px 6px; border-radius: 4px;" value="${data.eximicionGrade}" onchange="updateGlobalNota('${dbKey}', 'eximicionGrade', this.value)"></label>
                    <label style="display:flex; align-items:center; gap:6px; color: #94a3b8;">NP Mínima Examen: <input type="number" step="0.1" style="width: 50px; background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 4px 6px; border-radius: 4px;" value="${data.examMinReq}" onchange="updateGlobalNota('${dbKey}', 'examMinReq', this.value)"></label>
                </div>
-               ` : ''}
             </div>
             
             <div class="notas-items-list">
                 ${itemsHtml}
+                ${examRowHtml}
             </div>
             
-            <div class="notas-add-row" style="display: flex; gap: 12px; justify-content: center; margin-bottom: 24px; flex-wrap: wrap;">
+            <div class="notas-add-row" style="display: flex; gap: 12px; justify-content: center; margin-bottom: 24px; flex-wrap: wrap; margin-top: 16px;">
                 <button class="notas-btn-add" onclick="addNotaItem('${dbKey}')">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                    Añadir Ítem
+                    Añadir Evaluación Parcial
                 </button>
             </div>
             
@@ -364,7 +421,7 @@ function updateNotaItem(dbKey, index, field, value) {
 
 function addNotaItem(dbKey) {
     if (!NOTAS_DATA[dbKey]) return;
-    NOTAS_DATA[dbKey].items.push({ id: Date.now(), name: "Nuevo ítem", weight: 0, grade: null, dropLowest: 0, isExcluding: false, minGradeReq: 4.0, showSettings: false });
+    NOTAS_DATA[dbKey].items.push({ id: Date.now(), name: "Nueva Evaluación", weight: 0, grade: null, dropLowest: 0, isExcluding: false, minGradeReq: 4.0, showSettings: false });
     saveNotas();
     renderNotasBuilder();
 }
