@@ -941,14 +941,17 @@
 }
 
 .my-class-card.is-assistant {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(217, 119, 6, 0.15));
+    border: 1px solid rgba(245, 158, 11, 0.4);
     border-left: 3.5px solid #f59e0b;
-    background: linear-gradient(145deg, rgba(245, 158, 11, 0.06) 0%, rgba(22, 30, 49, 0.75) 100%);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .my-class-card.is-assistant:hover {
-    border-color: rgba(245, 158, 11, 0.35);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(217, 119, 6, 0.22));
+    border-color: rgba(245, 158, 11, 0.6);
     border-left-color: #fbbf24;
-    box-shadow: 0 8px 24px -6px rgba(245, 158, 11, 0.22);
+    box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.5);
 }
 
 
@@ -1312,24 +1315,38 @@
 }
 
 .my-class-card.is-assistant.is-cruce-libre {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(22, 163, 74, 0.15));
+    border: 1px solid rgba(34, 197, 94, 0.4);
     border-top: 3px solid #4ade80;
-    background: linear-gradient(145deg, rgba(34, 197, 94, 0.05) 0%, rgba(22, 30, 49, 0.8) 100%);
 }
 
 .my-class-card.is-cruce {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(22, 163, 74, 0.15));
+    border: 1px solid rgba(34, 197, 94, 0.4);
     border-top: 3px solid #4ade80;
-    background: linear-gradient(145deg, rgba(34, 197, 94, 0.05) 0%, rgba(22, 30, 49, 0.8) 100%);
 }
 
 /* COLORES POR TIPO DE CLASE */
 .my-class-card.tipo-laboratorio {
-    border-left-color: #a855f7 !important;
-    background: linear-gradient(145deg, rgba(168, 85, 247, 0.08) 0%, rgba(22, 30, 49, 0.85) 100%) !important;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(147, 51, 234, 0.15)) !important;
+    border: 1px solid rgba(168, 85, 247, 0.4) !important;
+    border-left: 3.5px solid #a855f7 !important;
+}
+
+.my-class-card.tipo-laboratorio:hover {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.22), rgba(147, 51, 234, 0.22)) !important;
+    border-color: rgba(168, 85, 247, 0.6) !important;
 }
 
 .my-class-card.tipo-ayudantia.is-student {
-    border-left-color: #ec4899 !important;
-    background: linear-gradient(145deg, rgba(236, 72, 153, 0.08) 0%, rgba(22, 30, 49, 0.85) 100%) !important;
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(225, 29, 72, 0.15)) !important;
+    border: 1px solid rgba(236, 72, 153, 0.4) !important;
+    border-left: 3.5px solid #ec4899 !important;
+}
+
+.my-class-card.tipo-ayudantia.is-student:hover {
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.22), rgba(225, 29, 72, 0.22)) !important;
+    border-color: rgba(236, 72, 153, 0.6) !important;
 }
 
 .my-timeline-card.tipo-laboratorio {
