@@ -1,0 +1,182 @@
+.notas-card {
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 24px;
+    transition: all 0.3s ease;
+}
+
+.notas-card.is-invalid { border-color: rgba(239, 68, 68, 0.4); }
+.notas-card.is-passed { border-color: rgba(16, 185, 129, 0.4); }
+.notas-card.is-failed { border-color: rgba(239, 68, 68, 0.4); }
+.notas-card.is-pending { border-color: rgba(56, 189, 248, 0.4); }
+
+.notas-header-row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.notas-summary {
+    text-align: center;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 16px 32px;
+}
+
+.notas-summary-title {
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.notas-summary-value {
+    color: #f8fafc;
+    font-size: 42px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin: 4px 0;
+}
+
+.notas-summary-subtitle {
+    color: #64748b;
+    font-size: 12px;
+}
+
+.notas-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.notas-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    background: rgba(15, 23, 42, 0.3);
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.notas-input-name {
+    background: transparent;
+    border: none;
+    color: #e2e8f0;
+    font-size: 14px;
+    font-weight: 500;
+    outline: none;
+    flex-grow: 1;
+    min-width: 120px;
+}
+.notas-input-name::placeholder { color: #64748b; }
+
+.notas-input-wrapper {
+    position: relative;
+    width: 70px;
+}
+
+.notas-input-weight {
+    width: 100%;
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 6px 20px 6px 8px;
+    color: #f8fafc;
+    font-size: 14px;
+    outline: none;
+}
+.notas-percent-symbol {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 13px;
+    pointer-events: none;
+}
+
+.notas-input-grade {
+    width: 70px;
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 6px 8px;
+    color: #f8fafc;
+    font-size: 14px;
+    outline: none;
+    text-align: center;
+    font-weight: bold;
+}
+
+.notas-btn-del {
+    background: transparent;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+.notas-btn-del:hover { background: rgba(239, 68, 68, 0.1); }
+
+.notas-add-row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.notas-btn-add {
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    color: #cbd5e1;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+.notas-btn-add:hover {
+    background: rgba(56, 189, 248, 0.1);
+    border-color: rgba(56, 189, 248, 0.4);
+    color: #38bdf8;
+}
+
+.notas-survival-box {
+    margin-top: 24px;
+}
+
+.notas-warning, .notas-success, .notas-danger, .notas-info {
+    padding: 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.notas-warning { background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3); }
+.notas-success { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+.notas-danger { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+.notas-info { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+
+/* Ocultar flechas de inputs numéricos */
+.notas-input-weight::-webkit-outer-spin-button,
+.notas-input-weight::-webkit-inner-spin-button,
+.notas-input-grade::-webkit-outer-spin-button,
+.notas-input-grade::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}

@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ai.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/notas.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/horario.css') }}">
 </head>
 <body>
@@ -92,6 +93,12 @@
                     <polyline points="10 9 9 9 8 9"></polyline>
                 </svg>
                 <span>Solemnes</span>
+            </button>
+            <button type="button" class="tab-btn" onclick="cambiarTab('tab-notas', this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
+                <span>Notas</span>
             </button>
         </nav>
     </div>
@@ -707,6 +714,32 @@
             <!-- Contenido generado por solemnes.js -->
 <script src="{{ url_for('static', filename='js/solemnes_data.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/solemnes.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/notas.js') }}" defer></script>
+        </div>
+    </section>
+
+    <!-- PESTAÑA: NOTAS -->
+    <section id="tab-notas" class="panel">
+        <div class="panel-header" style="flex-direction: column; align-items: stretch; gap: 24px; border-bottom: none; padding-bottom: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="margin-bottom: 8px;">Calculadora de Notas</h2>
+                <div style="font-size: 13px; color: #94a3b8; background: rgba(30,41,59,0.5); padding: 4px 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">Tus fórmulas se guardan solas</div>
+            </div>
+            
+            <div class="control-card" style="margin-bottom: 0; padding: 16px;">
+                <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                    <span style="color: #94a3b8; font-size: 13px; font-weight: 500;">Selecciona un ramo:</span>
+                    <select id="notas-curso-select" onchange="renderNotasBuilder()" style="background: rgba(30,41,59,0.8); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 8px 12px; font-size: 14px; outline: none; cursor: pointer; flex-grow: 1;">
+                        <option value="">Selecciona una asignatura de tu horario...</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="notas-builder-container" style="padding-top: 16px;">
+            <div style="text-align: center; color: #64748b; padding: 40px; font-size: 14px;">
+                Selecciona una asignatura arriba para configurar o ver tus notas.
+            </div>
         </div>
     </section>
 

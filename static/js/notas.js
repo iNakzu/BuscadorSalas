@@ -1,0 +1,209 @@
+let NOTAS_DATA = {}; // { "Mecánica": { items: [{name:"Solemne 1", weight:30, grade:5.5}], passingGrade: 4.0 } }
+
+function initNotas() {
+    try {
+        const stored = localStorage.getItem('mi_notas_v1');
+        if (stored) {
+            NOTAS_DATA = JSON.parse(stored);
+        }
+    } catch(e) { console.error(e); }
+}
+
+function saveNotas() {
+    try {
+        localStorage.setItem('mi_notas_v1', JSON.stringify(NOTAS_DATA));
+    } catch(e) { console.error(e); }
+}
+
+function updateNotasDropdown() {
+    const select = document.getElementById('notas-curso-select');
+    if (!select) return;
+    
+    // Obtener cursos únicos del perfil activo (por defecto nakzu)
+    let myRamos = [];
+    if (typeof MI_HORARIO_DATA !== 'undefined' && MI_HORARIO_DATA.clases) {
+        myRamos = [...new Set(MI_HORARIO_DATA.clases.map(c => c.curso))].filter(Boolean).sort();
+    }
+    
+    const currVal = select.value;
+    let html = '<option value="">Selecciona una asignatura de tu horario...</option>';
+    myRamos.forEach(r => {
+        html += `<option value="${r}">${escapeHtml(r)}</option>`;
+    });
+    
+    // Agregar ramos que ya tengan notas pero que quizás se borraron del horario
+    for (const r of Object.keys(NOTAS_DATA)) {
+        if (!myRamos.includes(r)) {
+            html += `<option value="${r}">${escapeHtml(r)} (Fuera de horario)</option>`;
+        }
+    }
+    
+    select.innerHTML = html;
+    if (currVal && Object.keys(NOTAS_DATA).includes(currVal)) {
+        select.value = currVal;
+    }
+}
+
+function renderNotasBuilder() {
+    const select = document.getElementById('notas-curso-select');
+    const container = document.getElementById('notas-builder-container');
+    if (!select || !container) return;
+    
+    const curso = select.value;
+    if (!curso) {
+        container.innerHTML = `<div style="text-align: center; color: #64748b; padding: 40px; font-size: 14px;">Selecciona una asignatura arriba para configurar o ver tus notas.</div>`;
+        return;
+    }
+    
+    // Inicializar datos si no existen
+    if (!NOTAS_DATA[curso]) {
+        NOTAS_DATA[curso] = {
+            items: [
+                { id: Date.now(), name: "Solemne 1", weight: 30, grade: null },
+                { id: Date.now()+1, name: "Solemne 2", weight: 30, grade: null },
+                { id: Date.now()+2, name: "Controles", weight: 40, grade: null }
+            ],
+            passingGrade: 4.0
+        };
+        saveNotas();
+    }
+    
+    const data = NOTAS_DATA[curso];
+    let itemsHtml = '';
+    let totalWeight = 0;
+    let currentWeightedSum = 0;
+    let currentWeightEvaluated = 0;
+    
+    data.items.forEach((item, index) => {
+        totalWeight += parseFloat(item.weight) || 0;
+        if (item.grade !== null && item.grade !== '') {
+            const g = parseFloat(item.grade);
+            if (!isNaN(g)) {
+                currentWeightedSum += g * (parseFloat(item.weight) || 0) / 100;
+                currentWeightEvaluated += (parseFloat(item.weight) || 0);
+            }
+        }
+        
+        itemsHtml += `
+            <div class="notas-item-row">
+                <input type="text" class="notas-input-name" value="${escapeHtml(item.name)}" onchange="updateNotaItem('${curso}', ${index}, 'name', this.value)" placeholder="Nombre (ej: Solemne 1)">
+                <div style="display:flex; align-items:center; gap: 8px;">
+                    <div class="notas-input-wrapper">
+                        <input type="number" class="notas-input-weight" value="${item.weight}" onchange="updateNotaItem('${curso}', ${index}, 'weight', this.value)" placeholder="%">
+                        <span class="notas-percent-symbol">%</span>
+                    </div>
+                    <input type="number" step="0.1" min="1.0" max="7.0" class="notas-input-grade" value="${item.grade !== null ? item.grade : ''}" onchange="updateNotaItem('${curso}', ${index}, 'grade', this.value)" placeholder="Nota">
+                    <button class="notas-btn-del" onclick="deleteNotaItem('${curso}', ${index})" title="Eliminar ítem">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+    
+    // Cálculos de supervivencia
+    let currentAverage = currentWeightEvaluated > 0 ? (currentWeightedSum / (currentWeightEvaluated / 100)) : 0;
+    let remainingWeight = totalWeight - currentWeightEvaluated;
+    
+    let survivalHtml = '';
+    let statusClass = '';
+    
+    if (totalWeight !== 100) {
+        survivalHtml = `<div class="notas-warning">⚠️ La suma de porcentajes es ${totalWeight}%, debe ser 100%.</div>`;
+        statusClass = 'is-invalid';
+    } else if (remainingWeight === 0) {
+        if (currentWeightedSum >= data.passingGrade) {
+            survivalHtml = `<div class="notas-success">🎉 ¡Aprobaste con un ${currentWeightedSum.toFixed(1)}! (Nota mínima requerida: ${data.passingGrade})</div>`;
+            statusClass = 'is-passed';
+        } else {
+            survivalHtml = `<div class="notas-danger">💀 Reprobaste con un ${currentWeightedSum.toFixed(1)}. (Nota mínima requerida: ${data.passingGrade})</div>`;
+            statusClass = 'is-failed';
+        }
+    } else {
+        const requiredWeighted = data.passingGrade - currentWeightedSum;
+        const requiredAverageInRemaining = requiredWeighted / (remainingWeight / 100);
+        
+        if (requiredAverageInRemaining > 7.0) {
+            survivalHtml = `<div class="notas-danger">💀 Imposible pasar. Necesitas un ${requiredAverageInRemaining.toFixed(1)} en el ${remainingWeight}% restante (máximo es 7.0).</div>`;
+            statusClass = 'is-failed';
+        } else if (requiredAverageInRemaining <= 1.0) {
+            survivalHtml = `<div class="notas-success">🎉 ¡Ya pasaste! Incluso con un 1.0 en el ${remainingWeight}% restante tu nota final será mayor a ${data.passingGrade}.</div>`;
+            statusClass = 'is-passed';
+        } else {
+            survivalHtml = `<div class="notas-info">📌 Necesitas promediar un <strong>${requiredAverageInRemaining.toFixed(1)}</strong> en el ${remainingWeight}% restante para pasar (con un ${data.passingGrade}).</div>`;
+            statusClass = 'is-pending';
+        }
+    }
+    
+    container.innerHTML = `
+        <div class="notas-card ${statusClass}">
+            <div class="notas-header-row">
+                <div class="notas-summary">
+                    <div class="notas-summary-title">Promedio Actual</div>
+                    <div class="notas-summary-value">${currentWeightEvaluated > 0 ? currentAverage.toFixed(1) : '-'}</div>
+                    <div class="notas-summary-subtitle">Calculado sobre el ${currentWeightEvaluated}% evaluado</div>
+                </div>
+            </div>
+            
+            <div class="notas-items-list">
+                ${itemsHtml}
+            </div>
+            
+            <div class="notas-add-row">
+                <button class="notas-btn-add" onclick="addNotaItem('${curso}')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    Añadir Ítem de Evaluación
+                </button>
+            </div>
+            
+            <div class="notas-survival-box">
+                ${survivalHtml}
+            </div>
+        </div>
+    `;
+}
+
+function updateNotaItem(curso, index, field, value) {
+    if (!NOTAS_DATA[curso]) return;
+    if (field === 'weight') {
+        NOTAS_DATA[curso].items[index].weight = parseFloat(value) || 0;
+    } else if (field === 'grade') {
+        const parsed = parseFloat(value);
+        NOTAS_DATA[curso].items[index].grade = !isNaN(parsed) ? parsed : null;
+    } else {
+        NOTAS_DATA[curso].items[index][field] = value;
+    }
+    saveNotas();
+    renderNotasBuilder();
+}
+
+function addNotaItem(curso) {
+    if (!NOTAS_DATA[curso]) return;
+    NOTAS_DATA[curso].items.push({ id: Date.now(), name: "Nuevo ítem", weight: 0, grade: null });
+    saveNotas();
+    renderNotasBuilder();
+}
+
+function deleteNotaItem(curso, index) {
+    if (!NOTAS_DATA[curso]) return;
+    NOTAS_DATA[curso].items.splice(index, 1);
+    saveNotas();
+    renderNotasBuilder();
+}
+
+// Inicializar cuando el DOM cargue
+document.addEventListener('DOMContentLoaded', () => {
+    initNotas();
+    
+    // Sobrescribir cambiarTab para actualizar notas al entrar a la pestaña si es necesario
+    const oldCambiarTab = window.cambiarTab;
+    if (typeof oldCambiarTab === 'function') {
+        window.cambiarTab = function(tabId, btnContext) {
+            oldCambiarTab(tabId, btnContext);
+            if (tabId === 'tab-notas') {
+                updateNotasDropdown();
+                renderNotasBuilder();
+            }
+        };
+    }
+});
