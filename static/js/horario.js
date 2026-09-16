@@ -3,23 +3,23 @@
    ========================================================= */
 
 function cargarMiHorarioDesdeStorage() {
-    let list = null;
+    let profile = null;
     try {
         if (typeof localStorage !== 'undefined') {
             const stored = localStorage.getItem('mi_horario_custom_v1');
             if (stored) {
                 const parsed = JSON.parse(stored);
-                if (Array.isArray(parsed)) list = parsed;
+                if (Array.isArray(parsed)) profile = { escuela: "EIT", clases: parsed }; else if (parsed && parsed.clases) profile = parsed;
             }
         }
     } catch (e) {
         console.error('Error al cargar mi horario desde localStorage', e);
     }
-    if (!list) {
-        list = JSON.parse(JSON.stringify(MI_HORARIO_DEFAULT_DATA));
+    if (!profile) {
+        profile = JSON.parse(JSON.stringify(MI_HORARIO_DEFAULT_DATA));
     }
     // Limpiar "Ayudantía que impartes" y sincronizar secciones y profesores de ayudantías
-    list.forEach(c => {
+    profile.clases.forEach(c => {
         if (c.seccion && c.seccion.toLowerCase().includes('ayudantía que impartes')) {
             c.seccion = '';
         }
@@ -49,7 +49,7 @@ function cargarMiHorarioDesdeStorage() {
             }
         }
     });
-    return list;
+    return profile;
 }
 
 let MI_HORARIO_DATA = cargarMiHorarioDesdeStorage();
