@@ -290,7 +290,7 @@ function renderNotasBuilder() {
                         <div class="notas-summary-value" style="font-size: 36px;">${currentWeightEvaluatedNP > 0 ? np_actual.toFixed(2) : '-'}</div>
                     </div>
                     
-                    <div style="width: 1px; height: 60px; background: rgba(255,255,255,0.1);"></div>
+                    
                     
                     <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
                         <div class="notas-summary-title" style="color: #38bdf8;">Nota Final</div>
