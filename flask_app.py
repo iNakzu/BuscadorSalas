@@ -6,9 +6,23 @@ import datetime
 import difflib
 from urllib.request import Request, urlopen
 from urllib.error import URLError
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, jsonify, url_for
+import os
 
 app = Flask(__name__)
+
+@app.context_processor
+def override_url_for():
+    return dict(url_for=dated_url_for)
+
+def dated_url_for(endpoint, **values):
+    if endpoint == 'static':
+        filename = values.get('filename', None)
+        if filename:
+            file_path = os.path.join(app.root_path, endpoint, filename)
+            if os.path.isfile(file_path):
+                values['v'] = int(os.stat(file_path).st_mtime)
+    return url_for(endpoint, **values)
 
 REMOTE_URL = "https://salas.docencia-eit.cl/data.json"
 LOCAL_DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data.json')
