@@ -419,11 +419,11 @@ function renderSolemnes() {
             let cellContent = '';
             ramos.forEach(r => {
                 let isMatch = true;
+                let matchedRole = 'student';
                 if (query) {
                     isMatch = normStr(r.nombre).includes(query);
                 } else if (friendId) {
                     const normR = normStr(r.nombre);
-                    let matchedRole = 'student';
                     isMatch = friendRamos.some(fr => {
                         let baseMatched = false;
                         const examBaseName = normR.replace(/\s*\(.*?\)\s*/g, '').trim();
