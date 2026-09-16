@@ -117,16 +117,19 @@
 .notas-btn-del {
     background: transparent;
     border: none;
-    color: #ef4444;
+    color: #64748b;
     cursor: pointer;
     padding: 6px;
     border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s;
+    transition: all 0.2s;
 }
-.notas-btn-del:hover { background: rgba(239, 68, 68, 0.1); }
+.notas-btn-del:hover { 
+    background: rgba(100, 116, 139, 0.1); 
+    color: #94a3b8; 
+}
 
 .notas-add-row {
     display: flex;
