@@ -1,5 +1,7 @@
 const HORARIOS_GUARDADOS = {
-    "yo": [
+    "yo": {
+    "escuela": "EIT",
+    "clases": [
     // LUNES (Día 1)
 
     {
@@ -752,7 +754,7 @@ const HORARIOS_GUARDADOS = {
         "profesor": "-",
         "rol": "student"
     }
-]
+]}
 };
 
 const MI_HORARIO_DEFAULT_DATA = HORARIOS_GUARDADOS["yo"];

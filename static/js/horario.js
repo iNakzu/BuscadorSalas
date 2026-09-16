@@ -145,7 +145,7 @@ function generarHorarioCruce() {
         for (let b of BLOQUES_HORARIOS) {
             let alguienOcupado = false;
             for (const amigo of cruceSeleccionados) {
-                let items = (amigo === 'yo') ? MI_HORARIO_DATA : HORARIOS_GUARDADOS[amigo];
+                let items = (amigo === 'yo') ? MI_HORARIO_DATA.clases : HORARIOS_GUARDADOS[amigo].clases;
                 if (!items) continue;
                 const clase = items.find(c => c.dia === dia && c.bloqueNum === b.num);
                 if (clase) {
@@ -178,8 +178,8 @@ function generarHorarioCruce() {
 
 function getHorarioActivo() {
     if (vistaHorarioActual === 'cruce') return generarHorarioCruce();
-    if (vistaHorarioActual === 'yo') return MI_HORARIO_DATA;
-    return HORARIOS_GUARDADOS[vistaHorarioActual] || MI_HORARIO_DATA;
+    if (vistaHorarioActual === 'yo') return MI_HORARIO_DATA.clases;
+    return HORARIOS_GUARDADOS[vistaHorarioActual] ? HORARIOS_GUARDADOS[vistaHorarioActual].clases : MI_HORARIO_DATA.clases;
 }
 
 function actualizarHeroMiHorario() {
@@ -414,11 +414,11 @@ function restablecerHorarioDefault() {
 function eliminarClaseMiHorario(id, ev) {
     if (vistaHorarioActual !== 'yo') return;
     if (ev) ev.stopPropagation();
-    const idx = MI_HORARIO_DATA.findIndex(c => c.id === id);
+    const idx = MI_HORARIO_DATA.clases.findIndex(c => c.id === id);
     if (idx === -1) return;
-    const c = MI_HORARIO_DATA[idx];
+    const c = MI_HORARIO_DATA.clases[idx];
     if (confirm(`¿Eliminar "${c.curso}" de este bloque (${c.diaNombre} ${c.bloqueLabel})?`)) {
-        MI_HORARIO_DATA.splice(idx, 1);
+        MI_HORARIO_DATA.clases.splice(idx, 1);
         guardarMiHorarioEnStorage();
         renderMiHorario();
         actualizarHeroMiHorario();
@@ -791,7 +791,7 @@ function guardarNuevaClaseModal(ev) {
     const diasNombres = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
 
     // Si ya existía alguna clase en este bloque exacto, se reemplaza
-    MI_HORARIO_DATA = MI_HORARIO_DATA.filter(c => !(c.dia === diaNum && c.bloqueNum === bloqueNum));
+    MI_HORARIO_DATA.clases = MI_HORARIO_DATA.clases.filter(c => !(c.dia === diaNum && c.bloqueNum === bloqueNum));
 
     const nuevaClase = {
         id: 'custom-' + Date.now(),
@@ -809,7 +809,7 @@ function guardarNuevaClaseModal(ev) {
         rol: rol
     };
 
-    MI_HORARIO_DATA.push(nuevaClase);
+    MI_HORARIO_DATA.clases.push(nuevaClase);
     guardarMiHorarioEnStorage();
     cerrarModalAgregarClase();
     renderMiHorario();

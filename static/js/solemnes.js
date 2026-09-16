@@ -302,14 +302,19 @@ function renderSolemnes() {
     const friendId = friendSelect ? friendSelect.value : '';
 
     let friendRamos = [];
+    let friendEscuela = "";
     if (friendId) {
-        let scheduleData = [];
+        let scheduleObj = null;
         if (friendId === 'yo' && typeof MI_HORARIO_DATA !== 'undefined') {
-            scheduleData = MI_HORARIO_DATA;
+            scheduleObj = MI_HORARIO_DATA;
         } else if (typeof HORARIOS_GUARDADOS !== 'undefined' && HORARIOS_GUARDADOS[friendId]) {
-            scheduleData = HORARIOS_GUARDADOS[friendId];
+            scheduleObj = HORARIOS_GUARDADOS[friendId];
         }
-        friendRamos = [...new Set(scheduleData.map(c => normStr(c.curso)).filter(Boolean))];
+        
+        if (scheduleObj && scheduleObj.clases) {
+            friendEscuela = scheduleObj.escuela || "";
+            friendRamos = [...new Set(scheduleObj.clases.map(c => normStr(c.curso)).filter(Boolean))];
+        }
     }
 
     const mapDias = {
@@ -362,10 +367,25 @@ function renderSolemnes() {
                 matches = ramos.filter(r => {
                     const normR = normStr(r.nombre);
                     return friendRamos.some(fr => {
-                        if (isFuzzyMatch(fr, normR)) return true;
-                        if (normR.includes('/')) {
-                            const parts = normR.split('/').map(p => p.trim());
-                            if (parts.some(p => isFuzzyMatch(p, fr))) return true;
+                        let baseMatched = false;
+                        const examBaseName = normR.replace(/\s*\(.*?\)\s*/g, '').trim();
+                        
+                        if (isFuzzyMatch(fr, examBaseName)) {
+                            baseMatched = true;
+                        } else if (examBaseName.includes('/')) {
+                            const parts = examBaseName.split('/').map(p => p.trim());
+                            if (parts.some(p => isFuzzyMatch(p, fr))) baseMatched = true;
+                        }
+
+                        if (baseMatched) {
+                            if (normR.includes('(')) {
+                                if (friendEscuela && normR.includes(friendEscuela.toLowerCase())) {
+                                    return true;
+                                }
+                                return false;
+                            } else {
+                                return true;
+                            }
                         }
                         return false;
                     });
@@ -394,10 +414,25 @@ function renderSolemnes() {
                 } else if (friendId) {
                     const normR = normStr(r.nombre);
                     isMatch = friendRamos.some(fr => {
-                        if (isFuzzyMatch(fr, normR)) return true;
-                        if (normR.includes('/')) {
-                            const parts = normR.split('/').map(p => p.trim());
-                            if (parts.some(p => isFuzzyMatch(p, fr))) return true;
+                        let baseMatched = false;
+                        const examBaseName = normR.replace(/\s*\(.*?\)\s*/g, '').trim();
+                        
+                        if (isFuzzyMatch(fr, examBaseName)) {
+                            baseMatched = true;
+                        } else if (examBaseName.includes('/')) {
+                            const parts = examBaseName.split('/').map(p => p.trim());
+                            if (parts.some(p => isFuzzyMatch(p, fr))) baseMatched = true;
+                        }
+
+                        if (baseMatched) {
+                            if (normR.includes('(')) {
+                                if (friendEscuela && normR.includes(friendEscuela.toLowerCase())) {
+                                    return true;
+                                }
+                                return false;
+                            } else {
+                                return true;
+                            }
                         }
                         return false;
                     });
