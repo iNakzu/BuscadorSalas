@@ -390,9 +390,72 @@ function renderNotasBuilder() {
             
             <div class="notas-survival-box">
                 ${survivalHtml}
+            </div>
+            
+            <div style="display: flex; gap: 8px; justify-content: center; margin-top: 24px;">
+                <button onclick="compartirPlantilla('${dbKey}')" style="background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); color: #38bdf8; padding: 6px 12px; border-radius: 6px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                    Compartir Ramo
+                </button>
+                <button onclick="capturarNotas()" style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #10b981; padding: 6px 12px; border-radius: 6px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                    Capturar Imagen
+                </button>
+            </div>
         </div>
     `;
 }
+
+// Function to copy a shareable link
+window.compartirPlantilla = function(dbKey) {
+    if (!NOTAS_DATA[dbKey]) return;
+    const data = NOTAS_DATA[dbKey];
+    let itemsStr = data.items.map(i => `${encodeURIComponent(i.name)}:${i.weight}`).join(',');
+    let url = new URL(window.location.href);
+    url.searchParams.set('plantilla', itemsStr);
+    url.searchParams.set('ex', data.examWeight || 30);
+    
+    navigator.clipboard.writeText(url.toString()).then(() => {
+        alert("¡Link copiado al portapapeles! Envíalo a un amigo y cuando lo abra, su calculadora se configurará con tus porcentajes.");
+    }).catch(err => {
+        console.error('Error al copiar: ', err);
+        prompt("Copia este link manualmente:", url.toString());
+    });
+};
+
+// Function to capture the card
+window.capturarNotas = function() {
+    if (typeof html2canvas === 'undefined') {
+        alert("El módulo de captura aún está cargando o fue bloqueado por el navegador.");
+        return;
+    }
+    const target = document.querySelector('.notas-card');
+    if (!target) return;
+    
+    // Temporarily hide buttons to make image clean
+    const buttonsRow = target.querySelector('.notas-add-row');
+    const utilityRow = target.lastElementChild;
+    const oldBtnsDisplay = buttonsRow ? buttonsRow.style.display : '';
+    const oldUtilDisplay = utilityRow ? utilityRow.style.display : '';
+    
+    if (buttonsRow) buttonsRow.style.display = 'none';
+    if (utilityRow) utilityRow.style.display = 'none';
+    
+    // Convert inputs to spans to render them nicely on canvas
+    const inputs = target.querySelectorAll('input');
+    inputs.forEach(inp => { inp.setAttribute('data-val', inp.value); });
+    
+    html2canvas(target, { backgroundColor: '#0f172a', scale: 2 }).then(canvas => {
+        if (buttonsRow) buttonsRow.style.display = oldBtnsDisplay;
+        if (utilityRow) utilityRow.style.display = oldUtilDisplay;
+        
+        let a = document.createElement('a');
+        a.href = canvas.toDataURL('image/png');
+        a.download = 'Mis_Notas_UDP.png';
+        a.click();
+    });
+};
+
 
 function updateNotaItem(dbKey, index, field, value) {
     if (!NOTAS_DATA[dbKey]) return;
