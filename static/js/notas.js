@@ -215,7 +215,7 @@ function renderNotasBuilder() {
                 statusClass = 'is-passed';
             } else if (hasExamGrade) {
                 notaFinalCalculada = (np_final * npW) + (examGradeVal * eW);
-                if (notaFinalCalculada >= 3.95) {
+                if (Math.round(notaFinalCalculada * 100) >= 395) {
                     survivalHtml = `<div class="notas-success">Aprobado. Tu Nota Final es ${notaFinalCalculada.toFixed(2)}.</div>`;
                     statusClass = 'is-passed';
                 } else {
@@ -227,7 +227,7 @@ function renderNotasBuilder() {
                 const requiredInExam = eW > 0 ? (4.0 - (np_final * npW)) / eW : 0;
                 
                 if (eW === 0) {
-                    if (np_final >= 3.95) {
+                    if (Math.round(np_final * 100) >= 395) {
                         survivalHtml = `<div class="notas-success">Aprobado. Tu Nota Final es ${np_final.toFixed(2)}.</div>`;
                         statusClass = 'is-passed';
                     } else {
@@ -312,7 +312,7 @@ function renderNotasBuilder() {
     
     let sparklineHtml = '';
     if (trendGrades.length >= 2) {
-        const sw = 160;
+        const sw = 200;
         const sh = 20;
         let pathD = '';
         trendGrades.forEach((g, idx) => {
@@ -327,7 +327,7 @@ function renderNotasBuilder() {
         let lastY = sh - (((lastG - 1) / 6.0) * sh);
         
         sparklineHtml = `
-            <div title="Tendencia de tus notas" style="display: flex; align-items: center;">
+            <div title="Tendencia de tus notas" style="display: flex; align-items: center; margin-left: 30px;">
                 <svg width="${sw}" height="${sh}" viewBox="0 -4 ${sw} ${sh+8}" style="overflow: visible;">
                     <path d="${pathD}" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                     <circle cx="${lastX}" cy="${lastY}" r="3" fill="#0f172a" stroke="#38bdf8" stroke-width="2" />
