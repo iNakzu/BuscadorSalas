@@ -512,7 +512,7 @@ window.capturarNotas = function() {
     const inputs = target.querySelectorAll('input');
     inputs.forEach(inp => { inp.setAttribute('data-val', inp.value); });
     
-    html2canvas(target, { backgroundColor: '#0f172a', scale: 2 }).then(canvas => {
+    html2canvas(target, { backgroundColor: '#0f172a', scale: 6 }).then(canvas => {
         let a = document.createElement('a');
         a.href = canvas.toDataURL('image/png');
         a.download = 'Mis_Notas_UDP.png';
@@ -536,7 +536,7 @@ window.capturarMiHorario = function() {
     target.style.padding = '10px';
     target.style.borderRadius = '8px';
     
-    html2canvas(target, { backgroundColor: '#0f172a', scale: 3 }).then(canvas => {
+    html2canvas(target, { backgroundColor: '#0f172a', scale: 6 }).then(canvas => {
         target.style.backgroundColor = oldBg;
         target.style.padding = '';
         target.style.borderRadius = '';
