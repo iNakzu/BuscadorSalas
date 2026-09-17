@@ -384,10 +384,6 @@ function renderNotasBuilder() {
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                         Añadir Evaluación Parcial
                     </button>
-                    <button onclick="autocompletarParaAprobar('${dbKey}')" style="background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.3); color: #f43f5e; border-radius: 6px; padding: 0 12px; font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.background='rgba(244,63,94,0.2)'" onmouseout="this.style.background='rgba(244,63,94,0.1)'" title="Rellenar vacíos con la nota mínima para el 4.0">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 2.5l19 19"/><path d="M8 8l-2 2-4-4 2-2z"/><path d="M16 16l-2 2-4-4 2-2z"/></svg>
-                        Modo Pánico
-                    </button>
                 </div>
                 
                 ${examRowHtml}
@@ -480,7 +476,14 @@ window.capturarNotas = function() {
     });
 };
 
-window.autocompletarParaAprobar = function(dbKey) {
+window.autocompletarParaAprobar = function() {
+    const friendId = document.getElementById('notas-friend-select').value;
+    const cursoSelect = document.getElementById('notas-curso-select').value;
+    if (!cursoSelect) {
+        alert("Selecciona una asignatura primero.");
+        return;
+    }
+    const dbKey = `${friendId}|${cursoSelect}`;
     if (!NOTAS_DATA[dbKey]) return;
     const data = NOTAS_DATA[dbKey];
     
@@ -513,6 +516,9 @@ window.autocompletarParaAprobar = function(dbKey) {
     
     let requiredGrade = (3.95 - currentFinalPoints) / missingFinalWeight;
     if (requiredGrade < 1.0) requiredGrade = 1.0;
+    
+    // Redondear siempre hacia arriba en el segundo decimal para evitar quedar corto (ej. 3.94)
+    requiredGrade = Math.ceil(requiredGrade * 100) / 100;
     
     const gradeStr = requiredGrade.toFixed(2);
     
