@@ -316,7 +316,7 @@ function renderNotasBuilder() {
     
     let sparklineHtml = '';
     if (trendGrades.length >= 2) {
-        const sw = 280; // Ampliado horizontalmente
+        const sw = 160; // Ampliado horizontalmente
         const sh = 40;  // Ampliado verticalmente para peaks notorios
         let pathD = '';
         let dotsHtml = '';
@@ -334,7 +334,7 @@ function renderNotasBuilder() {
         const y4 = sh - (((4.0 - 1) / 6.0) * sh);
         
         sparklineHtml = `
-            <div title="Tendencia de tus notas" style="display: flex; align-items: center; position: absolute; left: 100%; top: 50%; transform: translateY(-50%); margin-left: 30px;">
+            <div title="Tendencia de tus notas" style="display: flex; align-items: center;">
                 <svg width="${sw}" height="${sh}" viewBox="0 -4 ${sw} ${sh+8}" style="overflow: visible;">
                     <!-- Linea de aprobación 4.0 -->
                     <line x1="0" y1="${y4}" x2="${sw}" y2="${y4}" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1.5" stroke-dasharray="3 3" />
@@ -353,17 +353,24 @@ function renderNotasBuilder() {
     container.innerHTML = `
         <div class="notas-card ${statusClass}">
             <div class="notas-header-row" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">
-                <div class="notas-summary" style="display: flex; justify-content: center; align-items: center; gap: 48px; ${summaryBg} transition: all 0.3s;">
-                    <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                        <div class="notas-summary-title">Nota Presentación</div>
-                        <div class="notas-summary-value" style="font-size: 36px;">${currentWeightEvaluatedNP > 0 ? np_actual.toFixed(2) : '-'}</div>
+                <div class="notas-summary" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 32px; ${summaryBg} transition: all 0.3s;">
+                    <!-- Caja Izquierda -->
+                    <div style="flex: 1; display: flex; justify-content: flex-start; align-items: center;">
+                        <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                            <div class="notas-summary-title">Nota Presentación</div>
+                            <div class="notas-summary-value" style="font-size: 36px;">${currentWeightEvaluatedNP > 0 ? np_actual.toFixed(2) : '-'}</div>
+                        </div>
                     </div>
                     
+                    <!-- Separador opcional o espacio -->
+                    <div style="width: 1px; height: 60px; background: rgba(255,255,255,0.05); margin: 0 24px;"></div>
                     
-                    
-                    <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative;">
-                        <div class="notas-summary-title" style="color: #38bdf8;">Nota Final</div>
-                        <div class="notas-summary-value" style="font-size: 36px; color: #f8fafc;">${(hasExamGrade || isEximido) && Math.abs(remainingWeightNP) < 0.1 ? notaFinalCalculada.toFixed(2) : '-'}</div>
+                    <!-- Caja Derecha -->
+                    <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 32px;">
+                        <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                            <div class="notas-summary-title" style="color: #38bdf8;">Nota Final</div>
+                            <div class="notas-summary-value" style="font-size: 36px; color: #f8fafc;">${(hasExamGrade || isEximido) && Math.abs(remainingWeightNP) < 0.1 ? notaFinalCalculada.toFixed(2) : '-'}</div>
+                        </div>
                         ${sparklineHtml}
                     </div>
                 </div>
