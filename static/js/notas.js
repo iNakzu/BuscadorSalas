@@ -312,7 +312,7 @@ function renderNotasBuilder() {
     
     let sparklineHtml = '';
     if (trendGrades.length >= 2) {
-        const sw = 80;
+        const sw = 120;
         const sh = 20;
         let pathD = '';
         trendGrades.forEach((g, idx) => {
@@ -327,7 +327,7 @@ function renderNotasBuilder() {
         let lastY = sh - (((lastG - 1) / 6.0) * sh);
         
         sparklineHtml = `
-            <div style="margin-top: 6px; display: flex; align-items: center; justify-content: center;" title="Tendencia de tus notas">
+            <div style="display: flex; align-items: center; justify-content: center; margin-top: 4px;" title="Tendencia de tus notas">
                 <svg width="${sw}" height="${sh}" viewBox="0 -4 ${sw} ${sh+8}" style="overflow: visible;">
                     <path d="${pathD}" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                     <circle cx="${lastX}" cy="${lastY}" r="3" fill="#0f172a" stroke="#38bdf8" stroke-width="2" />
@@ -352,8 +352,10 @@ function renderNotasBuilder() {
                     
                     <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
                         <div class="notas-summary-title" style="color: #38bdf8;">Nota Final</div>
-                        <div class="notas-summary-value" style="font-size: 36px; color: #f8fafc;">${(hasExamGrade || isEximido) && Math.abs(remainingWeightNP) < 0.1 ? notaFinalCalculada.toFixed(2) : '-'}</div>
-                        ${sparklineHtml}
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 16px;">
+                            <div class="notas-summary-value" style="font-size: 36px; color: #f8fafc;">${(hasExamGrade || isEximido) && Math.abs(remainingWeightNP) < 0.1 ? notaFinalCalculada.toFixed(2) : '-'}</div>
+                            ${sparklineHtml}
+                        </div>
                     </div>
                 </div>
                 
