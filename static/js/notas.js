@@ -334,7 +334,7 @@ function renderNotasBuilder() {
         const y4 = sh - (((4.0 - 1) / 6.0) * sh);
         
         sparklineHtml = `
-            <div title="Tendencia de tus notas" style="display: flex; align-items: center;">
+            <div title="Tendencia de tus notas" style="display: flex; align-items: center; margin-left: 20px;">
                 <svg width="${sw}" height="${sh}" viewBox="0 -4 ${sw} ${sh+8}" style="overflow: visible;">
                     <!-- Linea de aprobación 4.0 -->
                     <line x1="0" y1="${y4}" x2="${sw}" y2="${y4}" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1.5" stroke-dasharray="3 3" />
