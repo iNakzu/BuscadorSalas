@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ai.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/notas.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/agenda.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/horario.css') }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
@@ -100,6 +101,12 @@
                     <path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
                 </svg>
                 <span>Notas</span>
+            </button>
+            <button type="button" class="tab-btn" onclick="cambiarTab('tab-agenda', this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span>Agenda</span>
             </button>
         </nav>
     </div>
@@ -720,6 +727,7 @@
 <script src="{{ url_for('static', filename='js/solemnes_data.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/solemnes.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/notas.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/agenda.js') }}" defer></script>
         </div>
     </section>
 
