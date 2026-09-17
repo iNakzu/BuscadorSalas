@@ -248,15 +248,15 @@ function renderNotasBuilder() {
             if (np_final >= exim && eW > 0) {
                 isEximido = true;
                 notaFinalCalculada = np_final;
-                survivalHtml = `<div class="notas-success" style="background: rgba(234, 179, 8, 0.15); color: #facc15; border-color: rgba(234, 179, 8, 0.3);">¡Eximido! Tu Nota de Presentación (${np_final.toFixed(1)}) supera la nota de eximición (${exim.toFixed(1)}).</div>`;
+                survivalHtml = `<div class="notas-success" style="background: rgba(234, 179, 8, 0.15); color: #facc15; border-color: rgba(234, 179, 8, 0.3);">¡Eximido! Tu Nota de Presentación (${np_final.toFixed(2)}) supera la nota de eximición (${exim.toFixed(2)}).</div>`;
                 statusClass = 'is-passed';
             } else if (hasExamGrade) {
                 notaFinalCalculada = (np_final * npW) + (examGradeVal * eW);
                 if (notaFinalCalculada >= 3.95) {
-                    survivalHtml = `<div class="notas-success">Aprobado. Tu Nota Final es ${notaFinalCalculada.toFixed(1)}.</div>`;
+                    survivalHtml = `<div class="notas-success">Aprobado. Tu Nota Final es ${notaFinalCalculada.toFixed(2)}.</div>`;
                     statusClass = 'is-passed';
                 } else {
-                    survivalHtml = `<div class="notas-danger">Reprobado. Tu Nota Final es ${notaFinalCalculada.toFixed(1)}.</div>`;
+                    survivalHtml = `<div class="notas-danger">Reprobado. Tu Nota Final es ${notaFinalCalculada.toFixed(2)}.</div>`;
                     statusClass = 'is-failed';
                 }
             } else {
@@ -265,20 +265,20 @@ function renderNotasBuilder() {
                 
                 if (eW === 0) {
                     if (np_final >= 3.95) {
-                        survivalHtml = `<div class="notas-success">Aprobado. Tu Nota Final es ${np_final.toFixed(1)}.</div>`;
+                        survivalHtml = `<div class="notas-success">Aprobado. Tu Nota Final es ${np_final.toFixed(2)}.</div>`;
                         statusClass = 'is-passed';
                     } else {
-                        survivalHtml = `<div class="notas-danger">Reprobado. Tu Nota Final es ${np_final.toFixed(1)}.</div>`;
+                        survivalHtml = `<div class="notas-danger">Reprobado. Tu Nota Final es ${np_final.toFixed(2)}.</div>`;
                         statusClass = 'is-failed';
                     }
                 } else if (requiredInExam > 7.0) {
-                    survivalHtml = `<div class="notas-danger">Imposible aprobar. Necesitas un ${requiredInExam.toFixed(1)} en el examen.</div>`;
+                    survivalHtml = `<div class="notas-danger">Imposible aprobar. Necesitas un ${requiredInExam.toFixed(2)} en el examen.</div>`;
                     statusClass = 'is-failed';
                 } else if (requiredInExam <= 1.0) {
                      survivalHtml = `<div class="notas-success">Aprobado asegurado. Aún con un 1.0 en el examen, pasas el ramo.</div>`;
                      statusClass = 'is-passed';
                 } else {
-                    survivalHtml = `<div class="notas-info">Tu NP es ${np_final.toFixed(1)}. Necesitas un <strong>${requiredInExam.toFixed(1)}</strong> en el examen para pasar.</div>`;
+                    survivalHtml = `<div class="notas-info">Tu NP es ${np_final.toFixed(2)}. Necesitas un <strong>${requiredInExam.toFixed(2)}</strong> en el examen para pasar.</div>`;
                     statusClass = 'is-pending';
                 }
             }
@@ -301,7 +301,7 @@ function renderNotasBuilder() {
                 } else if (requiredInExam <= 1.0) {
                      survivalHtml = `<div class="notas-success">Si mantienes tu rendimiento actual (NP proyectada: ${np_actual.toFixed(2)}), tienes la aprobación asegurada.</div>`;
                 } else {
-                    survivalHtml = `<div class="notas-info">Evaluación en progreso (Falta ${remainingWeightNP.toFixed(0)}%).<br>Si mantienes tu rendimiento actual (NP proyectada: ${np_actual.toFixed(2)}), necesitarás un <strong>${requiredInExam.toFixed(1)}</strong> en el Examen.</div>`;
+                    survivalHtml = `<div class="notas-info">Evaluación en progreso (Falta ${remainingWeightNP.toFixed(0)}%).<br>Si mantienes tu rendimiento actual (NP proyectada: ${np_actual.toFixed(2)}), necesitarás un <strong>${requiredInExam.toFixed(2)}</strong> en el Examen.</div>`;
                 }
             } else {
                 survivalHtml = `<div class="notas-info">Ingresa tus primeras notas para calcular tu pronóstico.</div>`;
