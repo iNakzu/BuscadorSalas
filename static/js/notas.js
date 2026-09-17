@@ -415,12 +415,17 @@ window.compartirPlantilla = function(dbKey) {
     url.searchParams.set('plantilla', itemsStr);
     url.searchParams.set('ex', data.examWeight || 30);
     
-    navigator.clipboard.writeText(url.toString()).then(() => {
-        alert("¡Link copiado al portapapeles! Envíalo a un amigo y cuando lo abra, su calculadora se configurará con tus porcentajes.");
-    }).catch(err => {
-        console.error('Error al copiar: ', err);
-        prompt("Copia este link manualmente:", url.toString());
-    });
+    const urlStr = url.toString();
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(urlStr).then(() => {
+            alert("¡Link copiado al portapapeles! Envíalo a un amigo y cuando lo abra, su calculadora se configurará con tus porcentajes.");
+        }).catch(err => {
+            prompt("Copia este link manualmente:", urlStr);
+        });
+    } else {
+        // Fallback para HTTP sin SSL
+        prompt("Copia este link manualmente:\n(Tu navegador bloquea el copiado automático sin HTTPS)", urlStr);
+    }
 };
 
 // Function to capture the card
@@ -432,22 +437,20 @@ window.capturarNotas = function() {
     const target = document.querySelector('.notas-card');
     if (!target) return;
     
-    // Temporarily hide buttons to make image clean
+    // Temporarily hide buttons to make image clean using visibility to prevent layout jump
     const buttonsRow = target.querySelector('.notas-add-row');
     const utilityRow = target.lastElementChild;
-    const oldBtnsDisplay = buttonsRow ? buttonsRow.style.display : '';
-    const oldUtilDisplay = utilityRow ? utilityRow.style.display : '';
     
-    if (buttonsRow) buttonsRow.style.display = 'none';
-    if (utilityRow) utilityRow.style.display = 'none';
+    if (buttonsRow) buttonsRow.style.visibility = 'hidden';
+    if (utilityRow) utilityRow.style.visibility = 'hidden';
     
     // Convert inputs to spans to render them nicely on canvas
     const inputs = target.querySelectorAll('input');
     inputs.forEach(inp => { inp.setAttribute('data-val', inp.value); });
     
     html2canvas(target, { backgroundColor: '#0f172a', scale: 2 }).then(canvas => {
-        if (buttonsRow) buttonsRow.style.display = oldBtnsDisplay;
-        if (utilityRow) utilityRow.style.display = oldUtilDisplay;
+        if (buttonsRow) buttonsRow.style.visibility = 'visible';
+        if (utilityRow) utilityRow.style.visibility = 'visible';
         
         let a = document.createElement('a');
         a.href = canvas.toDataURL('image/png');
