@@ -243,7 +243,7 @@ function renderNotasBuilder() {
                 }
             } else {
                 // Falta el examen
-                const requiredInExam = eW > 0 ? (4.0 - (np_final * npW)) / eW : 0;
+                const requiredInExam = eW > 0 ? (3.95 - (np_final * npW)) / eW : 0;
                 
                 if (eW === 0) {
                     let rounded100 = Math.round(np_final * 100);
@@ -281,9 +281,9 @@ function renderNotasBuilder() {
                         survivalHtml = `<div class="notas-info">Evaluación en progreso (Falta ${remainingWeightNP.toFixed(0)}%).<br>Necesitas promediar un <strong>${reqAverage.toFixed(1)}</strong> en lo restante para pasar.</div>`;
                     }
                 } else if (requiredInExam > 7.0) {
-                    survivalHtml = `<div class="notas-danger">Si mantienes tu rendimiento actual (NP proyectada: ${np_actual.toFixed(2)}), es matemáticamente imposible pasar.</div>`;
+                    survivalHtml = `<div class="notas-danger">Si mantienes tu rendimiento actual (Nota de Presentación proyectada: ${np_actual.toFixed(2)}), es matemáticamente imposible pasar.</div>`;
                 } else if (requiredInExam <= 1.0) {
-                     survivalHtml = `<div class="notas-success">Si mantienes tu rendimiento actual (NP proyectada: ${np_actual.toFixed(2)}), tienes la aprobación asegurada.</div>`;
+                     survivalHtml = `<div class="notas-success">Si mantienes tu rendimiento actual (Nota de Presentación proyectada: ${np_actual.toFixed(2)}), tienes la aprobación asegurada.</div>`;
                 } else {
                     survivalHtml = `<div class="notas-info">Evaluación en progreso (Falta ${remainingWeightNP.toFixed(0)}%).<br>Si mantienes tu rendimiento actual (NP proyectada: ${np_actual.toFixed(2)}), necesitarás un <strong>${requiredInExam.toFixed(2)}</strong> en el Examen.</div>`;
                 }
@@ -393,7 +393,7 @@ function renderNotasBuilder() {
                     <!-- Background Track -->
                     <div style="width: 100%; height: 8px; background: rgba(15, 23, 42, 0.8); border-radius: 8px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);">
                         <!-- Fill -->
-                        <div style="height: 100%; width: ${(Math.min(7.0, ((isEximido || (hasExamGrade && Math.abs(remainingWeightNP)<0.1)) ? notaFinalCalculada : np_actual)) / 7.0) * 100}%; background: ${(((isEximido || (hasExamGrade && Math.abs(remainingWeightNP)<0.1)) ? notaFinalCalculada : np_actual) >= 3.95) ? 'linear-gradient(90deg, #059669, #10b981)' : 'linear-gradient(90deg, #be123c, #f43f5e)'}; border-radius: 8px; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1), background 0.5s;"></div>
+                        <div style="height: 100%; width: ${(Math.min(7.0, ((isEximido || (hasExamGrade && Math.abs(remainingWeightNP)<0.1)) ? notaFinalCalculada : np_actual)) / 7.0) * 100}%; background: ${(Math.round(((isEximido || (hasExamGrade && Math.abs(remainingWeightNP)<0.1)) ? notaFinalCalculada : np_actual) * 100) >= 395) ? 'linear-gradient(90deg, #059669, #10b981)' : 'linear-gradient(90deg, #be123c, #f43f5e)'}; border-radius: 8px; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1), background 0.5s;"></div>
                     </div>
                     
                     <!-- Marcador 4.0 -->
