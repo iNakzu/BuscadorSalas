@@ -327,7 +327,7 @@ function renderNotasBuilder() {
         let lastY = sh - (((lastG - 1) / 6.0) * sh);
         
         sparklineHtml = `
-            <div title="Tendencia de tus notas" style="display: flex; align-items: center; margin-left: 50px;">
+            <div title="Tendencia de tus notas" style="display: flex; align-items: center; position: absolute; left: 100%; top: 50%; transform: translateY(-50%); margin-left: 30px;">
                 <svg width="${sw}" height="${sh}" viewBox="0 -4 ${sw} ${sh+8}" style="overflow: visible;">
                     <path d="${pathD}" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                     <circle cx="${lastX}" cy="${lastY}" r="3" fill="#0f172a" stroke="#38bdf8" stroke-width="2" />
@@ -342,7 +342,7 @@ function renderNotasBuilder() {
     container.innerHTML = `
         <div class="notas-card ${statusClass}">
             <div class="notas-header-row" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">
-                <div class="notas-summary" style="display: flex; justify-content: center; align-items: center; gap: 24px; ${summaryBg} transition: all 0.3s;">
+                <div class="notas-summary" style="display: flex; justify-content: center; align-items: center; gap: 48px; ${summaryBg} transition: all 0.3s;">
                     <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
                         <div class="notas-summary-title">Nota Presentación</div>
                         <div class="notas-summary-value" style="font-size: 36px;">${currentWeightEvaluatedNP > 0 ? np_actual.toFixed(2) : '-'}</div>
@@ -350,15 +350,10 @@ function renderNotasBuilder() {
                     
                     
                     
-                    <div style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;">
-                        <div></div>
-                        <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                            <div class="notas-summary-title" style="color: #38bdf8;">Nota Final</div>
-                            <div class="notas-summary-value" style="font-size: 36px; color: #f8fafc;">${(hasExamGrade || isEximido) && Math.abs(remainingWeightNP) < 0.1 ? notaFinalCalculada.toFixed(2) : '-'}</div>
-                        </div>
-                        <div style="padding-left: 16px; display: flex; justify-content: flex-start;">
-                            ${sparklineHtml}
-                        </div>
+                    <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative;">
+                        <div class="notas-summary-title" style="color: #38bdf8;">Nota Final</div>
+                        <div class="notas-summary-value" style="font-size: 36px; color: #f8fafc;">${(hasExamGrade || isEximido) && Math.abs(remainingWeightNP) < 0.1 ? notaFinalCalculada.toFixed(2) : '-'}</div>
+                        ${sparklineHtml}
                     </div>
                 </div>
                 
