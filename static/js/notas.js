@@ -316,7 +316,7 @@ function renderNotasBuilder() {
     
     let sparklineHtml = '';
     if (trendGrades.length >= 2) {
-        const sw = 160; // Ampliado horizontalmente
+        const sw = 240; // Ampliado horizontalmente
         const sh = 40;  // Ampliado verticalmente para peaks notorios
         let pathD = '';
         let dotsHtml = '';
