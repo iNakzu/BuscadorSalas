@@ -92,6 +92,23 @@ function updateNotasDropdown() {
 
 function updateGlobalNota(dbKey, field, value) {
     if (!NOTAS_DATA[dbKey]) return;
+    if (field === 'examGrade') {
+        if (value.trim() !== '') {
+            let num = parseFloat(value.replace(',', '.'));
+            if (!isNaN(num)) {
+                if (num < 1.0) num = 1.0;
+                if (num > 7.0) num = 7.0;
+                value = num.toString();
+            } else {
+                value = '';
+            }
+        }
+    } else if (field === 'examWeight') {
+        let w = parseFloat(value) || 0;
+        if (w < 0) w = 0;
+        if (w > 100) w = 100;
+        value = w;
+    }
     NOTAS_DATA[dbKey][field] = value;
     saveNotas();
     renderNotasBuilder();
@@ -420,8 +437,24 @@ function renderNotasBuilder() {
 function updateNotaItem(dbKey, index, field, value) {
     if (!NOTAS_DATA[dbKey]) return;
     if (field === 'weight') {
-        NOTAS_DATA[dbKey].items[index].weight = parseFloat(value) || 0;
-    } else if (field === 'grade' || field === 'name') {
+        let w = parseFloat(value) || 0;
+        if (w < 0) w = 0;
+        if (w > 100) w = 100;
+        NOTAS_DATA[dbKey].items[index].weight = w;
+    } else if (field === 'grade') {
+        if (value.trim() !== '') {
+            let num = parseFloat(value.replace(',', '.'));
+            if (!isNaN(num)) {
+                if (num < 1.0) num = 1.0;
+                if (num > 7.0) num = 7.0;
+                NOTAS_DATA[dbKey].items[index].grade = num.toString();
+            } else {
+                NOTAS_DATA[dbKey].items[index].grade = '';
+            }
+        } else {
+            NOTAS_DATA[dbKey].items[index].grade = '';
+        }
+    } else if (field === 'name') {
         NOTAS_DATA[dbKey].items[index][field] = value;
     } else {
         const parsed = parseFloat(value);
