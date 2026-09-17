@@ -216,7 +216,6 @@ const customStyles = `
         font-size: 12px;
         font-weight: 500;
         margin-bottom: 4px;
-        text-transform: uppercase;
         letter-spacing: 0.5px;
     }
     .sol-time-range {
