@@ -281,23 +281,18 @@ function renderNotasBuilder() {
     let examStyle = "margin-top: 16px; transition: all 0.3s;";
     let examLabel = "Examen";
     let inputDisabled = "";
-    if (isEximido) {
-        examStyle += " background: rgba(234, 179, 8, 0.15); border-color: rgba(234, 179, 8, 0.4); opacity: 0.8;";
-        examLabel = "Examen (Eximido)";
-        inputDisabled = "disabled";
-    }
 
     let examRowHtml = `
         <div class="notas-item-row" style="${examStyle}">
-            <div style="color: ${isEximido ? '#facc15' : '#e2e8f0'}; font-size: 14px; font-weight: 600; flex-grow: 1; min-width: 120px;">${examLabel}</div>
+            <div style="color: #e2e8f0; font-size: 14px; font-weight: 600; flex-grow: 1; min-width: 120px;">${examLabel}</div>
                 <div style="display:flex; align-items:center; gap: 6px;">
 
                     <div class="notas-input-wrapper" style="width: 60px;">
-                        <input type="number" class="notas-input-weight" value="${data.examWeight !== undefined ? data.examWeight : 30}" onchange="updateGlobalNota('${dbKey}', 'examWeight', this.value)" placeholder="%" ${inputDisabled}>
+                        <input type="number" class="notas-input-weight" value="${data.examWeight !== undefined ? data.examWeight : 30}" onchange="updateGlobalNota('${dbKey}', 'examWeight', this.value)" placeholder="%">
                         <span class="notas-percent-symbol">%</span>
                     </div>
-                    <input type="number" step="0.1" min="1.0" max="7.0" class="notas-input-grade" style="width: 80px; ${isEximido ? 'visibility: hidden;' : ''}" value="${data.examGrade !== null ? data.examGrade : ''}" onchange="updateGlobalNota('${dbKey}', 'examGrade', this.value)" placeholder="Nota" ${inputDisabled}>
-                    <div style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; color: ${isEximido ? '#facc15' : '#64748b'};" title="El examen final no se puede eliminar">
+                    <input type="number" step="0.1" min="1.0" max="7.0" class="notas-input-grade" style="width: 80px;" value="${data.examGrade !== null ? data.examGrade : ''}" onchange="updateGlobalNota('${dbKey}', 'examGrade', this.value)" placeholder="Nota">
+                    <div style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; color: #64748b;" title="El examen final no se puede eliminar">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                     </div>
                 </div>
