@@ -14,44 +14,7 @@ function initNotas() {
             }
         }
         
-        // Handle Shared Templates
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('plantilla')) {
-            const p = urlParams.get('plantilla');
-            const ex = urlParams.get('ex') || 30;
-            const exim = urlParams.get('exim') || 5.0;
-            
-            let newItems = [];
-            p.split(',').forEach(itemStr => {
-                const parts = itemStr.split(':');
-                if (parts.length === 2) {
-                    newItems.push({
-                        id: Date.now() + Math.random(),
-                        name: decodeURIComponent(parts[0]),
-                        weight: parseFloat(parts[1]) || 0,
-                        grade: null
-                    });
-                }
-            });
-            
-            if (newItems.length > 0) {
-                setTimeout(() => {
-                    if (confirm("Alguien te envió una plantilla de notas compartida.\n¿Quieres guardarla como un ramo nuevo llamado 'Ramo Compartido'?")) {
-                        NOTAS_DATA['nakzu|Ramo Compartido'] = {
-                            items: newItems,
-                            examWeight: parseFloat(ex),
-                            eximGrade: parseFloat(exim),
-                            examGrade: null
-                        };
-                        saveNotas();
-                        window.history.replaceState({}, document.title, window.location.pathname);
-                        if (typeof window.cambiarTab === 'function') {
-                            window.cambiarTab('tab-notas');
-                        }
-                    }
-                }, 1000);
-            }
-        }
+
     } catch(e) { console.error(e); }
 }
 
@@ -392,11 +355,7 @@ function renderNotasBuilder() {
                 ${survivalHtml}
             </div>
             
-            <div style="display: flex; gap: 8px; justify-content: center; margin-top: 24px;">
-                <button onclick="compartirPlantilla('${dbKey}')" style="background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); color: #38bdf8; padding: 6px 12px; border-radius: 6px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-                    Compartir Ramo
-                </button>
+            <div class="notas-utility-row" style="display: flex; gap: 8px; justify-content: center; margin-top: 24px;">
                 <button onclick="capturarNotas()" style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #10b981; padding: 6px 12px; border-radius: 6px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
                     Capturar Imagen
@@ -406,58 +365,9 @@ function renderNotasBuilder() {
     `;
 }
 
-// Function to copy a shareable link
-window.compartirPlantilla = function(dbKey) {
-    if (!NOTAS_DATA[dbKey]) return;
-    const data = NOTAS_DATA[dbKey];
-    let itemsStr = data.items.map(i => `${encodeURIComponent(i.name)}:${i.weight}`).join(',');
-    let url = new URL(window.location.href);
-    url.searchParams.set('plantilla', itemsStr);
-    url.searchParams.set('ex', data.examWeight || 30);
-    
-    const urlStr = url.toString();
-    if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(urlStr).then(() => {
-            alert("¡Link copiado al portapapeles! Envíalo a un amigo y cuando lo abra, su calculadora se configurará con tus porcentajes.");
-        }).catch(err => {
-            prompt("Copia este link manualmente:", urlStr);
-        });
-    } else {
-        // Fallback para HTTP sin SSL
-        prompt("Copia este link manualmente:\n(Tu navegador bloquea el copiado automático sin HTTPS)", urlStr);
-    }
-};
 
-// Function to capture the card
-window.capturarNotas = function() {
-    if (typeof html2canvas === 'undefined') {
-        alert("El módulo de captura aún está cargando o fue bloqueado por el navegador.");
-        return;
-    }
-    const target = document.querySelector('.notas-card');
-    if (!target) return;
-    
-    // Temporarily hide buttons to make image clean using visibility to prevent layout jump
-    const buttonsRow = target.querySelector('.notas-add-row');
-    const utilityRow = target.lastElementChild;
-    
-    if (buttonsRow) buttonsRow.style.visibility = 'hidden';
-    if (utilityRow) utilityRow.style.visibility = 'hidden';
-    
-    // Convert inputs to spans to render them nicely on canvas
-    const inputs = target.querySelectorAll('input');
-    inputs.forEach(inp => { inp.setAttribute('data-val', inp.value); });
-    
-    html2canvas(target, { backgroundColor: '#0f172a', scale: 2 }).then(canvas => {
-        if (buttonsRow) buttonsRow.style.visibility = 'visible';
-        if (utilityRow) utilityRow.style.visibility = 'visible';
-        
-        let a = document.createElement('a');
-        a.href = canvas.toDataURL('image/png');
-        a.download = 'Mis_Notas_UDP.png';
-        a.click();
-    });
-};
+
+
 
 
 function updateNotaItem(dbKey, index, field, value) {
