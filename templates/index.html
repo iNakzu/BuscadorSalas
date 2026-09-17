@@ -778,6 +778,70 @@
         </div>
     </section>
 
+    <!-- PESTAÑA: AGENDA -->
+    <section id="tab-agenda" class="panel">
+        <div class="panel-header" style="flex-direction: column; align-items: stretch; gap: 24px; border-bottom: none; padding-bottom: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="margin-bottom: 8px; background: linear-gradient(to right, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Agenda de Evaluaciones</h2>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button onclick="abrirModalAgenda()" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 8px 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; font-weight: 600; font-size: 14px; gap: 6px;" onmouseover="this.style.background='rgba(56, 189, 248, 0.25)'" onmouseout="this.style.background='rgba(56, 189, 248, 0.15)'">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        Añadir
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="agenda-container" style="padding: 24px;">
+            <!-- Renderizado dinámico -->
+        </div>
+
+        <!-- MODAL AGREGAR EVENTO AGENDA -->
+        <div class="my-modal-overlay" id="modal-agenda" style="display: none;" onclick="if(event.target === this) cerrarModalAgenda()">
+            <div class="my-modal-dialog" role="dialog" aria-modal="true" style="max-width: 400px; width: 100%; max-height: 90vh; overflow-y: auto;">
+                <div class="my-modal-header">
+                    <div>
+                        <div class="my-modal-title" id="agenda-modal-title">Añadir Evaluación</div>
+                    </div>
+                    <button type="button" class="my-modal-close" onclick="cerrarModalAgenda()" title="Cerrar">&times;</button>
+                </div>
+
+                <form id="form-agenda" onsubmit="guardarEventoAgenda(event)">
+                    <input type="hidden" id="agenda-id" value="">
+                    
+                    <div style="margin-bottom: 16px;">
+                        <label style="display:block; font-size: 12px; font-weight: 600; color: #94a3b8; margin-bottom: 6px;">Asignatura</label>
+                        <select id="agenda-ramo" class="notas-select" required style="width: 100%;">
+                            <!-- Llenado dinámico -->
+                        </select>
+                    </div>
+
+                    <div style="margin-bottom: 16px;">
+                        <label style="display:block; font-size: 12px; font-weight: 600; color: #94a3b8; margin-bottom: 6px;">Tipo de Evaluación</label>
+                        <select id="agenda-tipo" class="notas-select" required style="width: 100%;">
+                            <option value="Solemne">📝 Solemne / Prueba</option>
+                            <option value="Control">🧠 Control / Quiz</option>
+                            <option value="Trabajo">📄 Entrega de Trabajo / Informe</option>
+                            <option value="Presentacion">🗣️ Presentación / Disertación</option>
+                        </select>
+                    </div>
+
+                    <div style="margin-bottom: 16px;">
+                        <label style="display:block; font-size: 12px; font-weight: 600; color: #94a3b8; margin-bottom: 6px;">Fecha y Hora Límite</label>
+                        <input type="datetime-local" id="agenda-fecha" required style="width: 100%; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #f8fafc; padding: 10px; font-size: 14px;">
+                    </div>
+
+                    <div style="margin-bottom: 24px;">
+                        <label style="display:block; font-size: 12px; font-weight: 600; color: #94a3b8; margin-bottom: 6px;">Notas Adicionales (Opcional)</label>
+                        <input type="text" id="agenda-notas" placeholder="Ej. Estudiar caps. 3 al 5..." style="width: 100%; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #f8fafc; padding: 10px; font-size: 14px;">
+                    </div>
+
+                    <button type="submit" style="width: 100%; background: #38bdf8; color: #0f172a; border: none; border-radius: 8px; padding: 12px; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.2s;">Guardar Evento</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
 <!-- BOTÓN FLOTANTE MINIMALISTA Y VENTANA DE CHAT -->
 <button type="button" class="ai-fab-btn" onclick="toggleAIChat()" title="Consultar disponibilidad">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="rgba(255, 255, 255, 0.15)" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
