@@ -762,9 +762,16 @@
                                 <option value="alexis">Alexis</option>
                             </select>
                             
-                            <select id="notas-curso-select" onchange="renderNotasBuilder()" style="background: transparent; color: #e2e8f0; border: none; padding: 4px 12px 4px 4px; border-left: 1px solid rgba(255,255,255,0.1); font-size: 14px; outline: none; cursor: pointer; flex-grow: 1;">
-                                <option value="">Selecciona una asignatura...</option>
-                            </select>
+                            <div class="custom-dropdown" id="dd-notas-curso" style="flex-grow: 1; border-left: 1px solid rgba(255,255,255,0.1);">
+                                <button type="button" class="dropdown-trigger" onclick="toggleDropdown('dd-notas-curso')" style="background: transparent; border: none; padding: 4px 12px 4px 12px; width: 100%; justify-content: space-between;">
+                                    <span id="label-notas-curso" style="color: #e2e8f0; font-size: 14px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">Selecciona una asignatura...</span>
+                                    <svg class="dropdown-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <div class="dropdown-item active" data-val="" onclick="selectDropdownItem('dd-notas-curso', '', 'Selecciona una asignatura...', renderNotasBuilder)">Selecciona una asignatura...</div>
+                                </div>
+                                <input type="hidden" id="notas-curso-select" value="">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -887,19 +894,33 @@
                     
                     <div class="my-form-group">
                         <label class="my-form-label">Asignatura</label>
-                        <select id="agenda-ramo" class="my-form-input" required style="cursor: pointer; appearance: auto; -webkit-appearance: auto;">
-                            <!-- Llenado dinámico -->
-                        </select>
+                        <div class="custom-dropdown" id="dd-agenda-ramo" style="width: 100%;">
+                            <button type="button" class="dropdown-trigger my-form-input" onclick="toggleDropdown('dd-agenda-ramo')" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left; height: 38px;">
+                                <span id="label-agenda-ramo" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Selecciona un Ramo...</span>
+                                <svg class="dropdown-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink: 0; margin-left: 8px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </button>
+                            <div class="dropdown-menu" style="max-height: 200px;">
+                                <!-- Llenado dinámico -->
+                            </div>
+                            <input type="hidden" id="agenda-ramo" required value="">
+                        </div>
                     </div>
 
                     <div class="my-form-group">
                         <label class="my-form-label">Tipo de Evaluación</label>
-                        <select id="agenda-tipo" class="my-form-input" required style="cursor: pointer; appearance: auto; -webkit-appearance: auto;">
-                            <option value="Solemne">Solemne / Prueba</option>
-                            <option value="Control">Control / Quiz</option>
-                            <option value="Trabajo">Entrega de Trabajo / Informe</option>
-                            <option value="Presentacion">Presentación / Disertación</option>
-                        </select>
+                        <div class="custom-dropdown" id="dd-agenda-tipo" style="width: 100%;">
+                            <button type="button" class="dropdown-trigger my-form-input" onclick="toggleDropdown('dd-agenda-tipo')" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left; height: 38px;">
+                                <span id="label-agenda-tipo">Solemne / Prueba</span>
+                                <svg class="dropdown-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink: 0; margin-left: 8px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </button>
+                            <div class="dropdown-menu">
+                                <div class="dropdown-item active" data-val="Solemne" onclick="selectDropdownItem('dd-agenda-tipo', 'Solemne', 'Solemne / Prueba')">Solemne / Prueba</div>
+                                <div class="dropdown-item" data-val="Control" onclick="selectDropdownItem('dd-agenda-tipo', 'Control', 'Control / Quiz')">Control / Quiz</div>
+                                <div class="dropdown-item" data-val="Trabajo" onclick="selectDropdownItem('dd-agenda-tipo', 'Trabajo', 'Entrega de Trabajo / Informe')">Entrega de Trabajo / Informe</div>
+                                <div class="dropdown-item" data-val="Presentacion" onclick="selectDropdownItem('dd-agenda-tipo', 'Presentacion', 'Presentación / Disertación')">Presentación / Disertación</div>
+                            </div>
+                            <input type="hidden" id="agenda-tipo" required value="Solemne">
+                        </div>
                     </div>
 
                     <div class="my-form-group">

@@ -51,25 +51,45 @@ function abrirModalAgenda(id = null) {
         ramos = [...new Set(valid.map(c => c.curso))].filter(Boolean).sort();
     }
     
-    select.innerHTML = '<option value="">Selecciona un Ramo...</option>' + 
-        ramos.map(r => `<option value="${r.replace(/"/g, '&quot;')}">${r}</option>`).join('') +
-        '<option value="Otro">Otro...</option>';
+    let htmlMenu = `<div class="dropdown-item active" data-val="" onclick="selectDropdownItem('dd-agenda-ramo', '', 'Selecciona un Ramo...')">Selecciona un Ramo...</div>`;
+    ramos.forEach(r => {
+        htmlMenu += `<div class="dropdown-item" data-val="${r}" onclick="selectDropdownItem('dd-agenda-ramo', '${r.replace(/'/g, "\'")}', '${r.replace(/'/g, "\'")}')">${r}</div>`;
+    });
+    htmlMenu += `<div class="dropdown-item" data-val="Otro" onclick="selectDropdownItem('dd-agenda-ramo', 'Otro', 'Otro...')">Otro...</div>`;
+    
+    const menuEl = document.querySelector('#dd-agenda-ramo .dropdown-menu');
+    if (menuEl) menuEl.innerHTML = htmlMenu;
+    
+    const labelEl = document.getElementById('label-agenda-ramo');
+    if (labelEl) labelEl.textContent = 'Selecciona un Ramo...';
+    select.value = '';
+    
+    // Para agenda-tipo, reiniciarlo
+    const tipoLabel = document.getElementById('label-agenda-tipo');
+    if (tipoLabel) tipoLabel.textContent = 'Solemne / Prueba';
+    document.getElementById('agenda-tipo').value = 'Solemne';
 
     if (id) {
         const ev = AGENDA_DATA.find(e => e.id === id);
         if (ev) {
             document.getElementById('agenda-id').value = ev.id;
             
-            // Si el ramo no está en la lista (ej: "Otro"), agregarlo temporalmente al dropdown
-            if (!ramos.includes(ev.ramo)) {
-                let opt = document.createElement('option');
-                opt.value = ev.ramo;
-                opt.textContent = ev.ramo;
-                select.appendChild(opt);
+            // Si el ramo no está en la lista, agregarlo temporalmente al menú
+            if (ev.ramo && !ramos.includes(ev.ramo) && ev.ramo !== 'Otro') {
+                htmlMenu += `<div class="dropdown-item" data-val="${ev.ramo}" onclick="selectDropdownItem('dd-agenda-ramo', '${ev.ramo.replace(/'/g, "\'")}', '${ev.ramo.replace(/'/g, "\'")}')">${ev.ramo}</div>`;
+                if (menuEl) menuEl.innerHTML = htmlMenu;
             }
             
-            select.value = ev.ramo;
-            document.getElementById('agenda-tipo').value = ev.tipo;
+            selectDropdownItem('dd-agenda-ramo', ev.ramo, ev.ramo);
+            
+            const tipoMap = {
+                'Solemne': 'Solemne / Prueba',
+                'Control': 'Control / Quiz',
+                'Trabajo': 'Entrega de Trabajo / Informe',
+                'Presentacion': 'Presentación / Disertación'
+            };
+            selectDropdownItem('dd-agenda-tipo', ev.tipo, tipoMap[ev.tipo] || ev.tipo);
+            
             document.getElementById('agenda-fecha').value = ev.fecha;
             document.getElementById('agenda-notas').value = ev.notas || '';
             document.getElementById('agenda-modal-title').textContent = 'Editar Evaluación';
@@ -78,6 +98,8 @@ function abrirModalAgenda(id = null) {
         document.getElementById('form-agenda').reset();
         document.getElementById('agenda-id').value = '';
         document.getElementById('agenda-modal-title').textContent = 'Añadir Evaluación';
+        selectDropdownItem('dd-agenda-ramo', '', 'Selecciona un Ramo...');
+        selectDropdownItem('dd-agenda-tipo', 'Solemne', 'Solemne / Prueba');
     }
     
     modal.style.display = 'flex';
