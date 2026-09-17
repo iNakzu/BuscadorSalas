@@ -155,7 +155,7 @@
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 8px;
+    gap: 4px;
     width: 100%;
 }
 
@@ -169,7 +169,6 @@
 }
 
 .cal-day {
-    aspect-ratio: 1;
     min-height: 54px;
     background: rgba(15, 23, 42, 0.45);
     border: 1px solid rgba(255, 255, 255, 0.05);
@@ -276,6 +275,12 @@
 }
 
 @media (min-width: 600px) {
+    .calendar-grid {
+        gap: 8px;
+    }
+    .cal-day {
+        aspect-ratio: 1;
+    }
     .desktop-dots {
         display: flex;
     }
