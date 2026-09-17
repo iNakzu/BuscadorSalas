@@ -327,7 +327,7 @@ function renderNotasBuilder() {
         let lastY = sh - (((lastG - 1) / 6.0) * sh);
         
         sparklineHtml = `
-            <div title="Tendencia de tus notas" style="display: flex; align-items: center; margin-left: 30px;">
+            <div title="Tendencia de tus notas" style="display: flex; align-items: center; margin-left: 50px;">
                 <svg width="${sw}" height="${sh}" viewBox="0 -4 ${sw} ${sh+8}" style="overflow: visible;">
                     <path d="${pathD}" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                     <circle cx="${lastX}" cy="${lastY}" r="3" fill="#0f172a" stroke="#38bdf8" stroke-width="2" />
@@ -481,62 +481,3 @@ window.capturarNotas = function() {
     });
 };
 
-window.autocompletarParaAprobar = function() {
-    const friendId = document.getElementById('notas-friend-select').value;
-    const cursoSelect = document.getElementById('notas-curso-select').value;
-    if (!cursoSelect) {
-        alert("Selecciona una asignatura primero.");
-        return;
-    }
-    const dbKey = `${friendId}|${cursoSelect}`;
-    if (!NOTAS_DATA[dbKey]) return;
-    const data = NOTAS_DATA[dbKey];
-    
-    const eW = parseFloat(data.examWeight !== undefined ? data.examWeight : 30) / 100;
-    const npW = 1.0 - eW;
-    
-    let currentFinalPoints = 0;
-    let missingFinalWeight = 0;
-    
-    data.items.forEach(i => {
-        const itemW = (parseFloat(i.weight) || 0) / 100;
-        const globalW = itemW * npW;
-        if (i.grade !== null && i.grade !== '') {
-            currentFinalPoints += parseFloat(i.grade) * globalW;
-        } else {
-            missingFinalWeight += globalW;
-        }
-    });
-    
-    if (data.examGrade !== null && data.examGrade !== '') {
-        currentFinalPoints += parseFloat(data.examGrade) * eW;
-    } else {
-        missingFinalWeight += eW;
-    }
-    
-    if (missingFinalWeight <= 0) {
-        alert("Ya ingresaste todas tus notas. Borra alguna para simular.");
-        return;
-    }
-    
-    let requiredGrade = (3.95 - currentFinalPoints) / missingFinalWeight;
-    if (requiredGrade < 1.0) requiredGrade = 1.0;
-    
-    // Redondear siempre hacia arriba en el segundo decimal para evitar quedar corto (ej. 3.94)
-    requiredGrade = Math.ceil(requiredGrade * 100) / 100;
-    
-    const gradeStr = requiredGrade.toFixed(2);
-    
-    data.items.forEach(i => {
-        if (i.grade === null || i.grade === '') {
-            i.grade = gradeStr;
-        }
-    });
-    
-    if (data.examGrade === null || data.examGrade === '') {
-        data.examGrade = gradeStr;
-    }
-    
-    saveNotas();
-    renderNotasBuilder();
-};
