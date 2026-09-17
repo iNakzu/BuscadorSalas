@@ -216,7 +216,8 @@
     display: flex;
     gap: 3px;
     position: absolute;
-    bottom: 6px;
+    top: 8px;
+    left: 8px;
 }
 
 .cal-dot {
@@ -228,3 +229,20 @@
 .cal-dot.control { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
 .cal-dot.trabajo { background: #8b5cf6; box-shadow: 0 0 8px #8b5cf6; }
 .cal-dot.presentacion { background: #3b82f6; box-shadow: 0 0 8px #3b82f6; }
+
+.cal-nav-btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+.cal-nav-btn:hover {
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.1);
+}

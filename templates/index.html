@@ -790,25 +790,19 @@
         <div class="panel-header" style="flex-direction: column; align-items: stretch; gap: 24px; border-bottom: none; padding-bottom: 0;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <h2 style="margin-bottom: 8px; background: linear-gradient(to right, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; transform: translateZ(0);">Agenda de Evaluaciones</h2>
-                <div style="display: flex; gap: 8px; align-items: center;">
-                    <button onclick="abrirModalAgenda()" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 8px 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; font-weight: 600; font-size: 14px; gap: 6px;" onmouseover="this.style.background='rgba(56, 189, 248, 0.25)'" onmouseout="this.style.background='rgba(56, 189, 248, 0.15)'">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                        Añadir
-                    </button>
-                </div>
             </div>
         </div>
 
         
         <!-- CALENDARIO GIGANTE -->
         <div id="agenda-calendar-wrapper" style="padding: 0 24px 24px 24px;">
-            <div class="calendar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                <button type="button" class="btn-icon" onclick="changeCalendarMonth(-1)">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            <div class="calendar-header" style="display: flex; justify-content: center; align-items: center; gap: 16px; margin-bottom: 16px;">
+                <button type="button" class="cal-nav-btn" onclick="changeCalendarMonth(-1)">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
                 </button>
                 <h3 id="calendar-month-title" style="margin: 0; font-size: 18px; font-weight: 700; color: #f8fafc; text-transform: capitalize;">Septiembre 2026</h3>
-                <button type="button" class="btn-icon" onclick="changeCalendarMonth(1)">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                <button type="button" class="cal-nav-btn" onclick="changeCalendarMonth(1)">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                 </button>
             </div>
             
