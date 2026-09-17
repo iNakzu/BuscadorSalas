@@ -319,22 +319,38 @@ function renderNotasBuilder() {
         const sw = 200;
         const sh = 20;
         let pathD = '';
+        let fillPathD = '';
         trendGrades.forEach((g, idx) => {
             let x = idx * (sw / (trendGrades.length - 1));
             let y = sh - (((g - 1) / 6.0) * sh);
-            if (idx === 0) pathD += `M ${x} ${y} `;
-            else pathD += `L ${x} ${y} `;
+            if (idx === 0) {
+                pathD += `M ${x} ${y} `;
+                fillPathD += `M ${x} ${sh} L ${x} ${y} `;
+            } else {
+                pathD += `L ${x} ${y} `;
+                fillPathD += `L ${x} ${y} `;
+            }
         });
         
         let lastG = trendGrades[trendGrades.length - 1];
         let lastX = sw;
         let lastY = sh - (((lastG - 1) / 6.0) * sh);
+        fillPathD += `L ${lastX} ${sh} Z`;
+        
+        const y4 = sh - (((4.0 - 1) / 6.0) * sh);
+        let dotColor = lastG >= 3.95 ? '#10b981' : '#f43f5e';
         
         sparklineHtml = `
             <div title="Tendencia de tus notas" style="display: flex; align-items: center; position: absolute; left: 100%; top: 50%; transform: translateY(-50%); margin-left: 30px;">
                 <svg width="${sw}" height="${sh}" viewBox="0 -4 ${sw} ${sh+8}" style="overflow: visible;">
+                    <!-- Linea de aprobación 4.0 -->
+                    <line x1="0" y1="${y4}" x2="${sw}" y2="${y4}" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1.5" stroke-dasharray="3 3" />
+                    <!-- Área bajo la curva -->
+                    <path d="${fillPathD}" fill="rgba(56, 189, 248, 0.05)" />
+                    <!-- Línea principal -->
                     <path d="${pathD}" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    <circle cx="${lastX}" cy="${lastY}" r="3" fill="#0f172a" stroke="#38bdf8" stroke-width="2" />
+                    <!-- Punto final indicador de estado -->
+                    <circle cx="${lastX}" cy="${lastY}" r="3.5" fill="#0f172a" stroke="${dotColor}" stroke-width="2.5" />
                 </svg>
             </div>
         `;
