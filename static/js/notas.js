@@ -531,18 +531,12 @@ window.capturarMiHorario = function() {
     const target = document.getElementById('mihorario-display-container');
     if (!target) return;
     
-    const oldBg = target.style.backgroundColor;
-    target.style.backgroundColor = '#0f172a';
-    
     html2canvas(target, { backgroundColor: '#0f172a', scale: 6 }).then(canvas => {
-        target.style.backgroundColor = oldBg;
-        
         let a = document.createElement('a');
         a.href = canvas.toDataURL('image/png');
         a.download = 'Mi_Horario_UDP.png';
         a.click();
     }).catch(err => {
-        target.style.backgroundColor = oldBg;
         console.error("Error al capturar la imagen:", err);
         alert("Hubo un error al generar la imagen.");
     });
