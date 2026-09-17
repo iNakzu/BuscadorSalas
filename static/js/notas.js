@@ -215,8 +215,10 @@ function renderNotasBuilder() {
                 statusClass = 'is-passed';
             } else if (hasExamGrade) {
                 notaFinalCalculada = (np_final * npW) + (examGradeVal * eW);
-                if (Math.round(notaFinalCalculada * 100) >= 395) {
-                    survivalHtml = `<div class="notas-success">Aprobado. Tu Nota Final es ${notaFinalCalculada.toFixed(2)}.</div>`;
+                let rounded100 = Math.round(notaFinalCalculada * 100);
+                if (rounded100 >= 395) {
+                    let displayGrade = rounded100 < 400 ? "4.00" : notaFinalCalculada.toFixed(2);
+                    survivalHtml = `<div class="notas-success">Aprobado. Tu Nota Final es ${displayGrade}.</div>`;
                     statusClass = 'is-passed';
                 } else {
                     survivalHtml = `<div class="notas-danger">Reprobado. Tu Nota Final es ${notaFinalCalculada.toFixed(2)}.</div>`;
@@ -227,8 +229,10 @@ function renderNotasBuilder() {
                 const requiredInExam = eW > 0 ? (4.0 - (np_final * npW)) / eW : 0;
                 
                 if (eW === 0) {
-                    if (Math.round(np_final * 100) >= 395) {
-                        survivalHtml = `<div class="notas-success">Aprobado. Tu Nota Final es ${np_final.toFixed(2)}.</div>`;
+                    let rounded100 = Math.round(np_final * 100);
+                    if (rounded100 >= 395) {
+                        let displayGrade = rounded100 < 400 ? "4.00" : np_final.toFixed(2);
+                        survivalHtml = `<div class="notas-success">Aprobado. Tu Nota Final es ${displayGrade}.</div>`;
                         statusClass = 'is-passed';
                     } else {
                         survivalHtml = `<div class="notas-danger">Reprobado. Tu Nota Final es ${np_final.toFixed(2)}.</div>`;
@@ -352,7 +356,7 @@ function renderNotasBuilder() {
                     
                     <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative;">
                         <div class="notas-summary-title" style="color: #38bdf8;">Nota Final</div>
-                        <div class="notas-summary-value" style="font-size: 36px; color: #f8fafc;">${(hasExamGrade || isEximido) && Math.abs(remainingWeightNP) < 0.1 ? notaFinalCalculada.toFixed(2) : '-'}</div>
+                        <div class="notas-summary-value" style="font-size: 36px; color: #f8fafc;">${(hasExamGrade || isEximido) && Math.abs(remainingWeightNP) < 0.1 ? (Math.round(notaFinalCalculada * 100) >= 395 && Math.round(notaFinalCalculada * 100) < 400 ? "4.00" : notaFinalCalculada.toFixed(2)) : '-'}</div>
                         ${sparklineHtml}
                     </div>
                 </div>
