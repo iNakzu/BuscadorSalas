@@ -243,7 +243,7 @@ function renderNotasBuilder() {
                 }
             } else {
                 // Falta el examen
-                const requiredInExam = eW > 0 ? (3.95 - (np_final * npW)) / eW : 0;
+                const requiredInExam = eW > 0 ? (3.945 - (np_final * npW)) / eW : 0;
                 
                 if (eW === 0) {
                     let rounded100 = Math.round(np_final * 100);
@@ -262,17 +262,17 @@ function renderNotasBuilder() {
                      survivalHtml = `<div class="notas-success">Aprobado asegurado. Aún con un 1.0 en el examen, pasas el ramo.</div>`;
                      statusClass = 'is-passed';
                 } else {
-                    survivalHtml = `<div class="notas-info">Tu Nota de Presentación es ${np_final.toFixed(2)}. Necesitas un <strong>${(Math.round(requiredInExam * 100) / 100).toFixed(2)}</strong> en el examen para pasar.</div>`;
+                    survivalHtml = `<div class="notas-info">Tu Nota de Presentación es ${np_final.toFixed(2)}. Necesitas un <strong>${(Math.ceil((requiredInExam - 0.00001) * 100) / 100).toFixed(2)}</strong> en el examen para pasar.</div>`;
                     statusClass = 'is-pending';
                 }
             }
         } else {
             // NP incompleta
             if (currentWeightEvaluatedNP > 0) {
-                const requiredInExam = eW > 0 ? (3.95 - (np_actual * npW)) / eW : 0;
+                const requiredInExam = eW > 0 ? (3.945 - (np_actual * npW)) / eW : 0;
                 
                 if (eW === 0) {
-                    const reqAverage = (3.95 - currentWeightedSumNP) / (remainingWeightNP / 100);
+                    const reqAverage = (3.945 - currentWeightedSumNP) / (remainingWeightNP / 100);
                     if (reqAverage > 7.0) {
                         survivalHtml = `<div class="notas-danger">Es matemáticamente imposible pasar con lo que te falta.</div>`;
                     } else if (reqAverage <= 1.0) {
@@ -285,7 +285,7 @@ function renderNotasBuilder() {
                 } else if (requiredInExam <= 1.0) {
                      survivalHtml = `<div class="notas-success">Si mantienes tu rendimiento actual (Nota de Presentación proyectada: ${np_actual.toFixed(2)}), tienes la aprobación asegurada.</div>`;
                 } else {
-                    survivalHtml = `<div class="notas-info">Evaluación en progreso (Falta ${remainingWeightNP.toFixed(0)}%).<br>Si mantienes tu rendimiento actual (Nota de Presentación proyectada: ${np_actual.toFixed(2)}), necesitarás un <strong>${(Math.round(requiredInExam * 100) / 100).toFixed(2)}</strong> en el Examen.</div>`;
+                    survivalHtml = `<div class="notas-info">Evaluación en progreso (Falta ${remainingWeightNP.toFixed(0)}%).<br>Si mantienes tu rendimiento actual (Nota de Presentación proyectada: ${np_actual.toFixed(2)}), necesitarás un <strong>${(Math.ceil((requiredInExam - 0.00001) * 100) / 100).toFixed(2)}</strong> en el Examen.</div>`;
                 }
             } else {
                 survivalHtml = `<div class="notas-info">Ingresa tus primeras notas para calcular tu pronóstico.</div>`;
