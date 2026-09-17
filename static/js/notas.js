@@ -356,7 +356,7 @@ function renderNotasBuilder() {
                     
                     <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative;">
                         <div class="notas-summary-title" style="color: #38bdf8;">Nota Final</div>
-                        <div class="notas-summary-value" style="font-size: 36px; color: #f8fafc;">${(hasExamGrade || isEximido) && Math.abs(remainingWeightNP) < 0.1 ? (Math.round(notaFinalCalculada * 100) >= 395 && Math.round(notaFinalCalculada * 100) < 400 ? "4.00" : notaFinalCalculada.toFixed(2)) : '-'}</div>
+                        <div class="notas-summary-value" style="font-size: 36px; color: #f8fafc;">${(hasExamGrade || isEximido) && Math.abs(remainingWeightNP) < 0.1 ? notaFinalCalculada.toFixed(2) : '-'}</div>
                         ${sparklineHtml}
                     </div>
                 </div>
