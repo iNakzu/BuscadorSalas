@@ -523,3 +523,34 @@ window.capturarNotas = function() {
     });
 };
 
+window.capturarMiHorario = function() {
+    if (typeof html2canvas === 'undefined') {
+        alert("El módulo de captura aún está cargando o fue bloqueado por el navegador.");
+        return;
+    }
+    const target = document.getElementById('mihorario-display-container');
+    if (!target) return;
+    
+    // We add a class temporarily to force a light or specific background if it's transparent
+    const oldBg = target.style.backgroundColor;
+    target.style.backgroundColor = '#0f172a';
+    target.style.padding = '10px';
+    target.style.borderRadius = '8px';
+    
+    html2canvas(target, { backgroundColor: '#0f172a', scale: 2 }).then(canvas => {
+        target.style.backgroundColor = oldBg;
+        target.style.padding = '';
+        target.style.borderRadius = '';
+        let a = document.createElement('a');
+        a.href = canvas.toDataURL('image/png');
+        a.download = 'Mi_Horario_UDP.png';
+        a.click();
+    }).catch(err => {
+        target.style.backgroundColor = oldBg;
+        target.style.padding = '';
+        target.style.borderRadius = '';
+        console.error("Error al capturar la imagen:", err);
+        alert("Hubo un error al generar la imagen.");
+    });
+};
+
