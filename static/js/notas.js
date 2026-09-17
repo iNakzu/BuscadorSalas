@@ -355,11 +355,7 @@ function renderNotasBuilder() {
                 ${survivalHtml}
             </div>
             
-            <div class="notas-utility-row" style="display: flex; gap: 8px; justify-content: center; margin-top: 24px;">
-                <button onclick="capturarNotas()" style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #10b981; padding: 8px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Descargar como imagen">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-                </button>
-            </div>
+
         </div>
     `;
 }
@@ -417,3 +413,27 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 });
+
+// Function to capture the card simply and robustly
+window.capturarNotas = function() {
+    if (typeof html2canvas === 'undefined') {
+        alert("El módulo de captura aún está cargando o fue bloqueado por el navegador.");
+        return;
+    }
+    const target = document.querySelector('.notas-card');
+    if (!target) return;
+    
+    // Fix: render inputs onto canvas by passing their value to an attribute
+    const inputs = target.querySelectorAll('input');
+    inputs.forEach(inp => { inp.setAttribute('data-val', inp.value); });
+    
+    html2canvas(target, { backgroundColor: '#0f172a', scale: 2 }).then(canvas => {
+        let a = document.createElement('a');
+        a.href = canvas.toDataURL('image/png');
+        a.download = 'Mis_Notas_UDP.png';
+        a.click();
+    }).catch(err => {
+        console.error("Error al capturar la imagen:", err);
+        alert("Hubo un error al generar la imagen.");
+    });
+};
