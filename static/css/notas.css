@@ -6,10 +6,6 @@
     transition: all 0.3s ease;
 }
 
-.notas-card.is-invalid { border-color: rgba(239, 68, 68, 0.4); }
-.notas-card.is-passed { border-color: rgba(16, 185, 129, 0.4); }
-.notas-card.is-failed { border-color: rgba(239, 68, 68, 0.4); }
-.notas-card.is-pending { border-color: rgba(56, 189, 248, 0.4); }
 
 .notas-header-row {
     display: flex;
