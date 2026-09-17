@@ -356,11 +356,21 @@ function renderNotasBuilder() {
                     </div>
                 </div>
                 
-                <!-- Barra de Progreso -->
-                <div style="margin-top: 24px; width: 100%; height: 6px; background: rgba(0,0,0,0.3); border-radius: 4px; overflow: hidden; position: relative;">
-                    <div style="position: absolute; left: 0; top: 0; height: 100%; width: ${(Math.min(7.0, ((isEximido || (hasExamGrade && Math.abs(remainingWeightNP)<0.1)) ? notaFinalCalculada : np_actual)) / 7.0) * 100}%; background: ${(((isEximido || (hasExamGrade && Math.abs(remainingWeightNP)<0.1)) ? notaFinalCalculada : np_actual) >= 3.95) ? '#10b981' : '#f43f5e'}; transition: width 0.5s ease-out, background 0.5s;"></div>
-                    <!-- Marcador de 4.0 -->
-                    <div style="position: absolute; left: ${(3.95 / 7.0) * 100}%; top: -2px; bottom: -2px; width: 2px; background: rgba(255,255,255,0.2); z-index: 1;"></div>
+                <!-- Barra de Progreso Moderna -->
+                <div style="margin-top: 36px; margin-bottom: 8px; position: relative; width: 100%;">
+                    <!-- Background Track -->
+                    <div style="width: 100%; height: 8px; background: rgba(15, 23, 42, 0.8); border-radius: 8px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);">
+                        <!-- Fill -->
+                        <div style="height: 100%; width: ${(Math.min(7.0, ((isEximido || (hasExamGrade && Math.abs(remainingWeightNP)<0.1)) ? notaFinalCalculada : np_actual)) / 7.0) * 100}%; background: ${(((isEximido || (hasExamGrade && Math.abs(remainingWeightNP)<0.1)) ? notaFinalCalculada : np_actual) >= 3.95) ? 'linear-gradient(90deg, #059669, #10b981)' : 'linear-gradient(90deg, #be123c, #f43f5e)'}; border-radius: 8px; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1), background 0.5s;"></div>
+                    </div>
+                    
+                    <!-- Marcador 4.0 -->
+                    <div style="position: absolute; left: ${(3.95 / 7.0) * 100}%; top: -6px; bottom: -6px; width: 2px; background: rgba(255,255,255,0.6); z-index: 2; border-radius: 2px; box-shadow: 0 0 6px rgba(0,0,0,0.8);"></div>
+                    <div style="position: absolute; left: ${(3.95 / 7.0) * 100}%; top: -22px; transform: translateX(-50%); font-size: 11px; color: #cbd5e1; font-weight: 700; letter-spacing: 0.5px;">4.0</div>
+                    
+                    <!-- Limites Visuales -->
+                    <div style="position: absolute; left: 0; top: 12px; font-size: 10px; color: #64748b; font-weight: 600;">0.0</div>
+                    <div style="position: absolute; right: 0; top: 12px; font-size: 10px; color: #64748b; font-weight: 600;">7.0</div>
                 </div>
                 
             </div>
