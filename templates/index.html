@@ -796,52 +796,6 @@
             <!-- Renderizado dinámico -->
         </div>
 
-        <!-- MODAL AGREGAR EVENTO AGENDA -->
-        <div class="my-modal-overlay" id="modal-agenda" style="display: none;" onclick="if(event.target === this) cerrarModalAgenda()">
-            <div class="my-modal-dialog" role="dialog" aria-modal="true" style="max-width: 400px; padding: 26px 28px;">
-                <div class="my-modal-header">
-                    <div>
-                        <div class="my-modal-title" id="agenda-modal-title">Añadir Evaluación</div>
-                    </div>
-                    <button type="button" class="my-modal-close" onclick="cerrarModalAgenda()" title="Cerrar">&times;</button>
-                </div>
-
-                <form id="form-agenda" onsubmit="guardarEventoAgenda(event)">
-                    <input type="hidden" id="agenda-id" value="">
-                    
-                    <div class="my-form-group">
-                        <label class="my-form-label">Asignatura</label>
-                        <select id="agenda-ramo" class="my-form-input" required style="cursor: pointer; appearance: auto; -webkit-appearance: auto;">
-                            <!-- Llenado dinámico -->
-                        </select>
-                    </div>
-
-                    <div class="my-form-group">
-                        <label class="my-form-label">Tipo de Evaluación</label>
-                        <select id="agenda-tipo" class="my-form-input" required style="cursor: pointer; appearance: auto; -webkit-appearance: auto;">
-                            <option value="Solemne">Solemne / Prueba</option>
-                            <option value="Control">Control / Quiz</option>
-                            <option value="Trabajo">Entrega de Trabajo / Informe</option>
-                            <option value="Presentacion">Presentación / Disertación</option>
-                        </select>
-                    </div>
-
-                    <div class="my-form-group">
-                        <label class="my-form-label">Fecha y Hora Límite</label>
-                        <input type="datetime-local" id="agenda-fecha" class="my-form-input" required>
-                    </div>
-
-                    <div class="my-form-group">
-                        <label class="my-form-label">Notas Adicionales (Opcional)</label>
-                        <input type="text" id="agenda-notas" class="my-form-input" placeholder="Ej. Estudiar caps. 3 al 5...">
-                    </div>
-
-                    <div class="my-modal-actions" style="border-top: none; padding-top: 12px; margin-top: 8px;">
-                        <button type="submit" class="my-btn-primary" style="width: 100%; justify-content: center; font-size: 14.5px;">Guardar Evento</button>
-                    </div>
-                </form>
-            </div>
-        </div>
     </section>
 
 <!-- BOTÓN FLOTANTE MINIMALISTA Y VENTANA DE CHAT -->
@@ -917,6 +871,54 @@
         <img id="ai-lightbox-img" src="" alt="Imagen ampliada">
     </div>
 </div>
+
+        <!-- MODAL AGREGAR EVENTO AGENDA -->
+        <div class="my-modal-overlay" id="modal-agenda" style="display: none;" onclick="if(event.target === this) cerrarModalAgenda()">
+            <div class="my-modal-dialog" role="dialog" aria-modal="true" style="max-width: 400px; padding: 26px 28px;">
+                <div class="my-modal-header">
+                    <div>
+                        <div class="my-modal-title" id="agenda-modal-title">Añadir Evaluación</div>
+                    </div>
+                    <button type="button" class="my-modal-close" onclick="cerrarModalAgenda()" title="Cerrar">&times;</button>
+                </div>
+
+                <form id="form-agenda" onsubmit="guardarEventoAgenda(event)">
+                    <input type="hidden" id="agenda-id" value="">
+                    
+                    <div class="my-form-group">
+                        <label class="my-form-label">Asignatura</label>
+                        <select id="agenda-ramo" class="my-form-input" required style="cursor: pointer; appearance: auto; -webkit-appearance: auto;">
+                            <!-- Llenado dinámico -->
+                        </select>
+                    </div>
+
+                    <div class="my-form-group">
+                        <label class="my-form-label">Tipo de Evaluación</label>
+                        <select id="agenda-tipo" class="my-form-input" required style="cursor: pointer; appearance: auto; -webkit-appearance: auto;">
+                            <option value="Solemne">Solemne / Prueba</option>
+                            <option value="Control">Control / Quiz</option>
+                            <option value="Trabajo">Entrega de Trabajo / Informe</option>
+                            <option value="Presentacion">Presentación / Disertación</option>
+                        </select>
+                    </div>
+
+                    <div class="my-form-group">
+                        <label class="my-form-label">Fecha y Hora Límite</label>
+                        <input type="datetime-local" id="agenda-fecha" class="my-form-input" required>
+                    </div>
+
+                    <div class="my-form-group">
+                        <label class="my-form-label">Notas Adicionales (Opcional)</label>
+                        <input type="text" id="agenda-notas" class="my-form-input" placeholder="Ej. Estudiar caps. 3 al 5...">
+                    </div>
+
+                    <div class="my-modal-actions" style="border-top: none; padding-top: 12px; margin-top: 8px;">
+                        <button type="submit" class="my-btn-primary" style="width: 100%; justify-content: center; font-size: 14.5px;">Guardar Evento</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
 
 <!-- Variables inyectadas por Flask -->
 <script>
