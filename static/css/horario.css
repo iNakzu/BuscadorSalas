@@ -1479,3 +1479,10 @@
 
 
 
+
+/* Asegurar altura estandarizada para todos los inputs */
+.my-form-input {
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+}
