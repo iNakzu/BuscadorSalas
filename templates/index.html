@@ -19,11 +19,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/notas.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/agenda.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/horario.css') }}">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -803,7 +799,34 @@
             </div>
         </div>
 
-        <div id="agenda-container" style="padding: 24px;">
+        
+        <!-- CALENDARIO GIGANTE -->
+        <div id="agenda-calendar-wrapper" style="padding: 0 24px 24px 24px;">
+            <div class="calendar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <button type="button" class="btn-icon" onclick="changeCalendarMonth(-1)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </button>
+                <h3 id="calendar-month-title" style="margin: 0; font-size: 18px; font-weight: 700; color: #f8fafc; text-transform: capitalize;">Septiembre 2026</h3>
+                <button type="button" class="btn-icon" onclick="changeCalendarMonth(1)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
+            </div>
+            
+            <div class="calendar-grid">
+                <!-- Días de la semana -->
+                <div class="cal-weekday">L</div>
+                <div class="cal-weekday">M</div>
+                <div class="cal-weekday">M</div>
+                <div class="cal-weekday">J</div>
+                <div class="cal-weekday">V</div>
+                <div class="cal-weekday">S</div>
+                <div class="cal-weekday">D</div>
+                
+                <!-- Días numéricos (inyectados por JS) -->
+                <div id="calendar-days-container" style="display: contents;"></div>
+            </div>
+        </div>
+<div id="agenda-container" style="padding: 24px;">
             <!-- Renderizado dinámico -->
         </div>
 
@@ -889,12 +912,14 @@
                 <div class="my-modal-header">
                     <div>
                         <div class="my-modal-title" id="agenda-modal-title">Añadir Evaluación</div>
+                        <div id="agenda-modal-subtitle" style="color: #38bdf8; font-size: 13px; font-weight: 600; margin-top: 4px;">25 Septiembre 2026</div>
                     </div>
                     <button type="button" class="my-modal-close" onclick="cerrarModalAgenda()" title="Cerrar">&times;</button>
                 </div>
 
                 <form id="form-agenda" onsubmit="guardarEventoAgenda(event)">
                     <input type="hidden" id="agenda-id" value="">
+                    <input type="hidden" id="agenda-fecha-base" value=""> <!-- YYYY-MM-DD -->
                     
                     <div class="my-form-group">
                         <label class="my-form-label">Asignatura</label>
@@ -904,7 +929,6 @@
                                 <svg class="dropdown-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink: 0; margin-left: 8px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
                             </button>
                             <div class="dropdown-menu" style="max-height: 200px;">
-                                <!-- Llenado dinámico -->
                             </div>
                             <input type="hidden" id="agenda-ramo" required value="">
                         </div>
@@ -927,9 +951,16 @@
                         </div>
                     </div>
 
-                    <div class="my-form-group">
-                        <label class="my-form-label">Fecha y Hora Límite</label>
-                        <input type="datetime-local" id="agenda-fecha" class="my-form-input" required>
+                    <div class="my-form-group" style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-bottom: 12px;" onclick="toggleHoraOpcional()">
+                        <div id="hora-checkbox" style="width: 20px; height: 20px; border-radius: 6px; border: 2px solid rgba(56, 189, 248, 0.5); display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.5); transition: all 0.2s;">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" id="hora-check-icon" style="display: none; color: #38bdf8;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </div>
+                        <label style="cursor: pointer; color: #cbd5e1; font-size: 13.5px; font-weight: 500;">Especificar Hora (Opcional)</label>
+                        <input type="hidden" id="agenda-has-time" value="false">
+                    </div>
+
+                    <div class="my-form-group" id="grupo-hora" style="display: none; animation: fadeIn 0.2s ease;">
+                        <input type="time" id="agenda-hora" class="my-form-input">
                     </div>
 
                     <div class="my-form-group">
