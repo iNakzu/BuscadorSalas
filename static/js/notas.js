@@ -353,24 +353,23 @@ function renderNotasBuilder() {
     container.innerHTML = `
         <div class="notas-card ${statusClass}">
             <div class="notas-header-row" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">
-                <div class="notas-summary" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 32px; ${summaryBg} transition: all 0.3s;">
-                    <!-- Caja Izquierda -->
-                    <div style="flex: 1; display: flex; justify-content: flex-start; align-items: center;">
-                        <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                            <div class="notas-summary-title">Nota Presentación</div>
-                            <div class="notas-summary-value" style="font-size: 36px;">${currentWeightEvaluatedNP > 0 ? np_actual.toFixed(2) : '-'}</div>
-                        </div>
+                <div class="notas-summary" style="display: flex; align-items: center; justify-content: center; padding: 16px 32px; width: fit-content; margin: 0 auto; max-width: 100%; box-sizing: border-box; ${summaryBg} transition: all 0.3s;">
+                    <!-- Spacer invisible para balancear matemáticamente la caja y dejar los números al centro -->
+                    <div style="width: 160px; margin-right: 32px; visibility: hidden;" class="notas-spacer-desktop"></div>
+                    
+                    <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <div class="notas-summary-title">Nota Presentación</div>
+                        <div class="notas-summary-value" style="font-size: 36px;">${currentWeightEvaluatedNP > 0 ? np_actual.toFixed(2) : '-'}</div>
                     </div>
                     
-                    <!-- Separador opcional o espacio -->
-                    <div style="width: 1px; height: 60px; background: rgba(255,255,255,0.05); margin: 0 24px;"></div>
+                    <div style="width: 48px;"></div>
                     
-                    <!-- Caja Derecha -->
-                    <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 32px;">
-                        <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                            <div class="notas-summary-title" style="color: #38bdf8;">Nota Final</div>
-                            <div class="notas-summary-value" style="font-size: 36px; color: #f8fafc;">${(hasExamGrade || isEximido) && Math.abs(remainingWeightNP) < 0.1 ? notaFinalCalculada.toFixed(2) : '-'}</div>
-                        </div>
+                    <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <div class="notas-summary-title" style="color: #38bdf8;">Nota Final</div>
+                        <div class="notas-summary-value" style="font-size: 36px; color: #f8fafc;">${(hasExamGrade || isEximido) && Math.abs(remainingWeightNP) < 0.1 ? notaFinalCalculada.toFixed(2) : '-'}</div>
+                    </div>
+                    
+                    <div style="margin-left: 32px; display: flex; align-items: center; justify-content: flex-end; width: 160px;">
                         ${sparklineHtml}
                     </div>
                 </div>

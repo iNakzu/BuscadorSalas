@@ -183,3 +183,9 @@
     -webkit-appearance: none;
     margin: 0;
 }
+
+@media (max-width: 768px) {
+    .notas-spacer-desktop {
+        display: none !important;
+    }
+}
