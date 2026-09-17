@@ -531,21 +531,49 @@ window.capturarMiHorario = function() {
     const target = document.getElementById('mihorario-display-container');
     if (!target) return;
     
-    // We add a class temporarily to force a light or specific background if it's transparent
+    const weekGrid = target.querySelector('.my-week-grid');
+    let oldGridOverflow = '';
+    let oldGridWidth = '';
+    
+    if (weekGrid) {
+        oldGridOverflow = weekGrid.style.overflowX;
+        oldGridWidth = weekGrid.style.width;
+        weekGrid.style.overflowX = 'visible';
+        weekGrid.style.width = 'max-content';
+    }
+    
+    const oldTargetOverflow = target.style.overflow;
+    const oldTargetWidth = target.style.width;
+    target.style.overflow = 'visible';
+    target.style.width = 'max-content';
+    
     const oldBg = target.style.backgroundColor;
     target.style.backgroundColor = '#0f172a';
     target.style.padding = '10px';
     target.style.borderRadius = '8px';
     
-    html2canvas(target, { backgroundColor: '#0f172a', scale: 2 }).then(canvas => {
+    html2canvas(target, { backgroundColor: '#0f172a', scale: 2, scrollX: 0, scrollY: 0 }).then(canvas => {
+        if (weekGrid) {
+            weekGrid.style.overflowX = oldGridOverflow;
+            weekGrid.style.width = oldGridWidth;
+        }
+        target.style.overflow = oldTargetOverflow;
+        target.style.width = oldTargetWidth;
         target.style.backgroundColor = oldBg;
         target.style.padding = '';
         target.style.borderRadius = '';
+        
         let a = document.createElement('a');
         a.href = canvas.toDataURL('image/png');
         a.download = 'Mi_Horario_UDP.png';
         a.click();
     }).catch(err => {
+        if (weekGrid) {
+            weekGrid.style.overflowX = oldGridOverflow;
+            weekGrid.style.width = oldGridWidth;
+        }
+        target.style.overflow = oldTargetOverflow;
+        target.style.width = oldTargetWidth;
         target.style.backgroundColor = oldBg;
         target.style.padding = '';
         target.style.borderRadius = '';
