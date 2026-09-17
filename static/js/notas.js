@@ -300,6 +300,43 @@ function renderNotasBuilder() {
         </div>
     `;
     
+
+    // --- MINI GRÁFICO TENDENCIA ---
+    let trendGrades = [];
+    data.items.forEach(i => {
+        if (i.grade !== null && i.grade !== '') trendGrades.push(parseFloat(i.grade));
+    });
+    if (hasExamGrade && !isEximido) {
+        trendGrades.push(examGradeVal);
+    }
+    
+    let sparklineHtml = '';
+    if (trendGrades.length >= 2) {
+        const sw = 80;
+        const sh = 20;
+        let pathD = '';
+        trendGrades.forEach((g, idx) => {
+            let x = idx * (sw / (trendGrades.length - 1));
+            let y = sh - (((g - 1) / 6.0) * sh);
+            if (idx === 0) pathD += `M ${x} ${y} `;
+            else pathD += `L ${x} ${y} `;
+        });
+        
+        let lastG = trendGrades[trendGrades.length - 1];
+        let lastX = sw;
+        let lastY = sh - (((lastG - 1) / 6.0) * sh);
+        
+        sparklineHtml = `
+            <div style="margin-top: 6px; display: flex; align-items: center; justify-content: center;" title="Tendencia de tus notas">
+                <svg width="${sw}" height="${sh}" viewBox="0 -4 ${sw} ${sh+8}" style="overflow: visible;">
+                    <path d="${pathD}" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <circle cx="${lastX}" cy="${lastY}" r="3" fill="#0f172a" stroke="#38bdf8" stroke-width="2" />
+                </svg>
+            </div>
+        `;
+    }
+    // ---------------------------------
+
     let summaryBg = "";
     
     container.innerHTML = `
@@ -316,6 +353,7 @@ function renderNotasBuilder() {
                     <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
                         <div class="notas-summary-title" style="color: #38bdf8;">Nota Final</div>
                         <div class="notas-summary-value" style="font-size: 36px; color: #f8fafc;">${(hasExamGrade || isEximido) && Math.abs(remainingWeightNP) < 0.1 ? notaFinalCalculada.toFixed(2) : '-'}</div>
+                        ${sparklineHtml}
                     </div>
                 </div>
                 
@@ -345,6 +383,10 @@ function renderNotasBuilder() {
                     <button class="notas-btn-add" onclick="addNotaItem('${dbKey}')">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                         Añadir Evaluación Parcial
+                    </button>
+                    <button onclick="autocompletarParaAprobar('${dbKey}')" style="background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.3); color: #f43f5e; border-radius: 6px; padding: 0 12px; font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.background='rgba(244,63,94,0.2)'" onmouseout="this.style.background='rgba(244,63,94,0.1)'" title="Rellenar vacíos con la nota mínima para el 4.0">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 2.5l19 19"/><path d="M8 8l-2 2-4-4 2-2z"/><path d="M16 16l-2 2-4-4 2-2z"/></svg>
+                        Modo Pánico
                     </button>
                 </div>
                 
@@ -436,4 +478,54 @@ window.capturarNotas = function() {
         console.error("Error al capturar la imagen:", err);
         alert("Hubo un error al generar la imagen.");
     });
+};
+
+window.autocompletarParaAprobar = function(dbKey) {
+    if (!NOTAS_DATA[dbKey]) return;
+    const data = NOTAS_DATA[dbKey];
+    
+    const eW = parseFloat(data.examWeight !== undefined ? data.examWeight : 30) / 100;
+    const npW = 1.0 - eW;
+    
+    let currentFinalPoints = 0;
+    let missingFinalWeight = 0;
+    
+    data.items.forEach(i => {
+        const itemW = (parseFloat(i.weight) || 0) / 100;
+        const globalW = itemW * npW;
+        if (i.grade !== null && i.grade !== '') {
+            currentFinalPoints += parseFloat(i.grade) * globalW;
+        } else {
+            missingFinalWeight += globalW;
+        }
+    });
+    
+    if (data.examGrade !== null && data.examGrade !== '') {
+        currentFinalPoints += parseFloat(data.examGrade) * eW;
+    } else {
+        missingFinalWeight += eW;
+    }
+    
+    if (missingFinalWeight <= 0) {
+        alert("Ya ingresaste todas tus notas. Borra alguna para simular.");
+        return;
+    }
+    
+    let requiredGrade = (3.95 - currentFinalPoints) / missingFinalWeight;
+    if (requiredGrade < 1.0) requiredGrade = 1.0;
+    
+    const gradeStr = requiredGrade.toFixed(2);
+    
+    data.items.forEach(i => {
+        if (i.grade === null || i.grade === '') {
+            i.grade = gradeStr;
+        }
+    });
+    
+    if (data.examGrade === null || data.examGrade === '') {
+        data.examGrade = gradeStr;
+    }
+    
+    saveNotas();
+    renderNotasBuilder();
 };
