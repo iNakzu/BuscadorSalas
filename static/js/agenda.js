@@ -64,16 +64,15 @@ function renderCalendar() {
         const dayEvents = AGENDA_DATA.filter(ev => ev.fecha.startsWith(dateStr));
         
         let dotsHtml = '';
-        if (dayEvents.length > 0) {
-            dotsHtml = '<div class="cal-dots-container">';
-            dayEvents.slice(0, 3).forEach(ev => {
-                let dotClass = ev.tipo.toLowerCase();
-                dotsHtml += `<div class="cal-dot ${dotClass}"></div>`;
-            });
-            if (dayEvents.length > 3) {
-                dotsHtml += `<div class="cal-dot" style="background:#fff;"></div>`; // Más de 3 eventos
-            }
-            dotsHtml += '</div>';
+        if (dayEvents.length === 1) {
+            let dotClass = dayEvents[0].tipo.toLowerCase();
+            dotsHtml = `<div class="cal-dots-container">
+                            <div class="cal-dot ${dotClass}"></div>
+                        </div>`;
+        } else if (dayEvents.length > 1) {
+            dotsHtml = `<div class="cal-dots-container">
+                            <div class="cal-dot-multi">${dayEvents.length}</div>
+                        </div>`;
         }
         
         html += `
