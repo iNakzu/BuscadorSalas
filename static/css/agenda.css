@@ -265,3 +265,25 @@
     color: #38bdf8;
     background: rgba(56, 189, 248, 0.1);
 }
+
+/* Responsive Dots Logic */
+.desktop-dots {
+    display: none;
+    gap: 4px;
+}
+.mobile-dots {
+    display: flex;
+}
+
+@media (min-width: 600px) {
+    .desktop-dots {
+        display: flex;
+    }
+    .mobile-dots {
+        display: none;
+    }
+    .cal-dot {
+        width: 10px !important;
+        height: 10px !important;
+    }
+}

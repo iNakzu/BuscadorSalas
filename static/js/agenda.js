@@ -64,14 +64,21 @@ function renderCalendar() {
         const dayEvents = AGENDA_DATA.filter(ev => ev.fecha.startsWith(dateStr));
         
         let dotsHtml = '';
-        if (dayEvents.length === 1) {
-            let dotClass = dayEvents[0].tipo.toLowerCase();
+        if (dayEvents.length > 0) {
+            // Renderizamos ambas versiones (Móvil y PC) y el CSS decide cuál mostrar
+            let desktopDots = dayEvents.slice(0, 4).map(ev => `<div class="cal-dot ${ev.tipo.toLowerCase()}"></div>`).join('');
+            if (dayEvents.length > 4) desktopDots += `<div class="cal-dot" style="background:#fff; box-shadow:0 0 8px #fff;"></div>`;
+            
+            let mobileDots = '';
+            if (dayEvents.length === 1) {
+                mobileDots = `<div class="cal-dot ${dayEvents[0].tipo.toLowerCase()}"></div>`;
+            } else {
+                mobileDots = `<div class="cal-dot-multi">${dayEvents.length}</div>`;
+            }
+            
             dotsHtml = `<div class="cal-dots-container">
-                            <div class="cal-dot ${dotClass}"></div>
-                        </div>`;
-        } else if (dayEvents.length > 1) {
-            dotsHtml = `<div class="cal-dots-container">
-                            <div class="cal-dot-multi">${dayEvents.length}</div>
+                            <div class="desktop-dots">${desktopDots}</div>
+                            <div class="mobile-dots">${mobileDots}</div>
                         </div>`;
         }
         
