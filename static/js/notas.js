@@ -45,11 +45,16 @@ function updateNotasDropdown() {
     }
     
     const currVal = select.value;
-    let html = '<option value="">Selecciona una asignatura de tu horario...</option>';
+    let htmlMenu = `<div class="dropdown-item ${!currVal ? 'active' : ''}" data-val="" onclick="selectDropdownItem('dd-notas-curso', '', 'Selecciona una asignatura...', renderNotasBuilder)">Selecciona una asignatura...</div>`;
+    let labelText = 'Selecciona una asignatura...';
+    let isCurrValValid = false;
+
     myRamos.forEach(r => {
         const foundCourse = scheduleObj.clases.find(c => normStr(c.curso) === r);
         const originalCourse = foundCourse ? foundCourse.curso : r;
-        html += `<option value="${originalCourse}">${escapeHtml(originalCourse)}</option>`;
+        const isActive = (currVal === originalCourse);
+        if (isActive) { labelText = originalCourse; isCurrValValid = true; }
+        htmlMenu += `<div class="dropdown-item ${isActive ? 'active' : ''}" data-val="${originalCourse}" onclick="selectDropdownItem('dd-notas-curso', '${originalCourse.replace(/'/g, "\'")}', '${escapeHtml(originalCourse).replace(/'/g, "\'")}', renderNotasBuilder)">${escapeHtml(originalCourse)}</div>`;
     });
     
     for (const key of Object.keys(NOTAS_DATA)) {
@@ -64,7 +69,9 @@ function updateNotasDropdown() {
                 if (data.examGrade) hasGrades = true;
                 
                 if (hasGrades) {
-                    html += `<option value="${r}">${escapeHtml(r)} (Fuera de horario)</option>`;
+                    const isActive = (currVal === r);
+                    if (isActive) { labelText = `${r} (Fuera de horario)`; isCurrValValid = true; }
+                    htmlMenu += `<div class="dropdown-item ${isActive ? 'active' : ''}" data-val="${r}" onclick="selectDropdownItem('dd-notas-curso', '${r.replace(/'/g, "\'")}', '${escapeHtml(r).replace(/'/g, "\'")} (Fuera de horario)', renderNotasBuilder)">${escapeHtml(r)} (Fuera de horario)</div>`;
                 } else {
                     delete NOTAS_DATA[key];
                     saveNotas();
@@ -73,44 +80,26 @@ function updateNotasDropdown() {
         }
     }
     
-    select.innerHTML = html;
+    const menuEl = document.querySelector('#dd-notas-curso .dropdown-menu');
+    if (menuEl) menuEl.innerHTML = htmlMenu;
     
-    let isCurrValValid = false;
-    for(let i=0; i<select.options.length; i++) {
-        if(select.options[i].value === currVal && currVal !== "") {
-            isCurrValValid = true; break;
-        }
-    }
+    const labelEl = document.getElementById('label-notas-curso');
     
     if (isCurrValValid) {
         select.value = currVal;
+        if (labelEl) labelEl.textContent = labelText;
     } else {
-        select.value = "";
-    }
-    renderNotasBuilder();
-}
-
-function updateGlobalNota(dbKey, field, value) {
-    if (!NOTAS_DATA[dbKey]) return;
-    if (field === 'examGrade') {
-        if (value.trim() !== '') {
-            let num = parseFloat(value.replace(',', '.'));
-            if (!isNaN(num)) {
-                if (num < 1.0) num = 1.0;
-                if (num > 7.0) num = 7.0;
-                value = num.toString();
-            } else {
-                value = '';
-            }
+        select.value = '';
+        if (labelEl) labelEl.textContent = 'Selecciona una asignatura...';
+        
+        // Remove active class from all except empty
+        if (menuEl) {
+            menuEl.querySelectorAll('.dropdown-item').forEach(item => {
+                item.classList.toggle('active', item.dataset.val === '');
+            });
         }
-    } else if (field === 'examWeight') {
-        let w = parseFloat(value) || 0;
-        if (w < 0) w = 0;
-        if (w > 100) w = 100;
-        value = w;
     }
-    NOTAS_DATA[dbKey][field] = value;
-    saveNotas();
+    
     renderNotasBuilder();
 }
 

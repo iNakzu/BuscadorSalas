@@ -1354,3 +1354,46 @@ document.addEventListener('DOMContentLoaded', () => {
         if (btn) cambiarTab(hash, btn);
     }
 });
+
+function toggleDropdown(id) {
+    event.stopPropagation();
+    document.querySelectorAll('.custom-dropdown').forEach(dd => {
+        if (dd.id !== id) dd.classList.remove('open');
+    });
+    const dd = document.getElementById(id);
+    if (dd) dd.classList.toggle('open');
+}
+
+function selectDropdownItem(dropdownId, value, label, callback) {
+    const dd = document.getElementById(dropdownId);
+    if (dd) dd.classList.remove('open');
+    
+    const labelEl = document.getElementById('label-' + dropdownId.replace('dd-', ''));
+    if (labelEl) labelEl.textContent = label;
+    
+    const inputId = dropdownId.replace('dd-', '') + (dropdownId.includes('friend') ? '-select' : (dropdownId.includes('curso') ? '-select' : ''));
+    let inputEl = document.getElementById(inputId);
+    if (!inputEl && dropdownId.startsWith('dd-agenda')) inputEl = document.getElementById(dropdownId.replace('dd-', ''));
+    
+    if (inputEl) {
+        inputEl.value = value;
+    }
+    
+    document.querySelectorAll(`#${dropdownId} .dropdown-item`).forEach(item => {
+        item.classList.toggle('active', item.dataset.val === String(value));
+    });
+    
+    if (callback && typeof callback === 'function') {
+        callback();
+    } else if (callback && typeof window[callback] === 'function') {
+        window[callback]();
+    }
+}
+
+document.addEventListener('click', function(e) {
+    document.querySelectorAll('.custom-dropdown').forEach(dd => {
+        if (!dd.contains(e.target)) {
+            dd.classList.remove('open');
+        }
+    });
+});
