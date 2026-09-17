@@ -335,8 +335,8 @@ function renderNotasBuilder() {
         const y4 = sh - (((4.0 - 1) / 6.0) * sh);
         
         sparklineHtml = `
-            <div title="Tendencia de tus notas" style="display: flex; align-items: center; margin-left: 40px;">
-                <svg width="${sw}" height="${sh}" viewBox="0 -4 ${sw} ${sh+8}" style="overflow: visible;">
+            <div class="sparkline-wrapper" title="Tendencia de tus notas" style="display: flex; align-items: center; max-width: 100%; overflow: hidden;">
+                <svg viewBox="0 -4 ${sw} ${sh+8}" style="overflow: visible; width: 100%; max-width: ${sw}px; height: auto;">
                     <!-- Linea de aprobación 4.0 -->
                     <line x1="0" y1="${y4}" x2="${sw}" y2="${y4}" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1.5" stroke-dasharray="3 3" />
                     <!-- Línea principal -->
@@ -354,7 +354,7 @@ function renderNotasBuilder() {
     container.innerHTML = `
         <div class="notas-card ${statusClass}">
             <div class="notas-header-row" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">
-                <div class="notas-summary" style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; width: 100%; padding: 16px 32px; box-sizing: border-box; ${summaryBg} transition: all 0.3s;">
+                <div class="notas-summary" style="display: flex; flex-wrap: wrap; justify-content: space-around; align-items: center; gap: 24px; width: 100%; padding: 16px 20px; box-sizing: border-box; ${summaryBg} transition: all 0.3s;">
                     <!-- Columna Izquierda (Vacía para balancear) -->
                     <div></div>
                     
@@ -372,7 +372,7 @@ function renderNotasBuilder() {
                     </div>
                     
                     <!-- Columna Derecha (Gráfico centrado en el espacio restante) -->
-                    <div style="display: flex; align-items: center; justify-content: center;">
+                    <div style="display: flex; align-items: center; justify-content: center; flex: 1; min-width: 200px;">
                         ${sparklineHtml}
                     </div>
                 </div>
