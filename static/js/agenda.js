@@ -90,12 +90,19 @@ function abrirModalAgenda(id = null) {
             };
             selectDropdownItem('dd-agenda-tipo', ev.tipo, tipoMap[ev.tipo] || ev.tipo);
             
-            document.getElementById('agenda-fecha').value = ev.fecha;
+            if (agendaDatePicker) {
+                agendaDatePicker.setDate(ev.fecha);
+            } else {
+                document.getElementById('agenda-fecha').value = ev.fecha;
+            }
             document.getElementById('agenda-notas').value = ev.notas || '';
             document.getElementById('agenda-modal-title').textContent = 'Editar Evaluación';
         }
     } else {
         document.getElementById('form-agenda').reset();
+        if (agendaDatePicker) {
+            agendaDatePicker.clear();
+        }
         document.getElementById('agenda-id').value = '';
         document.getElementById('agenda-modal-title').textContent = 'Añadir Evaluación';
         selectDropdownItem('dd-agenda-ramo', '', 'Selecciona un Ramo...');
@@ -264,11 +271,33 @@ function renderAgenda() {
     container.innerHTML = html;
 }
 
+
+let agendaDatePicker = null;
+
 // Inicializar al cargar
 document.addEventListener('DOMContentLoaded', () => {
     initAgenda();
+    initFlatpickr();
 });
-// Para casos donde ya se cargó la página y el script se inyecta diferido
+// Para casos donde ya se cargó la página
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
     initAgenda();
+    setTimeout(initFlatpickr, 100);
 }
+
+function initFlatpickr() {
+    if (typeof flatpickr !== 'undefined' && !agendaDatePicker) {
+        agendaDatePicker = flatpickr("#agenda-fecha", {
+            enableTime: true,
+            dateFormat: "Y-m-d\TH:i",
+            time_24hr: true,
+            locale: "es",
+            minuteIncrement: 5,
+            disableMobile: "true", // Fuerza a usar la UI custom en móviles (desactiva el feo nativo)
+            altInput: true,
+            altFormat: "j F Y, H:i",
+            altInputClass: "my-form-input", // Ej: 15 Octubre 2026, 14:30
+        });
+    }
+}
+
