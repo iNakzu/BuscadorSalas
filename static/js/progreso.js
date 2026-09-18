@@ -1,13 +1,15 @@
 const MALLA_MOCK = [
-    { sem: 1, cursos: ["Álgebra I", "Cálculo I", "Física I", "Intro a la Ingeniería", "Inglés I"] },
-    { sem: 2, cursos: ["Álgebra II", "Cálculo II", "Física II", "Programación", "Inglés II"] },
-    { sem: 3, cursos: ["Ecuaciones Dif.", "Cálculo III", "Física III", "Estructura de Datos", "Inglés III"] },
-    { sem: 4, cursos: ["Estadística", "Sistemas Digitales", "Bases de Datos", "Redes de Comp. I", "Inglés IV"] },
-    { sem: 5, cursos: ["Señales y Sist.", "Arquitectura Comp.", "Ing. de Software", "Redes de Comp. II", "Formación Gral I"] },
-    { sem: 6, cursos: ["Comunicaciones", "Sist. Operativos", "Seguridad Infor.", "Proy. de Redes", "Formación Gral II"] },
-    { sem: 7, cursos: ["Tecnologías Inalámbricas", "Gestión de TI", "Electivo I", "Sist. Distribuidos", "Ética"] },
-    { sem: 8, cursos: ["Redes Ópticas", "Evaluación Proy.", "Electivo II", "Práctica Prof.", "Taller Titulación I"] },
-    { sem: 9, cursos: ["Redes Móviles", "Electivo III", "Electivo IV", "Taller Titulación II"] }
+    { sem: 1, cursos: ["Álgebra y Geometría", "Cálculo I", "Química", "Programación", "Comunicación para la Ingeniería"] },
+    { sem: 2, cursos: ["Álgebra Lineal", "Cálculo II", "Mecánica", "Programación Avanzada"] },
+    { sem: 3, cursos: ["Ecuaciones Diferenciales", "Cálculo III", "Calor y Ondas", "Estructuras de Datos y Algoritmos", "Redes de Datos"] },
+    { sem: 4, cursos: ["Probabilidades y Estadísticas", "Electrónica y Electrotecnia", "Electricidad y Magnetismo", "Bases de Datos", "Desarrollo Web y Móvil", "Inglés I"] },
+    { sem: 5, cursos: ["Optimización", "Taller de Redes y Servicios", "Proyecto en TICs I", "Bases de Datos Avanzadas", "Inglés II"] },
+    { sem: 6, cursos: ["Contabilidad y Costos", "Arquitectura y Organización de Computadores", "Señales y Sistemas", "Sistemas Operativos", "Inglés III"] },
+    { sem: 7, cursos: ["Gestión Organizacional", "Sistemas Distribuidos", "Comunicaciones Digitales", "Ingeniería de Software"] },
+    { sem: 8, cursos: ["Introducción a la Economía", "Tecnologías Inalámbricas", "Criptografía y Seguridad de Redes", "Inteligencia Artificial", "Evaluación de Proyectos TIC"] },
+    { sem: 9, cursos: ["Arquitecturas Emergentes", "Arquitectura de Software", "Data Science"] },
+    { sem: 10, cursos: ["Proyecto en TICs II"] },
+    { sem: 11, cursos: ["Actividad de Titulación"] }
 ];
 
 let progresoState = {};
