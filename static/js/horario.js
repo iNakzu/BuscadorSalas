@@ -185,6 +185,27 @@ function getHorarioActivo() {
 function actualizarHeroMiHorario() {
     const heroEl = document.getElementById('my-schedule-hero');
     if (!heroEl) return;
+    
+    // VERIFICAR MODO ESTUDIO
+    if (localStorage.getItem('isStudying') === 'true') {
+        heroEl.innerHTML = `
+            <div class="my-hero-top">
+                <div class="my-hero-status-pill now" style="background: rgba(139, 92, 246, 0.18); color: #c084fc; border-color: rgba(139, 92, 246, 0.4);">
+                    <span class="pulse-dot" style="background: #c084fc; box-shadow: 0 0 10px #c084fc;"></span>
+                    <span>Modo Estudio 🤫</span>
+                </div>
+            </div>
+            <div class="my-hero-body" style="margin-top: -12px;">
+                <div class="my-hero-class-info">
+                    <div class="my-hero-title">Enfoque Profundo</div>
+                    <div class="my-hero-subtitle" style="margin-top: -6px;">
+                        <span>Silencia las distracciones. Cronómetro en marcha.</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        return;
+    }
 
     const { dayOfWeek, totalMinutes, totalSeconds } = getChileTime();
 
