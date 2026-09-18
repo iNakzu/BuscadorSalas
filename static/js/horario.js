@@ -196,7 +196,7 @@ function actualizarHeroMiHorario() {
                     <span>Fin de semana</span>
                 </div>
             </div>
-            <div class="my-hero-body">
+            <div class="my-hero-body" style="margin-top: -12px;">
                 <div class="my-hero-class-info">
                     <div class="my-hero-title">¡Descanso de fin de semana!</div>
                     <div class="my-hero-subtitle" style="margin-top: -6px;">
@@ -319,7 +319,7 @@ function actualizarHeroMiHorario() {
                 <span>${vistaHorarioActual === 'cruce' ? 'Sin topes libres' : 'Fuera de jornada'}</span>
             </div>
         </div>
-        <div class="my-hero-body">
+        <div class="my-hero-body" style="margin-top: -12px;">
             <div class="my-hero-class-info">
                 <div class="my-hero-title">${vistaHorarioActual === 'cruce' ? 'Ya no quedan topes libres hoy' : '¡No tienes más clases por hoy!'}</div>
                 <div class="my-hero-subtitle" style="margin-top: -6px;">
