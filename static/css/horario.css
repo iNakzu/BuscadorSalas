@@ -1371,14 +1371,16 @@
 }
 
 .my-class-card.tipo-laboratorio .my-room-pill,
-.my-timeline-card.tipo-laboratorio .my-room-pill {
+.my-timeline-card.tipo-laboratorio .my-room-pill,
+.my-hero-top-badges.tipo-laboratorio .my-room-pill {
     background: linear-gradient(135deg, rgba(168, 85, 247, 0.22) 0%, rgba(147, 51, 234, 0.16) 100%) !important;
     border: 1px solid rgba(192, 132, 252, 0.45) !important;
     color: #c084fc !important;
     box-shadow: 0 1px 5px rgba(168, 85, 247, 0.2) !important;
 }
 .my-class-card.tipo-laboratorio .my-room-pill:hover,
-.my-timeline-card.tipo-laboratorio .my-room-pill:hover {
+.my-timeline-card.tipo-laboratorio .my-room-pill:hover,
+.my-hero-top-badges.tipo-laboratorio .my-room-pill:hover {
     background: linear-gradient(135deg, rgba(168, 85, 247, 0.35) 0%, rgba(147, 51, 234, 0.25) 100%) !important;
     border-color: rgba(192, 132, 252, 0.7) !important;
     color: #ffffff !important;
@@ -1392,14 +1394,16 @@
 }
 
 .my-class-card.tipo-ayudantia.is-student .my-room-pill,
-.my-timeline-card.tipo-ayudantia.is-student .my-room-pill {
+.my-timeline-card.tipo-ayudantia.is-student .my-room-pill,
+.my-hero-top-badges.tipo-ayudantia.is-student .my-room-pill {
     background: linear-gradient(135deg, rgba(236, 72, 153, 0.22) 0%, rgba(225, 29, 72, 0.16) 100%) !important;
     border: 1px solid rgba(244, 114, 182, 0.45) !important;
     color: #f472b6 !important;
     box-shadow: 0 1px 5px rgba(236, 72, 153, 0.2) !important;
 }
 .my-class-card.tipo-ayudantia.is-student .my-room-pill:hover,
-.my-timeline-card.tipo-ayudantia.is-student .my-room-pill:hover {
+.my-timeline-card.tipo-ayudantia.is-student .my-room-pill:hover,
+.my-hero-top-badges.tipo-ayudantia.is-student .my-room-pill:hover {
     background: linear-gradient(135deg, rgba(236, 72, 153, 0.35) 0%, rgba(225, 29, 72, 0.25) 100%) !important;
     border-color: rgba(244, 114, 182, 0.7) !important;
     color: #ffffff !important;
@@ -1526,6 +1530,7 @@
     .my-hero-top {
         flex-wrap: nowrap !important;
         justify-content: space-between;
+        margin-bottom: 20px;
     }
     
     .my-hero-status-pill {
