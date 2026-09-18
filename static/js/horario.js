@@ -1100,3 +1100,49 @@ window.triggerHorariosChange = function() {
     const val = document.getElementById('horarios-friend-select').value;
     cambiarVistaHorario(val, null);
 };
+
+const HORARIO_PROFILES = [
+    { val: 'nakzu', label: 'Nakzu' },
+    { val: 'alexis', label: 'Aleex1s' },
+    { val: 'felipe', label: 'Felipe' }
+];
+let currentHorarioProfileIndex = 0;
+
+window.cycleHorarioProfile = function(direction) {
+    const newIndex = (currentHorarioProfileIndex + direction + HORARIO_PROFILES.length) % HORARIO_PROFILES.length;
+    const oldProfile = HORARIO_PROFILES[currentHorarioProfileIndex];
+    const newProfile = HORARIO_PROFILES[newIndex];
+    currentHorarioProfileIndex = newIndex;
+
+    const labelEl = document.getElementById('label-horarios-friend-cycler');
+    const inputEl = document.getElementById('horarios-friend-select');
+    
+    if (labelEl && inputEl) {
+        // Preparar animación (dirección)
+        const slideOutClass = direction > 0 ? 'slide-out-left' : 'slide-out-right';
+        const slideInClass = direction > 0 ? 'slide-in-right' : 'slide-in-left';
+        
+        labelEl.classList.remove('active');
+        labelEl.classList.add(slideOutClass);
+        
+        setTimeout(() => {
+            // Cambiar texto e iniciar estado de entrada
+            labelEl.textContent = newProfile.label;
+            labelEl.classList.remove(slideOutClass);
+            labelEl.classList.add(slideInClass);
+            
+            // Forzar reflow
+            void labelEl.offsetWidth;
+            
+            // Animar hacia el centro
+            labelEl.classList.remove(slideInClass);
+            labelEl.classList.add('active');
+            
+            // Actualizar input y disparar lógica
+            inputEl.value = newProfile.val;
+            if (typeof window.triggerHorariosChange === 'function') {
+                window.triggerHorariosChange();
+            }
+        }, 200); // Mitad de la animación
+    }
+};

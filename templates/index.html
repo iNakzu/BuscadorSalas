@@ -564,16 +564,16 @@
             <div class="horario-controls-bottom" style="margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, 0.06); position: relative; z-index: 50;">
                 <div>
                     <span style="color: #94a3b8; font-size: 13px; font-weight: 500; white-space: nowrap;">Ver horario de:</span>
-                    <div class="custom-dropdown" id="dd-horarios-friend" style="min-width: 130px; border-radius: 6px;">
-                        <button type="button" class="dropdown-trigger" onclick="toggleDropdown('dd-horarios-friend')" style="background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.1); padding: 8px 12px; width: 100%; justify-content: space-between; border-radius: 6px;">
-                            <span id="label-horarios-friend" style="color: #e2e8f0; font-size: 13px;">Nakzu</span>
-                            <svg class="dropdown-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #94a3b8; margin-left: 8px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    <div class="profile-cycler">
+                        <button type="button" class="cycler-btn" onclick="cycleHorarioProfile(-1)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="15 18 9 12 15 6"></polyline></svg>
                         </button>
-                        <div class="dropdown-menu">
-                            <div class="dropdown-item active" data-val="nakzu" onclick="selectDropdownItem('dd-horarios-friend', 'nakzu', 'Nakzu', window.triggerHorariosChange)">Nakzu</div>
-                            <div class="dropdown-item" data-val="alexis" onclick="selectDropdownItem('dd-horarios-friend', 'alexis', 'Aleex1s', window.triggerHorariosChange)">Aleex1s</div>
-                            <div class="dropdown-item" data-val="felipe" onclick="selectDropdownItem('dd-horarios-friend', 'felipe', 'Felipe', window.triggerHorariosChange)">Felipe</div>
+                        <div class="cycler-name-container">
+                            <span id="label-horarios-friend-cycler" class="cycler-name active">Nakzu</span>
                         </div>
+                        <button type="button" class="cycler-btn" onclick="cycleHorarioProfile(1)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </button>
                         <input type="hidden" id="horarios-friend-select" value="nakzu">
                     </div>
                 </div>
