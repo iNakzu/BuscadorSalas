@@ -1519,3 +1519,21 @@
         justify-content: center;
     }
 }
+
+@media (max-width: 500px) {
+    .my-hero-top {
+        flex-wrap: nowrap !important;
+        justify-content: space-between;
+    }
+    
+    .my-hero-status-pill {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex-shrink: 1;
+    }
+
+    .my-hero-top-badges {
+        flex-shrink: 0;
+    }
+}
