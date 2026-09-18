@@ -138,14 +138,18 @@
 /* GRID SEMANAL (5 COLUMNAS BENTO MODERNO) */
 .my-week-grid {
     display: grid;
-    grid-template-columns: repeat(5, minmax(230px, 1fr));
-    gap: 14px;
+    grid-template-columns: repeat(5, minmax(280px, 1fr));
+    gap: 16px;
     align-items: stretch;
     overflow-x: auto;
-    padding-bottom: 10px;
+    padding-bottom: 16px;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
 }
 
 .my-day-col {
+    scroll-snap-align: center;
     background: rgba(15, 23, 42, 0.45);
     border: 1px solid rgba(255, 255, 255, 0.07);
     border-radius: var(--radius-md);
@@ -1292,9 +1296,7 @@
 }
 
 @media (max-width: 900px) {
-    .my-week-grid {
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    }
+    /* Eliminado: .my-week-grid ya no colapsa en móvil, hace scroll horizontal! */
     .my-timeline-card {
         grid-template-columns: 1fr;
         gap: 12px;
