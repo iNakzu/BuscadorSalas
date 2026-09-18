@@ -196,10 +196,10 @@ function actualizarHeroMiHorario() {
                     <span>Fin de semana</span>
                 </div>
             </div>
-            <div class="my-hero-body" style="margin-top: -10px;">
+            <div class="my-hero-body">
                 <div class="my-hero-class-info">
                     <div class="my-hero-title">¡Descanso de fin de semana!</div>
-                    <div class="my-hero-subtitle">
+                    <div class="my-hero-subtitle" style="margin-top: -6px;">
                         <span>Tu próxima clase es el <strong>Lunes a las 11:30</strong> (Tecnologías Inalámbricas en sala <code class="my-room-pill" onclick="verHorarioDirecto('V432.3.S312')">V432.3.S312</code>).</span>
                     </div>
                 </div>
@@ -319,10 +319,10 @@ function actualizarHeroMiHorario() {
                 <span>${vistaHorarioActual === 'cruce' ? 'Sin topes libres' : 'Fuera de jornada'}</span>
             </div>
         </div>
-        <div class="my-hero-body" style="margin-top: -10px;">
+        <div class="my-hero-body">
             <div class="my-hero-class-info">
                 <div class="my-hero-title">${vistaHorarioActual === 'cruce' ? 'Ya no quedan topes libres hoy' : '¡No tienes más clases por hoy!'}</div>
-                <div class="my-hero-subtitle">
+                <div class="my-hero-subtitle" style="margin-top: -6px;">
                     <span>${msgSiguiente}</span>
                 </div>
             </div>
