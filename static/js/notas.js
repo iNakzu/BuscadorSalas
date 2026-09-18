@@ -319,11 +319,12 @@ function renderNotasBuilder() {
     if (trendGrades.length >= 2) {
         const sw = 240; // Ampliado horizontalmente
         const sh = 40;  // Ampliado verticalmente para peaks notorios
+        const padX = 6; // Padding para que no se corte en los bordes
         let pathD = '';
         let dotsHtml = '';
         
         trendGrades.forEach((g, idx) => {
-            let x = idx * (sw / (trendGrades.length - 1));
+            let x = padX + idx * ((sw - 2 * padX) / (trendGrades.length - 1));
             let y = sh - (((g - 1) / 6.0) * sh);
             if (idx === 0) pathD += `M ${x} ${y} `;
             else pathD += `L ${x} ${y} `;
@@ -356,7 +357,7 @@ function renderNotasBuilder() {
             <div class="notas-header-row" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">
                 <div class="notas-summary" style="display: flex; flex-wrap: wrap; justify-content: space-around; align-items: center; gap: 24px; width: 100%; padding: 16px 20px; box-sizing: border-box; ${summaryBg} transition: all 0.3s;">
                     <!-- Columna Izquierda (Vacía para balancear) -->
-                    <div></div>
+                    <div class="notas-desktop-spacer" style="flex: 1; min-width: 200px;"></div>
                     
                     <!-- Columna Central (Notas) -->
                     <div style="display: flex; align-items: center; justify-content: center; gap: 48px;">
@@ -425,33 +426,29 @@ function renderNotasBuilder() {
 
 function updateNotaItem(dbKey, index, field, value) {
     if (!NOTAS_DATA[dbKey]) return;
-    if (field === 'weight') {
-        let w = parseFloat(value) || 0;
-        if (w < 0) w = 0;
-        if (w > 100) w = 100;
-        NOTAS_DATA[dbKey].items[index].weight = w;
-    } else if (field === 'grade') {
-        if (value.trim() !== '') {
-            let num = parseFloat(value.replace(',', '.'));
-            if (!isNaN(num)) {
-                if (num < 1.0) num = 1.0;
-                if (num > 7.0) num = 7.0;
-                NOTAS_DATA[dbKey].items[index].grade = num.toString();
-            } else {
-                NOTAS_DATA[dbKey].items[index].grade = '';
-            }
-        } else {
-            NOTAS_DATA[dbKey].items[index].grade = '';
-        }
-    } else if (field === 'name') {
-        NOTAS_DATA[dbKey].items[index][field] = value;
-    } else {
-        const parsed = parseFloat(value);
-        NOTAS_DATA[dbKey].items[index][field] = !isNaN(parsed) ? parsed : 0;
-    }
+    NOTAS_DATA[dbKey].items[index][field] = value;
     saveNotas();
     renderNotasBuilder();
 }
+
+window.updateGlobalNota = function(dbKey, field, value) {
+    if (!NOTAS_DATA[dbKey]) return;
+    
+    if (value === '') {
+        NOTAS_DATA[dbKey][field] = null;
+    } else {
+        let parsed = parseFloat(value);
+        if (!isNaN(parsed)) {
+            NOTAS_DATA[dbKey][field] = parsed;
+        } else {
+            NOTAS_DATA[dbKey][field] = null;
+        }
+    }
+    
+    saveNotas();
+    renderNotasBuilder();
+};
+
 
 function addNotaItem(dbKey) {
     if (!NOTAS_DATA[dbKey]) return;
@@ -467,12 +464,7 @@ function deleteNotaItem(dbKey, index) {
     renderNotasBuilder();
 }
 
-function resetAllNotas() {
-    NOTAS_DATA = {};
-    saveNotas();
-    renderNotasBuilder();
-    alert('Caché de notas reiniciada correctamente.');
-}
+
 
 document.addEventListener('DOMContentLoaded', () => {
     initNotas();
@@ -487,30 +479,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 });
-
-// Function to capture the card simply and robustly
-window.capturarNotas = function() {
-    if (typeof html2canvas === 'undefined') {
-        alert("El módulo de captura aún está cargando o fue bloqueado por el navegador.");
-        return;
-    }
-    const target = document.querySelector('.notas-card');
-    if (!target) return;
-    
-    // Fix: render inputs onto canvas by passing their value to an attribute
-    const inputs = target.querySelectorAll('input');
-    inputs.forEach(inp => { inp.setAttribute('data-val', inp.value); });
-    
-    html2canvas(target, { backgroundColor: '#0f172a', scale: 6 }).then(canvas => {
-        let a = document.createElement('a');
-        a.href = canvas.toDataURL('image/png');
-        a.download = 'Mis_Notas_UDP.png';
-        a.click();
-    }).catch(err => {
-        console.error("Error al capturar la imagen:", err);
-        alert("Hubo un error al generar la imagen.");
-    });
-};
 
 window.capturarMiHorario = function() {
     if (typeof html2canvas === 'undefined') {
