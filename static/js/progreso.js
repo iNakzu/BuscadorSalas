@@ -1,15 +1,15 @@
 const MALLA_MOCK = [
     { sem: 1, cursos: ["Álgebra y Geometría", "Cálculo I", "Química", "Programación", "Comunicación para la Ingeniería"] },
-    { sem: 2, cursos: ["Álgebra Lineal", "Cálculo II", "Mecánica", "Programación Avanzada"] },
+    { sem: 2, cursos: ["Álgebra Lineal", "Cálculo II", "Mecánica", "Programación Avanzada", "Curso de Formación General (II)"] },
     { sem: 3, cursos: ["Ecuaciones Diferenciales", "Cálculo III", "Calor y Ondas", "Estructuras de Datos y Algoritmos", "Redes de Datos"] },
     { sem: 4, cursos: ["Probabilidades y Estadísticas", "Electrónica y Electrotecnia", "Electricidad y Magnetismo", "Bases de Datos", "Desarrollo Web y Móvil", "Inglés I"] },
-    { sem: 5, cursos: ["Optimización", "Taller de Redes y Servicios", "Proyecto en TICs I", "Bases de Datos Avanzadas", "Inglés II"] },
-    { sem: 6, cursos: ["Contabilidad y Costos", "Arquitectura y Organización de Computadores", "Señales y Sistemas", "Sistemas Operativos", "Inglés III"] },
-    { sem: 7, cursos: ["Gestión Organizacional", "Sistemas Distribuidos", "Comunicaciones Digitales", "Ingeniería de Software"] },
-    { sem: 8, cursos: ["Introducción a la Economía", "Tecnologías Inalámbricas", "Criptografía y Seguridad de Redes", "Inteligencia Artificial", "Evaluación de Proyectos TIC"] },
-    { sem: 9, cursos: ["Arquitecturas Emergentes", "Arquitectura de Software", "Data Science"] },
-    { sem: 10, cursos: ["Proyecto en TICs II"] },
-    { sem: 11, cursos: ["Actividad de Titulación"] }
+    { sem: 5, cursos: ["Optimización", "Taller de Redes y Servicios", "Proyecto en TICs I", "Bases de Datos Avanzadas", "Curso de Formación General (V)", "Inglés II", "Práctica Profesional I"] },
+    { sem: 6, cursos: ["Contabilidad y Costos", "Arquitectura y Organización de Computadores", "Señales y Sistemas", "Sistemas Operativos", "Curso de Formación General (VI)", "Inglés III"] },
+    { sem: 7, cursos: ["Gestión Organizacional", "Sistemas Distribuidos", "Comunicaciones Digitales", "Ingeniería de Software", "Curso de Formación General (VII)"] },
+    { sem: 8, cursos: ["Introducción a la Economía", "Tecnologías Inalámbricas", "Criptografía y Seguridad en Redes", "Inteligencia Artificial", "Evaluación de Proyectos TIC", "Práctica Profesional II"] },
+    { sem: 9, cursos: ["Electivo Profesional (1)", "Arquitecturas Emergentes", "Electivo Profesional (2)", "Arquitectura de Software", "Data Science"] },
+    { sem: 10, cursos: ["Electivo Profesional (3)", "Electivo Profesional (4)", "Electivo Profesional (5)", "Electivo Profesional (6)", "Proyecto en TICs II"] },
+    { sem: 11, cursos: ["Actividad de Titulación", "Opción Magíster"] }
 ];
 
 let progresoState = {};
