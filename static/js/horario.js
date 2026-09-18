@@ -193,7 +193,7 @@ function actualizarHeroMiHorario() {
         heroEl.innerHTML = `
             <div class="my-hero-top">
                 <div class="my-hero-status-pill done">
-                    <span>🌴 Fin de Semana Libre</span>
+                    <span>🌴 Fin de semana</span>
                 </div>
             </div>
             <div class="my-hero-body">
@@ -232,7 +232,7 @@ function actualizarHeroMiHorario() {
             <div class="my-hero-top">
                 <div class="my-hero-status-pill now">
                     <span class="pulse-dot"></span>
-                    <span>${vistaHorarioActual === 'cruce' ? '¡Tope Libre Ahora Mismo!' : '¡En Clase Ahora Mismo!'}</span>
+                    <span>${vistaHorarioActual === 'cruce' ? 'Tope libre' : 'En clase'}</span>
                 </div>
                 <div class="my-hero-top-badges">
                     <span class="my-room-pill ${claseActual.rol === 'assistant' ? 'is-assistant-room' : ''}" onclick="verHorarioDirecto('${claseActual.sala}')" title="Ver horario de la sala ${claseActual.sala}">
@@ -247,9 +247,9 @@ function actualizarHeroMiHorario() {
                         <span>${claseActual.curso}</span>
                     </div>
                     <div class="my-hero-subtitle">
-                        <span>Bloque ${claseActual.bloqueNum} (${claseActual.bloqueLabel})</span>
-                        ${claseActual.profesor ? `<span>• Prof: ${claseActual.profesor}</span>` : ''}
-                        <span>• Quedan aprox. <strong>${minRestantes} min</strong></span>
+                        <span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;">Bloque ${claseActual.bloqueNum} (${claseActual.bloqueLabel})</span>
+                        ${claseActual.profesor ? `<span class="my-prof-name" style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px; display:inline-flex; align-items:center; gap:4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> ${claseActual.profesor}</span>` : ''}
+                        <span style="background: rgba(14,165,233,0.1); color:#38bdf8; padding: 2px 8px; border-radius: 4px;">Quedan <strong>${minRestantes} min</strong></span>
                     </div>
                 </div>
             </div>
@@ -270,7 +270,7 @@ function actualizarHeroMiHorario() {
             <div class="my-hero-top">
                 <div class="my-hero-status-pill next">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                    <span>${vistaHorarioActual === 'cruce' ? `Próximo Tope Libre Hoy en ${diffTexto}` : `Próxima Clase Hoy en ${diffTexto}`}</span>
+                    <span>${vistaHorarioActual === 'cruce' ? `Ventana libre: ${diffTexto}` : `En ventana (${diffTexto})`}</span>
                 </div>
                 <div class="my-hero-top-badges">
                     <span class="my-room-pill ${proximaHoy.rol === 'assistant' ? 'is-assistant-room' : ''}" onclick="verHorarioDirecto('${proximaHoy.sala}')" title="Ver horario de la sala ${proximaHoy.sala}">
@@ -285,8 +285,8 @@ function actualizarHeroMiHorario() {
                         <span>${proximaHoy.curso}</span>
                     </div>
                     <div class="my-hero-subtitle">
-                        <span>Inicia a las <strong>${proximaHoy.horaInicio}</strong> (Bloque ${proximaHoy.bloqueNum})</span>
-                        ${proximaHoy.profesor ? `<span>• Prof: ${proximaHoy.profesor}</span>` : ''}
+                        <span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;">Inicia a las <strong>${proximaHoy.horaInicio}</strong> (Bloque ${proximaHoy.bloqueNum})</span>
+                        ${proximaHoy.profesor ? `<span class="my-prof-name" style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px; display:inline-flex; align-items:center; gap:4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> ${proximaHoy.profesor}</span>` : ''}
                     </div>
                 </div>
             </div>
@@ -316,7 +316,7 @@ function actualizarHeroMiHorario() {
     heroEl.innerHTML = `
         <div class="my-hero-top">
             <div class="my-hero-status-pill done">
-                <span>✨ ${vistaHorarioActual === 'cruce' ? 'No hay más topes libres por hoy' : 'Jornada de Hoy Finalizada'}</span>
+                <span>✨ ${vistaHorarioActual === 'cruce' ? 'Sin topes libres' : 'Fuera de jornada'}</span>
             </div>
         </div>
         <div class="my-hero-body">
