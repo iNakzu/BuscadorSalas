@@ -200,7 +200,7 @@ function actualizarHeroMiHorario() {
                 <div class="my-hero-class-info">
                     <div class="my-hero-title">Descanso de fin de semana!</div>
                     <div class="my-hero-subtitle" style="margin-top: -6px;">
-                        <span>Tu próxima clase es el <strong>Lunes a las 11:30</strong> (Tecnologías Inalámbricas en sala <code class="my-room-pill" onclick="verHorarioDirecto('V432.3.S312')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>Sala V432.3.S312</span></code>).</span>
+                        <span>Tu próxima clase es el <strong>Lunes a las 11:30</strong> (Tecnologías Inalámbricas en sala <code class="my-room-pill" onclick="verHorarioDirecto('V432.3.S312')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>V432.3.S312</span></code>).</span>
                     </div>
                 </div>
             </div>
@@ -237,7 +237,7 @@ function actualizarHeroMiHorario() {
                 <div class="my-hero-top-badges ${claseActual.tipo ? 'tipo-' + claseActual.tipo.toLowerCase().replace(' ', '') : ''} ${claseActual.rol === 'student' ? 'is-student' : ''}">
                     <span class="my-room-pill ${claseActual.rol === 'assistant' ? 'is-assistant-room' : ''}" onclick="verHorarioDirecto('${claseActual.sala}')" title="Ver horario de la sala ${claseActual.sala}">
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-                        <span>Sala ${claseActual.sala}</span>
+                        <span>${claseActual.sala}</span>
                     </span>
                 </div>
             </div>
@@ -275,7 +275,7 @@ function actualizarHeroMiHorario() {
                 <div class="my-hero-top-badges ${proximaHoy.tipo ? 'tipo-' + proximaHoy.tipo.toLowerCase().replace(' ', '') : ''} ${proximaHoy.rol === 'student' ? 'is-student' : ''}">
                     <span class="my-room-pill ${proximaHoy.rol === 'assistant' ? 'is-assistant-room' : ''}" onclick="verHorarioDirecto('${proximaHoy.sala}')" title="Ver horario de la sala ${proximaHoy.sala}">
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-                        <span>Sala ${proximaHoy.sala}</span>
+                        <span>${proximaHoy.sala}</span>
                     </span>
                 </div>
             </div>
@@ -310,7 +310,7 @@ function actualizarHeroMiHorario() {
     const msgSiguiente = siguienteClase
         ? (vistaHorarioActual === 'cruce' 
             ? `Próximo tope libre el <strong>${siguienteClase.diaNombre} a las ${siguienteClase.horaInicio}</strong>.`
-            : (siguienteClase.rol === 'assistant' ? `Tu próxima ayudantía es el <strong>${siguienteClase.diaNombre} a las ${siguienteClase.horaInicio}</strong> (${siguienteClase.curso} en sala <code class="my-room-pill ${siguienteClase.tipo ? 'tipo-' + siguienteClase.tipo.toLowerCase().replace(' ', '') : ''} ${siguienteClase.rol === 'student' ? 'is-student' : ''} is-assistant-room" onclick="verHorarioDirecto('${siguienteClase.sala}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>Sala ${siguienteClase.sala}</span></code>).` : `Tu próxima clase es el <strong>${siguienteClase.diaNombre} a las ${siguienteClase.horaInicio}</strong> (${siguienteClase.curso} en sala <code class="my-room-pill ${siguienteClase.tipo ? 'tipo-' + siguienteClase.tipo.toLowerCase().replace(' ', '') : ''} ${siguienteClase.rol === 'student' ? 'is-student' : ''}" onclick="verHorarioDirecto('${siguienteClase.sala}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>Sala ${siguienteClase.sala}</span></code>).`))
+            : (siguienteClase.rol === 'assistant' ? `Tu próxima ayudantía es el <strong>${siguienteClase.diaNombre} a las ${siguienteClase.horaInicio}</strong> (${siguienteClase.curso} en sala <code class="my-room-pill ${siguienteClase.tipo ? 'tipo-' + siguienteClase.tipo.toLowerCase().replace(' ', '') : ''} ${siguienteClase.rol === 'student' ? 'is-student' : ''} is-assistant-room" onclick="verHorarioDirecto('${siguienteClase.sala}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${siguienteClase.sala}</span></code>).` : `Tu próxima clase es el <strong>${siguienteClase.diaNombre} a las ${siguienteClase.horaInicio}</strong> (${siguienteClase.curso} en sala <code class="my-room-pill ${siguienteClase.tipo ? 'tipo-' + siguienteClase.tipo.toLowerCase().replace(' ', '') : ''} ${siguienteClase.rol === 'student' ? 'is-student' : ''}" onclick="verHorarioDirecto('${siguienteClase.sala}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${siguienteClase.sala}</span></code>).`))
         : (vistaHorarioActual === 'cruce' ? 'No hay topes libres programados.' : 'No tienes más clases programadas.');
 
     heroEl.innerHTML = `
@@ -1003,7 +1003,7 @@ function renderMiHorario() {
                         <div class="my-actions-box">
                             <span class="my-room-pill" onclick="verHorarioDirecto('${c.sala}')" title="Ver horario de la sala ${c.sala}" style="font-size: 12px; padding: 6px 11px;">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-                                <span>Sala ${c.sala}</span>
+                                <span>${c.sala}</span>
                             </span>
                             ${vistaHorarioActual === 'nakzu' ? `<button type="button" class="my-btn-delete-timeline" onclick="eliminarClaseMiHorario('${c.id}', event)" title="Eliminar asignatura de este bloque">` : '<div style="display:none">'}
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
