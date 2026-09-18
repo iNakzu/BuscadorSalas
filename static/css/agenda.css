@@ -293,3 +293,37 @@
         height: 10px !important;
     }
 }
+
+@media (max-width: 600px) {
+    .agenda-card {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-template-areas: 
+            "check content"
+            ". actions";
+        gap: 12px;
+        align-items: flex-start;
+        padding: 16px;
+    }
+    .agenda-checkbox-btn {
+        grid-area: check;
+        margin-top: 4px;
+    }
+    .agenda-content {
+        grid-area: content;
+    }
+    .agenda-meta {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .agenda-card-right {
+        grid-area: actions;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        margin-top: 4px;
+        padding-top: 12px;
+        border-top: 1px dashed rgba(255, 255, 255, 0.1);
+        width: 100%;
+    }
+}
