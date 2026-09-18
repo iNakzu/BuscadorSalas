@@ -1044,3 +1044,15 @@
     background: #38bdf8;
     color: #0f172a;
 }
+
+@media (max-width: 500px) {
+    .profile-pill {
+        flex: 0 0 calc(33.333% - 8px);
+        justify-content: center;
+        padding: 6px 4px;
+    }
+    .profile-pill span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
