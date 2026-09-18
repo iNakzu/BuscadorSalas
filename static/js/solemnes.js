@@ -534,3 +534,45 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 100);
     }
 });
+
+const SOLEMNES_PROFILES = [
+    { val: '', label: 'Todos' },
+    { val: 'nakzu', label: 'Nakzu' },
+    { val: 'alexis', label: 'Aleex1s' },
+    { val: 'felipe', label: 'Felipe' }
+];
+let currentSolemnesProfileIndex = 0;
+
+window.cycleSolemnesProfile = function(direction) {
+    const newIndex = (currentSolemnesProfileIndex + direction + SOLEMNES_PROFILES.length) % SOLEMNES_PROFILES.length;
+    const oldProfile = SOLEMNES_PROFILES[currentSolemnesProfileIndex];
+    const newProfile = SOLEMNES_PROFILES[newIndex];
+    currentSolemnesProfileIndex = newIndex;
+
+    const labelEl = document.getElementById('label-solemnes-friend-cycler');
+    const inputEl = document.getElementById('solemnes-friend-select');
+    
+    if (labelEl && inputEl) {
+        const slideOutClass = direction > 0 ? 'slide-out-left' : 'slide-out-right';
+        const slideInClass = direction > 0 ? 'slide-in-right' : 'slide-in-left';
+        
+        labelEl.classList.remove('active');
+        labelEl.classList.add(slideOutClass);
+        
+        setTimeout(() => {
+            labelEl.textContent = newProfile.label;
+            labelEl.classList.remove(slideOutClass);
+            labelEl.classList.add(slideInClass);
+            
+            void labelEl.offsetWidth; // Force reflow
+            
+            labelEl.classList.remove(slideInClass);
+            labelEl.classList.add('active');
+            
+            inputEl.value = newProfile.val;
+            if (typeof renderSolemnes === 'function') {
+                renderSolemnes();
+            }
+        }, 200);
+    }
+};
