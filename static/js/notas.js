@@ -290,7 +290,7 @@ function renderNotasBuilder() {
 
     let examRowHtml = `
         <div class="notas-item-row" style="${examStyle}">
-            <div style="color: #e2e8f0; font-size: 14px; font-weight: 600; flex-grow: 1; min-width: 120px;">${examLabel}</div>
+            <div style="color: #e2e8f0; font-size: 14px; font-weight: 600; flex-grow: 1; min-width: 60px;">${examLabel}</div>
                 <div style="display:flex; align-items:center; gap: 6px;">
 
                     <div class="notas-input-wrapper" style="width: 60px;">

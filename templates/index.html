@@ -755,14 +755,14 @@
                 
                 <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
                     <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
-                        <div style="background: rgba(30, 41, 59, 0.6); border-radius: 8px; padding: 6px; display: flex; flex-grow: 1; border: 1px solid rgba(255, 255, 255, 0.05);">
+                        <div style="background: rgba(30, 41, 59, 0.6); border-radius: 8px; padding: 6px; display: flex; flex-grow: 1; min-width: 0; border: 1px solid rgba(255, 255, 255, 0.05);">
                             <select id="notas-friend-select" onchange="updateNotasDropdown()" style="background: transparent; color: #38bdf8; border: none; font-size: 14px; font-weight: 600; outline: none; cursor: pointer; padding: 4px 8px; margin-right: 8px;">
                                 <option value="nakzu">Nakzu</option>
                                 <option value="felipe">Felipe</option>
                                 <option value="alexis">Alexis</option>
                             </select>
                             
-                            <div class="custom-dropdown" id="dd-notas-curso" style="flex-grow: 1; border-left: 1px solid rgba(255,255,255,0.1); margin-left: 6px; padding-left: 8px;">
+                            <div class="custom-dropdown" id="dd-notas-curso" style="flex-grow: 1; min-width: 0; border-left: 1px solid rgba(255,255,255,0.1); margin-left: 6px; padding-left: 8px;">
                                 <button type="button" class="dropdown-trigger" onclick="toggleDropdown('dd-notas-curso')" style="background: transparent; border: none; padding: 4px 12px 4px 12px; width: 100%; justify-content: space-between;">
                                     <span id="label-notas-curso" style="color: #e2e8f0; font-size: 14px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">Selecciona una asignatura...</span>
                                     <svg class="dropdown-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>

@@ -68,7 +68,7 @@
     font-weight: 500;
     outline: none;
     flex-grow: 1;
-    min-width: 120px;
+    min-width: 60px;
 }
 .notas-input-name::placeholder { color: #64748b; }
 
