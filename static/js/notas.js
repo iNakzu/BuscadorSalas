@@ -360,13 +360,13 @@ function renderNotasBuilder() {
                     <div class="notas-desktop-spacer" style="flex: 1;"></div>
                     
                     <!-- Columna Central (Notas juntas) -->
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 28px;">
-                        <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                    <div style="display: flex; align-items: flex-start; justify-content: center; gap: 16px; width: 100%; max-width: 340px;">
+                        <div style="text-align: center; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; flex: 1; flex-basis: 0;">
                             <div class="notas-summary-title">Nota Presentación</div>
                             <div class="notas-summary-value" style="font-size: 36px;">${currentWeightEvaluatedNP > 0 ? np_actual.toFixed(2) : '-'}</div>
                         </div>
                         
-                        <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <div style="text-align: center; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; flex: 1; flex-basis: 0;">
                             <div class="notas-summary-title" style="color: #38bdf8;">Nota Final</div>
                             <div class="notas-summary-value" style="font-size: 36px; color: #f8fafc;">${(hasExamGrade || isEximido) && Math.abs(remainingWeightNP) < 0.1 ? notaFinalCalculada.toFixed(2) : '-'}</div>
                         </div>
