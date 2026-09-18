@@ -119,6 +119,12 @@
                 </svg>
                 <span>Estudio</span>
             </button>
+            <button type="button" class="tab-btn" onclick="cambiarTab('tab-reloj', this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span>Hora</span>
+            </button>
         </nav>
     </div>
 
@@ -1020,6 +1026,23 @@
         </div>
 
 
+
+        <!-- TAB PROGRESO / MALLA INTERACTIVA -->
+        <section id="tab-progreso" class="panel">
+            <div id="progreso-container"></div>
+        </section>
+
+        <!-- TAB MODO ESTUDIO (POMODORO) -->
+        <section id="tab-estudio" class="panel">
+            <div id="estudio-container"></div>
+        </section>
+        
+        <!-- TAB HORA MUNDIAL / CRONOMETRO -->
+        <section id="tab-reloj" class="panel">
+            <div id="reloj-container"></div>
+        </section>
+    </main>
+
 <!-- Variables inyectadas por Flask -->
 <script>
     const TODAS_LAS_SALAS = {{ todas_las_salas | tojson }};
@@ -1030,5 +1053,9 @@
 <script src="{{ url_for('static', filename='js/datos_prueba_amigos.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/horario.js') }}" defer></script>
 
+
+<script src="{{ url_for('static', filename='js/progreso.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/estudio.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/reloj.js') }}" defer></script>
 </body>
 </html>
