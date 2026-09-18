@@ -480,25 +480,44 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
     initAgenda();
 }
 
-// Funcionalidad del Carrusel Horizontal de Perfiles
-function selectAgendaProfile(val, btnElement) {
-    // Actualizar UI
-    const container = document.getElementById('agenda-profile-carousel');
-    if (container) {
-        container.querySelectorAll('.profile-pill').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        btnElement.classList.add('active');
-    }
 
-    // Actualizar input oculto para compatibilidad
-    const input = document.getElementById('agenda-friend-select');
-    if (input) {
-        input.value = val;
-    }
+const AGENDA_PROFILES = [
+    { val: 'nakzu', label: 'Nakzu' },
+    { val: 'alexis', label: 'Aleex1s' },
+    { val: 'felipe', label: 'Felipe' }
+];
+let currentAgendaProfileIndex = 0;
 
-    // Disparar la lógica de actualización nativa
-    if (typeof window.triggerAgendaProfileChange === 'function') {
-        window.triggerAgendaProfileChange();
+window.cycleAgendaProfile = function(direction) {
+    const newIndex = (currentAgendaProfileIndex + direction + AGENDA_PROFILES.length) % AGENDA_PROFILES.length;
+    const oldProfile = AGENDA_PROFILES[currentAgendaProfileIndex];
+    const newProfile = AGENDA_PROFILES[newIndex];
+    currentAgendaProfileIndex = newIndex;
+
+    const labelEl = document.getElementById('label-agenda-friend-cycler');
+    const inputEl = document.getElementById('agenda-friend-select');
+    
+    if (labelEl && inputEl) {
+        const slideOutClass = direction > 0 ? 'slide-out-left' : 'slide-out-right';
+        const slideInClass = direction > 0 ? 'slide-in-right' : 'slide-in-left';
+        
+        labelEl.classList.remove('active');
+        labelEl.classList.add(slideOutClass);
+        
+        setTimeout(() => {
+            labelEl.textContent = newProfile.label;
+            labelEl.classList.remove(slideOutClass);
+            labelEl.classList.add(slideInClass);
+            
+            void labelEl.offsetWidth; // Force reflow
+            
+            labelEl.classList.remove(slideInClass);
+            labelEl.classList.add('active');
+            
+            inputEl.value = newProfile.val;
+            if (typeof triggerAgendaProfileChange === 'function') {
+                triggerAgendaProfileChange();
+            }
+        }, 200);
     }
-}
+};
