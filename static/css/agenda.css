@@ -57,6 +57,7 @@
 
 .agenda-content {
     flex-grow: 1;
+    min-width: 0;
 }
 
 .agenda-title {
@@ -306,7 +307,12 @@
         padding: 16px;
     }
     
+
+    .desktop-agenda-title-text { display: none !important; }
+    .mobile-agenda-title-text { display: flex !important; }
+    
     .desktop-agenda-dot { display: none !important; }
+
     .mobile-agenda-dot { display: block !important; }
     .desktop-agenda-date { display: none !important; }
     .mobile-agenda-date { display: flex !important; }

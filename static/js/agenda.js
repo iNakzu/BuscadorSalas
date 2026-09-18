@@ -377,12 +377,16 @@ function renderAgenda() {
                 </div>
                 
                 <div class="agenda-content">
-                    <div class="agenda-title" style="display: flex; align-items: center; gap: 8px;">
+                    <div class="agenda-title" style="display: flex; align-items: center; gap: 8px; min-width: 0;">
                         <div class="desktop-agenda-dot">${iconHtml}</div>
-                        ${ev.ramo} - ${ev.tipo}
+                        <span class="desktop-agenda-title-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${ev.ramo} - ${ev.tipo}</span>
+                        <div class="mobile-agenda-title-text" style="display: none; flex-direction: column; min-width: 0; width: 100%;">
+                            <div style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${ev.ramo}</div>
+                            <div style="font-size: 13px; color: #94a3b8; font-weight: 500; margin-top: 2px;">${ev.tipo}</div>
+                        </div>
                     </div>
                     <div class="agenda-meta">
-                        <span class="desktop-agenda-date">
+                        <span class="desktop-agenda-date" style="white-space: nowrap;">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                             ${formatearFecha(ev.fecha, ev.hasTime)}
                         </span>
@@ -395,15 +399,13 @@ function renderAgenda() {
                 </div>
                 
                 <div class="agenda-card-right" style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <div class="agenda-status-pill ${statusClass}" style="${ev.completado ? 'background:rgba(255,255,255,0.1); color:#94a3b8; border:1px solid rgba(255,255,255,0.1)' : ''}">
-                            ${statusText}
-                        </div>
-                        <span class="mobile-agenda-date" style="display: none; color: #94a3b8; font-size: 13px; align-items: center; gap: 4px;">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                            ${formatearFecha(ev.fecha, ev.hasTime)}
-                        </span>
+                    <div class="agenda-status-pill ${statusClass}" style="white-space: nowrap; ${ev.completado ? 'background:rgba(255,255,255,0.1); color:#94a3b8; border:1px solid rgba(255,255,255,0.1)' : ''}">
+                        ${statusText}
                     </div>
+                    <span class="mobile-agenda-date" style="display: none; color: #94a3b8; font-size: 13px; align-items: center; gap: 4px; white-space: nowrap;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        ${formatearFecha(ev.fecha, ev.hasTime)}
+                    </span>
                     <div class="agenda-actions">
                         <button class="agenda-btn-icon" onclick="abrirModalAgenda('${ev.id}')" title="Editar">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
