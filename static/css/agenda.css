@@ -1,6 +1,7 @@
 /* ESTILOS PARA LA AGENDA */
 
 .agenda-card {
+    position: relative;
     background: rgba(15, 23, 42, 0.45);
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 14px;
@@ -284,6 +285,13 @@
 }
 
 @media (min-width: 600px) {
+    #cal-month-year {
+        font-size: 24px !important;
+    }
+    .cal-nav-btn svg {
+        width: 28px !important;
+        height: 28px !important;
+    }
     .cal-day {
         font-size: 22px;
     }
@@ -319,21 +327,6 @@
         padding: 16px;
         position: relative;
     }
-    
-
-    
-    .desktop-agenda-dot { display: none !important; }
-
-    .mobile-agenda-dot { 
-        display: block !important; 
-        position: absolute; 
-        top: 12px; 
-        left: 12px; 
-    }
-    .mobile-agenda-dot .cal-dot {
-        width: 10px !important;
-        height: 10px !important;
-    }
     .desktop-agenda-date { display: none !important; }
     .mobile-agenda-date { display: flex !important; }
     
@@ -361,4 +354,14 @@
         padding-top: 0px;
         width: 100%;
     }
+}
+
+.mobile-agenda-dot {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+}
+.mobile-agenda-dot .cal-dot {
+    width: 10px !important;
+    height: 10px !important;
 }
