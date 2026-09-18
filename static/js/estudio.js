@@ -83,13 +83,13 @@ function renderEstudio() {
     const html = `
         <div class="estudio-wrapper">
             <div class="estudio-header">
-                <h2>Modo Estudio En Vivo 🤫</h2>
+                <h2>Modo Estudio En Vivo</h2>
                 <p>Silencia distracciones y enfócate. Al iniciar, tus amigos verán que estás estudiando.</p>
             </div>
             
             <div class="estudio-mode-selector">
-                <button class="mode-btn ${currentMode === 'estudio' ? 'active' : ''}" onclick="switchMode('estudio')">🧠 50m Estudio</button>
-                <button class="mode-btn ${currentMode === 'descanso' ? 'active' : ''}" onclick="switchMode('descanso')">☕ 10m Descanso</button>
+                <button class="mode-btn ${currentMode === 'estudio' ? 'active' : ''}" onclick="switchMode('estudio')">50m Estudio</button>
+                <button class="mode-btn ${currentMode === 'descanso' ? 'active' : ''}" onclick="switchMode('descanso')">10m Descanso</button>
             </div>
             
             <div class="pomodoro-circle ${isRunning ? 'pulsing' : ''} ${currentMode}">

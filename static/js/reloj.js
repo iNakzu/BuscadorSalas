@@ -120,8 +120,8 @@ function renderReloj() {
     container.innerHTML = `
         <div class="reloj-wrapper">
             <div class="estudio-mode-selector" style="margin-bottom: 50px;">
-                <button class="mode-btn ${currentRelojMode === 'clock' ? 'active' : ''}" onclick="switchRelojMode('clock')">⏱️ Hora Exacta</button>
-                <button class="mode-btn ${currentRelojMode === 'stopwatch' ? 'active' : ''}" onclick="switchRelojMode('stopwatch')">⏲️ Cronómetro</button>
+                <button class="mode-btn ${currentRelojMode === 'clock' ? 'active' : ''}" onclick="switchRelojMode('clock')">Hora Exacta</button>
+                <button class="mode-btn ${currentRelojMode === 'stopwatch' ? 'active' : ''}" onclick="switchRelojMode('stopwatch')">Cronómetro</button>
             </div>
             ${content}
         </div>
