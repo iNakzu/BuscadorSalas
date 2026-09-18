@@ -373,12 +373,12 @@ function renderAgenda() {
                     <button class="agenda-checkbox-btn" onclick="toggleCompletado('${ev.id}')" title="Marcar como completado" style="margin: 0;">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                     </button>
-                    <div class="mobile-agenda-dot" style="display: none;">${iconHtml}</div>
+                    <div class="mobile-agenda-dot">${iconHtml}</div>
                 </div>
                 
                 <div class="agenda-content">
                     <div class="agenda-title" style="display: flex; align-items: center; gap: 12px; min-width: 0;">
-                        <div class="desktop-agenda-dot">${iconHtml}</div>
+                        
                         <div style="display: flex; flex-direction: column; min-width: 0; width: 100%;">
                             <div style="font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #f8fafc;">${ev.ramo}</div>
                             <div style="font-size: 13px; color: #94a3b8; font-weight: 500; margin-top: 2px;">${ev.tipo}</div>
