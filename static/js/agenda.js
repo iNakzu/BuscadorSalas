@@ -390,9 +390,9 @@ function renderAgenda() {
                             ${formatearFecha(ev.fecha, ev.hasTime)}
                         </span>
                         ${ev.notas ? `
-                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; min-width: 0;">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                            <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${ev.notas}</span>
+                        <span style="max-width: 100%; min-width: 0; display: flex; align-items: center; overflow: hidden;">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-right: 4px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                            <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1;">${ev.notas}</span>
                         </span>` : ''}
                     </div>
                 </div>
