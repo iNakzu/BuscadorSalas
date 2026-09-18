@@ -355,12 +355,12 @@ function renderNotasBuilder() {
     container.innerHTML = `
         <div class="notas-card ${statusClass}">
             <div class="notas-header-row" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">
-                <div class="notas-summary" style="display: flex; flex-wrap: wrap; justify-content: space-around; align-items: center; gap: 24px; width: 100%; padding: 16px 20px; box-sizing: border-box; ${summaryBg} transition: all 0.3s;">
+                <div class="notas-summary" style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; width: 100%; padding: 16px 20px; box-sizing: border-box; ${summaryBg} transition: all 0.3s;">
                     <!-- Columna Izquierda (Vacía para balancear) -->
-                    <div class="notas-desktop-spacer" style="flex: 1; min-width: 200px;"></div>
+                    <div class="notas-desktop-spacer" style="flex: 1;"></div>
                     
-                    <!-- Columna Central (Notas) -->
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 48px;">
+                    <!-- Columna Central (Notas juntas) -->
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 28px; z-index: 2;">
                         <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
                             <div class="notas-summary-title">Nota Presentación</div>
                             <div class="notas-summary-value" style="font-size: 36px;">${currentWeightEvaluatedNP > 0 ? np_actual.toFixed(2) : '-'}</div>
@@ -372,8 +372,8 @@ function renderNotasBuilder() {
                         </div>
                     </div>
                     
-                    <!-- Columna Derecha (Gráfico centrado en el espacio restante) -->
-                    <div style="display: flex; align-items: center; justify-content: center; flex: 1; min-width: 200px;">
+                    <!-- Columna Derecha (Gráfico a la derecha) -->
+                    <div class="notas-chart-container">
                         ${sparklineHtml}
                     </div>
                 </div>

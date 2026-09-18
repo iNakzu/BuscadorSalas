@@ -192,3 +192,24 @@
 @media (min-width: 769px) {
     .notas-desktop-spacer { display: block !important; }
 }
+
+.notas-chart-container {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+@media (min-width: 769px) {
+    .notas-chart-container {
+        justify-content: flex-start;
+        padding-left: 24px; /* Chart slightly to the right of Nota Final */
+    }
+}
+
+@media (max-width: 768px) {
+    .notas-chart-container {
+        justify-content: center;
+        min-width: 100%; /* Force wrap on mobile */
+        margin-top: 8px;
+    }
+}
