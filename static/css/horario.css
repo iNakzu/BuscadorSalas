@@ -1486,3 +1486,36 @@
     display: flex;
     align-items: center;
 }
+
+.horario-controls-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.horario-controls-bottom > div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+@media (max-width: 500px) {
+    .horario-controls-bottom {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .horario-controls-bottom > div {
+        width: 100%;
+    }
+    
+    .horario-controls-bottom > div .custom-dropdown {
+        flex: 1;
+    }
+    
+    .horario-controls-bottom .pill-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
