@@ -193,7 +193,7 @@ function actualizarHeroMiHorario() {
         heroEl.innerHTML = `
             <div class="my-hero-top">
                 <div class="my-hero-status-pill done">
-                    <span>🌴 Fin de semana</span>
+                    <span>Fin de semana</span>
                 </div>
             </div>
             <div class="my-hero-body">
