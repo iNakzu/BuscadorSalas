@@ -185,3 +185,10 @@
         display: none !important;
     }
 }
+
+@media (max-width: 768px) {
+    .notas-desktop-spacer { display: none !important; }
+}
+@media (min-width: 769px) {
+    .notas-desktop-spacer { display: block !important; }
+}
