@@ -16,4 +16,4 @@ Actualmente, las siguientes estructuras están escritas a mano (hardcodeadas) en
 
 ## 3. Filosofía de Diseño UI
 - Toda nueva interfaz o sección debe respetar el estilo "Glassmorphism" (cristalizado), usando los fondos transparentes (`rgba(30, 41, 59, 0.6)`), bordes sutiles y acentos en cyan o morado neón, imitando la filosofía de iOS/Tailwind oscuro. 
-- **Regla Estricta:** NO SE DEBEN USAR EMOJIS en la interfaz, a menos que sea explícitamente requerido, para mantener una estética limpia y futurista.
+- **Regla Estricta sobre Iconografía:** NO SE DEBEN USAR EMOJIS (🎨, 📚, ✨) bajo ninguna circunstancia. En su lugar, se deben usar **símbolos modernos, limpios y minimalistas** (como SVGs al estilo Lucide/Feather, o glifos tipográficos elegantes como ➔, ✦, ⚲) para mantener una estética seria, pulcra y futurista.
