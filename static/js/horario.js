@@ -248,7 +248,7 @@ function actualizarHeroMiHorario() {
                     </div>
                     <div class="my-hero-subtitle">
                         <span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;">Bloque ${claseActual.bloqueNum} (${claseActual.bloqueLabel})</span>
-                        ${claseActual.profesor ? `<span class="my-prof-name" style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px; margin-top: -2px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>${claseActual.profesor}</span>` : ''}
+                        ${claseActual.profesor ? `<span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px; margin-top: -2px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>${claseActual.profesor}</span>` : ''}
                         <span style="background: rgba(14,165,233,0.1); color:#38bdf8; padding: 2px 8px; border-radius: 4px;">Quedan <strong>${minRestantes} min</strong></span>
                     </div>
                 </div>
@@ -286,7 +286,7 @@ function actualizarHeroMiHorario() {
                     </div>
                     <div class="my-hero-subtitle">
                         <span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;">Inicia a las <strong>${proximaHoy.horaInicio}</strong> (Bloque ${proximaHoy.bloqueNum})</span>
-                        ${proximaHoy.profesor ? `<span class="my-prof-name" style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px; margin-top: -2px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>${proximaHoy.profesor}</span>` : ''}
+                        ${proximaHoy.profesor ? `<span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px; margin-top: -2px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>${proximaHoy.profesor}</span>` : ''}
                     </div>
                 </div>
             </div>
