@@ -234,7 +234,7 @@ function actualizarHeroMiHorario() {
                     <span class="pulse-dot"></span>
                     <span>${vistaHorarioActual === 'cruce' ? 'Tope libre' : (claseActual.rol === 'assistant' ? 'En ayudantía' : 'En clase')}</span>
                 </div>
-                <div class="my-hero-top-badges">
+                <div class="my-hero-top-badges ${claseActual.tipo ? 'tipo-' + claseActual.tipo.toLowerCase().replace(' ', '') : ''} ${claseActual.rol === 'student' ? 'is-student' : ''}">
                     <span class="my-room-pill ${claseActual.rol === 'assistant' ? 'is-assistant-room' : ''}" onclick="verHorarioDirecto('${claseActual.sala}')" title="Ver horario de la sala ${claseActual.sala}">
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
                         <span>Sala ${claseActual.sala}</span>
@@ -272,7 +272,7 @@ function actualizarHeroMiHorario() {
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                     <span>${vistaHorarioActual === 'cruce' ? `Ventana libre: ${diffTexto}` : `En ventana (${diffTexto})`}</span>
                 </div>
-                <div class="my-hero-top-badges">
+                <div class="my-hero-top-badges ${proximaHoy.tipo ? 'tipo-' + proximaHoy.tipo.toLowerCase().replace(' ', '') : ''} ${proximaHoy.rol === 'student' ? 'is-student' : ''}">
                     <span class="my-room-pill ${proximaHoy.rol === 'assistant' ? 'is-assistant-room' : ''}" onclick="verHorarioDirecto('${proximaHoy.sala}')" title="Ver horario de la sala ${proximaHoy.sala}">
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
                         <span>Sala ${proximaHoy.sala}</span>
