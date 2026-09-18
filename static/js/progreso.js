@@ -51,8 +51,8 @@ function renderProgreso() {
             
             let statusClass = 'estado-pendiente';
             let icon = '';
-            if (est === 1) { statusClass = 'estado-cursando'; icon = '🔄'; }
-            if (est === 2) { statusClass = 'estado-aprobado'; icon = '✅'; }
+            if (est === 1) { statusClass = 'estado-cursando'; icon = ''; }
+            if (est === 2) { statusClass = 'estado-aprobado'; icon = ''; }
 
             gridHtml += `
                 <div class="malla-ramo-card ${statusClass}" onclick="toggleRamoEstado('${c}')">
