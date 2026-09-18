@@ -213,3 +213,26 @@
         margin-top: 8px;
     }
 }
+
+.notas-controls-header {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+@media (max-width: 500px) {
+    .notas-controls-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .notas-controls-header > div {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .notas-controls-header > div .custom-dropdown {
+        flex: 1;
+    }
+}
