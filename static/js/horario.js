@@ -252,11 +252,6 @@ function actualizarHeroMiHorario() {
                         <span>• Quedan aprox. <strong>${minRestantes} min</strong></span>
                     </div>
                 </div>
-                <div class="my-hero-actions">
-                    <button type="button" class="btn-sync" onclick="verHorarioDirecto('${claseActual.sala}')">
-                        <span>Ver Sala en Vivo</span>
-                    </button>
-                </div>
             </div>
             <div class="my-hero-progress-container" title="Progreso de la clase: ${Math.round(progress)}%">
                 <div class="my-hero-progress-bar" style="width: ${progress.toFixed(1)}%;"></div>
@@ -293,11 +288,6 @@ function actualizarHeroMiHorario() {
                         <span>Inicia a las <strong>${proximaHoy.horaInicio}</strong> (Bloque ${proximaHoy.bloqueNum})</span>
                         ${proximaHoy.profesor ? `<span>• Prof: ${proximaHoy.profesor}</span>` : ''}
                     </div>
-                </div>
-                <div class="my-hero-actions">
-                    <button type="button" class="btn-sync" onclick="verHorarioDirecto('${proximaHoy.sala}')">
-                        <span>Consultar Sala</span>
-                    </button>
                 </div>
             </div>
         `;
