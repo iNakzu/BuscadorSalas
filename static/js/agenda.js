@@ -65,9 +65,12 @@ function renderCalendar() {
         
         let dotsHtml = '';
         if (dayEvents.length > 0) {
-            // Renderizamos ambas versiones (Móvil y PC) y el CSS decide cuál mostrar
-            let desktopDots = dayEvents.slice(0, 4).map(ev => `<div class="cal-dot ${ev.tipo.toLowerCase()}"></div>`).join('');
-            if (dayEvents.length > 4) desktopDots += `<div class="cal-dot" style="background:#fff; box-shadow:0 0 8px #fff;"></div>`;
+            let desktopDots = '';
+            if (dayEvents.length <= 5) {
+                desktopDots = dayEvents.map(ev => `<div class="cal-dot ${ev.tipo.toLowerCase()}"></div>`).join('');
+            } else {
+                desktopDots = `<div class="cal-dot-multi">${dayEvents.length}</div>`;
+            }
             
             let mobileDots = '';
             if (dayEvents.length === 1) {
