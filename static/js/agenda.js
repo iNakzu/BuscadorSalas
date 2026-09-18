@@ -377,11 +377,10 @@ function renderAgenda() {
                 </div>
                 
                 <div class="agenda-content">
-                    <div class="agenda-title" style="display: flex; align-items: center; gap: 8px; min-width: 0;">
+                    <div class="agenda-title" style="display: flex; align-items: center; gap: 12px; min-width: 0;">
                         <div class="desktop-agenda-dot">${iconHtml}</div>
-                        <span class="desktop-agenda-title-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${ev.ramo} - ${ev.tipo}</span>
-                        <div class="mobile-agenda-title-text" style="display: none; flex-direction: column; min-width: 0; width: 100%;">
-                            <div style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${ev.ramo}</div>
+                        <div style="display: flex; flex-direction: column; min-width: 0; width: 100%;">
+                            <div style="font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #f8fafc;">${ev.ramo}</div>
                             <div style="font-size: 13px; color: #94a3b8; font-weight: 500; margin-top: 2px;">${ev.tipo}</div>
                         </div>
                     </div>
