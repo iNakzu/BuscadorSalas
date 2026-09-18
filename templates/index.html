@@ -804,7 +804,12 @@
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
                 <input type="text" id="input-agenda-search" placeholder="Buscar por asignatura o evaluación (ej. Álgebra, Control)..." onkeyup="triggerAgendaSearch()" autocomplete="off" style="width: 100%; background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 12px 32px 12px 42px; color: #f8fafc; font-size: 14px; outline: none; transition: border-color 0.2s;">
-                <button type="button" class="clear-btn" id="clear-agenda-btn" onclick="limpiarAgendaSearch()" style="display: none; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: #94a3b8; font-size: 18px; cursor: pointer; padding: 0;">&times;</button>
+                <button type="button" class="clear-btn" id="clear-agenda-btn" onclick="limpiarAgendaSearch()" style="display: none; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: #94a3b8; cursor: pointer; padding: 4px; line-height: 0; border-radius: 4px;" onmouseover="this.style.color='#ffffff'" onmouseout="this.style.color='#94a3b8'">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
             </div>
             <div style="display: flex; gap: 8px; margin-top: 12px; align-items: center; flex-wrap: wrap;">
                 <span style="color: #94a3b8; font-size: 13px; font-weight: 500;">Ver agenda de:</span>
