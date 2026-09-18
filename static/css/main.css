@@ -225,7 +225,7 @@ header {
     background: transparent;
     border: 1px solid transparent;
     color: #94a3b8;
-    padding: 8px 18px 10px; /* Ajuste óptico vertical */
+    padding: 6px 18px 12px; /* Ajuste agresivo */
     line-height: 1.2;
     border-radius: 9999px;
     font-size: 13.5px;
