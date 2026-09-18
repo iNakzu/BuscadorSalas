@@ -480,22 +480,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-window.capturarMiHorario = function() {
-    if (typeof html2canvas === 'undefined') {
-        alert("El módulo de captura aún está cargando o fue bloqueado por el navegador.");
-        return;
-    }
-    const target = document.getElementById('mihorario-display-container');
-    if (!target) return;
-    
-    html2canvas(target, { backgroundColor: '#0f172a', scale: 6 }).then(canvas => {
-        let a = document.createElement('a');
-        a.href = canvas.toDataURL('image/png');
-        a.download = 'Mi_Horario_UDP.png';
-        a.click();
-    }).catch(err => {
-        console.error("Error al capturar la imagen:", err);
-        alert("Hubo un error al generar la imagen.");
-    });
-};
+
 
