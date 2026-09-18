@@ -413,104 +413,117 @@ def buscar_curso(query, dia_filtro=None, hora_filtro=None):
 
 MALLA_ICIT = {
     1: {
-        "nombre": "Semestre I",
-        "ramos": [
-            {"nombre": "Álgebra y Geometría", "keywords": ["algebra y geometria", "introduccion al algebra"]},
-            {"nombre": "Cálculo I", "keywords": ["introduccion al calculo", "calculo i"]},
-            {"nombre": "Química", "keywords": ["quimica"]},
-            {"nombre": "Programación", "keywords": ["programacion"]},
-            {"nombre": "Comunicación para la Ingeniería", "keywords": ["comunicacion para la ingenieria", "habilidades"]}
+        'nombre': 'Semestre I',
+        'ramos': [
+            {'nombre': 'Álgebra y Geometría', 'keywords': ['algebra y geometria']},
+            {'nombre': 'Cálculo I', 'keywords': ['calculo i']},
+            {'nombre': 'Química', 'keywords': ['quimica']},
+            {'nombre': 'Programación', 'keywords': ['programacion']},
+            {'nombre': 'Comunicación para la Ingeniería', 'keywords': ['comunicacion para la ingenieria']},
         ]
     },
     2: {
-        "nombre": "Semestre II",
-        "ramos": [
-            {"nombre": "Álgebra Lineal", "keywords": ["algebra lineal"]},
-            {"nombre": "Cálculo II", "keywords": ["calculo diferencial e integral"]},
-            {"nombre": "Mecánica", "keywords": ["mecanica"]},
-            {"nombre": "Programación Avanzada", "keywords": ["programacion avanzada"]}
+        'nombre': 'Semestre II',
+        'ramos': [
+            {'nombre': 'Álgebra Lineal', 'keywords': ['algebra lineal']},
+            {'nombre': 'Cálculo II', 'keywords': ['calculo ii']},
+            {'nombre': 'Mecánica', 'keywords': ['mecanica']},
+            {'nombre': 'Programación Avanzada', 'keywords': ['programacion avanzada']},
+            {'nombre': 'Curso de Formación General (II)', 'keywords': ['curso de formacion general (ii)']},
         ]
     },
     3: {
-        "nombre": "Semestre III",
-        "ramos": [
-            {"nombre": "Ecuaciones Diferenciales", "keywords": ["ecuaciones diferenciales"]},
-            {"nombre": "Cálculo III", "keywords": ["calculo iii"]},
-            {"nombre": "Calor y Ondas", "keywords": ["calor y ondas"]},
-            {"nombre": "Estructuras de Datos y Algoritmos", "keywords": ["estructuras de datos", "estructura de datos"]},
-            {"nombre": "Redes de Datos", "keywords": ["redes de datos"]}
+        'nombre': 'Semestre III',
+        'ramos': [
+            {'nombre': 'Ecuaciones Diferenciales', 'keywords': ['ecuaciones diferenciales']},
+            {'nombre': 'Cálculo III', 'keywords': ['calculo iii']},
+            {'nombre': 'Calor y Ondas', 'keywords': ['calor y ondas']},
+            {'nombre': 'Estructuras de Datos y Algoritmos', 'keywords': ['estructuras de datos y algoritmos']},
+            {'nombre': 'Redes de Datos', 'keywords': ['redes de datos']},
         ]
     },
     4: {
-        "nombre": "Semestre IV",
-        "ramos": [
-            {"nombre": "Probabilidades y Estadísticas", "keywords": ["probabilidades y estadistica", "probabilidades y estadisticas"]},
-            {"nombre": "Electrónica y Electrotecnia", "keywords": ["electronica y electrotecnia"]},
-            {"nombre": "Electricidad y Magnetismo", "keywords": ["electricidad y magnetismo"]},
-            {"nombre": "Bases de Datos", "keywords": ["bases de datos"]},
-            {"nombre": "Desarrollo Web y Móvil", "keywords": ["desarrollo web"]},
-            {"nombre": "Inglés I", "keywords": ["ingles i"]}
+        'nombre': 'Semestre IV',
+        'ramos': [
+            {'nombre': 'Probabilidades y Estadísticas', 'keywords': ['probabilidades y estadisticas']},
+            {'nombre': 'Electrónica y Electrotecnia', 'keywords': ['electronica y electrotecnia']},
+            {'nombre': 'Electricidad y Magnetismo', 'keywords': ['electricidad y magnetismo']},
+            {'nombre': 'Bases de Datos', 'keywords': ['bases de datos']},
+            {'nombre': 'Desarrollo Web y Móvil', 'keywords': ['desarrollo web y movil']},
+            {'nombre': 'Inglés I', 'keywords': ['ingles i']},
         ]
     },
     5: {
-        "nombre": "Semestre V",
-        "ramos": [
-            {"nombre": "Optimización", "keywords": ["optimizacion"]},
-            {"nombre": "Taller de Redes y Servicios", "keywords": ["taller de redes"]},
-            {"nombre": "Proyecto en TICs I", "keywords": ["proyecto en tics i", "proyecto tic i"]},
-            {"nombre": "Bases de Datos Avanzadas", "keywords": ["bases de datos avanzadas"]},
-            {"nombre": "Inglés II", "keywords": ["ingles ii"]}
+        'nombre': 'Semestre V',
+        'ramos': [
+            {'nombre': 'Optimización', 'keywords': ['optimizacion']},
+            {'nombre': 'Taller de Redes y Servicios', 'keywords': ['taller de redes y servicios']},
+            {'nombre': 'Proyecto en TICs I', 'keywords': ['proyecto en tics i']},
+            {'nombre': 'Bases de Datos Avanzadas', 'keywords': ['bases de datos avanzadas']},
+            {'nombre': 'Curso de Formación General (V)', 'keywords': ['curso de formacion general (v)']},
+            {'nombre': 'Inglés II', 'keywords': ['ingles ii']},
+            {'nombre': 'Práctica Profesional I', 'keywords': ['practica profesional i']},
         ]
     },
     6: {
-        "nombre": "Semestre VI",
-        "ramos": [
-            {"nombre": "Contabilidad y Costos", "keywords": ["contabilidad y costos"]},
-            {"nombre": "Arquitectura y Organización de Computadores", "keywords": ["arquitectura y organiz"]},
-            {"nombre": "Señales y Sistemas", "keywords": ["senales y sistemas"]},
-            {"nombre": "Sistemas Operativos", "keywords": ["sistemas operativos"]},
-            {"nombre": "Inglés III", "keywords": ["ingles iii"]}
+        'nombre': 'Semestre VI',
+        'ramos': [
+            {'nombre': 'Contabilidad y Costos', 'keywords': ['contabilidad y costos']},
+            {'nombre': 'Arquitectura y Organización de Computadores', 'keywords': ['arquitectura y organizacion de computadores']},
+            {'nombre': 'Señales y Sistemas', 'keywords': ['señales y sistemas']},
+            {'nombre': 'Sistemas Operativos', 'keywords': ['sistemas operativos']},
+            {'nombre': 'Curso de Formación General (VI)', 'keywords': ['curso de formacion general (vi)']},
+            {'nombre': 'Inglés III', 'keywords': ['ingles iii']},
         ]
     },
     7: {
-        "nombre": "Semestre VII",
-        "ramos": [
-            {"nombre": "Gestión Organizacional", "keywords": ["gestion organizacional"]},
-            {"nombre": "Sistemas Distribuidos", "keywords": ["sistemas distribuidos"]},
-            {"nombre": "Comunicaciones Digitales", "keywords": ["comunicaciones digitales"]},
-            {"nombre": "Ingeniería de Software", "keywords": ["ingenieria de software"]}
+        'nombre': 'Semestre VII',
+        'ramos': [
+            {'nombre': 'Gestión Organizacional', 'keywords': ['gestion organizacional']},
+            {'nombre': 'Sistemas Distribuidos', 'keywords': ['sistemas distribuidos']},
+            {'nombre': 'Comunicaciones Digitales', 'keywords': ['comunicaciones digitales']},
+            {'nombre': 'Ingeniería de Software', 'keywords': ['ingenieria de software']},
+            {'nombre': 'Curso de Formación General (VII)', 'keywords': ['curso de formacion general (vii)']},
         ]
     },
     8: {
-        "nombre": "Semestre VIII",
-        "ramos": [
-            {"nombre": "Introducción a la Economía", "keywords": ["introduccion  a la economia", "introduccion a la economia", "microeconomia"]},
-            {"nombre": "Tecnologías Inalámbricas", "keywords": ["tecnologias inalambricas"]},
-            {"nombre": "Criptografía y Seguridad de Redes", "keywords": ["criptografia y seguridad en redes", "criptografia"]},
-            {"nombre": "Inteligencia Artificial", "keywords": ["inteligencia artificial"]},
-            {"nombre": "Evaluación de Proyectos TIC", "keywords": ["evaluacion de proyectos tic"]}
+        'nombre': 'Semestre VIII',
+        'ramos': [
+            {'nombre': 'Introducción a la Economía', 'keywords': ['introduccion a la economia']},
+            {'nombre': 'Tecnologías Inalámbricas', 'keywords': ['tecnologias inalambricas']},
+            {'nombre': 'Criptografía y Seguridad en Redes', 'keywords': ['criptografia y seguridad en redes']},
+            {'nombre': 'Inteligencia Artificial', 'keywords': ['inteligencia artificial']},
+            {'nombre': 'Evaluación de Proyectos TIC', 'keywords': ['evaluacion de proyectos tic']},
+            {'nombre': 'Práctica Profesional II', 'keywords': ['practica profesional ii']},
         ]
     },
     9: {
-        "nombre": "Semestre IX",
-        "ramos": [
-            {"nombre": "Arquitecturas Emergentes", "keywords": ["arquitecturas emergentes"]},
-            {"nombre": "Arquitectura de Software", "keywords": ["arquitectura de software"]},
-            {"nombre": "Data Science", "keywords": ["data science"]}
+        'nombre': 'Semestre IX',
+        'ramos': [
+            {'nombre': 'Electivo Profesional (1)', 'keywords': ['electivo profesional (1)']},
+            {'nombre': 'Arquitecturas Emergentes', 'keywords': ['arquitecturas emergentes']},
+            {'nombre': 'Electivo Profesional (2)', 'keywords': ['electivo profesional (2)']},
+            {'nombre': 'Arquitectura de Software', 'keywords': ['arquitectura de software']},
+            {'nombre': 'Data Science', 'keywords': ['data science']},
         ]
     },
     10: {
-        "nombre": "Semestre X",
-        "ramos": [
-            {"nombre": "Proyecto en TICs II", "keywords": ["proyecto en tics ii", "proyecto tic ii"]}
+        'nombre': 'Semestre X',
+        'ramos': [
+            {'nombre': 'Electivo Profesional (3)', 'keywords': ['electivo profesional (3)']},
+            {'nombre': 'Electivo Profesional (4)', 'keywords': ['electivo profesional (4)']},
+            {'nombre': 'Electivo Profesional (5)', 'keywords': ['electivo profesional (5)']},
+            {'nombre': 'Electivo Profesional (6)', 'keywords': ['electivo profesional (6)']},
+            {'nombre': 'Proyecto en TICs II', 'keywords': ['proyecto en tics ii']},
         ]
     },
     11: {
-        "nombre": "Semestre XI",
-        "ramos": [
-            {"nombre": "Actividad de Titulación", "keywords": ["titulacion", "memoria"]}
+        'nombre': 'Semestre XI',
+        'ramos': [
+            {'nombre': 'Actividad de Titulación', 'keywords': ['actividad de titulacion']},
+            {'nombre': 'Opción Magíster', 'keywords': ['opcion magister']},
         ]
-    }
+    },
 }
 
 def obtener_clases_malla(semestre=8, dia_filtro=None, ramo_filtro=None, hora_filtro=None):
