@@ -111,6 +111,7 @@
     align-items: center;
     gap: 10px;
     flex-wrap: wrap;
+    line-height: 1.6; /* Mayor espaciado entre líneas para evitar que el texto choque con las píldoras de sala */
 }
 
 .my-hero-actions {
