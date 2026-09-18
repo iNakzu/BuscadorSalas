@@ -758,16 +758,16 @@
                 <!-- Perfil (Ver de) -->
                 <div style="display: flex; gap: 8px; align-items: center;">
                     <span style="color: #94a3b8; font-size: 13px; font-weight: 500; white-space: nowrap;">Ver notas de:</span>
-                    <div class="custom-dropdown" id="dd-notas-friend" style="min-width: 130px; border-radius: 6px;">
-                        <button type="button" class="dropdown-trigger" onclick="toggleDropdown('dd-notas-friend')" style="background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.1); padding: 8px 12px; width: 100%; justify-content: space-between; border-radius: 6px;">
-                            <span id="label-notas-friend" style="color: #e2e8f0; font-size: 13px;">Nakzu</span>
-                            <svg class="dropdown-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #94a3b8; margin-left: 8px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    <div class="profile-cycler">
+                        <button type="button" class="cycler-btn" onclick="cycleNotasProfile(-1)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="15 18 9 12 15 6"></polyline></svg>
                         </button>
-                        <div class="dropdown-menu">
-                            <div class="dropdown-item active" data-val="nakzu" onclick="selectDropdownItem('dd-notas-friend', 'nakzu', 'Nakzu', updateNotasDropdown)">Nakzu</div>
-                            <div class="dropdown-item" data-val="felipe" onclick="selectDropdownItem('dd-notas-friend', 'felipe', 'Felipe', updateNotasDropdown)">Felipe</div>
-                            <div class="dropdown-item" data-val="alexis" onclick="selectDropdownItem('dd-notas-friend', 'alexis', 'Alexis', updateNotasDropdown)">Alexis</div>
+                        <div class="cycler-name-container">
+                            <span id="label-notas-friend-cycler" class="cycler-name active">Nakzu</span>
                         </div>
+                        <button type="button" class="cycler-btn" onclick="cycleNotasProfile(1)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </button>
                         <input type="hidden" id="notas-friend-select" value="nakzu">
                     </div>
                 </div>
@@ -814,24 +814,20 @@
                     </svg>
                 </button>
             </div>
-            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 16px;">
-                <span style="color: #94a3b8; font-size: 13px; font-weight: 500; margin-left: 2px;">Ver agenda de:</span>
-                <div class="profile-carousel" id="agenda-profile-carousel">
-                    <div class="profile-pill active" onclick="selectAgendaProfile('nakzu', this)">
-                        <div class="avatar-circle">N</div>
-                        <span>Nakzu</span>
+            <div style="display: flex; gap: 8px; margin-top: 12px; align-items: center; flex-wrap: wrap;">
+                <span style="color: #94a3b8; font-size: 13px; font-weight: 500;">Ver agenda de:</span>
+                <div class="profile-cycler">
+                    <button type="button" class="cycler-btn" onclick="cycleAgendaProfile(-1)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    </button>
+                    <div class="cycler-name-container">
+                        <span id="label-agenda-friend-cycler" class="cycler-name active">Nakzu</span>
                     </div>
-                    <div class="profile-pill" onclick="selectAgendaProfile('alexis', this)">
-                        <div class="avatar-circle">A</div>
-                        <span>Aleex1s</span>
-                    </div>
-                    <div class="profile-pill" onclick="selectAgendaProfile('felipe', this)">
-                        <div class="avatar-circle">F</div>
-                        <span>Felipe</span>
-                    </div>
+                    <button type="button" class="cycler-btn" onclick="cycleAgendaProfile(1)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
+                    <input type="hidden" id="agenda-friend-select" value="nakzu">
                 </div>
-                <!-- Hidden input to maintain compatibility with existing JS -->
-                <input type="hidden" id="agenda-friend-select" value="nakzu">
             </div>
         </div>
 

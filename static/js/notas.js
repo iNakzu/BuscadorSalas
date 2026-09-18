@@ -482,3 +482,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+
+const NOTAS_PROFILES = [
+    { val: 'nakzu', label: 'Nakzu' },
+    { val: 'alexis', label: 'Aleex1s' },
+    { val: 'felipe', label: 'Felipe' }
+];
+let currentNotasProfileIndex = 0;
+
+window.cycleNotasProfile = function(direction) {
+    const newIndex = (currentNotasProfileIndex + direction + NOTAS_PROFILES.length) % NOTAS_PROFILES.length;
+    const oldProfile = NOTAS_PROFILES[currentNotasProfileIndex];
+    const newProfile = NOTAS_PROFILES[newIndex];
+    currentNotasProfileIndex = newIndex;
+
+    const labelEl = document.getElementById('label-notas-friend-cycler');
+    const inputEl = document.getElementById('notas-friend-select');
+    
+    if (labelEl && inputEl) {
+        const slideOutClass = direction > 0 ? 'slide-out-left' : 'slide-out-right';
+        const slideInClass = direction > 0 ? 'slide-in-right' : 'slide-in-left';
+        
+        labelEl.classList.remove('active');
+        labelEl.classList.add(slideOutClass);
+        
+        setTimeout(() => {
+            labelEl.textContent = newProfile.label;
+            labelEl.classList.remove(slideOutClass);
+            labelEl.classList.add(slideInClass);
+            
+            void labelEl.offsetWidth; // Force reflow
+            
+            labelEl.classList.remove(slideInClass);
+            labelEl.classList.add('active');
+            
+            inputEl.value = newProfile.val;
+            if (typeof updateNotasDropdown === 'function') {
+                updateNotasDropdown();
+            }
+        }, 200);
+    }
+};
