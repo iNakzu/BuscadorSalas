@@ -71,6 +71,7 @@
 }
 
 .agenda-meta {
+    min-width: 0;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -310,26 +311,37 @@
         grid-template-columns: auto 1fr;
         grid-template-areas: 
             "check content"
-            ". actions";
+            "check actions";
         gap: 12px;
         align-items: flex-start;
         padding: 16px;
+        position: relative;
     }
     
 
     
     .desktop-agenda-dot { display: none !important; }
 
-    .mobile-agenda-dot { display: block !important; }
+    .mobile-agenda-dot { 
+        display: block !important; 
+        position: absolute; 
+        top: 12px; 
+        left: 12px; 
+    }
     .desktop-agenda-date { display: none !important; }
     .mobile-agenda-date { display: flex !important; }
     
-    .agenda-check-wrapper { grid-area: check; }
+    .agenda-check-wrapper { 
+        grid-area: check; 
+        align-self: center; 
+        margin-top: 0 !important; 
+    }
 
     .agenda-content {
         grid-area: content;
     }
     .agenda-meta {
+    min-width: 0;
         flex-wrap: wrap;
         gap: 8px;
     }
