@@ -750,33 +750,40 @@
     <!-- PESTAÑA: NOTAS -->
     <section id="tab-notas" class="panel" style="max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box;">
         <!-- Controles de Perfil y Asignatura -->
-        <div class="control-card" style="margin-bottom: 24px; padding: 16px;">
-            <div style="position: relative; width: 100%;">
-                <div class="custom-dropdown" id="dd-notas-curso" style="width: 100%;">
-                    <button type="button" class="dropdown-trigger" onclick="toggleDropdown('dd-notas-curso')" style="background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px 16px; width: 100%; justify-content: space-between; border-radius: 8px; transition: border-color 0.2s;">
-                        <span id="label-notas-curso" style="color: #f8fafc; font-size: 14px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">Selecciona una asignatura...</span>
-                        <svg class="dropdown-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: #94a3b8; margin-left: 8px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                    </button>
-                    <div class="dropdown-menu">
-                        <div class="dropdown-item active" data-val="" onclick="selectDropdownItem('dd-notas-curso', '', 'Selecciona una asignatura...', renderNotasBuilder)">Selecciona una asignatura...</div>
+        <div class="control-card" style="margin-bottom: 24px; padding: 12px 16px;">
+            <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                
+                <!-- Perfil (Ver de) -->
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <span style="color: #94a3b8; font-size: 13px; font-weight: 500; white-space: nowrap;">Ver notas de:</span>
+                    <div class="custom-dropdown" id="dd-notas-friend" style="min-width: 130px; border-radius: 6px;">
+                        <button type="button" class="dropdown-trigger" onclick="toggleDropdown('dd-notas-friend')" style="background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.1); padding: 8px 12px; width: 100%; justify-content: space-between; border-radius: 6px;">
+                            <span id="label-notas-friend" style="color: #e2e8f0; font-size: 13px;">Nakzu</span>
+                            <svg class="dropdown-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #94a3b8; margin-left: 8px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                        <div class="dropdown-menu">
+                            <div class="dropdown-item active" data-val="nakzu" onclick="selectDropdownItem('dd-notas-friend', 'nakzu', 'Nakzu', updateNotasDropdown)">Nakzu</div>
+                            <div class="dropdown-item" data-val="felipe" onclick="selectDropdownItem('dd-notas-friend', 'felipe', 'Felipe', updateNotasDropdown)">Felipe</div>
+                            <div class="dropdown-item" data-val="alexis" onclick="selectDropdownItem('dd-notas-friend', 'alexis', 'Alexis', updateNotasDropdown)">Alexis</div>
+                        </div>
+                        <input type="hidden" id="notas-friend-select" value="nakzu">
                     </div>
-                    <input type="hidden" id="notas-curso-select" value="">
                 </div>
-            </div>
-            <div style="display: flex; gap: 8px; margin-top: 12px; align-items: center; flex-wrap: wrap;">
-                <span style="color: #94a3b8; font-size: 13px; font-weight: 500;">Ver notas de:</span>
-                <div class="custom-dropdown" id="dd-notas-friend" style="min-width: 140px; border-radius: 6px;">
-                    <button type="button" class="dropdown-trigger" onclick="toggleDropdown('dd-notas-friend')" style="background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; width: 100%; justify-content: space-between; border-radius: 6px;">
-                        <span id="label-notas-friend" style="color: #e2e8f0; font-size: 13px;">Nakzu</span>
-                        <svg class="dropdown-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #94a3b8; margin-left: 8px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                    </button>
-                    <div class="dropdown-menu">
-                        <div class="dropdown-item active" data-val="nakzu" onclick="selectDropdownItem('dd-notas-friend', 'nakzu', 'Nakzu', updateNotasDropdown)">Nakzu</div>
-                        <div class="dropdown-item" data-val="felipe" onclick="selectDropdownItem('dd-notas-friend', 'felipe', 'Felipe', updateNotasDropdown)">Felipe</div>
-                        <div class="dropdown-item" data-val="alexis" onclick="selectDropdownItem('dd-notas-friend', 'alexis', 'Alexis', updateNotasDropdown)">Alexis</div>
+
+                <!-- Asignatura -->
+                <div style="flex-grow: 1; min-width: 200px;">
+                    <div class="custom-dropdown" id="dd-notas-curso" style="width: 100%;">
+                        <button type="button" class="dropdown-trigger" onclick="toggleDropdown('dd-notas-curso')" style="background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 16px; width: 100%; justify-content: space-between; border-radius: 8px; transition: border-color 0.2s;">
+                            <span id="label-notas-curso" style="color: #f8fafc; font-size: 14px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">Selecciona una asignatura...</span>
+                            <svg class="dropdown-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: #94a3b8; margin-left: 8px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                        <div class="dropdown-menu">
+                            <div class="dropdown-item active" data-val="" onclick="selectDropdownItem('dd-notas-curso', '', 'Selecciona una asignatura...', renderNotasBuilder)">Selecciona una asignatura...</div>
+                        </div>
+                        <input type="hidden" id="notas-curso-select" value="">
                     </div>
-                    <input type="hidden" id="notas-friend-select" value="nakzu">
                 </div>
+
             </div>
         </div>
 
