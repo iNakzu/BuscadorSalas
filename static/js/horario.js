@@ -316,7 +316,7 @@ function actualizarHeroMiHorario() {
     heroEl.innerHTML = `
         <div class="my-hero-top">
             <div class="my-hero-status-pill done">
-                <span>✨ ${vistaHorarioActual === 'cruce' ? 'Sin topes libres' : 'Fuera de jornada'}</span>
+                <span>${vistaHorarioActual === 'cruce' ? 'Sin topes libres' : 'Fuera de jornada'}</span>
             </div>
         </div>
         <div class="my-hero-body">
