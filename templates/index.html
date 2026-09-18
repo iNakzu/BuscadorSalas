@@ -723,17 +723,16 @@
                 </div>
                 <div style="display: flex; gap: 8px; margin-top: 12px; align-items: center; flex-wrap: wrap;">
                     <span style="color: #94a3b8; font-size: 13px; font-weight: 500;">Resaltar exámenes de:</span>
-                    <div class="custom-dropdown" id="dd-solemnes-friend" style="min-width: 140px; border-radius: 6px;">
-                        <button type="button" class="dropdown-trigger" onclick="toggleDropdown('dd-solemnes-friend')" style="background: rgba(30,41,59,0.8); border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; width: 100%; justify-content: space-between; border-radius: 6px;">
-                            <span id="label-solemnes-friend" style="color: #e2e8f0; font-size: 13px;">Ninguno (Mostrar todos)</span>
-                            <svg class="dropdown-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #94a3b8; margin-left: 8px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    <div class="profile-cycler">
+                        <button type="button" class="cycler-btn" onclick="cycleSolemnesProfile(-1)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="15 18 9 12 15 6"></polyline></svg>
                         </button>
-                        <div class="dropdown-menu">
-                            <div class="dropdown-item active" data-val="" onclick="selectDropdownItem('dd-solemnes-friend', '', 'Ninguno (Mostrar todos)', renderSolemnes)">Ninguno (Mostrar todos)</div>
-                            <div class="dropdown-item" data-val="nakzu" onclick="selectDropdownItem('dd-solemnes-friend', 'nakzu', 'Nakzu', renderSolemnes)">Nakzu</div>
-                            <div class="dropdown-item" data-val="felipe" onclick="selectDropdownItem('dd-solemnes-friend', 'felipe', 'Felipe', renderSolemnes)">Felipe</div>
-                            <div class="dropdown-item" data-val="alexis" onclick="selectDropdownItem('dd-solemnes-friend', 'alexis', 'Alexis', renderSolemnes)">Alexis</div>
+                        <div class="cycler-name-container">
+                            <span id="label-solemnes-friend-cycler" class="cycler-name active">Todos</span>
                         </div>
+                        <button type="button" class="cycler-btn" onclick="cycleSolemnesProfile(1)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </button>
                         <input type="hidden" id="solemnes-friend-select" value="">
                     </div>
                 </div>
