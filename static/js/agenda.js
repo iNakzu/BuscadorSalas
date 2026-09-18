@@ -479,3 +479,26 @@ document.addEventListener('DOMContentLoaded', () => {
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
     initAgenda();
 }
+
+// Funcionalidad del Carrusel Horizontal de Perfiles
+function selectAgendaProfile(val, btnElement) {
+    // Actualizar UI
+    const container = document.getElementById('agenda-profile-carousel');
+    if (container) {
+        container.querySelectorAll('.profile-pill').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        btnElement.classList.add('active');
+    }
+
+    // Actualizar input oculto para compatibilidad
+    const input = document.getElementById('agenda-friend-select');
+    if (input) {
+        input.value = val;
+    }
+
+    // Disparar la lógica de actualización nativa
+    if (typeof window.triggerAgendaProfileChange === 'function') {
+        window.triggerAgendaProfileChange();
+    }
+}
