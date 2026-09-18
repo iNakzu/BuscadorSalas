@@ -285,6 +285,11 @@
 }
 
 @media (min-width: 600px) {
+    .cal-dot-multi {
+        width: 14px !important;
+        height: 14px !important;
+        font-size: 10px !important;
+    }
     #cal-month-year {
         font-size: 24px !important;
     }
@@ -293,7 +298,7 @@
         height: 28px !important;
     }
     .cal-day {
-        font-size: 22px;
+        font-size: 24px;
     }
     .cal-dots-container {
         top: 7px;
@@ -315,6 +320,15 @@
 }
 
 @media (max-width: 600px) {
+    .cal-dots-container .cal-dot {
+        width: 5px !important;
+        height: 5px !important;
+    }
+    .cal-dots-container .cal-dot-multi {
+        width: 10px !important;
+        height: 10px !important;
+        font-size: 7.5px !important;
+    }
     .agenda-card {
         display: grid;
         grid-template-columns: auto 1fr;
