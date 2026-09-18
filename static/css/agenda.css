@@ -71,6 +71,7 @@
 }
 
 .agenda-meta {
+    width: 100%;
     min-width: 0;
     display: flex;
     align-items: center;
@@ -346,6 +347,7 @@
         grid-area: content;
     }
     .agenda-meta {
+    width: 100%;
     min-width: 0;
         flex-wrap: wrap;
         gap: 8px;
