@@ -360,7 +360,7 @@ function renderNotasBuilder() {
                     <div class="notas-desktop-spacer" style="flex: 1;"></div>
                     
                     <!-- Columna Central (Notas juntas) -->
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 28px; z-index: 2;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 28px;">
                         <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;">
                             <div class="notas-summary-title">Nota Presentación</div>
                             <div class="notas-summary-value" style="font-size: 36px;">${currentWeightEvaluatedNP > 0 ? np_actual.toFixed(2) : '-'}</div>
