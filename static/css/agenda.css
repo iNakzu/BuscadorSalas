@@ -282,6 +282,9 @@
 }
 
 @media (min-width: 600px) {
+    .cal-day {
+        font-size: 22px;
+    }
     .cal-dots-container {
         top: 7px;
         left: 7px;
