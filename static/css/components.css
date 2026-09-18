@@ -982,3 +982,9 @@
     animation: pulseDotProf 2.2s infinite ease-in-out;
 }
 
+
+@media (max-width: 768px) {
+    .dropdown-menu {
+        max-height: 200px;
+    }
+}
