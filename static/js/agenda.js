@@ -337,14 +337,14 @@ function renderAgenda() {
         let statusText = '';
         
         if (ev.completado) {
-            statusText = 'COMPLETADO';
+            statusText = 'LISTO';
             statusClass = '';
         } else {
             if (diffTime < 0) {
                 statusClass = 'status-overdue';
                 statusText = `ATRASADO`;
             } else if (diffCalendarDays === 0) {
-                statusClass = 'status-urgent';
+                statusClass = 'status-today';
                 statusText = '¡HOY!';
             } else if (diffCalendarDays === 1) {
                 statusClass = 'status-urgent';
