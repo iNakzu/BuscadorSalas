@@ -305,10 +305,14 @@
         align-items: flex-start;
         padding: 16px;
     }
-    .agenda-checkbox-btn {
-        grid-area: check;
-        margin-top: 4px;
-    }
+    
+    .desktop-agenda-dot { display: none !important; }
+    .mobile-agenda-dot { display: block !important; }
+    .desktop-agenda-date { display: none !important; }
+    .mobile-agenda-date { display: flex !important; }
+    
+    .agenda-check-wrapper { grid-area: check; }
+
     .agenda-content {
         grid-area: content;
     }
@@ -323,7 +327,7 @@
         align-items: center !important;
         margin-top: 4px;
         padding-top: 12px;
-        border-top: 1px dashed rgba(255, 255, 255, 0.1);
+        
         width: 100%;
     }
 }
