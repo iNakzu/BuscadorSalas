@@ -246,10 +246,10 @@ function actualizarHeroMiHorario() {
                     <div class="my-hero-title">
                         <span>${claseActual.curso}</span>
                     </div>
-                    <div class="my-hero-subtitle">
-                        <span>Bloque ${claseActual.bloqueNum} (${claseActual.bloqueLabel})</span>
-                        ${claseActual.profesor ? `<span>• Prof: ${claseActual.profesor}</span>` : ''}
-                        <span>• Quedan aprox. <strong>${minRestantes} min</strong></span>
+                    <div class="my-hero-subtitle mobile-column">
+                        <span class="info-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Bloque ${claseActual.bloqueNum} (${claseActual.bloqueLabel})</span>
+                        ${claseActual.profesor ? `<span class="info-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> ${claseActual.profesor}</span>` : ''}
+                        <span class="info-tag alert-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg> Quedan <strong>${minRestantes} min</strong></span>
                     </div>
                 </div>
             </div>
@@ -284,9 +284,9 @@ function actualizarHeroMiHorario() {
                     <div class="my-hero-title">
                         <span>${proximaHoy.curso}</span>
                     </div>
-                    <div class="my-hero-subtitle">
-                        <span>Inicia a las <strong>${proximaHoy.horaInicio}</strong> (Bloque ${proximaHoy.bloqueNum})</span>
-                        ${proximaHoy.profesor ? `<span>• Prof: ${proximaHoy.profesor}</span>` : ''}
+                    <div class="my-hero-subtitle mobile-column">
+                        <span class="info-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Inicia a las <strong>${proximaHoy.horaInicio}</strong> (Bloque ${proximaHoy.bloqueNum})</span>
+                        ${proximaHoy.profesor ? `<span class="info-tag"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> ${proximaHoy.profesor}</span>` : ''}
                     </div>
                 </div>
             </div>
