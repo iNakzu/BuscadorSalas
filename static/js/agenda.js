@@ -352,12 +352,12 @@ function renderAgenda() {
             } else if (diffCalendarDays <= 3) {
                 statusClass = 'status-urgent';
                 statusText = `EN ${diffCalendarDays} DÍAS`;
-            } else if (diffDays <= 7) {
+            } else if (diffCalendarDays <= 7) {
                 statusClass = 'status-warning';
-                statusText = `EN ${diffDays} DÍAS`;
+                statusText = `EN ${diffCalendarDays} DÍAS`;
             } else {
                 statusClass = 'status-safe';
-                statusText = `EN ${diffDays} DÍAS`;
+                statusText = `EN ${diffCalendarDays} DÍAS`;
             }
         }
         
