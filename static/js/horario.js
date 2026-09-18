@@ -1105,3 +1105,8 @@ function ejecutarCruce() {
     const btnCruce = document.querySelector('.pill-btn[onclick*="abrirModalCruce"]');
     cambiarVistaHorario('cruce', btnCruce);
 }
+
+window.triggerHorariosChange = function() {
+    const val = document.getElementById('horarios-friend-select').value;
+    cambiarVistaHorario(val, null);
+};

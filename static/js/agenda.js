@@ -1,4 +1,49 @@
 let AGENDA_DATA = [];
+let currentAgendaProfile = 'nakzu';
+let currentAgendaSearch = '';
+
+window.triggerAgendaProfileChange = function() {
+    currentAgendaProfile = document.getElementById('agenda-friend-select').value;
+    renderCalendar();
+    renderAgenda();
+};
+
+window.triggerAgendaSearch = function() {
+    const input = document.getElementById('input-agenda-search');
+    const clearBtn = document.getElementById('clear-agenda-btn');
+    currentAgendaSearch = input.value.toLowerCase().trim();
+    
+    if (currentAgendaSearch.length > 0) {
+        clearBtn.style.display = 'block';
+    } else {
+        clearBtn.style.display = 'none';
+    }
+    
+    renderCalendar();
+    renderAgenda();
+};
+
+window.limpiarAgendaSearch = function() {
+    const input = document.getElementById('input-agenda-search');
+    input.value = '';
+    triggerAgendaSearch();
+};
+
+function getFilteredAgenda() {
+    return AGENDA_DATA.filter(ev => {
+        const evProfile = ev.perfil || 'nakzu';
+        if (evProfile !== currentAgendaProfile) return false;
+        
+        if (currentAgendaSearch) {
+            const ramoMatch = (ev.ramo || '').toLowerCase().includes(currentAgendaSearch);
+            const tipoMatch = (ev.tipo || '').toLowerCase().includes(currentAgendaSearch);
+            const notasMatch = (ev.notas || '').toLowerCase().includes(currentAgendaSearch);
+            if (!ramoMatch && !tipoMatch && !notasMatch) return false;
+        }
+        return true;
+    });
+}
+
 const AGENDA_STORAGE_KEY = 'mi_agenda_v1';
 
 const ICONS = {
@@ -61,7 +106,8 @@ function renderCalendar() {
         let isToday = (i === today.getDate() && currentCalMonth === today.getMonth() && currentCalYear === today.getFullYear());
         
         // Buscar eventos para este día
-        const dayEvents = AGENDA_DATA.filter(ev => ev.fecha.startsWith(dateStr));
+        const filteredData = getFilteredAgenda();
+        const dayEvents = filteredData.filter(ev => ev.fecha.startsWith(dateStr));
         
         let dotsHtml = '';
         if (dayEvents.length > 0) {
@@ -259,6 +305,7 @@ function guardarEventoAgenda(e) {
     } else {
         AGENDA_DATA.push({
             id: 'ag-' + Date.now(),
+            perfil: currentAgendaProfile,
             ramo: ramo,
             tipo: tipo,
             fecha: fechaFinal,
@@ -309,7 +356,7 @@ function renderAgenda() {
     const container = document.getElementById('agenda-container');
     if (!container) return;
     
-    if (AGENDA_DATA.length === 0) {
+    if (getFilteredAgenda().length === 0) {
         container.innerHTML = `
             <div style="text-align: center; padding: 60px 20px; color: #64748b;">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 16px; opacity: 0.5;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
@@ -320,7 +367,7 @@ function renderAgenda() {
         return;
     }
     
-    let list = [...AGENDA_DATA].sort((a, b) => {
+    let list = getFilteredAgenda().sort((a, b) => {
         if (a.completado !== b.completado) return a.completado ? 1 : -1;
         return new Date(a.fecha) - new Date(b.fecha);
     });

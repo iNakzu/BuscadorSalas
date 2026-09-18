@@ -703,11 +703,18 @@
                 <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
                     <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
                         <div style="background: rgba(30, 41, 59, 0.6); border-radius: 8px; padding: 6px; display: flex; flex-grow: 1; min-width: 0; border: 1px solid rgba(255, 255, 255, 0.05);">
-                            <select id="notas-friend-select" onchange="updateNotasDropdown()" style="background: transparent; color: #38bdf8; border: none; font-size: 14px; font-weight: 600; outline: none; cursor: pointer; padding: 4px 8px; margin-right: 8px;">
-                                <option value="nakzu">Nakzu</option>
-                                <option value="felipe">Felipe</option>
-                                <option value="alexis">Alexis</option>
-                            </select>
+                            <div class="custom-dropdown" id="dd-notas-friend" style="min-width: 100px; padding-right: 4px;">
+                                <button type="button" class="dropdown-trigger" onclick="toggleDropdown('dd-notas-friend')" style="background: transparent; border: none; padding: 4px; width: 100%; justify-content: space-between;">
+                                    <span id="label-notas-friend" style="color: #38bdf8; font-weight: 600; font-size: 14px;">Nakzu</span>
+                                    <svg class="dropdown-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: #38bdf8; margin-left: 4px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <div class="dropdown-item active" data-val="nakzu" onclick="selectDropdownItem('dd-notas-friend', 'nakzu', 'Nakzu', updateNotasDropdown)">Nakzu</div>
+                                    <div class="dropdown-item" data-val="felipe" onclick="selectDropdownItem('dd-notas-friend', 'felipe', 'Felipe', updateNotasDropdown)">Felipe</div>
+                                    <div class="dropdown-item" data-val="alexis" onclick="selectDropdownItem('dd-notas-friend', 'alexis', 'Alexis', updateNotasDropdown)">Alexis</div>
+                                </div>
+                                <input type="hidden" id="notas-friend-select" value="nakzu">
+                            </div>
                             
                             <div class="custom-dropdown" id="dd-notas-curso" style="flex-grow: 1; min-width: 0; border-left: 1px solid rgba(255,255,255,0.1); margin-left: 6px; padding-left: 8px;">
                                 <button type="button" class="dropdown-trigger" onclick="toggleDropdown('dd-notas-curso')" style="background: transparent; border: none; padding: 4px 12px 4px 12px; width: 100%; justify-content: space-between;">
@@ -734,6 +741,36 @@
 
     <!-- PESTAÑA: AGENDA -->
     <section id="tab-agenda" class="panel" style="max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box;">
+        
+        <!-- Controles de Perfil y Búsqueda -->
+        <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">
+            <div style="display: flex; justify-content: flex-start; align-items: center;">
+                <div class="control-card" style="padding: 4px 8px; background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 8px; display: inline-flex;">
+                    <div class="custom-dropdown" id="dd-agenda-friend" style="min-width: 140px;">
+                        <button type="button" class="dropdown-trigger" onclick="toggleDropdown('dd-agenda-friend')" style="background: transparent; border: none; padding: 4px 8px; width: 100%; justify-content: space-between;">
+                            <span id="label-agenda-friend" style="color: #38bdf8; font-weight: 600; font-size: 14px;">Nakzu</span>
+                            <svg class="dropdown-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: #38bdf8; margin-left: 8px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                        <div class="dropdown-menu">
+                            <div class="dropdown-item active" data-val="nakzu" onclick="selectDropdownItem('dd-agenda-friend', 'nakzu', 'Nakzu', triggerAgendaProfileChange)">Nakzu</div>
+                            <div class="dropdown-item" data-val="alexis" onclick="selectDropdownItem('dd-agenda-friend', 'alexis', 'Aleex1s', triggerAgendaProfileChange)">Aleex1s</div>
+                            <div class="dropdown-item" data-val="felipe" onclick="selectDropdownItem('dd-agenda-friend', 'felipe', 'Felipe', triggerAgendaProfileChange)">Felipe</div>
+                        </div>
+                        <input type="hidden" id="agenda-friend-select" value="nakzu">
+                    </div>
+                </div>
+            </div>
+
+            <div class="search-field">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="input-agenda-search" placeholder="Buscar por asignatura o evaluación (ej. Álgebra, Control)..." oninput="triggerAgendaSearch()" autocomplete="off">
+                <button type="button" class="clear-btn" id="clear-agenda-btn" onclick="limpiarAgendaSearch()" style="display: none;">&times;</button>
+            </div>
+        </div>
+
         
 
         
