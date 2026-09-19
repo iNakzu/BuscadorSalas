@@ -1833,6 +1833,20 @@ def api_transcribe():
             
     return jsonify({"error": f"Todos los modelos de IA están sobrecargados o inaccesibles. Detalle final: {ultimo_error}"})
 
+@app.route("/api/tutor", methods=["POST"])
+def api_tutor():
+    data = request.get_json() or {}
+    mensaje = data.get("mensaje", "").strip()
+    historial = data.get("historial", [])
+    contexto_local = data.get("contexto_local", {})
+
+    if not mensaje:
+        return jsonify({"respuesta": "Mensaje vacío."})
+
+    # Bypass regex and directly hit Gemini
+    respuesta = generar_respuesta_gemini(mensaje, historial=historial, imagen=None, contexto_local=contexto_local)
+    return jsonify({"respuesta": respuesta})
+
 @app.route("/api/chat", methods=["POST"])
 def api_chat():
     data = request.get_json() or {}
