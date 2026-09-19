@@ -1397,3 +1397,11 @@ document.addEventListener('click', function(e) {
         }
     });
 });
+
+window.borrarCacheApp = function() {
+    if (confirm("¿Estás seguro de que deseas borrar toda la caché de la aplicación? Esto restablecerá tu horario, progreso de malla y configuraciones locales.")) {
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.reload(true);
+    }
+};
