@@ -1014,3 +1014,65 @@ header {
     right: 5px;
     transform: translateY(-50%);
 }
+
+/* =========================================
+   AGENDA TIMELINE
+   ========================================= */
+.agenda-timeline-container {
+    display: flex;
+    flex-direction: column;
+    padding-left: 5px;
+    margin-top: 10px;
+}
+.timeline-item {
+    display: flex;
+    position: relative;
+    padding-bottom: 15px;
+}
+.timeline-item:last-child {
+    padding-bottom: 0;
+}
+.timeline-item:last-child .timeline-line {
+    display: none;
+}
+.timeline-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 15px;
+    position: relative;
+    min-width: 20px;
+}
+.timeline-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(var(--dot-rgb), 1);
+    z-index: 2;
+    margin-top: 30px;
+    box-shadow: 0 0 10px rgba(var(--dot-rgb), 0.5);
+}
+.timeline-dot.pulsing {
+    animation: timeline-pulse 2s infinite;
+}
+@keyframes timeline-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(var(--dot-rgb), 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(var(--dot-rgb), 0); }
+    100% { box-shadow: 0 0 0 0 rgba(var(--dot-rgb), 0); }
+}
+.timeline-line {
+    position: absolute;
+    top: 44px;
+    bottom: -30px;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    z-index: 1;
+}
+.timeline-content {
+    flex: 1;
+    min-width: 0;
+}
+.agenda-content-inner {
+    flex: 1;
+    min-width: 0;
+}
