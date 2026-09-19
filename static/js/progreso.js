@@ -37,6 +37,11 @@ function renderProgreso() {
     const container = document.getElementById('progreso-container');
     if (!container) return;
 
+    // Save scroll position
+    const scrollWrapper = container.querySelector('.malla-scroll-wrapper');
+    const scrollLeft = scrollWrapper ? scrollWrapper.scrollLeft : 0;
+    const scrollTop = scrollWrapper ? scrollWrapper.scrollTop : 0;
+
     let totalRamos = 0;
     let aprobados = 0;
     let cursando = 0;
@@ -106,6 +111,13 @@ function renderProgreso() {
         ${gridHtml}
     `;
     container.innerHTML = html;
+
+    // Restore scroll position
+    const newScrollWrapper = container.querySelector('.malla-scroll-wrapper');
+    if (newScrollWrapper) {
+        newScrollWrapper.scrollLeft = scrollLeft;
+        newScrollWrapper.scrollTop = scrollTop;
+    }
 }
 
 // Inicializar al cargar
