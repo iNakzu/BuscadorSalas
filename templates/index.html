@@ -1160,6 +1160,62 @@
                 <!-- Results injected here -->
             </div>
         </section>
+    
+        <!-- TAB CORRECTOR -->
+        <section id="tab-corrector" class="panel">
+            <div class="glass-panel" style="max-width: 800px; margin: 0 auto;">
+                <div class="filter-header" style="margin-bottom: 20px;">
+                    <div class="filter-header-title">Corrector Ortotipográfico IA</div>
+                </div>
+                <div style="color: #94a3b8; font-size: 13px; margin-bottom: 20px;">Pega tu ensayo, correo o texto importante. La IA corregirá comas, tildes y ortografía sin alterar tu estilo ni cambiar tus palabras originales.</div>
+                
+                <textarea id="corrector-input" placeholder="Pega tu texto aquí..." style="width: 100%; height: 200px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px; color: #f1f5f9; font-size: 14px; margin-bottom: 16px; resize: vertical;"></textarea>
+                
+                <button onclick="corregirTexto()" id="btn-corregir" style="background: linear-gradient(135deg, #38bdf8, #8b5cf6); color: white; border: none; border-radius: 8px; padding: 12px 24px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"></path></svg>
+                    Corregir Texto
+                </button>
+                
+                <div id="corrector-loading" style="display: none; text-align: center; padding: 20px; color: #38bdf8;">Analizando ortografía...</div>
+                
+                <div id="corrector-output-container" style="display: none; margin-top: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div style="color: #4ade80; font-weight: 600; font-size: 14px;">Texto Corregido</div>
+                        <button onclick="copiarCorreccion()" style="background: rgba(255,255,255,0.1); border: none; color: #fff; padding: 4px 12px; border-radius: 4px; font-size: 12px; cursor: pointer;">Copiar</button>
+                    </div>
+                    <div id="corrector-output" style="background: rgba(15, 23, 42, 0.6); border: 1px solid #4ade80; border-radius: 8px; padding: 16px; color: #f1f5f9; font-size: 14px; white-space: pre-wrap; line-height: 1.6;"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB CHAT GLOBAL IA -->
+        <section id="tab-chatglobal" class="panel">
+            <div class="glass-panel" style="max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; height: calc(100vh - 120px);">
+                <div class="filter-header" style="margin-bottom: 12px;">
+                    <div class="filter-header-title" style="display: flex; align-items: center; gap: 8px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                        Tutor IA Omnisciente
+                    </div>
+                </div>
+                <div style="color: #94a3b8; font-size: 13px; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 16px;">
+                    Este asistente tiene acceso en tiempo real a <strong>absolutamente todo</strong> lo que has guardado en la plataforma: tu malla, tus ramos aprobados, tu horario de clases, tus evaluaciones, tareas del Kanban, gastos y apuntes de voz transcritos. Puedes pedirle que te arme un plan de estudio o preguntarle a qué hora es tu próxima clase.
+                </div>
+                
+                <div id="chatglobal-messages" style="flex: 1; overflow-y: auto; padding-right: 10px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 16px;">
+                    <div class="chat-bot-msg" style="align-self: flex-start; max-width: 90%;">
+                        ¡Hola! Soy tu Tutor IA. Tengo en mi memoria toda tu información académica de esta plataforma. ¿En qué te puedo ayudar hoy?
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 8px; margin-top: auto;">
+                    <textarea id="chatglobal-input" placeholder="Pregúntame sobre tus clases, pide un resumen o ayuda para estudiar..." style="flex: 1; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 12px 16px; color: #fff; font-size: 14px; resize: none; height: 50px; outline: none;"></textarea>
+                    <button onclick="enviarChatGlobal()" id="btn-chatglobal" style="background: #38bdf8; border: none; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
     </main>
 
 <!-- Variables inyectadas por Flask -->
