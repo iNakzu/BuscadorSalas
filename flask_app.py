@@ -1778,6 +1778,43 @@ def generar_respuesta_gemini(mensaje_usuario, historial=None, imagen=None, dia_d
 
     return f"No fue posible conectar con la API de IA en este momento ({ultimo_error}). Por favor verifica tu API Key o conexión."
 
+
+@app.route("/api/transcribe", methods=["POST"])
+def api_transcribe():
+    data = request.get_json() or {}
+    audio_b64 = data.get("audioBase64")
+    mime_type = data.get("mimeType", "audio/webm")
+
+    if not audio_b64:
+        return jsonify({"error": "No se recibió audio."})
+
+    api_key = get_api_key()
+    if not api_key:
+        return jsonify({"error": "No hay API key de Gemini configurada."})
+
+    payload = {
+        "contents": [{
+            "parts": [
+                {"text": "Transcribe este audio de una clase universitaria y luego genera un apunte estructurado con viñetas. Resalta los conceptos clave en negrita usando markdown (**concepto**). No agregues introducciones, ve directo a los apuntes."},
+                {"inline_data": {"mime_type": mime_type, "data": audio_b64}}
+            ]
+        }],
+        "generationConfig": {
+            "temperature": 0.3
+        }
+    }
+
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    try:
+        req = Request(url, data=json.dumps(payload).encode('utf-8'), headers={'Content-Type': 'application/json'}, method='POST')
+        with urlopen(req, timeout=40) as response:
+            res_data = json.loads(response.read().decode('utf-8'))
+            parts = res_data.get('candidates', [{}])[0].get('content', {}).get('parts', [])
+            texto = parts[0].get('text', '') if parts else "No se pudo transcribir el audio."
+            return jsonify({"texto": texto})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
 @app.route("/api/chat", methods=["POST"])
 def api_chat():
     data = request.get_json() or {}
