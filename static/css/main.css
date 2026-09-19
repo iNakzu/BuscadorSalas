@@ -668,17 +668,9 @@ header {
 }
 
 /* Estados */
-.malla-ramo-card.estado-cursando {
-    background: rgba(234, 179, 8, 0.1);
-    border-color: rgba(234, 179, 8, 0.3);
 }
-.malla-ramo-card.estado-cursando .malla-ramo-name { color: #fde047; }
 
-.malla-ramo-card.estado-aprobado {
-    background: rgba(34, 197, 94, 0.1);
-    border-color: rgba(34, 197, 94, 0.3);
 }
-.malla-ramo-card.estado-aprobado .malla-ramo-name { color: #86efac; }
 
 
 /* =========================================
@@ -742,7 +734,6 @@ header {
     box-shadow: 0 0 40px rgba(56, 189, 248, 0.15);
 }
 .focus-circle.descanso {
-    border-color: rgba(34, 197, 94, 0.3);
     box-shadow: 0 0 40px rgba(34, 197, 94, 0.15);
 }
 .focus-circle.pulsing.estudio {
