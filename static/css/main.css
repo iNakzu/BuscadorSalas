@@ -681,7 +681,7 @@ header {
     border-color: rgba(255, 255, 255, 0.2);
 }
 
-.pomodoro-circle {
+.focus-circle {
     width: 240px;
     height: 240px;
     margin: 0 auto 40px auto;
@@ -694,18 +694,18 @@ header {
     box-shadow: 0 0 40px rgba(56, 189, 248, 0.05);
     transition: all 0.3s ease;
 }
-.pomodoro-circle.estudio {
+.focus-circle.estudio {
     border-color: rgba(56, 189, 248, 0.3);
     box-shadow: 0 0 40px rgba(56, 189, 248, 0.15);
 }
-.pomodoro-circle.descanso {
+.focus-circle.descanso {
     border-color: rgba(34, 197, 94, 0.3);
     box-shadow: 0 0 40px rgba(34, 197, 94, 0.15);
 }
-.pomodoro-circle.pulsing.estudio {
+.focus-circle.pulsing.estudio {
     animation: glowPulse 2s infinite alternate;
 }
-.pomodoro-circle.pulsing.descanso {
+.focus-circle.pulsing.descanso {
     animation: glowPulseDescanso 2s infinite alternate;
 }
 
@@ -718,14 +718,14 @@ header {
     100% { box-shadow: 0 0 60px rgba(34, 197, 94, 0.4); border-color: rgba(34, 197, 94, 0.6); }
 }
 
-.pomodoro-time {
+.focus-time {
     font-size: 56px;
     font-weight: 800;
     color: #fff;
     letter-spacing: -0.02em;
     font-variant-numeric: tabular-nums;
 }
-.pomodoro-label {
+.focus-label {
     font-size: 11px;
     font-weight: 700;
     color: #94a3b8;
@@ -905,5 +905,28 @@ header {
 @media (min-width: 768px) {
     .reloj-header h2 {
         font-size: 36px;
+    }
+}
+
+@media (min-width: 768px) {
+    .focus-circle {
+        width: 400px;
+        height: 400px;
+        margin-top: 40px;
+        margin-bottom: 60px;
+        border-width: 8px;
+    }
+    .focus-time {
+        font-size: 100px;
+    }
+    .focus-label {
+        font-size: 20px;
+        margin-top: 10px;
+    }
+    .estudio-wrapper .estudio-header h2 {
+        font-size: 32px;
+    }
+    .estudio-wrapper .estudio-header p {
+        font-size: 16px;
     }
 }
