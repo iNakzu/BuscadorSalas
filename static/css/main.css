@@ -600,26 +600,69 @@ header {
     margin-bottom: 8px;
 }
 .malla-ramo-card {
-    background: rgba(30, 41, 59, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-    padding: 12px 10px;
-    min-height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    background: rgba(var(--ramo-color), 0.15);
+    border: 1px solid rgba(var(--ramo-color), 0.1);
+    border-left: 3px solid rgba(var(--ramo-color), 0.8);
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 8px;
     cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     transition: all 0.2s ease;
-    user-select: none;
+    min-height: 60px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 .malla-ramo-name {
-    font-size: 12px;
-    font-weight: 500;
-    color: #cbd5e1;
+    font-size: 11px;
+    font-weight: 600;
     line-height: 1.3;
 }
+.malla-ramo-card:hover {
+    background: rgba(var(--ramo-color), 0.2);
+    transform: translateY(-2px);
+    opacity: 1 !important;
+    filter: grayscale(0) !important;
+}
+
+/* Pendiente */
+.estado-pendiente {
+    opacity: 0.4;
+    filter: grayscale(0.5);
+}
+.estado-pendiente .malla-ramo-name {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Cursando (Yellow focus) */
+.estado-cursando {
+    opacity: 1;
+    background: rgba(251, 191, 36, 0.15);
+    border-color: rgba(251, 191, 36, 0.3);
+    border-left: 3px solid #fbbf24;
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.2);
+}
+.estado-cursando .malla-ramo-name {
+    color: #fbbf24;
+}
+
+/* Aprobado (Subject color solid) */
+.estado-aprobado {
+    opacity: 1;
+    background: rgba(var(--ramo-color), 0.25);
+    border-color: rgba(var(--ramo-color), 0.4);
+    border-left: 4px solid rgba(var(--ramo-color), 1);
+    box-shadow: 0 0 15px rgba(var(--ramo-color), 0.3);
+}
+.estado-aprobado .malla-ramo-name {
+    color: #ffffff;
+    text-shadow: 0 0 5px rgba(var(--ramo-color), 0.5);
+}
 .malla-ramo-icon {
-    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
     margin-left: 5px;
 }
