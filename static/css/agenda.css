@@ -316,10 +316,7 @@
     .mobile-dots {
         display: none;
     }
-    .cal-dot {
-        width: 10px !important;
-        height: 10px !important;
-    }
+    
 }
 
 @media (max-width: 600px) {
