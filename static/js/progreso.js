@@ -7,8 +7,8 @@ const MALLA_MOCK = [
     { sem: 6, cursos: ["Contabilidad y Costos", "Arquitectura y Organización de Computadores", "Señales y Sistemas", "Sistemas Operativos", "Curso de Formación General (VI)", "Inglés III"] },
     { sem: 7, cursos: ["Gestión Organizacional", "Sistemas Distribuidos", "Comunicaciones Digitales", "Ingeniería de Software", "Curso de Formación General (VII)"] },
     { sem: 8, cursos: ["Introducción a la Economía", "Tecnologías Inalámbricas", "Criptografía y Seguridad en Redes", "Inteligencia Artificial", "Evaluación de Proyectos TIC", "Práctica Profesional II"] },
-    { sem: 9, cursos: ["Electivo Profesional (1)", "Arquitecturas Emergentes", "Electivo Profesional (2)", "Arquitectura de Software", "Data Science"] },
-    { sem: 10, cursos: ["Electivo Profesional (3)", "Electivo Profesional (4)", "Electivo Profesional (5)", "Electivo Profesional (6)", "Proyecto en TICs II"] },
+    { sem: 9, cursos: ["Electivo Profesional", "Arquitecturas Emergentes", "Electivo Profesional", "Arquitectura de Software", "Data Science"] },
+    { sem: 10, cursos: ["Electivo Profesional", "Electivo Profesional", "Electivo Profesional", "Electivo Profesional", "Proyecto en TICs II"] },
     { sem: 11, cursos: ["Actividad de Titulación", "Opción Magíster"] }
 ];
 
@@ -45,9 +45,19 @@ function renderProgreso() {
     
     MALLA_MOCK.forEach(s => {
         gridHtml += `<div class="malla-columna"><div class="malla-sem-title">Semestre ${s.sem}</div>`;
-        s.cursos.forEach(c => {
+        
+        let counts = {};
+        s.cursos.forEach((c, idx) => {
             totalRamos++;
-            const est = progresoState[c] || 0;
+            
+            // Handle duplicate names (like "Electivo Profesional") by appending an index to the state key
+            counts[c] = (counts[c] || 0) + 1;
+            let stateKey = c;
+            if (c === "Electivo Profesional" || c.startsWith("Curso de Formación")) {
+                stateKey = `${c}_${s.sem}_${counts[c]}`;
+            }
+
+            const est = progresoState[stateKey] || 0;
             if (est === 2) aprobados++;
             if (est === 1) cursando++;
             
@@ -57,8 +67,8 @@ function renderProgreso() {
             if (est === 2) { statusClass = 'estado-aprobado'; icon = ''; }
 
             gridHtml += `
-                <div class="malla-ramo-card ${statusClass}" onclick="toggleRamoEstado('${c}')">
-                    <span class="malla-ramo-name">${c}</span>
+                <div class="malla-ramo-card ${statusClass}" onclick="toggleRamoEstado('${stateKey}')">
+                    <span class="malla-ramo-name">${c.replace(/\s\([IVX]+\)$/, '')}</span>
                     ${icon ? `<span class="malla-ramo-icon">${icon}</span>` : ''}
                 </div>
             `;

@@ -500,9 +500,9 @@ MALLA_ICIT = {
     9: {
         'nombre': 'Semestre IX',
         'ramos': [
-            {'nombre': 'Electivo Profesional (1)', 'keywords': ['electivo profesional (1)']},
+            {'nombre': 'Electivo Profesional', 'keywords': ['electivo profesional (1)']},
             {'nombre': 'Arquitecturas Emergentes', 'keywords': ['arquitecturas emergentes']},
-            {'nombre': 'Electivo Profesional (2)', 'keywords': ['electivo profesional (2)']},
+            {'nombre': 'Electivo Profesional', 'keywords': ['electivo profesional (2)']},
             {'nombre': 'Arquitectura de Software', 'keywords': ['arquitectura de software']},
             {'nombre': 'Data Science', 'keywords': ['data science']},
         ]
@@ -510,10 +510,10 @@ MALLA_ICIT = {
     10: {
         'nombre': 'Semestre X',
         'ramos': [
-            {'nombre': 'Electivo Profesional (3)', 'keywords': ['electivo profesional (3)']},
-            {'nombre': 'Electivo Profesional (4)', 'keywords': ['electivo profesional (4)']},
-            {'nombre': 'Electivo Profesional (5)', 'keywords': ['electivo profesional (5)']},
-            {'nombre': 'Electivo Profesional (6)', 'keywords': ['electivo profesional (6)']},
+            {'nombre': 'Electivo Profesional', 'keywords': ['electivo profesional (3)']},
+            {'nombre': 'Electivo Profesional', 'keywords': ['electivo profesional (4)']},
+            {'nombre': 'Electivo Profesional', 'keywords': ['electivo profesional (5)']},
+            {'nombre': 'Electivo Profesional', 'keywords': ['electivo profesional (6)']},
             {'nombre': 'Proyecto en TICs II', 'keywords': ['proyecto en tics ii']},
         ]
     },
