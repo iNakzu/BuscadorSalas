@@ -680,7 +680,12 @@ header {
     max-width: 400px;
     margin: 0 auto;
     text-align: center;
-    padding: 140px 10px 20px;
+    min-height: calc(100vh - 150px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 10px;
 }
 .estudio-header h2 {
     font-size: 24px;
