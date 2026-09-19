@@ -958,8 +958,8 @@ header {
 
 @media (min-width: 768px) {
     .estudio-wrapper {
-        min-height: 75vh;
-        padding-top: 5vh;
+        min-height: 85vh;
+        padding-top: 10vh;
     }
     .focus-circle {
         width: 400px;
