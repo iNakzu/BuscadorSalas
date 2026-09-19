@@ -167,7 +167,7 @@ function renderEstudio() {
             
             </div>
     `;
-    `;
+    
     container.innerHTML = html;
 }
 
