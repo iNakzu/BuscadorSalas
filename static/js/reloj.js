@@ -1,3 +1,8 @@
+// Lofi Radio State
+let radioAudio = new Audio('https://stream.laut.fm/lofi');
+let isRadioPlaying = false;
+radioAudio.volume = 0.5;
+
 let clockInterval = null;
 let stopwatchInterval = null;
 let stopwatchTime = 0; // en centésimas de segundo
@@ -108,6 +113,38 @@ function toggleZenMode() {
     }
 }
 
+
+// --- LOFI RADIO LOGIC ---
+function toggleRadio() {
+    if (isRadioPlaying) {
+        radioAudio.pause();
+        isRadioPlaying = false;
+    } else {
+        radioAudio.play().catch(e => alert("Error al reproducir radio: " + e));
+        isRadioPlaying = true;
+    }
+    updateRadioUI();
+}
+
+function setRadioVolume(val) {
+    radioAudio.volume = val / 100;
+}
+
+function updateRadioUI() {
+    const btn = document.getElementById('btn-radio-toggle');
+    const visualizer = document.getElementById('radio-visualizer');
+    
+    if (btn) {
+        btn.innerHTML = isRadioPlaying ? 
+            `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>` : 
+            `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
+    }
+    if (visualizer) {
+        visualizer.style.opacity = isRadioPlaying ? '1' : '0.2';
+        visualizer.style.animationPlayState = isRadioPlaying ? 'running' : 'paused';
+    }
+}
+
 function renderReloj() {
     const container = document.getElementById('reloj-container');
     if (!container) return;
@@ -148,14 +185,48 @@ function renderCronometro() {
     if (!container) return;
 
     container.innerHTML = `
-        <div class="reloj-wrapper">
+        <div class="reloj-wrapper" style="display:flex; flex-direction:column; align-items:center; width:100%;">
             <div class="reloj-time" id="crono-time-display">00:00<span class="reloj-sec">.00</span></div>
-            <div class="estudio-controls" style="margin-top: 30px;">
+            <div class="estudio-controls" style="margin-top: 30px; display:flex; justify-content:center; align-items:center; width:100%;">
                 <button id="btn-toggle-sw" class="estudio-btn ${stopwatchRunning ? 'btn-pause' : 'btn-start'}" onclick="toggleStopwatch()">
                     ${stopwatchRunning ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-right:4px;vertical-align:-2px;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg> Pausar` : `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-right:4px;vertical-align:-2px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Iniciar`}
                 </button>
                 <button class="estudio-btn btn-reset" onclick="resetStopwatch()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:-2px;"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg> Reiniciar</button>
             </div>
+            
+            <!-- MODERN LOFI RADIO -->
+            <div class="radio-card" style="margin: 40px auto 0 auto; align-self:center; display:flex; flex-direction:column; text-align:left;">
+                <div class="radio-header">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div class="radio-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+                        </div>
+                        <div>
+                            <div class="radio-title">Lofi Beats Radio</div>
+                            <div class="radio-subtitle">En directo • laut.fm</div>
+                        </div>
+                    </div>
+                    <div class="radio-visualizer" id="radio-visualizer" style="opacity: ${isRadioPlaying ? '1' : '0.2'};">
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                    </div>
+                </div>
+                
+                <div class="radio-controls">
+                    <button id="btn-radio-toggle" class="radio-btn-play" onclick="toggleRadio()">
+                        ${isRadioPlaying ? 
+                            `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>` : 
+                            `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`}
+                    </button>
+                    <div style="display:flex; align-items:center; gap:8px; width: 100%;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon></svg>
+                        <input type="range" min="0" max="100" value="${radioAudio.volume * 100}" class="radio-volume" oninput="setRadioVolume(this.value)">
+                    </div>
+                </div>
+            </div>
+
             
             
         </div>
