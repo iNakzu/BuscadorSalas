@@ -326,17 +326,21 @@ header {
 .btn-bloque-actual {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
+    justify-content: center;
     background: linear-gradient(135deg, #10b981, #059669);
     color: #ffffff;
     border: none;
-    padding: 7px 14px;
+    padding: 8px;
+    width: 32px;
+    height: 32px;
     border-radius: var(--radius-sm);
-    font-size: 12px;
-    font-weight: 700;
     cursor: pointer;
     transition: all 0.2s ease;
     box-shadow: 0 3px 12px rgba(16, 185, 129, 0.3);
+}
+.btn-bloque-actual svg {
+    width: 16px;
+    height: 16px;
 }
 
 .btn-bloque-actual:hover {
