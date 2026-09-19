@@ -1,4 +1,4 @@
-let pomodoroTimer = null;
+let focusTimer = null;
 let timeLeft = 60 * 60; // 60 minutos por defecto
 let isRunning = false;
 let currentMode = 'estudio'; // 'estudio' o 'descanso'
@@ -15,18 +15,18 @@ function formatTime(seconds) {
 
 function toggleTimer() {
     if (isRunning) {
-        clearInterval(pomodoroTimer);
+        clearInterval(focusTimer);
         isRunning = false;
         localStorage.removeItem('isStudying');
     } else {
         isRunning = true;
         localStorage.setItem('isStudying', 'true');
-        pomodoroTimer = setInterval(() => {
+        focusTimer = setInterval(() => {
             if (timeLeft > 0) {
                 timeLeft--;
                 updateTimerDisplay();
             } else {
-                clearInterval(pomodoroTimer);
+                clearInterval(focusTimer);
                 isRunning = false;
                 localStorage.removeItem('isStudying');
                 // Alarma simple
@@ -40,7 +40,7 @@ function toggleTimer() {
 }
 
 function resetTimer() {
-    clearInterval(pomodoroTimer);
+    clearInterval(focusTimer);
     isRunning = false;
     localStorage.removeItem('isStudying');
     timeLeft = currentMode === 'estudio' ? 60 * 60 : 15 * 60;
@@ -49,7 +49,7 @@ function resetTimer() {
 }
 
 function switchMode(mode) {
-    clearInterval(pomodoroTimer);
+    clearInterval(focusTimer);
     isRunning = false;
     localStorage.removeItem('isStudying');
     currentMode = mode;
@@ -58,7 +58,7 @@ function switchMode(mode) {
 }
 
 function updateTimerDisplay() {
-    const el = document.getElementById('pomodoro-time');
+    const el = document.getElementById('focus-time');
     if (el) el.textContent = formatTime(timeLeft);
 }
 
@@ -69,7 +69,7 @@ function updateEstudioUI() {
         btn.className = isRunning ? 'estudio-btn btn-pause' : 'estudio-btn btn-start';
     }
     
-    const circle = document.querySelector('.pomodoro-circle');
+    const circle = document.querySelector('.focus-circle');
     if (circle) {
         if (isRunning) circle.classList.add('pulsing');
         else circle.classList.remove('pulsing');
@@ -87,14 +87,11 @@ function renderEstudio() {
                 <p>Silencia distracciones y enfócate. Al iniciar, tus amigos verán que estás estudiando.</p>
             </div>
             
-            <div class="estudio-mode-selector">
-                <button class="mode-btn ${currentMode === 'estudio' ? 'active' : ''}" onclick="switchMode('estudio')">1h Estudio</button>
-                <button class="mode-btn ${currentMode === 'descanso' ? 'active' : ''}" onclick="switchMode('descanso')">15m Descanso</button>
-            </div>
+
             
-            <div class="pomodoro-circle ${isRunning ? 'pulsing' : ''} ${currentMode}">
-                <div class="pomodoro-time" id="pomodoro-time">${formatTime(timeLeft)}</div>
-                <div class="pomodoro-label">${currentMode === 'estudio' ? 'ENFOQUE PROFUNDO' : 'RELAJO'}</div>
+            <div class="focus-circle ${isRunning ? 'pulsing' : ''} ${currentMode}">
+                <div class="focus-time" id="focus-time">${formatTime(timeLeft)}</div>
+                <div class="focus-label">${currentMode === 'estudio' ? 'ENFOQUE PROFUNDO' : 'RELAJO'}</div>
             </div>
             
             <div class="estudio-controls">
