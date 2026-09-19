@@ -221,7 +221,7 @@ function actualizarHeroMiHorario() {
                 <div class="my-hero-class-info">
                     <div class="my-hero-title">Descanso de fin de semana!</div>
                     <div class="my-hero-subtitle" style="margin-top: -6px;">
-                        <span>Tu próxima clase es el <strong>Lunes a las 11:30</strong> (Tecnologías Inalámbricas <code class="my-room-pill" onclick="verHorarioDirecto('V432.3.S312')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>V432.3.S312</span></code>).</span>
+                        <span>Tu próxima clase es el <strong>Lunes a las 11:30</strong>.</span>
                     </div>
                 </div>
             </div>
@@ -331,7 +331,7 @@ function actualizarHeroMiHorario() {
     const msgSiguiente = siguienteClase
         ? (vistaHorarioActual === 'cruce' 
             ? `Próximo tope libre el <strong>${siguienteClase.diaNombre} a las ${siguienteClase.horaInicio}</strong>.`
-            : (siguienteClase.rol === 'assistant' ? `Tu próxima ayudantía es el <strong>${siguienteClase.diaNombre} a las ${siguienteClase.horaInicio}</strong> (${siguienteClase.curso} <code class="my-room-pill ${siguienteClase.tipo ? 'tipo-' + siguienteClase.tipo.toLowerCase().replace(' ', '') : ''} ${siguienteClase.rol === 'student' ? 'is-student' : ''} is-assistant-room" onclick="verHorarioDirecto('${siguienteClase.sala}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${siguienteClase.sala}</span></code>).` : `Tu próxima clase es el <strong>${siguienteClase.diaNombre} a las ${siguienteClase.horaInicio}</strong> (${siguienteClase.curso} <code class="my-room-pill ${siguienteClase.tipo ? 'tipo-' + siguienteClase.tipo.toLowerCase().replace(' ', '') : ''} ${siguienteClase.rol === 'student' ? 'is-student' : ''}" onclick="verHorarioDirecto('${siguienteClase.sala}')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${siguienteClase.sala}</span></code>).`))
+            : (siguienteClase.rol === 'assistant' ? `Tu próxima ayudantía es el <strong>${siguienteClase.diaNombre} a las ${siguienteClase.horaInicio}</strong>.` : `Tu próxima clase es el <strong>${siguienteClase.diaNombre} a las ${siguienteClase.horaInicio}</strong>.`))
         : (vistaHorarioActual === 'cruce' ? 'No hay topes libres programados.' : 'No tienes más clases programadas.');
 
     heroEl.innerHTML = `
