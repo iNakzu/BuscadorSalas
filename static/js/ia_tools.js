@@ -224,7 +224,7 @@ async function enviarChatGlobal() {
 }
 
 // Allow Enter to send message
-document.getElementById('chatglobal-input')?.addEventListener('keypress', function (e) {
+document.getElementById('chatglobal-input') && document.getElementById('chatglobal-input').addEventListener('keypress', function (e) {
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         enviarChatGlobal();
