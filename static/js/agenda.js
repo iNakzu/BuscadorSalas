@@ -381,30 +381,49 @@ function renderAgenda() {
                 <div class="timeline-center-mark">HOY</div>
     `;
 
-    // Process dots for timeline
+    // Group events by diffDays to prevent overlapping
+    let groupedEvents = {};
     list.forEach(ev => {
         const evDate = new Date(ev.fecha);
         const todayAtMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const evDateAtMidnight = new Date(evDate.getFullYear(), evDate.getMonth(), evDate.getDate());
         const diffDays = Math.round((evDateAtMidnight - todayAtMidnight) / (1000 * 60 * 60 * 24));
         
+        if (Math.abs(diffDays) <= 30) {
+            if (!groupedEvents[diffDays]) groupedEvents[diffDays] = [];
+            groupedEvents[diffDays].push(ev);
+        }
+    });
+
+    Object.keys(groupedEvents).forEach(diffStr => {
+        const diffDays = parseInt(diffStr);
+        const events = groupedEvents[diffStr];
+        
         let positionPercent = 50;
         if (diffDays > 0) {
-            positionPercent = 50 + Math.min((diffDays / 30) * 45, 48); // max right is ~98%
+            positionPercent = 50 + (diffDays / 30) * 45;
         } else if (diffDays < 0) {
-            positionPercent = 50 - Math.min((Math.abs(diffDays) / 30) * 45, 48); // max left is ~2%
+            positionPercent = 50 - (Math.abs(diffDays) / 30) * 45;
         }
 
-        let rgb = '56, 189, 248';
-        if (ev.tipo === 'Solemne') rgb = '244, 63, 94';
-        if (ev.tipo === 'Control') rgb = '251, 191, 36';
-        if (ev.tipo === 'Trabajo') rgb = '168, 85, 247';
-        if (ev.tipo === 'Presentacion') rgb = '34, 197, 94';
+        if (events.length === 1) {
+            let ev = events[0];
+            let rgb = '56, 189, 248';
+            if (ev.tipo === 'Solemne') rgb = '244, 63, 94';
+            if (ev.tipo === 'Control') rgb = '251, 191, 36';
+            if (ev.tipo === 'Trabajo') rgb = '168, 85, 247';
+            if (ev.tipo === 'Presentacion') rgb = '34, 197, 94';
 
-        let extraClass = ev.completado ? 'completed' : 'pulsing';
-        // if completed but in future, just completed. If not completed but in past? still pulsing (overdue).
-        
-        timelineHtml += `<div class="h-dot ${extraClass}" style="left: ${positionPercent}%; --dot-rgb: ${rgb};" title="${ev.ramo} (${diffDays} días)"></div>`;
+            let extraClass = ev.completado ? 'completed' : 'pulsing';
+            
+            timelineHtml += `<div class="h-dot ${extraClass}" style="left: ${positionPercent}%; --dot-rgb: ${rgb};" title="${ev.ramo} (${diffDays} días)"></div>`;
+        } else {
+            // Render multi-badge
+            const allCompleted = events.every(e => e.completado);
+            let extraClass = allCompleted ? 'completed' : 'pulsing';
+            
+            timelineHtml += `<div class="h-dot-multi ${extraClass}" style="left: ${positionPercent}%;" title="${events.length} evaluaciones en ${diffDays} días">${events.length}</div>`;
+        }
     });
 
     timelineHtml += `

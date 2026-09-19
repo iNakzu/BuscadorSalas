@@ -1030,10 +1030,8 @@ header {
 .timeline-track {
     position: relative;
     width: 100%;
-    height: 6px;
-    background: rgba(15, 23, 42, 0.8);
-    border-radius: 6px;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+    height: 2px;
+    background: rgba(255, 255, 255, 0.15);
     margin: 0 4px;
 }
 .timeline-center-mark {
@@ -1080,6 +1078,36 @@ header {
 }
 @keyframes h-pulse {
     0% { box-shadow: 0 0 0 0 rgba(var(--dot-rgb), 0.7); }
-    70% { box-shadow: 0 0 0 8px rgba(var(--dot-rgb), 0); }
+    70% { box-shadow: 0 0 0 4px rgba(var(--dot-rgb), 0); }
     100% { box-shadow: 0 0 0 0 rgba(var(--dot-rgb), 0); }
+}
+
+.h-dot-multi {
+    position: absolute;
+    top: -4px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #0f172a;
+    font-size: 10px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateX(-50%);
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+    z-index: 15;
+}
+.h-dot-multi.completed {
+    opacity: 0.5;
+    box-shadow: none;
+}
+.h-dot-multi.pulsing {
+    animation: h-multi-pulse 2s infinite;
+}
+@keyframes h-multi-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+    70% { box-shadow: 0 0 0 4px rgba(255, 255, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
 }
