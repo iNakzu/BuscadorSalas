@@ -148,7 +148,7 @@ async function cargarSalas() {
                         <div class="course-name">${info.curso}</div>
                         <div class="item-meta">
                             <div>Profesor: <strong>${info.profe}</strong></div>
-                            
+                            <span>Sección ${info.seccion} • Cód: ${info.codigo}</span>
                         </div>
                     </div>
                 `;
@@ -347,7 +347,7 @@ function ejecutarBusquedaDocente() {
                     <div class="course-name">${p.curso}</div>
                     <div class="item-meta">
                         <div>Profesor: <strong>${p.profe}</strong></div>
-                        
+                        <span>Sección ${p.seccion} • Cód: ${p.codigo}</span>
                     </div>
                 </div>
             `).join('');
@@ -427,7 +427,7 @@ function ejecutarBusquedaRamo() {
                     <div class="course-name">${r.curso}</div>
                     <div class="item-meta">
                         <div>Profesor: <strong>${r.profe}</strong></div>
-                        
+                        <span>Sección ${r.seccion} • Cód: ${r.codigo}</span>
                     </div>
                 </div>
             `).join('');
@@ -572,7 +572,7 @@ async function cargarClasesMalla(refrescarChips = false) {
                 <div class="course-name">${c.ramo_malla}</div>
                 <div class="item-meta">
                     <div>Profesor: <strong>${c.profe}</strong></div>
-                    
+                    <span>Sección ${c.seccion} • Cód: ${c.codigo}</span>
                 </div>
             </div>
         `).join('');
@@ -745,7 +745,7 @@ async function renderizarHorarioSala(sala) {
                                 <div class="slot-details">
                                     <div class="slot-course-row">
                                         <span class="slot-course-title">${c.curso}</span>
-                                        
+                                        <span class="slot-meta-pill">Sec. ${c.seccion} • ${c.codigo}</span>
                                     </div>
                                     <div class="slot-teacher">
                                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -796,7 +796,7 @@ async function renderizarHorarioSala(sala) {
                             <div class="slot-details">
                                 <div class="slot-course-row">
                                     <span class="slot-course-title">${c.curso}</span>
-                                    
+                                    <span class="slot-meta-pill">Sec. ${c.seccion} • ${c.codigo}</span>
                                 </div>
                                 <div class="slot-teacher">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
