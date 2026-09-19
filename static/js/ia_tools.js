@@ -122,7 +122,8 @@ function appendChatGlobalMsg(role, text) {
         bubble.style.fontSize = '15px';
         bubble.style.lineHeight = '1.5';
         bubble.style.maxWidth = '90%';
-        bubble.innerHTML = renderMarkdownChat(text);
+        bubble.innerHTML = (typeof simpleMarkdown === "function") ? simpleMarkdown(text) : renderMarkdownChat(text);
+        if (typeof renderMathOnElement === "function") renderMathOnElement(bubble);
         
         wrapper.appendChild(avatar);
         wrapper.appendChild(bubble);
