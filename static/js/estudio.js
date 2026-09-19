@@ -1,5 +1,5 @@
 let pomodoroTimer = null;
-let timeLeft = 50 * 60; // 50 minutos por defecto
+let timeLeft = 60 * 60; // 60 minutos por defecto
 let isRunning = false;
 let currentMode = 'estudio'; // 'estudio' o 'descanso'
 
@@ -43,7 +43,7 @@ function resetTimer() {
     clearInterval(pomodoroTimer);
     isRunning = false;
     localStorage.removeItem('isStudying');
-    timeLeft = currentMode === 'estudio' ? 50 * 60 : 10 * 60;
+    timeLeft = currentMode === 'estudio' ? 60 * 60 : 15 * 60;
     updateTimerDisplay();
     updateEstudioUI();
 }
@@ -53,7 +53,7 @@ function switchMode(mode) {
     isRunning = false;
     localStorage.removeItem('isStudying');
     currentMode = mode;
-    timeLeft = mode === 'estudio' ? 50 * 60 : 10 * 60;
+    timeLeft = mode === 'estudio' ? 60 * 60 : 15 * 60;
     renderEstudio();
 }
 
@@ -88,8 +88,8 @@ function renderEstudio() {
             </div>
             
             <div class="estudio-mode-selector">
-                <button class="mode-btn ${currentMode === 'estudio' ? 'active' : ''}" onclick="switchMode('estudio')">50m Estudio</button>
-                <button class="mode-btn ${currentMode === 'descanso' ? 'active' : ''}" onclick="switchMode('descanso')">10m Descanso</button>
+                <button class="mode-btn ${currentMode === 'estudio' ? 'active' : ''}" onclick="switchMode('estudio')">1h Estudio</button>
+                <button class="mode-btn ${currentMode === 'descanso' ? 'active' : ''}" onclick="switchMode('descanso')">15m Descanso</button>
             </div>
             
             <div class="pomodoro-circle ${isRunning ? 'pulsing' : ''} ${currentMode}">
