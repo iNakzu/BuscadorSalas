@@ -381,6 +381,10 @@ function renderAgenda() {
                 <div class="timeline-center-mark">HOY</div>
     `;
 
+    // Escala dinámica: 30 días en PC, 14 días en Celular
+    const isMobile = window.innerWidth <= 768;
+    const maxDays = isMobile ? 14 : 30;
+
     // Group events by diffDays to prevent overlapping
     let groupedEvents = {};
     list.forEach(ev => {
@@ -389,7 +393,7 @@ function renderAgenda() {
         const evDateAtMidnight = new Date(dateParts[0], parseInt(dateParts[1]) - 1, dateParts[2]);
         const diffDays = Math.round((evDateAtMidnight - todayAtMidnight) / (1000 * 60 * 60 * 24));
         
-        if (Math.abs(diffDays) <= 30) {
+        if (Math.abs(diffDays) <= maxDays) {
             if (!groupedEvents[diffDays]) groupedEvents[diffDays] = [];
             groupedEvents[diffDays].push(ev);
         }
@@ -401,9 +405,9 @@ function renderAgenda() {
         
         let positionPercent = 50;
         if (diffDays > 0) {
-            positionPercent = 50 + (diffDays / 30) * 45;
+            positionPercent = 50 + (diffDays / maxDays) * 45;
         } else if (diffDays < 0) {
-            positionPercent = 50 - (Math.abs(diffDays) / 30) * 45;
+            positionPercent = 50 - (Math.abs(diffDays) / maxDays) * 45;
         }
 
         if (events.length === 1) {
@@ -580,3 +584,14 @@ window.cycleAgendaProfile = function(direction) {
         }, 200);
     }
 };
+
+// Re-renderizar si la pantalla cambia de tamaño para actualizar el Zoom del Radar
+let resizeTimeout;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+        if (document.getElementById('agenda-container')) {
+            renderAgenda();
+        }
+    }, 250);
+});
