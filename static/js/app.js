@@ -1293,9 +1293,18 @@ async function enviarMensajeIA(displayMsg = null, queryMsg = null) {
     if (sendBtn) sendBtn.disabled = true;
 
     try {
+        // Recopilar contexto global de la app para que la IA entienda todo
+        const contextoLocal = {
+            mi_horario: window.MI_HORARIO_DATA || {},
+            amigos_perfiles: window.HORARIOS_GUARDADOS || {},
+            malla_progreso: window.progresoState || {},
+            agenda_eventos: window.AGENDA_DATA || []
+        };
+
         const payload = {
             mensaje: msgToSend,
             historial: chatHistory.slice(-8), // Últimos 8 turnos de contexto
+            contexto_local: contextoLocal,
             imagen: imageToSend ? {
                 data: imageToSend.data,
                 mimeType: imageToSend.mimeType

@@ -1447,14 +1447,14 @@ def generar_respuesta_curso(c_name, dia_id=None):
 
     return "\n".join(lineas)
 
-def responder_con_ia(mensaje_usuario, historial=None, imagen=None):
+def responder_con_ia(mensaje_usuario, historial=None, imagen=None, contexto_local=None):
     api_key = get_api_key()
     if not api_key:
         return "Para activar el asistente inteligente de Disponibilidad de Salas, necesitas configurar tu API Key gratuita de Google AI Studio."
 
     # Si hay una imagen adjunta, pasar de inmediato al análisis multimodal de Gemini
     if imagen:
-        return generar_respuesta_gemini(mensaje_usuario, historial=historial, imagen=imagen)
+        return generar_respuesta_gemini(mensaje_usuario, historial=historial, imagen=imagen, contexto_local=contexto_local)
 
     norm_msg = normalize_str(mensaje_usuario)
     tokens_msg = clean_tokens(mensaje_usuario)
@@ -1561,7 +1561,7 @@ def responder_con_ia(mensaje_usuario, historial=None, imagen=None):
 
     # Si es una pregunta conversacional, general o de memoria, delegar directamente a Gemini con historial completo
     if es_pregunta_general:
-        return generar_respuesta_gemini(mensaje_usuario, historial=historial, imagen=imagen, dia_detectado=dia_detectado)
+        return generar_respuesta_gemini(mensaje_usuario, historial=historial, imagen=imagen, dia_detectado=dia_detectado, contexto_local=contexto_local)
 
     intencion_profesor = any(w in norm_msg for w in ['profe', 'profesor', 'profesora', 'docente', 'enseña', 'dicta', 'hace clases'])
     intencion_curso = any(w in norm_msg for w in ['ramo', 'curso', 'asignatura', 'materia', 'catedra', 'taller', 'seccion'])
@@ -1642,9 +1642,9 @@ def responder_con_ia(mensaje_usuario, historial=None, imagen=None):
             if es_match_curso_valido:
                 return generar_respuesta_curso(best_match_cr[2], dia_id=dia_detectado)
 
-    return generar_respuesta_gemini(mensaje_usuario, historial=historial, imagen=imagen, dia_detectado=dia_detectado)
+    return generar_respuesta_gemini(mensaje_usuario, historial=historial, imagen=imagen, dia_detectado=dia_detectado, contexto_local=contexto_local)
 
-def generar_respuesta_gemini(mensaje_usuario, historial=None, imagen=None, dia_detectado=None):
+def generar_respuesta_gemini(mensaje_usuario, historial=None, imagen=None, dia_detectado=None, contexto_local=None):
     api_key = get_api_key()
     if not api_key:
         return "Para activar el asistente inteligente de Disponibilidad de Salas, necesitas configurar tu API Key gratuita de Google AI Studio."
@@ -1687,32 +1687,9 @@ def generar_respuesta_gemini(mensaje_usuario, historial=None, imagen=None, dia_d
         f"- Total salas registradas: {len(dm.all_rooms)} salas.\n"
         f"Día consultado o detectado: {nombre_dia(dia_detectado_val) if dia_detectado_val and dia_detectado_val != 'TODOS' else dia_nom_actual}\n"
         f"{contexto_sala_real}\n"
-        f"HORARIO OFICIAL DEL USUARIO (SEMESTRE 2026-02 - SECCIÓN 'MI HORARIO'):\n"
-        f"- Lunes:\n"
-        f"  * 11:30 - 12:50 | `V432.3.S312` | Tecnologías Inalámbricas | Sección 1 (Cátedra, Prof. Diego Dujovne) [Estudiante]\n"
-        f"  * 13:00 - 14:20 | `E441.2.S201` | Inteligencia Artificial | Sección 2 (Cátedra, Prof. Víctor Reyes) [Estudiante]\n"
-        f"  * 14:30 - 15:50 | `E441.5. LAB INF` | Tecnologías Inalámbricas L. | Sección 1 (Laboratorio, Prof. Andrés Cruz) [Estudiante]\n"
-        f"  * 16:00 - 17:20 | `E441.3.S302` | Evaluación de Proyectos TIC | Sección 1 (Cátedra, Prof. Eduardo Faivovich) [Estudiante]\n"
-        f"  * 17:25 - 18:45 | `E441.3.S302` | Arquitecturas Emergentes | Sección 2 (Cátedra, Prof. Carlos García) [Estudiante]\n"
-        f"- Martes:\n"
-        f"  * 11:30 - 12:50 | `E306.1.S107` | Álgebra Lineal A. | Sección 19 (Ayudantía, Prof. Matías Robotham) [Ayudante que imparte el usuario]\n"
-        f"  * 13:00 - 14:20 | `E441.4.S402` | Introducción a la Economía | Sección 4 (Cátedra, Prof. Jaime Calcagno) [Estudiante]\n"
-        f"  * 17:25 - 18:45 | `V432.3.S315` | Inteligencia Artificial A. | Sección 2 (Ayudantía) [Estudiante]\n"
-        f"- Miércoles:\n"
-        f"  * 08:30 - 09:50 | `V432.4.S415` | Tecnologías Inalámbricas A. | Sección 1 (Ayudantía) [Estudiante]\n"
-        f"  * 14:30 - 15:50 | `E441.1.S106` | Introducción a la Economía A. | Sección 4 (Ayudantía) [Estudiante]\n"
-        f"  * 16:00 - 17:20 | `E441.2.S204` | Evaluación de Proyectos TIC A. | Sección 1 (Ayudantía) [Estudiante]\n"
-        f"  * 17:25 - 18:45 | `E441.1.S105` | Arquitecturas Emergentes A. | Sección 2 (Ayudantía) [Estudiante]\n"
-        f"- Jueves:\n"
-        f"  * 11:30 - 12:50 | `V432.3.S312` | Tecnologías Inalámbricas | Sección 1 (Cátedra, Prof. Diego Dujovne) [Estudiante]\n"
-        f"  * 13:00 - 14:20 | `E441.2.S201` | Inteligencia Artificial | Sección 2 (Cátedra, Prof. Víctor Reyes) [Estudiante]\n"
-        f"  * 16:00 - 17:20 | `E441.3.S302` | Evaluación de Proyectos TIC | Sección 1 (Cátedra, Prof. Eduardo Faivovich) [Estudiante]\n"
-        f"  * 17:25 - 18:45 | `E441.3.S302` | Arquitecturas Emergentes | Sección 2 (Cátedra, Prof. Carlos García) [Estudiante]\n"
-        f"- Viernes:\n"
-        f"  * 11:30 - 12:50 | `E441.4.S401` | Mecánica A. | Sección 13 (Ayudantía, Prof. Karina Arancibia) [Ayudante que imparte el usuario]\n"
-        f"  * 13:00 - 14:20 | `E441.4.S402` | Introducción a la Economía | Sección 4 (Cátedra, Prof. Jaime Calcagno) [Estudiante]\n"
-        f"  * 14:30 - 15:50 | `E306.1.S101` | Introducción al Álgebra A. | Sección 3 (Ayudantía, Prof. Jaime Contreras) [Ayudante que imparte el usuario]\n"
-        f"  * 16:00 - 17:20 | `E306.2.S208` | Álgebra Lineal A. | Sección 11 (Ayudantía, Prof. Rosa Rivero) [Ayudante que imparte el usuario]\n"
+        f"DATOS LOCALES DE LA APLICACIÓN DEL USUARIO (MEMORIA DEL NAVEGADOR):\n"
+        f"{json.dumps(contexto_local, indent=2, ensure_ascii=False) if contexto_local else 'No hay contexto local disponible.'}\n"
+        f"INFORMACIÓN: El json de arriba contiene el estado de la app del usuario. 'mi_horario' contiene sus clases y roles ('student' o 'assistant'). 'amigos_perfiles' contiene los horarios de sus amigos guardados (Nico, Cata, etc). 'malla_progreso' indica el estado de sus ramos en la malla interactiva (ej. ramo 2 es Calculo, si está aprobado dice true). 'agenda_eventos' contiene las fechas de sus certámenes, controles, y tareas agendadas en su radar de fechas.\n"
     )
 
     prompt_sistema = (
@@ -1807,11 +1784,12 @@ def api_chat():
     mensaje = data.get("mensaje", "").strip()
     historial = data.get("historial", [])
     imagen = data.get("imagen")
+    contexto_local = data.get("contexto_local", {})
 
     if not mensaje and not imagen:
         return jsonify({"respuesta": "Por favor escribe una consulta o adjunta una imagen."})
 
-    respuesta = responder_con_ia(mensaje, historial=historial, imagen=imagen)
+    respuesta = responder_con_ia(mensaje, historial=historial, imagen=imagen, contexto_local=contexto_local)
     return jsonify({"respuesta": respuesta})
 
 if __name__ == "__main__":
