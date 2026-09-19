@@ -5,13 +5,8 @@ let currentMode = 'estudio'; // 'estudio' o 'descanso'
 
 // Lofi Radio State
 let radioAudio = new Audio('https://stream.laut.fm/lofi');
-radioAudio.crossOrigin = "anonymous";
 let isRadioPlaying = false;
 radioAudio.volume = 0.5;
-
-let audioCtx = null;
-let analyser = null;
-let dataArray = null;
 let animationId = null;
 
 
@@ -90,44 +85,24 @@ function updateEstudioUI() {
 
 
 // --- LOFI RADIO LOGIC ---
-function initAudioAnalyser() {
-    if (audioCtx) return;
-    try {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        audioCtx = new AudioContext();
-        analyser = audioCtx.createAnalyser();
-        const source = audioCtx.createMediaElementSource(radioAudio);
-        source.connect(analyser);
-        analyser.connect(audioCtx.destination);
-        
-        analyser.fftSize = 64;
-        const bufferLength = analyser.frequencyBinCount;
-        dataArray = new Uint8Array(bufferLength);
-    } catch(e) {
-        console.error("Audio Context no soportado o bloqueado", e);
-    }
-}
-
 function updateVisualizer() {
-    if (!isRadioPlaying || !analyser) return;
-    
-    analyser.getByteFrequencyData(dataArray);
+    if (!isRadioPlaying) return;
     
     const bars = document.querySelectorAll('.radio-visualizer .bar');
     if (bars.length > 0) {
-        // Distribute 8 bars across the frequency spectrum
-        const step = Math.floor(dataArray.length / bars.length);
-        
-        bars.forEach((bar, i) => {
-            let value = dataArray[i * step];
-            // Normalize value to a scale between 0.1 and 1
-            let scale = Math.max(0.1, value / 255);
-            bar.style.transform = `scaleY(${scale})`;
-            bar.style.animation = 'none'; // Disable CSS animation when real data is playing
+        bars.forEach(bar => {
+            // Fake frequency data using random math for realistic feel
+            let randomScale = 0.2 + (Math.random() * 0.8);
+            bar.style.transform = `scaleY(${randomScale})`;
+            bar.style.transition = 'transform 0.1s ease-in-out';
+            bar.style.animation = 'none';
         });
     }
     
-    animationId = requestAnimationFrame(updateVisualizer);
+    // throttle the fake updates to ~15fps so it looks like an equalizer
+    setTimeout(() => {
+        animationId = requestAnimationFrame(updateVisualizer);
+    }, 70);
 }
 
 function toggleRadio() {
@@ -140,14 +115,9 @@ function toggleRadio() {
         const bars = document.querySelectorAll('.radio-visualizer .bar');
         bars.forEach(bar => {
             bar.style.transform = 'scaleY(0.2)';
-            bar.style.animation = 'none';
+            bar.style.transition = 'transform 0.3s ease';
         });
     } else {
-        initAudioAnalyser();
-        if (audioCtx && audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
-        
         radioAudio.play().catch(e => alert("Error al reproducir radio: " + e));
         isRadioPlaying = true;
         updateVisualizer();
