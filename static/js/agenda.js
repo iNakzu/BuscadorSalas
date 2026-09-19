@@ -384,9 +384,9 @@ function renderAgenda() {
     // Group events by diffDays to prevent overlapping
     let groupedEvents = {};
     list.forEach(ev => {
-        const evDate = new Date(ev.fecha);
         const todayAtMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const evDateAtMidnight = new Date(evDate.getFullYear(), evDate.getMonth(), evDate.getDate());
+        const dateParts = ev.fecha.split('T')[0].split('-');
+        const evDateAtMidnight = new Date(dateParts[0], parseInt(dateParts[1]) - 1, dateParts[2]);
         const diffDays = Math.round((evDateAtMidnight - todayAtMidnight) / (1000 * 60 * 60 * 24));
         
         if (Math.abs(diffDays) <= 30) {
@@ -434,11 +434,12 @@ function renderAgenda() {
     let html = timelineHtml;
     
     list.forEach(ev => {
-        const evDate = new Date(ev.fecha);
-        const diffTime = evDate - now;
+        const evDateRaw = new Date(ev.fecha);
+        const diffTime = evDateRaw - now;
         
         const todayAtMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const evDateAtMidnight = new Date(evDate.getFullYear(), evDate.getMonth(), evDate.getDate());
+        const dateParts = ev.fecha.split('T')[0].split('-');
+        const evDateAtMidnight = new Date(dateParts[0], parseInt(dateParts[1]) - 1, dateParts[2]);
         const diffCalendarDays = Math.round((evDateAtMidnight - todayAtMidnight) / (1000 * 60 * 60 * 24));
         
         let statusClass = 'status-safe';
