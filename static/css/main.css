@@ -782,6 +782,9 @@ header {
     justify-content: center;
     gap: 15px;
     margin-bottom: 30px;
+    margin-left: auto;
+    margin-right: auto;
+    width: fit-content;
 }
 .estudio-btn {
     padding: 14px 24px;
@@ -1277,7 +1280,7 @@ header {
 
 /* MODERN RADIO STYLES */
 .radio-card {
-    margin-top: 40px;
+    margin: 40px auto 0 auto;
     width: 100%;
     max-width: 320px;
     background: rgba(15, 23, 42, 0.6);
