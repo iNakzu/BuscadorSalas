@@ -1274,3 +1274,107 @@ header {
 .ai-spin {
     animation: ai-spin 1.5s linear infinite;
 }
+
+/* MODERN RADIO STYLES */
+.radio-card {
+    margin-top: 40px;
+    width: 100%;
+    max-width: 320px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+}
+.radio-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+.radio-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3);
+}
+.radio-title {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #f1f5f9;
+}
+.radio-subtitle {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 2px;
+}
+.radio-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 10px 14px;
+    border-radius: 12px;
+}
+.radio-btn-play {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #fff;
+    color: #0f172a;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.2s;
+}
+.radio-btn-play:hover {
+    transform: scale(1.05);
+}
+.radio-volume {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    outline: none;
+}
+.radio-volume::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #fff;
+    cursor: pointer;
+}
+
+/* VISUALIZER ANIMATION */
+.radio-visualizer {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 20px;
+}
+.radio-visualizer .bar {
+    width: 4px;
+    background: #8b5cf6;
+    border-radius: 2px;
+    animation: viz-bounce 1s ease-in-out infinite alternate;
+}
+.radio-visualizer .bar:nth-child(1) { animation-delay: 0.1s; height: 60%; }
+.radio-visualizer .bar:nth-child(2) { animation-delay: 0.3s; height: 100%; }
+.radio-visualizer .bar:nth-child(3) { animation-delay: 0.2s; height: 80%; }
+.radio-visualizer .bar:nth-child(4) { animation-delay: 0.4s; height: 50%; }
+
+@keyframes viz-bounce {
+    0% { transform: scaleY(0.3); }
+    100% { transform: scaleY(1); }
+}
