@@ -1804,10 +1804,10 @@ def api_transcribe():
         }
     }
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key={api_key}"
     try:
         req = Request(url, data=json.dumps(payload).encode('utf-8'), headers={'Content-Type': 'application/json'}, method='POST')
-        with urlopen(req, timeout=40) as response:
+        with urlopen(req, timeout=90) as response:
             res_data = json.loads(response.read().decode('utf-8'))
             parts = res_data.get('candidates', [{}])[0].get('content', {}).get('parts', [])
             texto = parts[0].get('text', '') if parts else "No se pudo transcribir el audio."
