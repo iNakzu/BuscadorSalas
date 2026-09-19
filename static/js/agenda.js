@@ -374,7 +374,46 @@ function renderAgenda() {
     
     const now = new Date();
     
-    let html = '';
+    let timelineHtml = `
+        <div class="horizontal-timeline-wrapper">
+            <div class="timeline-track">
+                <div class="timeline-center-line"></div>
+                <div class="timeline-center-mark">HOY</div>
+    `;
+
+    // Process dots for timeline
+    list.forEach(ev => {
+        const evDate = new Date(ev.fecha);
+        const todayAtMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const evDateAtMidnight = new Date(evDate.getFullYear(), evDate.getMonth(), evDate.getDate());
+        const diffDays = Math.round((evDateAtMidnight - todayAtMidnight) / (1000 * 60 * 60 * 24));
+        
+        let positionPercent = 50;
+        if (diffDays > 0) {
+            positionPercent = 50 + Math.min((diffDays / 30) * 45, 48); // max right is ~98%
+        } else if (diffDays < 0) {
+            positionPercent = 50 - Math.min((Math.abs(diffDays) / 30) * 45, 48); // max left is ~2%
+        }
+
+        let rgb = '56, 189, 248';
+        if (ev.tipo === 'Solemne') rgb = '244, 63, 94';
+        if (ev.tipo === 'Control') rgb = '251, 191, 36';
+        if (ev.tipo === 'Trabajo') rgb = '168, 85, 247';
+        if (ev.tipo === 'Presentacion') rgb = '34, 197, 94';
+
+        let extraClass = ev.completado ? 'completed' : 'pulsing';
+        // if completed but in future, just completed. If not completed but in past? still pulsing (overdue).
+        
+        timelineHtml += `<div class="h-dot ${extraClass}" style="left: ${positionPercent}%; --dot-rgb: ${rgb};" title="${ev.ramo} (${diffDays} días)"></div>`;
+    });
+
+    timelineHtml += `
+            </div>
+        </div>
+    `;
+
+    let html = timelineHtml;
+    
     list.forEach(ev => {
         const evDate = new Date(ev.fecha);
         const diffTime = evDate - now;
