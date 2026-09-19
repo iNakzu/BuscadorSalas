@@ -1067,8 +1067,8 @@ header {
 .timeline-center-line {
     position: absolute;
     left: 50%;
-    top: -6px;
-    bottom: -6px;
+    top: -5px;
+    bottom: -5px;
     width: 2px;
     background: rgba(255, 255, 255, 0.6);
     border-radius: 2px;
