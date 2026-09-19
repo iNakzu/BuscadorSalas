@@ -108,10 +108,23 @@ async function enviarChatGlobal() {
     inputEl.value = '';
     appendChatGlobalMsg('user', mensaje);
     
-    // Recopilar TODO el contexto de localStorage
+    // Recopilar TODO el contexto de localStorage y variables hardcodeadas globales
+    let amigosPerfiles = 'Vacío';
+    try {
+        if (typeof HORARIOS_GUARDADOS !== 'undefined') {
+            const temp = {};
+            for (let persona in HORARIOS_GUARDADOS) {
+                temp[persona] = HORARIOS_GUARDADOS[persona].clases.map(c => ({
+                    dia: c.diaNombre, hora: c.bloqueLabel, curso: c.curso
+                }));
+            }
+            amigosPerfiles = JSON.stringify(temp);
+        }
+    } catch(e) { }
+
     const contextoTotal = {
         malla_aprobados: localStorage.getItem('malla_udp') || 'Ninguno',
-        horario_clases: localStorage.getItem('horarioData') || 'Vacío',
+        horarios_hardcodeados_todos: amigosPerfiles,
         evaluaciones_notas: localStorage.getItem('agendaData') || 'Vacío',
         tareas_kanban: localStorage.getItem('kanban_board') || 'Vacío',
         gastos: localStorage.getItem('mis_gastos') || 'Vacío',
