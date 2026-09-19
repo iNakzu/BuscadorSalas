@@ -964,3 +964,51 @@ header {
         font-size: 16px;
     }
 }
+
+.malla-ramo-card {
+    position: relative;
+    padding: 18px 10px; /* More vertical padding for absolute numbers */
+}
+.ramo-top-right, .ramo-bottom-left, .ramo-bottom-right {
+    position: absolute;
+    font-size: 8px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.35);
+    font-variant-numeric: tabular-nums;
+    pointer-events: none;
+    transition: all 0.2s ease;
+}
+.estado-aprobado .ramo-top-right, 
+.estado-aprobado .ramo-bottom-left, 
+.estado-aprobado .ramo-bottom-right {
+    color: rgba(255, 255, 255, 0.7);
+}
+.estado-cursando .ramo-top-right, 
+.estado-cursando .ramo-bottom-left, 
+.estado-cursando .ramo-bottom-right {
+    color: rgba(251, 191, 36, 0.7);
+}
+.ramo-top-right {
+    top: 3px;
+    right: 5px;
+}
+.ramo-bottom-left {
+    bottom: 3px;
+    left: 5px;
+}
+.ramo-bottom-right {
+    bottom: 3px;
+    right: 5px;
+}
+.malla-ramo-name {
+    width: 100%;
+    text-align: center;
+    display: block;
+    margin: 0 auto;
+}
+.malla-ramo-icon {
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    transform: translateY(-50%);
+}
