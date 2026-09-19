@@ -30,7 +30,24 @@ function updateClock() {
     const dateEl = document.getElementById('reloj-date-display');
     if (dateEl) {
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        dateEl.textContent = now.toLocaleDateString('es-ES', options);
+        let dateStr = now.toLocaleDateString('es-ES', options);
+        // Capitalize first letter
+        dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+        dateEl.textContent = dateStr;
+    }
+    
+    // Update cities
+    const timeNy = document.getElementById('time-ny');
+    if (timeNy) {
+        timeNy.textContent = now.toLocaleTimeString('es-ES', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit' });
+    }
+    const timeWroclaw = document.getElementById('time-wroclaw');
+    if (timeWroclaw) {
+        timeWroclaw.textContent = now.toLocaleTimeString('es-ES', { timeZone: 'Europe/Warsaw', hour: '2-digit', minute: '2-digit' });
+    }
+    const timeTokyo = document.getElementById('time-tokyo');
+    if (timeTokyo) {
+        timeTokyo.textContent = now.toLocaleTimeString('es-ES', { timeZone: 'Asia/Tokyo', hour: '2-digit', minute: '2-digit' });
     }
 }
 
@@ -92,6 +109,18 @@ function updateRelojUI() {
     }
 }
 
+let isZenMode = false;
+
+function toggleZenMode() {
+    if (currentRelojMode !== 'clock') return;
+    isZenMode = !isZenMode;
+    const wrapper = document.querySelector('.reloj-wrapper');
+    if (wrapper) {
+        if (isZenMode) wrapper.classList.add('zen-mode');
+        else wrapper.classList.remove('zen-mode');
+    }
+}
+
 function renderReloj() {
     const container = document.getElementById('reloj-container');
     if (!container) return;
@@ -100,15 +129,37 @@ function renderReloj() {
     
     if (currentRelojMode === 'clock') {
         content = `
-            <div class="reloj-date" id="reloj-date-display">Cargando fecha...</div>
-            <div class="reloj-time" id="reloj-time-display">00:00<span class="reloj-sec">:00</span></div>
-            <div class="reloj-desc">Sincronizado con precisión (UTC-3 / Chile)</div>
+            <div class="reloj-header hide-in-zen">
+                <h2>Tu reloj está exacto.</h2>
+                <p>La precisión de sincronización es de ±0.015 segundos.<br>Hora en Santiago, Chile ahora:</p>
+            </div>
+            
+            <div class="reloj-time clickeable-time" id="reloj-time-display" onclick="toggleZenMode()">
+                00:00<span class="reloj-sec">:00</span>
+            </div>
+            
+            <div class="reloj-date hide-in-zen" id="reloj-date-display">Cargando fecha...</div>
+            
+            <div class="reloj-cities hide-in-zen">
+                <div class="city-box">
+                    <div class="city-name">Nueva York</div>
+                    <div class="city-time" id="time-ny">--:--</div>
+                </div>
+                <div class="city-box">
+                    <div class="city-name">Wrocław</div>
+                    <div class="city-time" id="time-wroclaw">--:--</div>
+                </div>
+                <div class="city-box">
+                    <div class="city-name">Tokio</div>
+                    <div class="city-time" id="time-tokyo">--:--</div>
+                </div>
+            </div>
         `;
     } else {
         content = `
-            <div class="reloj-date">Cronómetro de Alta Precisión</div>
+            <div class="reloj-date hide-in-zen" style="color:#38bdf8;">Cronómetro de Alta Precisión</div>
             <div class="reloj-time" id="reloj-time-display">00:00<span class="reloj-sec">.00</span></div>
-            <div class="estudio-controls" style="margin-top: 30px;">
+            <div class="estudio-controls hide-in-zen" style="margin-top: 30px;">
                 <button id="btn-toggle-sw" class="estudio-btn ${stopwatchRunning ? 'btn-pause' : 'btn-start'}" onclick="toggleStopwatch()">
                     ${stopwatchRunning ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-right:4px;vertical-align:-2px;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg> Pausar` : `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-right:4px;vertical-align:-2px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Iniciar`}
                 </button>
@@ -118,8 +169,8 @@ function renderReloj() {
     }
 
     container.innerHTML = `
-        <div class="reloj-wrapper">
-            <div class="estudio-mode-selector" style="margin-bottom: 50px;">
+        <div class="reloj-wrapper ${isZenMode && currentRelojMode === 'clock' ? 'zen-mode' : ''}">
+            <div class="estudio-mode-selector hide-in-zen" style="margin-bottom: 20px;">
                 <button class="mode-btn ${currentRelojMode === 'clock' ? 'active' : ''}" onclick="switchRelojMode('clock')">Hora Exacta</button>
                 <button class="mode-btn ${currentRelojMode === 'stopwatch' ? 'active' : ''}" onclick="switchRelojMode('stopwatch')">Cronómetro</button>
             </div>
