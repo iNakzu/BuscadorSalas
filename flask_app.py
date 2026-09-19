@@ -1807,12 +1807,12 @@ def api_transcribe():
     import time
     from urllib.error import HTTPError
     
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key={api_key}"
-    
-    intentos = 3
+    # Estrategia de Cascada (Fallback): Si un cluster está caído (503), saltamos instantáneamente al siguiente
+    modelos = ["gemini-3.5-flash", "gemini-3.5-flash-lite", "gemini-1.5-flash", "gemini-3.7-flash"]
     ultimo_error = ""
     
-    for intento in range(intentos):
+    for modelo in modelos:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent?key={api_key}"
         try:
             req = Request(url, data=json.dumps(payload).encode('utf-8'), headers={'Content-Type': 'application/json'}, method='POST')
             with urlopen(req, timeout=90) as response:
@@ -1822,18 +1822,16 @@ def api_transcribe():
                 return jsonify({"texto": texto})
         except HTTPError as e:
             ultimo_error = str(e)
-            if e.code in [503, 500, 502, 504, 429]:
-                print(f"Intento {intento + 1} fallido por error de servidor de IA ({e.code}). Reintentando en 2 segundos...")
-                time.sleep(2)
+            if e.code in [503, 500, 502, 504, 429, 404]:
+                print(f"El modelo {modelo} devolvió {e.code}. Saltando al siguiente modelo disponible...")
                 continue
             else:
-                return jsonify({"error": f"Error de IA: {e}"})
+                return jsonify({"error": f"Error de IA ({modelo}): {e}"})
         except Exception as e:
             ultimo_error = str(e)
-            time.sleep(2)
             continue
             
-    return jsonify({"error": f"La IA está sobrecargada (Error 503) tras {intentos} intentos. Intenta grabar de nuevo. Detalle: {ultimo_error}"})
+    return jsonify({"error": f"Todos los modelos de IA están sobrecargados o inaccesibles. Detalle final: {ultimo_error}"})
 
 @app.route("/api/chat", methods=["POST"])
 def api_chat():
