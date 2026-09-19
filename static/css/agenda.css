@@ -286,11 +286,11 @@
 
 @media (min-width: 600px) {
     .cal-dot, .cal-dot-multi {
-        width: 20px !important;
-        height: 20px !important;
+        width: 15px !important;
+        height: 15px !important;
     }
     .cal-dot-multi {
-        font-size: 13px !important;
+        font-size: 10.5px !important;
     }
     
     #cal-month-year {
@@ -301,7 +301,7 @@
         height: 28px !important;
     }
     .cal-day {
-        font-size: 24px;
+        font-size: 28px;
     }
     .cal-dots-container {
         top: 7px;
