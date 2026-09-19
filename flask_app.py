@@ -1804,16 +1804,36 @@ def api_transcribe():
         }
     }
 
+    import time
+    from urllib.error import HTTPError
+    
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key={api_key}"
-    try:
-        req = Request(url, data=json.dumps(payload).encode('utf-8'), headers={'Content-Type': 'application/json'}, method='POST')
-        with urlopen(req, timeout=90) as response:
-            res_data = json.loads(response.read().decode('utf-8'))
-            parts = res_data.get('candidates', [{}])[0].get('content', {}).get('parts', [])
-            texto = parts[0].get('text', '') if parts else "No se pudo transcribir el audio."
-            return jsonify({"texto": texto})
-    except Exception as e:
-        return jsonify({"error": str(e)})
+    
+    intentos = 3
+    ultimo_error = ""
+    
+    for intento in range(intentos):
+        try:
+            req = Request(url, data=json.dumps(payload).encode('utf-8'), headers={'Content-Type': 'application/json'}, method='POST')
+            with urlopen(req, timeout=90) as response:
+                res_data = json.loads(response.read().decode('utf-8'))
+                parts = res_data.get('candidates', [{}])[0].get('content', {}).get('parts', [])
+                texto = parts[0].get('text', '') if parts else "No se pudo transcribir el audio."
+                return jsonify({"texto": texto})
+        except HTTPError as e:
+            ultimo_error = str(e)
+            if e.code in [503, 500, 502, 504, 429]:
+                print(f"Intento {intento + 1} fallido por error de servidor de IA ({e.code}). Reintentando en 2 segundos...")
+                time.sleep(2)
+                continue
+            else:
+                return jsonify({"error": f"Error de IA: {e}"})
+        except Exception as e:
+            ultimo_error = str(e)
+            time.sleep(2)
+            continue
+            
+    return jsonify({"error": f"La IA está sobrecargada (Error 503) tras {intentos} intentos. Intenta grabar de nuevo. Detalle: {ultimo_error}"})
 
 @app.route("/api/chat", methods=["POST"])
 def api_chat():
