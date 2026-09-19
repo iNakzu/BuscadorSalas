@@ -164,10 +164,32 @@ function borrarApunte(id) {
 }
 
 function formatApunteText(texto) {
+    if (!texto) return "";
     let html = escapeHtml(texto);
-    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    
+    // Headers
+    html = html.replace(/^### (.*$)/gim, '<h3 style="color:#38bdf8; margin-top:15px; margin-bottom:8px; font-size:15px;">$1</h3>');
+    html = html.replace(/^## (.*$)/gim, '<h2 style="color:#38bdf8; margin-top:18px; margin-bottom:10px; font-size:17px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:4px;">$1</h2>');
+    html = html.replace(/^# (.*$)/gim, '<h1 style="color:#38bdf8; margin-top:20px; margin-bottom:12px; font-size:20px; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:6px;">$1</h1>');
+    
+    // Bold and Italics
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong style="color:#fff;">$1</strong>');
+    html = html.replace(/\*(.*?)\*/g, '<em style="color:#cbd5e1;">$1</em>');
+    
+    // Lists (Bullet points)
+    html = html.replace(/^\s*[-*]\s+(.*)/gim, '<li style="margin-bottom:6px; margin-left:20px; color:#e2e8f0; line-height: 1.5;">$1</li>');
+    
+    // Newlines
     html = html.replace(/\n/g, '<br>');
+    
+    // Cleanup empty breaks around block elements
+    html = html.replace(/<\/h1><br>/g, '</h1>');
+    html = html.replace(/<\/h2><br>/g, '</h2>');
+    html = html.replace(/<\/h3><br>/g, '</h3>');
+    html = html.replace(/<\/li><br>/g, '</li>');
+    html = html.replace(/<br><li/g, '<li');
+    html = html.replace(/(<br>){2,}/g, '<br><br>'); // Max two breaks
+    
     return html;
 }
 
