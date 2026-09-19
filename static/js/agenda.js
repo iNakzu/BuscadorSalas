@@ -383,7 +383,7 @@ function renderAgenda() {
 
     // Escala dinámica: 30 días en PC, 14 días en Celular
     const isMobile = window.innerWidth <= 768;
-    const maxDays = isMobile ? 16 : 30;
+    const maxDays = isMobile ? 12 : 30;
 
     // Group events by diffDays to prevent overlapping
     let groupedEvents = {};
