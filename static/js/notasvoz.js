@@ -59,7 +59,7 @@ async function toggleVozRecording() {
         
         // UI Updates
         const btn = document.getElementById('btn-record-voz');
-        btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="12" cy="12" r="10"></circle></svg><span>Iniciar Grabación</span>';
+        btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="12" cy="12" r="10"></circle></svg><span>Grabar Micrófono</span>';
         btn.style.background = 'rgba(239, 68, 68, 0.15)';
         btn.style.color = '#ef4444';
         btn.style.borderColor = 'rgba(239, 68, 68, 0.3)';
@@ -172,3 +172,60 @@ function formatApunteText(texto) {
 }
 
 document.addEventListener('DOMContentLoaded', initNotasVoz);
+
+
+async function handleAudioUpload(inputElement) {
+    const file = inputElement.files[0];
+    if (!file) return;
+    
+    // Check file size (limit to 10MB approx)
+    if (file.size > 15 * 1024 * 1024) {
+        alert("El archivo es muy pesado. Intenta con un audio de máximo 15MB.");
+        return;
+    }
+    
+    document.getElementById('voz-loading').style.display = 'block';
+    
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onloadend = async function() {
+        const base64data = reader.result.split(',')[1];
+        const mimeType = file.type || 'audio/mp3';
+        
+        try {
+            const response = await fetch('/api/transcribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    audioBase64: base64data,
+                    mimeType: mimeType
+                })
+            });
+            
+            const data = await response.json();
+            
+            document.getElementById('voz-loading').style.display = 'none';
+            inputElement.value = ''; // reset
+            
+            if (data.error) {
+                alert('Error de IA: ' + data.error);
+                return;
+            }
+            
+            misApuntes.unshift({
+                id: 'apunte_' + Date.now(),
+                fecha: Date.now(),
+                texto: data.texto,
+                duracion: 'Archivo'
+            });
+            
+            saveApuntes();
+            renderApuntesVoz();
+            
+        } catch (err) {
+            document.getElementById('voz-loading').style.display = 'none';
+            inputElement.value = '';
+            alert('Error de conexión con el servidor.');
+        }
+    }
+}
