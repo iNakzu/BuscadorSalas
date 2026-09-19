@@ -1,5 +1,5 @@
 let focusTimer = null;
-let timeLeft = 60 * 60; // 60 minutos por defecto
+let timeLeft = 30 * 60; // 30 minutos por defecto
 let isRunning = false;
 let currentMode = 'estudio'; // 'estudio' o 'descanso'
 
@@ -43,7 +43,7 @@ function resetTimer() {
     clearInterval(focusTimer);
     isRunning = false;
     localStorage.removeItem('isStudying');
-    timeLeft = currentMode === 'estudio' ? 60 * 60 : 15 * 60;
+    timeLeft = currentMode === 'estudio' ? 30 * 60 : 15 * 60;
     updateTimerDisplay();
     updateEstudioUI();
 }
@@ -53,7 +53,7 @@ function switchMode(mode) {
     isRunning = false;
     localStorage.removeItem('isStudying');
     currentMode = mode;
-    timeLeft = mode === 'estudio' ? 60 * 60 : 15 * 60;
+    timeLeft = mode === 'estudio' ? 30 * 60 : 15 * 60;
     renderEstudio();
 }
 
