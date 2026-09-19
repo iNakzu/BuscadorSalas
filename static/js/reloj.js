@@ -131,7 +131,7 @@ function renderReloj() {
         content = `
             <div class="reloj-header hide-in-zen">
                 <h2>Tu reloj está exacto.</h2>
-                <p>La precisión de sincronización es de ±0.015 segundos.<br>Hora en Santiago, Chile ahora:</p>
+                <p>La precisión de sincronización es de ±0.015 s.<br>Hora en Santiago, Chile ahora:</p>
             </div>
             
             <div class="reloj-time clickeable-time" id="reloj-time-display" onclick="toggleZenMode()">
