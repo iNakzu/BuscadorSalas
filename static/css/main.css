@@ -1021,8 +1021,9 @@ header {
 .horizontal-timeline-wrapper {
     position: relative;
     width: 100%;
-    height: 60px;
-    margin-bottom: 12px;
+    height: 40px;
+    margin-top: -10px;
+    margin-bottom: 20px;
     display: flex;
     align-items: center;
     overflow: visible;
@@ -1032,7 +1033,25 @@ header {
     width: 100%;
     height: 2px;
     background: rgba(255, 255, 255, 0.15);
-    margin: 0 4px;
+    margin: 0 8px; /* space for arrows */
+}
+.timeline-track::before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: -2px;
+    border-top: 3px solid transparent;
+    border-bottom: 3px solid transparent;
+    border-right: 4px solid rgba(255, 255, 255, 0.4);
+}
+.timeline-track::after {
+    content: '';
+    position: absolute;
+    right: -4px;
+    top: -2px;
+    border-top: 3px solid transparent;
+    border-bottom: 3px solid transparent;
+    border-left: 4px solid rgba(255, 255, 255, 0.4);
 }
 .timeline-center-mark {
     position: absolute;
@@ -1058,7 +1077,7 @@ header {
 }
 .h-dot {
     position: absolute;
-    top: -2px;
+    top: -4px;
     width: 10px;
     height: 10px;
     border-radius: 50%;
@@ -1084,7 +1103,7 @@ header {
 
 .h-dot-multi {
     position: absolute;
-    top: -4px;
+    top: -6px;
     width: 14px;
     height: 14px;
     border-radius: 50%;
