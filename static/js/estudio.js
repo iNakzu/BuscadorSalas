@@ -116,13 +116,13 @@ function renderEstudio() {
     if (!container) return;
 
     const html = `
-        <div class="estudio-wrapper">
+        <div class="estudio-wrapper" style="width:100%; max-width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;">
             <div class="focus-circle ${isRunning ? 'pulsing' : ''} ${currentMode}">
                 <div class="focus-time" id="focus-time">${formatTime(timeLeft)}</div>
                 <div class="focus-label">${currentMode === 'estudio' ? 'ENFOQUE PROFUNDO' : 'RELAJO'}</div>
             </div>
             
-            <div class="estudio-controls">
+            <div class="estudio-controls" style="display:flex; justify-content:center; align-items:center; width:100%;">
                 <button id="btn-toggle-timer" class="estudio-btn ${isRunning ? 'btn-pause' : 'btn-start'}" onclick="toggleTimer()">
                     ${isRunning ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-right:4px;vertical-align:-2px;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg> Pausar` : `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-right:4px;vertical-align:-2px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Iniciar`}
                 </button>
@@ -130,7 +130,7 @@ function renderEstudio() {
             </div>
             
             <!-- MODERN LOFI RADIO -->
-            <div class="radio-card">
+            <div class="radio-card" style="margin: 40px auto 0 auto; align-self:center;">
                 <div class="radio-header">
                     <div style="display:flex; align-items:center; gap:10px;">
                         <div class="radio-icon">
