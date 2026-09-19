@@ -138,21 +138,42 @@ function renderApuntesVoz() {
             <div class="control-card" style="position: relative;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px; margin-bottom: 12px;">
                     <div>
-                        <div style="color: #38bdf8; font-weight: 700; font-size: 14px;">Apunte Generado por IA</div>
-                        <div style="color: #94a3b8; font-size: 11px; text-transform: capitalize;">${dateStr} • Duración: ${ap.duracion} segs</div>
+                        <div style="color: #38bdf8; font-weight: 700; font-size: 14px; text-transform: capitalize;">${dateStr}</div>
+                        <div style="color: #94a3b8; font-size: 11px;">Duración: ${ap.duracion} segs</div>
                     </div>
                     <button onclick="borrarApunte('${ap.id}')" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px;" title="Eliminar apunte">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                     </button>
                 </div>
-                <div class="chat-bot-msg" style="background: transparent; border: none; padding: 0; color: #e2e8f0; font-size: 13px; max-width: 100%;">
+                <div id="content-${ap.id}" class="chat-bot-msg" style="background: transparent; border: none; padding: 0; color: #e2e8f0; font-size: 13px; max-width: 100%; max-height: 120px; overflow: hidden; position: relative; transition: max-height 0.3s ease;">
                     ${formatApunteText(ap.texto)}
+                    <div id="gradient-${ap.id}" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 60px; background: linear-gradient(transparent, #0f172a); pointer-events: none;"></div>
                 </div>
+                <button id="btn-${ap.id}" onclick="toggleApunte('${ap.id}')" style="width: 100%; margin-top: 12px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; display: flex; justify-content: center; align-items: center; gap: 6px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    Ver transcripción completa
+                </button>
             </div>
         `;
     });
     
     container.innerHTML = html;
+}
+
+function toggleApunte(id) {
+    const content = document.getElementById('content-' + id);
+    const gradient = document.getElementById('gradient-' + id);
+    const btn = document.getElementById('btn-' + id);
+    
+    if (content.style.maxHeight === '120px' || content.style.maxHeight === '') {
+        content.style.maxHeight = 'none'; // sufficiently large for animation
+        gradient.style.display = 'none';
+        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg> Ocultar transcripción';
+    } else {
+        content.style.maxHeight = '120px';
+        gradient.style.display = 'block';
+        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg> Ver transcripción completa';
+    }
 }
 
 function borrarApunte(id) {
