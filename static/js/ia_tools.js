@@ -78,25 +78,57 @@ function renderMarkdownChat(texto) {
 
 function appendChatGlobalMsg(role, text) {
     const container = document.getElementById('chatglobal-messages');
-    const msgDiv = document.createElement('div');
+    const wrapper = document.createElement('div');
     
     if (role === 'user') {
-        msgDiv.className = 'chat-user-msg';
-        msgDiv.style.alignSelf = 'flex-end';
-        msgDiv.style.maxWidth = '85%';
-        msgDiv.style.background = '#38bdf8';
-        msgDiv.style.color = '#0f172a';
-        msgDiv.style.padding = '10px 14px';
-        msgDiv.style.borderRadius = '14px 14px 0 14px';
-        msgDiv.innerText = text;
+        wrapper.style.display = 'flex';
+        wrapper.style.justifyContent = 'flex-end';
+        wrapper.style.width = '100%';
+        
+        const bubble = document.createElement('div');
+        bubble.style.background = '#e2e8f0';
+        bubble.style.color = '#0f172a';
+        bubble.style.padding = '12px 16px';
+        bubble.style.borderRadius = '18px 18px 4px 18px';
+        bubble.style.fontSize = '15px';
+        bubble.style.lineHeight = '1.5';
+        bubble.style.maxWidth = '85%';
+        bubble.innerText = text;
+        
+        wrapper.appendChild(bubble);
     } else {
-        msgDiv.className = 'chat-bot-msg';
-        msgDiv.style.alignSelf = 'flex-start';
-        msgDiv.style.maxWidth = '90%';
-        msgDiv.innerHTML = renderMarkdownChat(text);
+        wrapper.style.display = 'flex';
+        wrapper.style.gap = '12px';
+        wrapper.style.alignItems = 'flex-start';
+        wrapper.style.width = '100%';
+        
+        const avatar = document.createElement('div');
+        avatar.style.width = '32px';
+        avatar.style.height = '32px';
+        avatar.style.borderRadius = '50%';
+        avatar.style.background = 'linear-gradient(135deg, #38bdf8, #8b5cf6)';
+        avatar.style.display = 'flex';
+        avatar.style.alignItems = 'center';
+        avatar.style.justifyContent = 'center';
+        avatar.style.flexShrink = '0';
+        avatar.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>';
+        
+        const bubble = document.createElement('div');
+        bubble.style.background = 'rgba(30, 41, 59, 0.7)';
+        bubble.style.border = '1px solid rgba(255,255,255,0.05)';
+        bubble.style.padding = '14px 18px';
+        bubble.style.borderRadius = '4px 18px 18px 18px';
+        bubble.style.color = '#e2e8f0';
+        bubble.style.fontSize = '15px';
+        bubble.style.lineHeight = '1.5';
+        bubble.style.maxWidth = '90%';
+        bubble.innerHTML = renderMarkdownChat(text);
+        
+        wrapper.appendChild(avatar);
+        wrapper.appendChild(bubble);
     }
     
-    container.appendChild(msgDiv);
+    container.appendChild(wrapper);
     container.scrollTop = container.scrollHeight;
 }
 
@@ -134,9 +166,33 @@ async function enviarChatGlobal() {
     // Añadir mensaje de loading
     const container = document.getElementById('chatglobal-messages');
     const loadingDiv = document.createElement('div');
-    loadingDiv.className = 'chat-bot-msg';
-    loadingDiv.style.alignSelf = 'flex-start';
-    loadingDiv.innerHTML = '<span style="color:#38bdf8;">Analizando todos tus datos...</span>';
+    loadingDiv.id = 'chatglobal-loading';
+    loadingDiv.style.display = 'flex';
+    loadingDiv.style.gap = '12px';
+    loadingDiv.style.alignItems = 'flex-start';
+    
+    const avatar = document.createElement('div');
+    avatar.style.width = '32px';
+    avatar.style.height = '32px';
+    avatar.style.borderRadius = '50%';
+    avatar.style.background = 'linear-gradient(135deg, #38bdf8, #8b5cf6)';
+    avatar.style.display = 'flex';
+    avatar.style.alignItems = 'center';
+    avatar.style.justifyContent = 'center';
+    avatar.style.flexShrink = '0';
+    avatar.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>';
+    
+    const bubble = document.createElement('div');
+    bubble.style.background = 'rgba(30, 41, 59, 0.7)';
+    bubble.style.border = '1px solid rgba(255,255,255,0.05)';
+    bubble.style.padding = '14px 18px';
+    bubble.style.borderRadius = '4px 18px 18px 18px';
+    bubble.style.color = '#94a3b8';
+    bubble.style.fontSize = '15px';
+    bubble.innerHTML = '<span style="animation: pulse-red 1.5s infinite;">Pensando...</span>';
+    
+    loadingDiv.appendChild(avatar);
+    loadingDiv.appendChild(bubble);
     container.appendChild(loadingDiv);
     container.scrollTop = container.scrollHeight;
     
