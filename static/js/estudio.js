@@ -101,10 +101,7 @@ function renderEstudio() {
                 <button class="estudio-btn btn-reset" onclick="resetTimer()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:-2px;"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg> Reiniciar</button>
             </div>
             
-            <div class="estudio-social-box">
-                <div class="social-title">Estado Social</div>
-                <div class="social-desc">Mientras el cronómetro corre, tus amigos verán una insignia especial en tu perfil de horario.</div>
-            </div>
+            
         </div>
     `;
     container.innerHTML = html;
