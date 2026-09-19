@@ -157,7 +157,6 @@ function renderReloj() {
         `;
     } else {
         content = `
-            <div class="reloj-date hide-in-zen" style="color:#38bdf8;">Cronómetro de Alta Precisión</div>
             <div class="reloj-time" id="reloj-time-display">00:00<span class="reloj-sec">.00</span></div>
             <div class="estudio-controls hide-in-zen" style="margin-top: 30px;">
                 <button id="btn-toggle-sw" class="estudio-btn ${stopwatchRunning ? 'btn-pause' : 'btn-start'}" onclick="toggleStopwatch()">
