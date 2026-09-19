@@ -1005,6 +1005,8 @@ header {
     text-align: center;
     display: block;
     margin: 0 auto;
+    padding: 0 16px;
+    word-break: break-word;
 }
 .malla-ramo-icon {
     position: absolute;
