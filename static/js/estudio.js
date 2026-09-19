@@ -141,10 +141,14 @@ function renderEstudio() {
                         </div>
                         <div>
                             <div class="radio-title">Lofi Beats Radio</div>
-                            <div class="radio-subtitle">En directo • laut.fm</div>
+                            <div class="radio-subtitle">Chill & Focus 24/7</div>
                         </div>
                     </div>
                     <div class="radio-visualizer" id="radio-visualizer" style="opacity: ${isRadioPlaying ? '1' : '0.2'};">
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
                         <div class="bar"></div>
                         <div class="bar"></div>
                         <div class="bar"></div>
