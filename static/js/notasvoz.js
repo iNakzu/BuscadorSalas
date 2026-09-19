@@ -139,7 +139,7 @@ function renderApuntesVoz() {
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px; margin-bottom: 12px;">
                     <div>
                         <div style="color: #38bdf8; font-weight: 700; font-size: 14px; text-transform: capitalize;">${dateStr}</div>
-                        <div style="color: #94a3b8; font-size: 11px;">Duración: ${ap.duracion} segs</div>
+                        <div style="color: #94a3b8; font-size: 11px;">${ap.duracion === 'Archivo' ? 'Archivo adjunto' : 'Grabación: ' + ap.duracion + ' segs'}</div>
                     </div>
                     <button onclick="borrarApunte('${ap.id}')" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px;" title="Eliminar apunte">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
