@@ -822,3 +822,20 @@ header {
     color: #64748b;
     margin-top: 20px;
 }
+
+@media (min-width: 768px) {
+    .reloj-time {
+        font-size: 160px;
+    }
+    .reloj-sec {
+        font-size: 80px;
+    }
+    .reloj-date {
+        font-size: 24px;
+        margin-bottom: 30px;
+    }
+    .reloj-desc {
+        font-size: 18px;
+        margin-top: 30px;
+    }
+}
