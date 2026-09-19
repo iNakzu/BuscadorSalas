@@ -611,7 +611,8 @@ header {
     justify-content: space-between;
     align-items: center;
     transition: all 0.2s ease;
-    min-height: 60px;
+    height: 85px;
+    box-sizing: border-box;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 .malla-ramo-name {
@@ -973,6 +974,8 @@ header {
 .malla-ramo-card {
     position: relative;
     padding: 18px 10px; /* More vertical padding for absolute numbers */
+    height: 85px !important;
+    box-sizing: border-box;
 }
 .ramo-top-right, .ramo-bottom-left, .ramo-bottom-right {
     position: absolute;
