@@ -82,13 +82,6 @@ function renderEstudio() {
 
     const html = `
         <div class="estudio-wrapper">
-            <div class="estudio-header">
-                <h2>Modo Estudio En Vivo</h2>
-                <p>Silencia distracciones y enfócate. Al iniciar, tus amigos verán que estás estudiando.</p>
-            </div>
-            
-
-            
             <div class="focus-circle ${isRunning ? 'pulsing' : ''} ${currentMode}">
                 <div class="focus-time" id="focus-time">${formatTime(timeLeft)}</div>
                 <div class="focus-label">${currentMode === 'estudio' ? 'ENFOQUE PROFUNDO' : 'RELAJO'}</div>
