@@ -682,15 +682,16 @@ header {
    MODO ESTUDIO (POMODORO)
    ========================================= */
 .estudio-wrapper {
-    max-width: 400px;
+    width: 100%;
+    max-width: 100%;
     margin: 0 auto;
-    text-align: center;
-    min-height: calc(100vh - 150px);
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    padding: 20px 10px;
+    justify-content: center;
+    min-height: 75vh;
+    padding-top: 5vh;
+    padding-bottom: 20px;
 }
 .estudio-header h2 {
     font-size: 24px;
@@ -956,6 +957,10 @@ header {
 }
 
 @media (min-width: 768px) {
+    .estudio-wrapper {
+        min-height: 60vh;
+        padding-top: 0;
+    }
     .focus-circle {
         width: 400px;
         height: 400px;

@@ -149,7 +149,7 @@ function renderEstudio() {
     if (!container) return;
 
     const html = `
-        <div class="estudio-wrapper" style="width:100%; max-width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:80vh; padding-top: 5vh;">
+        <div class="estudio-wrapper">
             <div class="focus-circle ${isRunning ? 'pulsing' : ''} ${currentMode}">
                 <div class="focus-time" id="focus-time">${formatTime(timeLeft)}</div>
                 <div class="focus-label">${currentMode === 'estudio' ? 'ENFOQUE PROFUNDO' : 'RELAJO'}</div>
