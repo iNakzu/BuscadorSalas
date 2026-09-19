@@ -91,7 +91,7 @@ function renderCalendar() {
     
     const prevMonthLastDay = new Date(currentCalYear, currentCalMonth, 0).getDate();
     
-    let html = '';
+    let html = '<div class="agenda-timeline-container">';
     const today = new Date();
     
     // Días del mes anterior (vacíos o deshabilitados)
@@ -146,6 +146,7 @@ function renderCalendar() {
         html += `<div class="cal-day empty"></div>`;
     }
     
+    html += '</div>';
     container.innerHTML = html;
 }
 
@@ -374,7 +375,7 @@ function renderAgenda() {
     
     const now = new Date();
     
-    let html = '';
+    let html = '<div class="agenda-timeline-container">';
     list.forEach(ev => {
         const evDate = new Date(ev.fecha);
         const diffTime = evDate - now;
@@ -411,63 +412,73 @@ function renderAgenda() {
             }
         }
         
-        let iconHtml = '';
-        if (ev.tipo === 'Solemne') iconHtml = '<div class="cal-dot solemne"></div>';
-        if (ev.tipo === 'Control') iconHtml = '<div class="cal-dot control"></div>';
-        if (ev.tipo === 'Trabajo') iconHtml = '<div class="cal-dot trabajo"></div>';
-        if (ev.tipo === 'Presentacion') iconHtml = '<div class="cal-dot presentacion"></div>';
+        let tipoClass = ev.tipo.toLowerCase().replace('ó', 'o');
+        let pulsingClass = ev.completado ? '' : 'pulsing';
+        
+        let rgb = '56, 189, 248'; // default cyan
+        if (ev.tipo === 'Solemne') rgb = '244, 63, 94';
+        if (ev.tipo === 'Control') rgb = '251, 191, 36';
+        if (ev.tipo === 'Trabajo') rgb = '168, 85, 247';
+        if (ev.tipo === 'Presentacion') rgb = '34, 197, 94';
         
         html += `
-            <div class="agenda-card ${ev.completado ? 'is-completed' : ''}">
-                <div class="agenda-check-wrapper" style="display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 2px;">
-                    <button class="agenda-checkbox-btn" onclick="toggleCompletado('${ev.id}')" title="Marcar como completado" style="margin: 0;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                    </button>
-                    <div class="mobile-agenda-dot">${iconHtml}</div>
+            <div class="timeline-item">
+                <div class="timeline-node">
+                    <div class="timeline-dot ${tipoClass} ${pulsingClass}" style="--dot-rgb: ${rgb};"></div>
+                    <div class="timeline-line"></div>
                 </div>
-                
-                <div class="agenda-content">
-                    <div class="agenda-title" style="display: flex; align-items: center; gap: 12px; min-width: 0;">
-                        
-                        <div style="display: flex; flex-direction: column; min-width: 0; width: 100%;">
-                            <div style="font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #f8fafc;">${ev.ramo}</div>
-                            <div style="font-size: 13px; color: #94a3b8; font-weight: 500; margin-top: 2px;">${ev.tipo}</div>
+                <div class="timeline-content">
+                    <div class="agenda-card ${ev.completado ? 'is-completed' : ''}">
+                        <div class="agenda-check-wrapper" style="display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 2px;">
+                            <button class="agenda-checkbox-btn" onclick="toggleCompletado('${ev.id}')" title="Marcar como completado" style="margin: 0;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </button>
                         </div>
-                    </div>
-                    <div class="agenda-meta">
-                        <span class="desktop-agenda-date" style="white-space: nowrap;">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                            ${formatearFecha(ev.fecha, ev.hasTime)}
-                        </span>
-                        ${ev.notas ? `
-                        <span style="width: 100%; min-width: 0; display: flex; align-items: center; overflow: hidden;">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-right: 4px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                            <span style="display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1; max-width: 100%;">${ev.notas}</span>
-                        </span>` : ''}
-                    </div>
-                </div>
-                
-                <div class="agenda-card-right" style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
-                    <div class="agenda-status-pill ${statusClass}" style="white-space: nowrap; ${ev.completado ? 'background:rgba(255,255,255,0.1); color:#94a3b8; border:1px solid rgba(255,255,255,0.1)' : ''}">
-                        ${statusText}
-                    </div>
-                    <span class="mobile-agenda-date" style="display: none; color: #94a3b8; font-size: 13px; align-items: center; gap: 4px; white-space: nowrap;">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                        ${formatearFecha(ev.fecha, ev.hasTime)}
-                    </span>
-                    <div class="agenda-actions">
-                        <button class="agenda-btn-icon" onclick="abrirModalAgenda('${ev.id}')" title="Editar">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                        </button>
-                        <button class="agenda-btn-icon delete" onclick="eliminarEventoAgenda('${ev.id}')" title="Eliminar">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                        </button>
+                        
+                        <div class="agenda-content-inner">
+                            <div class="agenda-title" style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+                                <div style="display: flex; flex-direction: column; min-width: 0; width: 100%;">
+                                    <div style="font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #f8fafc;">${ev.ramo}</div>
+                                    <div style="font-size: 13px; color: #94a3b8; font-weight: 500; margin-top: 2px;">${ev.tipo}</div>
+                                </div>
+                            </div>
+                            <div class="agenda-meta">
+                                <span class="desktop-agenda-date" style="white-space: nowrap;">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                    ${formatearFecha(ev.fecha, ev.hasTime)}
+                                </span>
+                                ${ev.notas ? `
+                                <span style="width: 100%; min-width: 0; display: flex; align-items: center; overflow: hidden;">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-right: 4px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                                    <span style="display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1; max-width: 100%;">${ev.notas}</span>
+                                </span>` : ''}
+                            </div>
+                        </div>
+                        
+                        <div class="agenda-card-right" style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+                            <div class="agenda-status-pill ${statusClass}" style="white-space: nowrap; ${ev.completado ? 'background:rgba(255,255,255,0.1); color:#94a3b8; border:1px solid rgba(255,255,255,0.1)' : ''}">
+                                ${statusText}
+                            </div>
+                            <span class="mobile-agenda-date" style="display: none; color: #94a3b8; font-size: 13px; align-items: center; gap: 4px; white-space: nowrap;">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                ${formatearFecha(ev.fecha, ev.hasTime)}
+                            </span>
+                            <div class="agenda-actions">
+                                <button class="agenda-btn-icon" onclick="abrirModalAgenda('${ev.id}')" title="Editar">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                </button>
+                                <button class="agenda-btn-icon delete" onclick="eliminarEventoAgenda('${ev.id}')" title="Eliminar">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         `;
     });
     
+    html += '</div>';
     container.innerHTML = html;
 }
 
