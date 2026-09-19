@@ -53,18 +53,526 @@ const RAMO_COLORS = {
 };
 
 const MALLA_MOCK = [
-    { sem: 1, cursos: ["Álgebra y Geometría", "Cálculo I", "Química", "Programación", "Comunicación para la Ingeniería"] },
-    { sem: 2, cursos: ["Álgebra Lineal", "Cálculo II", "Mecánica", "Programación Avanzada", "Curso de Formación General (II)"] },
-    { sem: 3, cursos: ["Ecuaciones Diferenciales", "Cálculo III", "Calor y Ondas", "Estructuras de Datos y Algoritmos", "Redes de Datos"] },
-    { sem: 4, cursos: ["Probabilidades y Estadísticas", "Electrónica y Electrotecnia", "Electricidad y Magnetismo", "Bases de Datos", "Desarrollo Web y Móvil", "Inglés I"] },
-    { sem: 5, cursos: ["Optimización", "Taller de Redes y Servicios", "Proyecto en TICs I", "Bases de Datos Avanzadas", "Curso de Formación General (V)", "Inglés II", "Práctica Profesional I"] },
-    { sem: 6, cursos: ["Contabilidad y Costos", "Arquitectura y Organización de Computadores", "Señales y Sistemas", "Sistemas Operativos", "Curso de Formación General (VI)", "Inglés III"] },
-    { sem: 7, cursos: ["Gestión Organizacional", "Sistemas Distribuidos", "Comunicaciones Digitales", "Ingeniería de Software", "Curso de Formación General (VII)"] },
-    { sem: 8, cursos: ["Introducción a la Economía", "Tecnologías Inalámbricas", "Criptografía y Seguridad en Redes", "Inteligencia Artificial", "Evaluación de Proyectos TIC", "Práctica Profesional II"] },
-    { sem: 9, cursos: ["Electivo Profesional", "Arquitecturas Emergentes", "Electivo Profesional", "Arquitectura de Software", "Data Science"] },
-    { sem: 10, cursos: ["Electivo Profesional", "Electivo Profesional", "Electivo Profesional", "Electivo Profesional", "Proyecto en TICs II"] },
-    { sem: 11, cursos: ["Actividad de Titulación", "Opción Magíster"] }
-];
+    {
+        "sem": 1,
+        "cursos": [
+            {
+                "id": "1",
+                "name": "Álgebra y Geometría",
+                "cred": "7",
+                "reqs": []
+            },
+            {
+                "id": "2",
+                "name": "Cálculo I",
+                "cred": "7",
+                "reqs": []
+            },
+            {
+                "id": "3",
+                "name": "Química",
+                "cred": "6",
+                "reqs": []
+            },
+            {
+                "id": "4",
+                "name": "Programación",
+                "cred": "6",
+                "reqs": []
+            },
+            {
+                "id": "5",
+                "name": "Comunicación para la Ingeniería",
+                "cred": "5",
+                "reqs": []
+            }
+        ]
+    },
+    {
+        "sem": 2,
+        "cursos": [
+            {
+                "id": "6",
+                "name": "Álgebra Lineal",
+                "cred": "6",
+                "reqs": [
+                    "1"
+                ]
+            },
+            {
+                "id": "7",
+                "name": "Cálculo II",
+                "cred": "7",
+                "reqs": [
+                    "2"
+                ]
+            },
+            {
+                "id": "8",
+                "name": "Mecánica",
+                "cred": "7",
+                "reqs": [
+                    "2"
+                ]
+            },
+            {
+                "id": "9",
+                "name": "Programación Avanzada",
+                "cred": "6",
+                "reqs": [
+                    "4"
+                ]
+            },
+            {
+                "id": "10",
+                "name": "Curso de Formación General",
+                "cred": "5",
+                "reqs": [
+                    "SC"
+                ]
+            }
+        ]
+    },
+    {
+        "sem": 3,
+        "cursos": [
+            {
+                "id": "11",
+                "name": "Ecuaciones Diferenciales",
+                "cred": "6",
+                "reqs": [
+                    "6",
+                    "7"
+                ]
+            },
+            {
+                "id": "12",
+                "name": "Cálculo III",
+                "cred": "6",
+                "reqs": [
+                    "7"
+                ]
+            },
+            {
+                "id": "13",
+                "name": "Calor y Ondas",
+                "cred": "7",
+                "reqs": [
+                    "7",
+                    "8"
+                ]
+            },
+            {
+                "id": "14",
+                "name": "Estructura de Datos y Algoritmos",
+                "cred": "6",
+                "reqs": [
+                    "9"
+                ]
+            },
+            {
+                "id": "15",
+                "name": "Redes de Datos",
+                "cred": "6",
+                "reqs": [
+                    "9"
+                ]
+            }
+        ]
+    },
+    {
+        "sem": 4,
+        "cursos": [
+            {
+                "id": "16",
+                "name": "Probabilidades y Estadísticas",
+                "cred": "6",
+                "reqs": [
+                    "7"
+                ]
+            },
+            {
+                "id": "17",
+                "name": "Electrónica y Electrotecnia",
+                "cred": "6",
+                "reqs": [
+                    "8",
+                    "11",
+                    "12"
+                ]
+            },
+            {
+                "id": "18",
+                "name": "Electricidad y Magnetismo",
+                "cred": "7",
+                "reqs": [
+                    "11",
+                    "12"
+                ]
+            },
+            {
+                "id": "19",
+                "name": "Bases de Datos",
+                "cred": "6",
+                "reqs": [
+                    "14"
+                ]
+            },
+            {
+                "id": "20",
+                "name": "Desarrollo Web y Móvil",
+                "cred": "6",
+                "reqs": [
+                    "9"
+                ]
+            },
+            {
+                "id": "21",
+                "name": "Inglés I",
+                "cred": "5",
+                "reqs": []
+            }
+        ]
+    },
+    {
+        "sem": 5,
+        "cursos": [
+            {
+                "id": "22",
+                "name": "Optimización",
+                "cred": "6",
+                "reqs": [
+                    "6",
+                    "12"
+                ]
+            },
+            {
+                "id": "23",
+                "name": "Taller de Redes y Servicios",
+                "cred": "6",
+                "reqs": [
+                    "15",
+                    "16"
+                ]
+            },
+            {
+                "id": "24",
+                "name": "Proyecto en TICs I",
+                "cred": "6",
+                "reqs": [
+                    "15",
+                    "20"
+                ]
+            },
+            {
+                "id": "25",
+                "name": "Bases de Datos Avanzadas",
+                "cred": "6",
+                "reqs": [
+                    "19"
+                ]
+            },
+            {
+                "id": "26",
+                "name": "Curso de Formación General",
+                "cred": "5",
+                "reqs": [
+                    "SC"
+                ]
+            },
+            {
+                "id": "27",
+                "name": "Inglés II",
+                "cred": "5",
+                "reqs": [
+                    "21"
+                ]
+            },
+            {
+                "id": "54",
+                "name": "Práctica Profesional I",
+                "cred": "7",
+                "reqs": [
+                    "4S"
+                ]
+            }
+        ]
+    },
+    {
+        "sem": 6,
+        "cursos": [
+            {
+                "id": "28",
+                "name": "Contabilidad y Costos",
+                "cred": "6",
+                "reqs": [
+                    "2"
+                ]
+            },
+            {
+                "id": "29",
+                "name": "Arquitectura y Organización de Computadores",
+                "cred": "6",
+                "reqs": [
+                    "15",
+                    "17"
+                ]
+            },
+            {
+                "id": "30",
+                "name": "Señales y Sistemas",
+                "cred": "6",
+                "reqs": [
+                    "13",
+                    "17"
+                ]
+            },
+            {
+                "id": "31",
+                "name": "Sistemas Operativos",
+                "cred": "6",
+                "reqs": [
+                    "14",
+                    "23"
+                ]
+            },
+            {
+                "id": "32",
+                "name": "Curso de Formación General",
+                "cred": "5",
+                "reqs": [
+                    "SC"
+                ]
+            },
+            {
+                "id": "33",
+                "name": "Inglés III",
+                "cred": "5",
+                "reqs": [
+                    "27"
+                ]
+            }
+        ]
+    },
+    {
+        "sem": 7,
+        "cursos": [
+            {
+                "id": "34",
+                "name": "Gestión Organizacional",
+                "cred": "6",
+                "reqs": [
+                    "54"
+                ]
+            },
+            {
+                "id": "35",
+                "name": "Sistemas Distribuidos",
+                "cred": "6",
+                "reqs": [
+                    "15",
+                    "31"
+                ]
+            },
+            {
+                "id": "36",
+                "name": "Comunicaciones Digitales",
+                "cred": "6",
+                "reqs": [
+                    "18",
+                    "30"
+                ]
+            },
+            {
+                "id": "37",
+                "name": "Ingeniería de Software",
+                "cred": "6",
+                "reqs": [
+                    "19",
+                    "24"
+                ]
+            },
+            {
+                "id": "38",
+                "name": "Curso de Formación General",
+                "cred": "5",
+                "reqs": [
+                    "SC"
+                ]
+            }
+        ]
+    },
+    {
+        "sem": 8,
+        "cursos": [
+            {
+                "id": "39",
+                "name": "Introducción a la Economía",
+                "cred": "6",
+                "reqs": [
+                    "7"
+                ]
+            },
+            {
+                "id": "40",
+                "name": "Tecnologías Inalámbricas",
+                "cred": "6",
+                "reqs": [
+                    "36"
+                ]
+            },
+            {
+                "id": "41",
+                "name": "Criptografía y Seguridad en Redes",
+                "cred": "6",
+                "reqs": [
+                    "23"
+                ]
+            },
+            {
+                "id": "42",
+                "name": "Inteligencia Artificial",
+                "cred": "6",
+                "reqs": [
+                    "16",
+                    "19",
+                    "22"
+                ]
+            },
+            {
+                "id": "43",
+                "name": "Evaluación de Proyectos TIC",
+                "cred": "6",
+                "reqs": [
+                    "28",
+                    "34",
+                    "37"
+                ]
+            },
+            {
+                "id": "55",
+                "name": "Práctica Profesional II",
+                "cred": "7",
+                "reqs": [
+                    "8S"
+                ]
+            }
+        ]
+    },
+    {
+        "sem": 9,
+        "cursos": [
+            {
+                "id": "44",
+                "name": "Electivo Profesional",
+                "cred": "6",
+                "reqs": [
+                    "SC"
+                ]
+            },
+            {
+                "id": "45",
+                "name": "Arquitecturas Emergentes",
+                "cred": "6",
+                "reqs": [
+                    "35"
+                ]
+            },
+            {
+                "id": "46",
+                "name": "Electivo Profesional",
+                "cred": "6",
+                "reqs": [
+                    "SC"
+                ]
+            },
+            {
+                "id": "47",
+                "name": "Arquitectura de Software",
+                "cred": "6",
+                "reqs": [
+                    "37"
+                ]
+            },
+            {
+                "id": "48",
+                "name": "Data Science",
+                "cred": "6",
+                "reqs": [
+                    "25",
+                    "42"
+                ]
+            }
+        ]
+    },
+    {
+        "sem": 10,
+        "cursos": [
+            {
+                "id": "49",
+                "name": "Electivo Profesional",
+                "cred": "7",
+                "reqs": [
+                    "SC"
+                ]
+            },
+            {
+                "id": "50",
+                "name": "Electivo Profesional",
+                "cred": "6",
+                "reqs": [
+                    "SC"
+                ]
+            },
+            {
+                "id": "51",
+                "name": "Electivo Profesional",
+                "cred": "6",
+                "reqs": [
+                    "SC"
+                ]
+            },
+            {
+                "id": "52",
+                "name": "Electivo Profesional",
+                "cred": "6",
+                "reqs": [
+                    "SC"
+                ]
+            },
+            {
+                "id": "53",
+                "name": "Proyecto en TICs II",
+                "cred": "6",
+                "reqs": [
+                    "43"
+                ]
+            }
+        ]
+    },
+    {
+        "sem": 11,
+        "cursos": [
+            {
+                "id": "56",
+                "name": "Actividad de Titulación",
+                "cred": "-",
+                "reqs": [
+                    "SC"
+                ]
+            },
+            {
+                "id": "57",
+                "name": "Opción Magíster",
+                "cred": "-",
+                "reqs": [
+                    "SC"
+                ]
+            }
+        ]
+    }
+]
+;
 
 let progresoState = {};
 
@@ -76,12 +584,61 @@ function initProgreso() {
     renderProgreso();
 }
 
-function toggleRamoEstado(ramo) {
-    // Estados: 0: pendiente (gris), 1: cursando (amarillo), 2: aprobado (verde)
-    let estado = progresoState[ramo] || 0;
+function revertDependents(id) {
+    for (let s of MALLA_MOCK) {
+        for (let c of s.cursos) {
+            if (progresoState[c.id] && c.reqs.includes(id)) {
+                delete progresoState[c.id];
+                revertDependents(c.id);
+            }
+        }
+    }
+}
+
+function toggleRamoEstado(id) {
+    let course = null;
+    for (let s of MALLA_MOCK) {
+        for (let c of s.cursos) {
+            if (c.id === id) { course = c; break; }
+        }
+        if (course) break;
+    }
+    if (!course) return;
+
+    let reqsMet = true;
+    let missingReqs = [];
+    for (let reqId of course.reqs) {
+        if (reqId === "SC" || reqId === "4S" || reqId === "8S") continue;
+        if (progresoState[reqId] !== 2) {
+            reqsMet = false;
+            missingReqs.push(reqId);
+        }
+    }
+    
+    let estado = progresoState[id] || 0;
+    
+    if (estado === 0 && !reqsMet) {
+        // Find names of missing reqs for alert
+        let missingNames = [];
+        for (let rId of missingReqs) {
+            for (let s of MALLA_MOCK) {
+                for (let c of s.cursos) {
+                    if (c.id === rId) missingNames.push(c.name);
+                }
+            }
+        }
+        if ('vibrate' in navigator) navigator.vibrate(200);
+        alert(`🔒 Requisitos pendientes:\nNo puedes tomar este ramo porque no has aprobado:\n- ${missingNames.join('\n- ')}`);
+        return;
+    }
+    
     estado = (estado + 1) % 3;
-    if (estado === 0) delete progresoState[ramo];
-    else progresoState[ramo] = estado;
+    if (estado === 0) {
+        delete progresoState[id];
+        revertDependents(id);
+    } else {
+        progresoState[id] = estado;
+    }
     
     localStorage.setItem('mi_progreso_v1', JSON.stringify(progresoState));
     renderProgreso();
@@ -105,17 +662,10 @@ function renderProgreso() {
     MALLA_MOCK.forEach(s => {
         gridHtml += `<div class="malla-columna"><div class="malla-sem-title">Semestre ${s.sem}</div>`;
         
-        let counts = {};
-        s.cursos.forEach((c, idx) => {
+        s.cursos.forEach((c) => {
             totalRamos++;
             
-            // Handle duplicate names (like "Electivo Profesional") by appending an index to the state key
-            counts[c] = (counts[c] || 0) + 1;
-            let stateKey = c;
-            if (c === "Electivo Profesional" || c.startsWith("Curso de Formación")) {
-                stateKey = `${c}_${s.sem}_${counts[c]}`;
-            }
-
+            const stateKey = c.id;
             const est = progresoState[stateKey] || 0;
             if (est === 2) aprobados++;
             if (est === 1) cursando++;
@@ -123,7 +673,7 @@ function renderProgreso() {
             let statusClass = 'estado-pendiente';
             let icon = '';
             
-            const cleanName = c.replace(/\s\([IVX]+\)$/, '');
+            const cleanName = c.name.replace(/\s\([IVX]+\)$/, '');
             const rgb = RAMO_COLORS[cleanName] || "200, 200, 200";
 
             if (est === 1) { 
@@ -135,9 +685,15 @@ function renderProgreso() {
                 icon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color: rgba(${rgb}, 1);" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`; 
             }
 
+            let reqStr = c.reqs.join(',');
+            if (!reqStr) reqStr = '-';
+
             gridHtml += `
                 <div class="malla-ramo-card ${statusClass}" onclick="toggleRamoEstado('${stateKey}')" style="--ramo-color: ${rgb};">
+                    <div class="ramo-top-right">${c.cred}</div>
                     <span class="malla-ramo-name">${cleanName}</span>
+                    <div class="ramo-bottom-left">${c.id}</div>
+                    <div class="ramo-bottom-right">${reqStr}</div>
                     ${icon ? `<span class="malla-ramo-icon">${icon}</span>` : ''}
                 </div>
             `;
