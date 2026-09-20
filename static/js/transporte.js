@@ -116,10 +116,10 @@ async function cargarDatosTransporte() {
             `;
         }
 
-        // 2. Renderizar Líneas de Metro con acordeón/despliegue técnico
+        // 2. Renderizar Líneas de Metro con acordeón interactivo y detalles técnicos
         if (lineasGrid && Array.isArray(data.lineas_metro)) {
             let html = '';
-            data.lineas_metro.forEach((l, idx) => {
+            data.lineas_metro.forEach((l) => {
                 const combHtml = (l.combinaciones || []).map(c => `
                     <span style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 2px 7px; font-size: 10.5px; color: #cbd5e1;">${escapeHtmlTrans(c)}</span>
                 `).join('');
@@ -127,37 +127,37 @@ async function cargarDatosTransporte() {
                 const estHtml = (l.principales_estaciones || []).join(' ➔ ');
 
                 html += `
-                    <div style="background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; overflow: hidden; transition: all 0.2s ease;">
-                        <div onclick="toggleLineaDetalle('${l.linea}')" style="padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; gap: 12px; background: rgba(30, 41, 59, 0.35);">
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <span style="background: ${l.color}; color: #ffffff; font-size: 13px; font-weight: 800; padding: 4px 10px; border-radius: 8px; box-shadow: 0 2px 8px ${l.color}40; min-width: 44px; text-align: center;">
+                    <div style="background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; overflow: hidden; transition: all 0.2s ease;">
+                        <div onclick="toggleLineaDetalle('${l.linea}')" style="padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; gap: 10px; background: rgba(30, 41, 59, 0.35);">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="background: ${l.color}; color: #ffffff; font-size: 12px; font-weight: 800; padding: 3px 8px; border-radius: 7px; box-shadow: 0 2px 8px ${l.color}40; min-width: 40px; text-align: center;">
                                     ${l.linea}
                                 </span>
                                 <div>
-                                    <div style="font-size: 14px; font-weight: 700; color: #f8fafc;">${escapeHtmlTrans(l.nombre)}: <span style="font-weight: 500; color: #cbd5e1;">${escapeHtmlTrans(l.terminales)}</span></div>
-                                    <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">
+                                    <div style="font-size: 13px; font-weight: 700; color: #f8fafc;">${escapeHtmlTrans(l.nombre)}: <span style="font-weight: 500; color: #cbd5e1;">${escapeHtmlTrans(l.terminales)}</span></div>
+                                    <div style="font-size: 11px; color: #94a3b8; margin-top: 1px;">
                                         <span>${l.estaciones_total} estaciones</span> • <span>${l.longitud_km}</span>
                                     </div>
                                 </div>
                             </div>
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: #34d399; background: rgba(16,185,129,0.1); padding: 4px 9px; border-radius: 6px; border: 1px solid rgba(16,185,129,0.25);">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; color: #34d399; background: rgba(16,185,129,0.1); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(16,185,129,0.25);">
                                     <span class="status-dot"></span>
                                     <span>${escapeHtmlTrans(l.estado)}</span>
                                 </div>
-                                <svg id="chevron-${l.linea}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #94a3b8; transition: transform 0.2s;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                <svg id="chevron-${l.linea}" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #94a3b8; transition: transform 0.2s;"><polyline points="6 9 12 15 18 9"></polyline></svg>
                             </div>
                         </div>
 
                         <!-- Detalle expandible de la línea -->
-                        <div id="detalle-linea-${l.linea}" style="display: none; padding: 14px 16px; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(10, 15, 30, 0.4); font-size: 12px;">
-                            <div style="margin-bottom: 10px;">
-                                <div style="font-weight: 700; color: #38bdf8; margin-bottom: 5px; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.04em;">Transbordos y Combinaciones de Red:</div>
-                                <div style="display: flex; gap: 6px; flex-wrap: wrap;">${combHtml}</div>
+                        <div id="detalle-linea-${l.linea}" style="display: none; padding: 12px 14px; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(10, 15, 30, 0.45); font-size: 11.5px;">
+                            <div style="margin-bottom: 8px;">
+                                <div style="font-weight: 700; color: #38bdf8; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;">Combinaciones de Red:</div>
+                                <div style="display: flex; gap: 5px; flex-wrap: wrap;">${combHtml}</div>
                             </div>
                             <div>
-                                <div style="font-weight: 700; color: #a78bfa; margin-bottom: 5px; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.04em;">Trazado Principal:</div>
-                                <div style="color: #94a3b8; line-height: 1.5;">${escapeHtmlTrans(estHtml)}</div>
+                                <div style="font-weight: 700; color: #a78bfa; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;">Estaciones Clave:</div>
+                                <div style="color: #94a3b8; line-height: 1.45;">${escapeHtmlTrans(estHtml)}</div>
                             </div>
                         </div>
                     </div>
@@ -166,29 +166,32 @@ async function cargarDatosTransporte() {
             lineasGrid.innerHTML = html;
         }
 
-        // 3. Renderizar Tarifas
+        // 3. Renderizar Cuadro de Tarifas en Tarjetas
         if (tarifasBox && data.tarifas) {
             let tarHtml = '';
             const labels = {
-                'punta': { name: 'Horario Punta', desc: '07:00-08:59 y 18:00-19:59' },
-                'valle': { name: 'Horario Valle', desc: '09:00-17:59 y 20:00-20:44' },
-                'bajo':  { name: 'Horario Bajo',  desc: '06:00-06:59 y 20:45-23:00' },
-                'estudiante': { name: 'Pase Escolar (TNE)', desc: 'Tarifa reducida 24/7' },
-                'adulto_mayor': { name: 'Adulto Mayor (BAM)', desc: 'Tarifa preferencial' }
+                'punta': { name: 'Horario Punta', desc: '07:00-08:59 y 18:00-19:59', border: 'rgba(239, 68, 68, 0.3)', badgeBg: 'rgba(239, 68, 68, 0.15)', badgeCol: '#f87171' },
+                'valle': { name: 'Horario Valle', desc: '09:00-17:59 y 20:00-20:44', border: 'rgba(56, 189, 248, 0.3)', badgeBg: 'rgba(56, 189, 248, 0.15)', badgeCol: '#38bdf8' },
+                'bajo':  { name: 'Horario Bajo',  desc: '06:00-06:59 y 20:45-23:00', border: 'rgba(16, 185, 129, 0.3)', badgeBg: 'rgba(16, 185, 129, 0.15)', badgeCol: '#34d399' },
+                'estudiante': { name: 'Pase Escolar (TNE)', desc: 'Válido 24 horas los 365 días', border: 'rgba(168, 85, 247, 0.3)', badgeBg: 'rgba(168, 85, 247, 0.15)', badgeCol: '#c084fc' },
+                'adulto_mayor': { name: 'Adulto Mayor (BAM)', desc: 'Beneficio tarifa rebajada', border: 'rgba(245, 158, 11, 0.3)', badgeBg: 'rgba(245, 158, 11, 0.15)', badgeCol: '#fbbf24' }
             };
 
             Object.keys(data.tarifas).forEach(k => {
                 const t = data.tarifas[k];
-                const meta = labels[k] || { name: k, desc: t.horario };
+                const meta = labels[k] || { name: k, desc: t.horario, border: 'rgba(255,255,255,0.1)', badgeBg: 'rgba(255,255,255,0.1)', badgeCol: '#cbd5e1' };
                 tarHtml += `
-                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 6px;">
+                    <div style="background: rgba(15, 23, 42, 0.55); border: 1px solid ${meta.border}; border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
                         <div>
-                            <div style="color: #f1f5f9; font-weight: 600;">${meta.name}</div>
-                            <div style="color: #64748b; font-size: 10.5px;">${meta.desc}</div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="color: #f8fafc; font-weight: 700; font-size: 13px;">${meta.name}</div>
+                                <span style="background: ${meta.badgeBg}; color: ${meta.badgeCol}; font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 5px;">Metro: ${t.metro}</span>
+                            </div>
+                            <div style="color: #94a3b8; font-size: 11px; margin-top: 3px;">${meta.desc}</div>
                         </div>
-                        <div style="text-align: right;">
-                            <div style="color: #38bdf8; font-weight: 700;">Metro: ${t.metro}</div>
-                            <div style="color: #94a3b8; font-size: 10.5px;">Bus: ${t.bus}</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 6px; font-size: 11.5px;">
+                            <span style="color: #64748b;">Bus Red: <strong style="color: #cbd5e1;">${t.bus}</strong></span>
+                            <span style="color: #64748b;">Tren: <strong style="color: #cbd5e1;">${t.metro}</strong></span>
                         </div>
                     </div>
                 `;

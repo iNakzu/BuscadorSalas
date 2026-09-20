@@ -1415,20 +1415,20 @@
         <!-- TAB TRANSPORTE Y METRO -->
         <!-- TAB TRANSPORTE: RED METROPOLITANA & METRO DE SANTIAGO -->
         <section id="tab-transporte" class="panel">
-            <div style="max-width: 960px; margin: 0 auto 24px;">
+            <div style="max-width: 1000px; margin: 0 auto 24px;">
                 <!-- Header Card General -->
-                <div class="control-card" style="margin-bottom: 20px;">
+                <div class="control-card" style="margin-bottom: 18px;">
                     <div class="filter-header-row" style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;">
                         <div>
                             <div class="filter-header-title">Red de Transporte & Metro de Santiago</div>
-                            <div style="font-size: 12.5px; color: #94a3b8; margin-top: 3px;">Estado operacional de la red en vivo, detalle por línea, tarifas del sistema y tiempos de llegada</div>
+                            <div style="font-size: 12.5px; color: #94a3b8; margin-top: 3px;">Estado operacional de la red en vivo, GPS de micros, detalle por línea y tarifas del sistema</div>
                         </div>
                         <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                             <div id="metro-horario-badge" style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #34d399; background: rgba(16, 185, 129, 0.12); padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(16, 185, 129, 0.25);">
                                 <span class="status-dot"></span>
-                                <span>Consultando estado...</span>
+                                <span>Consultando red...</span>
                             </div>
-                            <button onclick="cargarDatosTransporte()" class="btn-bloque-actual" style="width: auto; padding: 7px 14px; font-size: 12px;" title="Actualizar datos">
+                            <button onclick="cargarDatosTransporte()" class="btn-bloque-actual" style="width: auto; padding: 7px 14px; font-size: 12px;" title="Actualizar datos en tiempo real">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
                                 <span>Actualizar</span>
                             </button>
@@ -1436,105 +1436,97 @@
                     </div>
                 </div>
 
-                <!-- Sub-Navegación / Tabs internas de Transporte -->
-                <div class="control-card" style="margin-bottom: 20px; padding: 12px 16px;">
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="transporte-subnav">
-                        <button type="button" class="pill-btn active" id="subtab-btn-lineas" onclick="switchTransporteTab('lineas')">
-                            Líneas de Metro (7)
-                        </button>
-                        <button type="button" class="pill-btn" id="subtab-btn-tarifas" onclick="switchTransporteTab('tarifas')">
-                            Tarifas & Horarios
-                        </button>
-                        <button type="button" class="pill-btn" id="subtab-btn-buses" onclick="switchTransporteTab('buses')">
-                            Consultor de Paraderos Red
-                        </button>
+                <!-- Resumen Rápido de Métricas Operacionales -->
+                <div class="transporte-metrics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px;">
+                    <div style="background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px 16px;">
+                        <div style="font-size: 11px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.05em;">Red de Metro</div>
+                        <div style="font-size: 20px; font-weight: 800; color: #f8fafc; margin-top: 2px;">7 Líneas Activas</div>
+                        <div style="font-size: 11.5px; color: #94a3b8; margin-top: 2px;">143 estaciones • 149 km</div>
+                    </div>
+                    <div style="background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px 16px;">
+                        <div style="font-size: 11px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.05em;">Tarifa Estudiante TNE</div>
+                        <div style="font-size: 20px; font-weight: 800; color: #f8fafc; margin-top: 2px;">$250 Tarifa Plana</div>
+                        <div style="font-size: 11.5px; color: #94a3b8; margin-top: 2px;">Metro + Buses 24/7</div>
+                    </div>
+                    <div style="background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px 16px;">
+                        <div style="font-size: 11px; font-weight: 700; color: #34d399; text-transform: uppercase; letter-spacing: 0.05em;">Tope Mensual DaleQR!</div>
+                        <div style="font-size: 20px; font-weight: 800; color: #f8fafc; margin-top: 2px;">$39.000 Gratis</div>
+                        <div style="font-size: 11.5px; color: #94a3b8; margin-top: 2px;">Viajes libres al llegar al tope</div>
+                    </div>
+                    <div style="background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px 16px;">
+                        <div style="font-size: 11px; font-weight: 700; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.05em;">Horario de Servicio</div>
+                        <div style="font-size: 20px; font-weight: 800; color: #f8fafc; margin-top: 2px;">06:00 - 23:00</div>
+                        <div style="font-size: 11.5px; color: #94a3b8; margin-top: 2px;">Lun a Vie (Sáb 06:30 / Dom 08:00)</div>
                     </div>
                 </div>
 
-                <!-- Vista 1: Detalle Completo de Líneas de Metro -->
-                <div id="transporte-view-lineas" class="control-card" style="margin-bottom: 20px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
-                        <div>
-                            <div style="font-size: 15px; font-weight: 700; color: #f8fafc;">Estado Operacional de la Red de Metro</div>
-                            <div style="font-size: 12px; color: #94a3b8;">Haz clic en cualquier línea para desplegar su trazado, estaciones de transbordo e información técnica</div>
-                        </div>
-                        <span style="font-size: 11px; background: rgba(56, 189, 248, 0.12); color: #38bdf8; padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.25); font-weight: 600;">Red Oficial Metro S.A.</span>
-                    </div>
-                    <div id="metro-lineas-grid" style="display: flex; flex-direction: column; gap: 12px;">
-                        <!-- Injected by transporte.js -->
-                    </div>
-                </div>
-
-                <!-- Vista 2: Tarifas y Horarios Vigentes -->
-                <div id="transporte-view-tarifas" class="control-card" style="margin-bottom: 20px; display: none;">
-                    <div style="font-size: 15px; font-weight: 700; color: #f8fafc; margin-bottom: 6px;">Estructura Tarifaria y Horarios Oficiales</div>
-                    <div style="font-size: 12px; color: #94a3b8; margin-bottom: 18px;">Tarifas del Sistema Integrado de Transporte Metropolitano (Buses Red + Metro + Tren Nos)</div>
-
-                    <div class="transporte-columns-grid" style="margin-bottom: 16px;">
-                        <!-- Horario de Operación -->
-                        <div style="background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px;">
-                            <div style="font-size: 13px; font-weight: 700; color: #38bdf8; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                                Horarios de Apertura y Cierre
+                <!-- Grid Principal de Dos Columnas: Metro vs Buses en Vivo -->
+                <div class="transporte-columns-grid" style="margin-bottom: 20px;">
+                    <!-- Columna 1: Líneas de Metro con Detalle Interactivo -->
+                    <div class="control-card" style="margin-bottom: 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+                            <div style="font-size: 14.5px; font-weight: 700; color: #f8fafc; display: flex; align-items: center; gap: 6px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                                Líneas de Metro de Santiago
                             </div>
-                            <div style="display: flex; flex-direction: column; gap: 10px; font-size: 12.5px;">
-                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 6px;">
-                                    <span style="color: #cbd5e1;">Lunes a Viernes</span>
-                                    <strong style="color: #fff;">06:00 - 23:00 hrs</strong>
-                                </div>
-                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 6px;">
-                                    <span style="color: #cbd5e1;">Sábados</span>
-                                    <strong style="color: #fff;">06:30 - 23:00 hrs</strong>
-                                </div>
-                                <div style="display: flex; justify-content: space-between;">
-                                    <span style="color: #cbd5e1;">Domingos y Festivos</span>
-                                    <strong style="color: #fff;">08:00 - 23:00 hrs</strong>
-                                </div>
-                            </div>
+                            <span style="font-size: 11px; color: #94a3b8;">Toca una línea para ver estaciones</span>
                         </div>
-
-                        <!-- Cuadro Tarifario Dinámico -->
-                        <div style="background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px;">
-                            <div style="font-size: 13px; font-weight: 700; color: #a78bfa; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
-                                Valores por Tramo Horario
-                            </div>
-                            <div id="tarifas-detalle-box" style="display: flex; flex-direction: column; gap: 8px; font-size: 12px;">
-                                <!-- Injected by transporte.js -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Nota Bip! aQRgo -->
-                    <div style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 10px; padding: 12px 16px; font-size: 12px; color: #94a3b8;">
-                        <strong style="color: #38bdf8;">Beneficio DaleQR!:</strong> Al viajar pagando con código QR en tu app de Banco o Red Movilidad, tras alcanzar $39.000 de gasto en el mes calendario, todos tus viajes siguientes durante el mes son <strong>completamente gratuitos</strong>.
-                    </div>
-                </div>
-
-                <!-- Vista 3: Consultor General de Paraderos Red Movilidad -->
-                <div id="transporte-view-buses" class="control-card" style="margin-bottom: 20px; display: none;">
-                    <div style="font-size: 15px; font-weight: 700; color: #f8fafc; margin-bottom: 4px;">Monitor de Paraderos Red Movilidad</div>
-                    <div style="font-size: 12px; color: #94a3b8; margin-bottom: 16px;">Ingresa cualquier código de paradero de la Región Metropolitana o selecciona uno de los puntos principales</div>
-
-                    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 18px; flex-wrap: wrap;">
-                        <div style="flex: 1; min-width: 240px; position: relative;">
-                            <input type="text" id="transporte-codigo-input" placeholder="Ingresa código de paradero (ej: PA349, PI400, PC204)..." style="width: 100%; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 10px 14px; color: #fff; font-size: 13px; outline: none; text-transform: uppercase;">
-                        </div>
-                        <button onclick="consultarParaderoManual()" class="btn-bloque-actual" style="width: auto; padding: 10px 18px; font-size: 13px;">
-                            Buscar Paradero
-                        </button>
-                    </div>
-
-                    <!-- Chips de Paraderos Frecuentes de la Ciudad -->
-                    <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 20px; flex-wrap: wrap;">
-                        <span style="font-size: 11.5px; color: #64748b; font-weight: 600;">Puntos de conexión:</span>
-                        <div id="chips-paraderos-rapidos" style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        <div id="metro-lineas-grid" style="display: flex; flex-direction: column; gap: 10px;">
                             <!-- Injected by transporte.js -->
                         </div>
                     </div>
 
-                    <div id="transporte-buses-list" style="display: flex; flex-direction: column; gap: 10px;">
+                    <!-- Columna 2: Llegada de Buses en Vivo por GPS -->
+                    <div class="control-card" style="margin-bottom: 0; display: flex; flex-direction: column;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                            <div style="font-size: 14.5px; font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 6px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4"></rect><path d="M7 16h10"></path></svg>
+                                Llegadas en Vivo (GPS Buses Red)
+                            </div>
+                        </div>
+
+                        <!-- Buscador de Paraderos -->
+                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
+                            <input type="text" id="transporte-codigo-input" placeholder="Código de paradero (ej: PA349, PI400, PC156)..." style="flex: 1; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 8px 12px; color: #fff; font-size: 12.5px; outline: none; text-transform: uppercase;">
+                            <button onclick="consultarParaderoManual()" class="btn-bloque-actual" style="width: auto; padding: 8px 14px; font-size: 12px;">
+                                Buscar
+                            </button>
+                        </div>
+
+                        <!-- Chips Rápidos de Conexión -->
+                        <div style="display: flex; gap: 5px; align-items: center; margin-bottom: 14px; flex-wrap: wrap;">
+                            <span style="font-size: 11px; color: #64748b; font-weight: 600;">Estaciones:</span>
+                            <div id="chips-paraderos-rapidos" style="display: flex; gap: 5px; flex-wrap: wrap;">
+                                <!-- Injected by transporte.js -->
+                            </div>
+                        </div>
+
+                        <!-- Lista de Buses приближаясь -->
+                        <div id="transporte-buses-list" style="display: flex; flex-direction: column; gap: 8px; flex: 1;">
+                            <!-- Injected by transporte.js -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección Inferior: Cuadro de Tarifas Vigentes & Beneficios -->
+                <div class="control-card" style="margin-bottom: 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+                        <div>
+                            <div style="font-size: 14.5px; font-weight: 700; color: #f8fafc;">Estructura Tarifaria Oficial (Metro & Buses)</div>
+                            <div style="font-size: 12px; color: #94a3b8;">Valores oficiales según tramo horario del Directorio de Transporte Público Metropolitano</div>
+                        </div>
+                        <span style="font-size: 11px; color: #38bdf8; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); padding: 3px 9px; border-radius: 6px; font-weight: 600;">
+                            Integración Bip! (2 transbordos / 120 min)
+                        </span>
+                    </div>
+
+                    <div id="tarifas-detalle-box" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-bottom: 14px;">
                         <!-- Injected by transporte.js -->
+                    </div>
+
+                    <div style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 10px; padding: 10px 14px; font-size: 12px; color: #94a3b8; display: flex; align-items: center; gap: 8px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" style="flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                        <span><strong>Beneficio DaleQR!:</strong> Al viajar pagando con código QR, luego de alcanzar $39.000 acumulados en el mes, el resto de tus pasajes en Metro y Buses serán <strong>completamente gratuitos</strong>.</span>
                     </div>
                 </div>
             </div>
@@ -1645,7 +1637,7 @@
 <script src="{{ url_for('static', filename='js/notasvoz.js') }}?v=6" defer></script>
 <script src="{{ url_for('static', filename='js/habitos.js') }}?v=1" defer></script>
 <script src="{{ url_for('static', filename='js/riff_lab.js') }}?v=3" defer></script>
-<script src="{{ url_for('static', filename='js/transporte.js') }}?v=3" defer></script>
+<script src="{{ url_for('static', filename='js/transporte.js') }}?v=4" defer></script>
 <script src="{{ url_for('static', filename='js/clima.js') }}?v=3" defer></script>
 <script src="{{ url_for('static', filename='js/ia_tools.js') }}?v=15" defer></script>
 </body>
