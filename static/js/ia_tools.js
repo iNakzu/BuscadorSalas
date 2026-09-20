@@ -27,8 +27,12 @@ ${input}`;
         });
         
         const data = await response.json();
-        document.getElementById('corrector-loading').style.display = 'none';
-        document.getElementById('btn-corregir').disabled = false;
+        const btn = document.getElementById('btn-corregir');
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        document.getElementById('btn-corregir-text').innerText = 'Corregir Texto';
+        document.getElementById('btn-corregir-icon').classList.remove('ai-spin');
+        document.getElementById('btn-corregir-icon').innerHTML = '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>';
         
         if (data.respuesta) {
             let textoBot = data.respuesta;
@@ -66,7 +70,12 @@ ${input}`;
             alert('Error al corregir el texto.');
         }
     } catch (e) {
-        document.getElementById('corrector-loading').style.display = 'none';
+        const errBtn = document.getElementById('btn-corregir');
+        errBtn.disabled = false;
+        errBtn.style.opacity = '1';
+        document.getElementById('btn-corregir-text').innerText = 'Corregir Texto';
+        document.getElementById('btn-corregir-icon').classList.remove('ai-spin');
+        document.getElementById('btn-corregir-icon').innerHTML = '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>';
         document.getElementById('btn-corregir').disabled = false;
         alert('Error de conexión.');
     }
