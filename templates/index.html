@@ -1180,10 +1180,21 @@
                 
                 <div id="corrector-output-container" style="display: none; margin-top: 24px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <div style="color: #4ade80; font-weight: 600; font-size: 14px;">Texto Corregido</div>
-                        <button onclick="copiarCorreccion()" style="background: rgba(255,255,255,0.1); border: none; color: #fff; padding: 4px 12px; border-radius: 4px; font-size: 12px; cursor: pointer;">Copiar</button>
+                        <div style="color: #4ade80; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 6px;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            Texto Corregido
+                        </div>
+                        <button onclick="copiarCorreccion()" style="background: rgba(255,255,255,0.1); border: none; color: #fff; padding: 4px 12px; border-radius: 4px; font-size: 12px; cursor: pointer;">Copiar Texto</button>
                     </div>
-                    <div id="corrector-output" style="background: rgba(15, 23, 42, 0.6); border: 1px solid #4ade80; border-radius: 8px; padding: 16px; color: #f1f5f9; font-size: 14px; white-space: pre-wrap; line-height: 1.6;"></div>
+                    <div id="corrector-output" style="background: rgba(15, 23, 42, 0.6); border: 1px solid #4ade80; border-radius: 8px; padding: 16px; color: #f1f5f9; font-size: 14px; white-space: pre-wrap; line-height: 1.6; margin-bottom: 20px;"></div>
+                    
+                    <div id="corrector-explicacion-container" style="display: none;">
+                        <div style="color: #fbbf24; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                            ¿Qué aprendimos?
+                        </div>
+                        <div id="corrector-explicacion" style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 16px; color: #fcd34d; font-size: 13.5px; line-height: 1.5;"></div>
+                    </div>
                 </div>
             </div>
         </section>

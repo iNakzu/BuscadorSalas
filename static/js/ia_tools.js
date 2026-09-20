@@ -7,7 +7,17 @@ async function corregirTexto() {
     document.getElementById('corrector-output-container').style.display = 'none';
     document.getElementById('btn-corregir').disabled = true;
     
-    const prompt = `Corrige la ortografía, puntuación, mayúsculas y tildes del siguiente texto. ES CRÍTICO que NO cambies las palabras originales, el estilo, el tono ni la intención del mensaje. Simplemente aplica correcciones ortotipográficas (comas, puntos, tildes). No agregues NINGUNA introducción ni comentario extra. Devuelve ÚNICAMENTE el texto corregido:\n\n${input}`;
+    const prompt = `Corrige la ortografía, puntuación, mayúsculas y tildes del siguiente texto. ES CRÍTICO que NO cambies las palabras originales, el estilo, el tono ni la intención del mensaje.
+Debes devolver tu respuesta EXACTAMENTE con este formato (incluyendo las etiquetas entre corchetes):
+
+[TEXTO CORREGIDO]
+(el texto corregido aquí, sin comillas extra ni introducciones)
+
+[EXPLICACION]
+(explica de forma breve y amigable, con viñetas cortas, qué errores ortotipográficos encontraste y por qué los corregiste, para que el estudiante aprenda)
+
+Texto a corregir:
+${input}`;
     
     try {
         const response = await fetch('/api/tutor', {
@@ -21,7 +31,36 @@ async function corregirTexto() {
         document.getElementById('btn-corregir').disabled = false;
         
         if (data.respuesta) {
-            document.getElementById('corrector-output').innerText = data.respuesta;
+            let textoBot = data.respuesta;
+            let textoCorregido = textoBot;
+            let explicacion = "";
+            
+            if (textoBot.includes("[EXPLICACION]")) {
+                const parts = textoBot.split("[EXPLICACION]");
+                textoCorregido = parts[0].replace("[TEXTO CORREGIDO]", "").trim();
+                explicacion = parts[1].trim();
+            } else if (textoBot.includes("[EXPLICACIÓN]")) {
+                const parts = textoBot.split("[EXPLICACIÓN]");
+                textoCorregido = parts[0].replace("[TEXTO CORREGIDO]", "").trim();
+                explicacion = parts[1].trim();
+            } else {
+                textoCorregido = textoBot.replace("[TEXTO CORREGIDO]", "").trim();
+            }
+            
+            document.getElementById('corrector-output').innerText = textoCorregido;
+            
+            if (explicacion) {
+                const renderFn = typeof simpleMarkdown === "function" ? simpleMarkdown : (typeof renderMarkdownChat === "function" ? renderMarkdownChat : null);
+                if (renderFn) {
+                    document.getElementById('corrector-explicacion').innerHTML = renderFn(explicacion);
+                } else {
+                    document.getElementById('corrector-explicacion').innerText = explicacion;
+                }
+                document.getElementById('corrector-explicacion-container').style.display = 'block';
+            } else {
+                document.getElementById('corrector-explicacion-container').style.display = 'none';
+            }
+            
             document.getElementById('corrector-output-container').style.display = 'block';
         } else {
             alert('Error al corregir el texto.');
