@@ -174,26 +174,11 @@ function _renderLineaCapsule(l, alertasLinea) {
         `;
     }
 
-    // Fila de datos útiles: terminales + estaciones
-    expandHtml += `
-        <div class="linea-expand-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11.5px;">
-            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:8px 10px;">
-                <div style="color:#64748b;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;">Recorrido</div>
-                <div style="color:#cbd5e1;line-height:1.4;font-size:11px;">${escapeHtmlTrans(l.terminales)}</div>
-            </div>
-            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:8px 10px;">
-                <div style="color:#64748b;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;">Horario hoy</div>
-                <div style="color:#cbd5e1;font-size:11px;">Lun-Vie 06:00–23:00</div>
-                <div style="color:#64748b;font-size:10.5px;">Sáb 06:30 · Dom 08:00</div>
-            </div>
-        </div>
-    `;
-
-    // Si hay combinaciones relevantes como "dónde se puede transferir"
+    // Si hay combinaciones relevantes — útil para buscar alternativas si la línea está cerrada
     if (l.combinaciones && l.combinaciones.length > 0) {
         expandHtml += `
-            <div style="margin-top:8px;">
-                <div style="color:#64748b;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;">Transferencias disponibles</div>
+            <div style="margin-top:${tieneAlerta ? '10px' : '0'};">
+                <div style="color:#64748b;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;">Líneas alternativas en esta línea</div>
                 <div style="display:flex;flex-wrap:wrap;gap:5px;">
                     ${l.combinaciones.map(c => `<span style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:2px 8px;font-size:10.5px;color:#94a3b8;">${escapeHtmlTrans(c)}</span>`).join('')}
                 </div>
@@ -234,7 +219,7 @@ function _renderLineaCapsule(l, alertasLinea) {
                             box-shadow:0 2px 10px ${l.color}50;
                             font-size:11px;font-weight:900;color:#fff;
                         ">${escapeHtmlTrans(l.linea)}</div>
-                        ${tieneAlerta ? `<div style="position:absolute;top:-3px;right:-3px;width:11px;height:11px;background:#f87171;border-radius:50%;border:2px solid rgba(10,15,30,0.9);box-shadow:0 0 5px #f87171;"></div>` : ''}
+                        ${tieneAlerta ? `<div id="alerta-dot-${l.linea}" style="position:absolute;top:-3px;right:-3px;width:11px;height:11px;background:#f87171;border-radius:50%;border:2px solid rgba(10,15,30,0.9);box-shadow:0 0 5px #f87171;"></div>` : `<div id="alerta-dot-${l.linea}" style="display:none;position:absolute;top:-3px;right:-3px;width:11px;height:11px;background:#f87171;border-radius:50%;border:2px solid rgba(10,15,30,0.9);box-shadow:0 0 5px #f87171;"></div>`}
                     </div>
                     <div style="min-width:0;">
                         <div style="font-size:13px;font-weight:700;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtmlTrans(l.nombre)}</div>
@@ -244,12 +229,13 @@ function _renderLineaCapsule(l, alertasLinea) {
 
                 <!-- Der: estado + chevron -->
                 <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-                    <div style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:${estadoColor};background:${estadoBg};padding:4px 9px;border-radius:7px;border:1px solid ${estadoBorder};">
-                        <span style="width:6px;height:6px;border-radius:50%;background:${estadoColor};box-shadow:0 0 5px ${estadoColor};flex-shrink:0;"></span>
-                        ${estadoTxt}
+                    <div id="estado-badge-${l.linea}" style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:${estadoColor};background:${estadoBg};padding:4px 9px;border-radius:7px;border:1px solid ${estadoBorder};">
+                        <span class="estado-dot" style="width:6px;height:6px;border-radius:50%;background:${estadoColor};box-shadow:0 0 5px ${estadoColor};flex-shrink:0;"></span>
+                        <span class="estado-txt">${estadoTxt}</span>
                     </div>
                     <svg id="chevron-${l.linea}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color:#64748b;transition:transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
                 </div>
+
             </div>
 
             <!-- Detalle expandible -->
@@ -431,4 +417,62 @@ function renderBusesList(paraderoData, code) {
     document.head.appendChild(s);
 })();
 
-document.addEventListener('DOMContentLoaded', initTransporte);
+// ─── Auto-polling de alertas (cada 90 s, sin recargar la página) ──────────────
+// Consulta /api/metro-alertas en silencio. Si llegan alertas nuevas:
+//  · muestra toast de notificación
+//  · actualiza el panel de alertas global
+//  · actualiza el color del badge de cada línea afectada
+async function _pollAlertas() {
+    try {
+        const res  = await fetch('/api/metro-alertas', { cache: 'no-store' });
+        const data = await res.json();
+        const alertas = data.alertas || [];
+
+        // Actualizar panel global
+        _renderPanelAlertas(alertas, document.getElementById('metro-alertas-panel'));
+
+        // Mostrar toast solo para alertas nuevas
+        if (alertas.length > 0) _mostrarToastAlerta(alertas);
+
+        // Actualizar badge de estado de cada línea (rojo/verde) sin rerenderizar todo
+        if (datosTransporteCache && Array.isArray(datosTransporteCache.lineas_metro)) {
+            datosTransporteCache.lineas_metro.forEach(l => {
+                const alertasLinea = _alertasDeLinea(alertas, l.linea);
+                const tieneAlerta  = alertasLinea.length > 0;
+
+                // Badge de estado dentro del header de la cápsula
+                const badgeEl = document.getElementById(`estado-badge-${l.linea}`);
+                if (badgeEl) {
+                    const col = tieneAlerta ? '#f87171' : '#34d399';
+                    const bg  = tieneAlerta ? 'rgba(248,113,113,0.12)' : 'rgba(16,185,129,0.10)';
+                    const brd = tieneAlerta ? 'rgba(248,113,113,0.35)' : 'rgba(16,185,129,0.25)';
+                    badgeEl.style.color        = col;
+                    badgeEl.style.background   = bg;
+                    badgeEl.style.borderColor  = brd;
+                    badgeEl.querySelector('.estado-dot').style.background   = col;
+                    badgeEl.querySelector('.estado-dot').style.boxShadow    = `0 0 5px ${col}`;
+                    badgeEl.querySelector('.estado-txt').textContent        = tieneAlerta ? 'Afectada' : 'Operativa';
+                }
+
+                // Punto rojo encima del badge de color de la línea
+                const dotEl = document.getElementById(`alerta-dot-${l.linea}`);
+                if (dotEl) dotEl.style.display = tieneAlerta ? 'block' : 'none';
+            });
+        }
+
+    } catch (e) {
+        // Silencioso — no interrumpir la UI si el poll falla
+    }
+}
+
+// Iniciar el ciclo de polling después de la carga inicial
+function _iniciarPollingAlertas() {
+    setInterval(_pollAlertas, 90000); // cada 90 segundos
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initTransporte();
+    // Esperar 10 s después de cargar para empezar el polling periódico
+    setTimeout(_iniciarPollingAlertas, 10000);
+});
+
