@@ -382,3 +382,72 @@
     box-shadow: 0 0 16px #38bdf8;
     transform: scale(1.35);
 }
+
+/* Responsive Mobile Layout */
+@media (max-width: 768px) {
+    .habit-stats-grid, .riff-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .habit-stat-card, .riff-stat-card {
+        padding: 10px 12px;
+        gap: 8px;
+    }
+
+    .habit-stat-icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .habit-stat-val {
+        font-size: 17px;
+    }
+
+    .habit-stat-label {
+        font-size: 10px;
+    }
+
+    .habit-item-card {
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .habit-title {
+        font-size: 13.5px;
+    }
+
+    .habit-day-dot {
+        width: 16px;
+        height: 16px;
+        font-size: 8px;
+    }
+
+    .riff-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .metronome-box {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding: 14px;
+    }
+
+    .metronome-display {
+        justify-content: center;
+    }
+
+    .riff-nav-switch {
+        width: 100%;
+        display: flex;
+    }
+
+    .riff-switch-btn {
+        flex: 1;
+        justify-content: center;
+        padding: 7px 10px;
+        font-size: 12px;
+    }
+}
+

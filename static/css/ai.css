@@ -947,4 +947,64 @@
     margin-top: 8px;
 }
 
+@media (max-width: 768px) {
+    .chatglobal-panel-container {
+        padding: 0;
+        margin: 0;
+    }
+
+    .chatglobal-glass-card {
+        height: calc(100vh - 170px);
+        min-height: 480px;
+        max-height: none;
+        border-radius: 16px;
+    }
+
+    .chatglobal-top-header {
+        padding: 12px 14px;
+    }
+
+    .chatglobal-title-text {
+        font-size: 14px;
+    }
+
+    .chatglobal-subtitle-text {
+        font-size: 11px;
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .chatglobal-scroll-area {
+        padding: 16px 12px;
+        gap: 16px;
+    }
+
+    .chatglobal-input-bar-wrap {
+        padding: 10px 12px 14px;
+    }
+
+    .chatglobal-input-pill {
+        padding: 4px 10px;
+        border-radius: 20px;
+    }
+
+    .chatglobal-textarea {
+        font-size: 13.5px;
+        padding: 6px 2px;
+    }
+
+    .chatglobal-send-btn {
+        width: 32px;
+        height: 32px;
+    }
+
+    .chatglobal-send-btn svg {
+        width: 15px;
+        height: 15px;
+    }
+}
+
+
 
