@@ -546,6 +546,60 @@
     box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
 }
 
+.riff-kanban-intro {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 14px;
+    padding: 14px 16px;
+    border: 1px solid rgba(56, 189, 248, 0.16);
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.45);
+}
+.riff-kanban-intro > div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.riff-kanban-intro strong { color: #f8fafc; font-size: 14px; }
+.riff-kanban-intro span:last-child { color: #94a3b8; font-size: 12px; }
+.riff-kanban-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.riff-kanban-column { min-height: 260px; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; background: rgba(15,23,42,0.42); overflow: hidden; }
+.riff-kanban-column-header { border-top: 3px solid; padding: 12px; display: flex; justify-content: space-between; align-items: flex-start; background: rgba(30,41,59,0.58); }
+.riff-kanban-column-header div { display: flex; flex-direction: column; gap: 3px; }
+.riff-kanban-column-header strong { color: #f8fafc; font-size: 13px; }
+.riff-kanban-column-header span { color: #94a3b8; font-size: 10px; }
+.riff-kanban-column-header b { color: #cbd5e1; background: rgba(255,255,255,0.08); border-radius: 999px; padding: 2px 8px; font-size: 11px; }
+.riff-kanban-list { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+.riff-kanban-card { background: rgba(30,41,59,0.72); border: 1px solid rgba(255,255,255,0.08); border-radius: 9px; padding: 11px; }
+.riff-kanban-card > div:first-child { display: flex; flex-direction: column; gap: 3px; }
+.riff-kanban-card strong { color: #f8fafc; font-size: 13px; }
+.riff-kanban-card span { color: #94a3b8; font-size: 11px; }
+.riff-kanban-card-meta { color: #38bdf8; font-size: 11px; margin-top: 9px; }
+.riff-kanban-card-actions { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
+.riff-kanban-card-actions button { border: 1px solid rgba(56,189,248,0.2); border-radius: 6px; background: rgba(56,189,248,0.08); color: #7dd3fc; cursor: pointer; padding: 4px 6px; font-size: 10px; }
+.riff-kanban-empty { color: #64748b; font-size: 12px; padding: 18px 8px; text-align: center; }
+.riff-web-modal { position: fixed; inset: 0; z-index: 1200; display: none; align-items: center; justify-content: center; padding: 18px; background: rgba(2, 6, 23, 0.78); backdrop-filter: blur(12px); }
+.riff-modal-card { width: min(560px, 100%); max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; gap: 13px; padding: 22px; border: 1px solid rgba(56,189,248,0.28); border-radius: 16px; background: rgba(15,23,42,0.97); box-shadow: 0 22px 60px rgba(0,0,0,0.55); }
+.riff-modal-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.riff-modal-header h2 { margin: 3px 0 0; color: #f8fafc; font-size: 21px; }
+.riff-modal-close { border: 0; background: transparent; color: #94a3b8; cursor: pointer; font-size: 27px; line-height: 1; }
+.riff-modal-card label { display: flex; flex-direction: column; gap: 6px; color: #cbd5e1; font-size: 12px; font-weight: 600; }
+.riff-modal-card input, .riff-modal-card textarea { box-sizing: border-box; width: 100%; border: 1px solid rgba(255,255,255,0.12); border-radius: 9px; background: rgba(30,41,59,0.76); color: #f8fafc; padding: 10px 11px; font: inherit; font-weight: 400; resize: vertical; }
+.riff-modal-card input:focus, .riff-modal-card textarea:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 3px rgba(56,189,248,0.12); }
+.riff-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.riff-modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+.riff-modal-actions button { border-radius: 8px; cursor: pointer; padding: 9px 14px; font-weight: 700; }
+.riff-modal-primary { border: 1px solid rgba(56,189,248,0.35); background: linear-gradient(135deg, #38bdf8, #2563eb); color: white; }
+.riff-modal-secondary { border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06); color: #cbd5e1; }
+.riff-modal-danger { border: 1px solid rgba(248,113,113,0.35); background: rgba(239,68,68,0.16); color: #fca5a5; }
+.riff-confirm-card p { color: #cbd5e1; font-size: 14px; margin: 2px 0; }
+.riff-song-suggestions { display: flex; flex-direction: column; gap: 5px; margin-top: -7px; }
+.riff-song-suggestions button { display: flex; justify-content: space-between; gap: 10px; border: 1px solid rgba(56,189,248,0.18); border-radius: 8px; padding: 8px 10px; cursor: pointer; background: rgba(30,41,59,0.76); color: #f8fafc; text-align: left; }
+.riff-song-suggestions button span { color: #94a3b8; font-size: 11px; }
+.riff-suggestions-loading { color: #64748b; font-size: 11px; padding: 4px; }
+
 .riff-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -738,6 +792,8 @@
     .riff-grid {
         grid-template-columns: 1fr;
     }
+    .riff-kanban-grid { grid-template-columns: 1fr; }
+    .riff-kanban-intro { align-items: stretch; flex-direction: column; }
 
     .riff-nav-switch {
         width: 100%;
@@ -754,6 +810,7 @@
     .riff-hero-actions {
         width: 100%;
     }
+    .riff-form-grid { grid-template-columns: 1fr; }
 
     .riff-hero-actions .btn-bloque-actual {
         flex: 1;

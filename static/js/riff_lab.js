@@ -6,6 +6,7 @@ let coversData = [];
 let presetsData = [];
 let activeRiffTab = 'covers'; // 'covers' | 'presets'
 let riffSearchQuery = '';
+let songsterrSearchTimer = null;
 
 const DEFAULT_COVERS = [
     {
@@ -126,14 +127,18 @@ function switchRiffView(view) {
     activeRiffTab = view;
     document.getElementById('btn-view-covers').classList.toggle('active', view === 'covers');
     document.getElementById('btn-view-presets').classList.toggle('active', view === 'presets');
+    document.getElementById('btn-view-kanban').classList.toggle('active', view === 'kanban');
     document.getElementById('riff-covers-container').style.display = view === 'covers' ? 'block' : 'none';
     document.getElementById('riff-presets-container').style.display = view === 'presets' ? 'block' : 'none';
+    document.getElementById('riff-kanban-container').style.display = view === 'kanban' ? 'block' : 'none';
+    if (view === 'kanban') renderRiffKanban();
 }
 
 function renderRiffLab() {
     renderRiffMetrics();
     renderCoversList();
     renderPresetsList();
+    renderRiffKanban();
     updateRiffFocus();
 }
 
@@ -226,7 +231,7 @@ function renderCoversList() {
                         <div class="cover-title">${escapeHtmlRiff(c.title)}</div>
                         <div class="cover-artist">${escapeHtmlRiff(c.artist)}</div>
                     </div>
-                    <span class="tuning-pill" title="Afinación de guitarra">⚲ ${escapeHtmlRiff(c.tuning)}</span>
+                    <span class="tuning-pill" title="Afinación de guitarra"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18"></path><path d="M8 7l4-4 4 4"></path><path d="M8 17l4 4 4-4"></path></svg> ${escapeHtmlRiff(c.tuning)}</span>
                 </div>
 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
@@ -294,6 +299,43 @@ function renderPresetsList() {
         return;
     }
 
+    function renderRiffKanban() {
+        const container = document.getElementById('riff-kanban-grid');
+        if (!container) return;
+        const cols = [
+            { id: 'learning', title: 'Aprendiendo', color: '#f59e0b', hint: 'Construye la base' },
+            { id: 'polishing', title: 'Puliendo', color: '#38bdf8', hint: 'Sube precisión y BPM' },
+            { id: 'mastered', title: 'Dominado', color: '#34d399', hint: 'Listo para tocar' }
+        ];
+        container.innerHTML = cols.map(col => {
+            const items = coversData.filter(c => c.status === col.id);
+            return `
+                <div class="riff-kanban-column">
+                    <div class="riff-kanban-column-header" style="border-top-color: ${col.color};">
+                        <div><strong>${col.title}</strong><span>${col.hint}</span></div>
+                        <b>${items.length}</b>
+                    </div>
+                    <div class="riff-kanban-list">
+                        ${items.length ? items.map(c => `
+                            <article class="riff-kanban-card">
+                                <div>
+                                    <strong>${escapeHtmlRiff(c.title)}</strong>
+                                    <span>${escapeHtmlRiff(c.artist)}</span>
+                                </div>
+                                <div class="riff-kanban-card-meta">${c.currentBpm}/${c.targetBpm} BPM</div>
+                                <div class="riff-kanban-card-actions">
+                                    ${col.id !== 'learning' ? `<button onclick="cambiarEstadoCover('${c.id}', 'learning')">Aprendiendo</button>` : ''}
+                                    ${col.id !== 'polishing' ? `<button onclick="cambiarEstadoCover('${c.id}', 'polishing')">Puliendo</button>` : ''}
+                                    ${col.id !== 'mastered' ? `<button onclick="cambiarEstadoCover('${c.id}', 'mastered')">Dominado</button>` : ''}
+                                </div>
+                            </article>
+                        `).join('') : '<div class="riff-kanban-empty">Sin covers en esta etapa</div>'}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
     let html = '';
     visiblePresets.forEach(p => {
         html += `
@@ -301,7 +343,7 @@ function renderPresetsList() {
                 <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                     <div>
                         <div class="cover-title">${escapeHtmlRiff(p.name)}</div>
-                        <div class="plugin-badge" style="margin-top: 4px;">⚡ ${escapeHtmlRiff(p.plugin)}</div>
+                        <div class="plugin-badge" style="margin-top: 4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg> ${escapeHtmlRiff(p.plugin)}</div>
                     </div>
                     <button onclick="eliminarPreset('${p.id}')" class="habit-action-btn" title="Eliminar preset">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -343,70 +385,143 @@ function ajustarBpmCover(id, delta) {
 }
 
 function eliminarCover(id) {
-    if (confirm("¿Eliminar este cover de tu repertorio?")) {
+    abrirModalConfirmacion('Eliminar cover', '¿Quieres quitar este cover de tu repertorio?', () => {
         coversData = coversData.filter(c => c.id !== id);
         saveCovers();
         renderRiffLab();
-    }
+    });
 }
 
 function eliminarPreset(id) {
-    if (confirm("¿Eliminar este preset de Neural DSP?")) {
+    abrirModalConfirmacion('Eliminar preset', '¿Quieres quitar este preset de Neural DSP?', () => {
         presetsData = presetsData.filter(p => p.id !== id);
         savePresets();
         renderRiffLab();
-    }
+    });
 }
 
 function agregarNuevoCover() {
-    const title = prompt("Canción (Ej: 'The Art of Dying'):");
-    if (!title || !title.trim()) return;
-
-    const artist = prompt("Banda / Artista (Ej: 'Gojira'):") || "Desconocido";
-    const tuning = prompt("Afinación (Ej: 'Drop D', 'D Standard', 'Drop C', '8-String'):") || "E Standard";
-    const targetBpm = parseInt(prompt("BPM de la canción (Ej: 135):") || "120", 10);
-    const presetUsed = prompt("Preset o plugin recomendado (Ej: 'Archetype Gojira - Rhythm'):") || "";
-
-    const nuevo = {
-        id: 'cov_' + Date.now(),
-        title: title.trim(),
-        artist: artist.trim(),
-        tuning: tuning.trim(),
-        status: 'learning',
-        currentBpm: Math.round(targetBpm * 0.7),
-        targetBpm: targetBpm,
-        presetUsed: presetUsed.trim(),
-        tabUrl: '',
-        notes: ''
-    };
-
-    coversData.unshift(nuevo);
-    saveCovers();
-    renderRiffLab();
+    abrirModalNuevoCover();
 }
 
 function agregarNuevoPreset() {
-    const name = prompt("Nombre del preset (Ej: 'Fortin High Gain Lead'):");
-    if (!name || !name.trim()) return;
+    abrirModalNuevoPreset();
+}
 
-    const plugin = prompt("Plugin de Neural DSP (Ej: 'Archetype Gojira X', 'Archetype Petrucci', 'Fortin Nameless'):") || "Neural DSP";
-    const amp = prompt("Modelo de amplificador / configuración:") || "";
-    const drive = prompt("Pedal de boost / overdrive / distorsión:") || "";
-    const notes = prompt("Notas de ecualización o mezcla (Opcional):") || "";
+function getRiffModal() {
+    let modal = document.getElementById('riff-form-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'riff-form-modal';
+        modal.className = 'riff-web-modal';
+        document.body.appendChild(modal);
+    }
+    return modal;
+}
 
-    const nuevo = {
-        id: 'pre_' + Date.now(),
-        name: name.trim(),
-        plugin: plugin.trim(),
-        amp: amp.trim(),
-        cab: '',
-        drive: drive.trim(),
-        notes: notes.trim()
-    };
+function cerrarRiffModal() {
+    const modal = document.getElementById('riff-form-modal');
+    if (modal) modal.style.display = 'none';
+}
 
-    presetsData.unshift(nuevo);
-    savePresets();
+function abrirModalNuevoCover() {
+    const modal = getRiffModal();
+    modal.style.display = 'flex';
+    modal.innerHTML = `
+        <form class="riff-modal-card" onsubmit="guardarCoverDesdeModal(event)">
+            <div class="riff-modal-header"><div><span class="section-kicker">Riff Lab</span><h2>Nuevo cover</h2></div><button type="button" class="riff-modal-close" onclick="cerrarRiffModal()">×</button></div>
+            <label>Canción<input id="riff-cover-title" name="title" required autocomplete="off" placeholder="Busca una canción..." oninput="buscarSugerenciasSongsterr(this.value)"></label>
+            <div id="riff-song-suggestions" class="riff-song-suggestions"></div>
+            <label>Artista / banda<input id="riff-cover-artist" name="artist" placeholder="Ej. Gojira"></label>
+            <div class="riff-form-grid">
+                <label>Afinación<input name="tuning" value="E Standard"></label>
+                <label>BPM objetivo<input name="targetBpm" type="number" min="1" value="120"></label>
+            </div>
+            <label>Preset o plugin<input name="presetUsed" placeholder="Ej. Archetype Gojira - Rhythm"></label>
+            <label>Notas<textarea name="notes" rows="3" placeholder="Qué quieres trabajar..."></textarea></label>
+            <div class="riff-modal-actions"><button type="button" class="riff-modal-secondary" onclick="cerrarRiffModal()">Cancelar</button><button class="riff-modal-primary" type="submit">Guardar cover</button></div>
+        </form>
+    `;
+    document.getElementById('riff-cover-title').focus();
+}
+
+function guardarCoverDesdeModal(event) {
+    event.preventDefault();
+    const form = event.target;
+    const data = new FormData(form);
+    const targetBpm = Math.max(1, parseInt(data.get('targetBpm'), 10) || 120);
+    coversData.unshift({
+        id: 'cov_' + Date.now(), title: data.get('title').trim(),
+        artist: data.get('artist').trim() || 'Desconocido', tuning: data.get('tuning').trim() || 'E Standard',
+        status: 'learning', currentBpm: Math.round(targetBpm * 0.7), targetBpm,
+        presetUsed: data.get('presetUsed').trim(), tabUrl: '', notes: data.get('notes').trim()
+    });
+    saveCovers();
+    cerrarRiffModal();
     renderRiffLab();
+}
+
+function buscarSugerenciasSongsterr(value) {
+    clearTimeout(songsterrSearchTimer);
+    const box = document.getElementById('riff-song-suggestions');
+    if (!box) return;
+    if (value.trim().length < 2) { box.innerHTML = ''; return; }
+    box.innerHTML = '<span class="riff-suggestions-loading">Buscando en Songsterr...</span>';
+    songsterrSearchTimer = setTimeout(async () => {
+        try {
+            const response = await fetch(`/api/songsterr?pattern=${encodeURIComponent(value.trim())}`);
+            const songs = await response.json();
+            if (!Array.isArray(songs) || !songs.length) {
+                box.innerHTML = '<span class="riff-suggestions-loading">Sin coincidencias. Puedes escribir el nombre manualmente.</span>';
+                return;
+            }
+            box.innerHTML = songs.slice(0, 5).map(song => `
+                <button type="button" onclick="seleccionarSugerenciaSongsterr(decodeURIComponent('${encodeURIComponent(song.title)}'), decodeURIComponent('${encodeURIComponent(song.artist)}'))">
+                    <strong>${escapeHtmlRiff(song.title)}</strong><span>${escapeHtmlRiff(song.artist)}</span>
+                </button>
+            `).join('');
+        } catch (error) {
+            box.innerHTML = '<span class="riff-suggestions-loading">No se pudo consultar Songsterr. Completa los campos manualmente.</span>';
+        }
+    }, 280);
+}
+
+function seleccionarSugerenciaSongsterr(title, artist) {
+    document.getElementById('riff-cover-title').value = title;
+    document.getElementById('riff-cover-artist').value = artist;
+    document.getElementById('riff-song-suggestions').innerHTML = '';
+}
+
+function abrirModalNuevoPreset() {
+    const modal = getRiffModal();
+    modal.style.display = 'flex';
+    modal.innerHTML = `
+        <form class="riff-modal-card" onsubmit="guardarPresetDesdeModal(event)">
+            <div class="riff-modal-header"><div><span class="section-kicker">Neural DSP</span><h2>Nuevo preset</h2></div><button type="button" class="riff-modal-close" onclick="cerrarRiffModal()">×</button></div>
+            <label>Nombre<input name="name" required placeholder="Ej. Fortin High Gain Lead"></label>
+            <label>Plugin<input name="plugin" value="Neural DSP"></label>
+            <div class="riff-form-grid"><label>Amp<input name="amp"></label><label>Boost / OD<input name="drive"></label></div>
+            <label>Notas<textarea name="notes" rows="3" placeholder="Ecualización, mezcla o contexto..."></textarea></label>
+            <div class="riff-modal-actions"><button type="button" class="riff-modal-secondary" onclick="cerrarRiffModal()">Cancelar</button><button class="riff-modal-primary" type="submit">Guardar preset</button></div>
+        </form>
+    `;
+    modal.querySelector('input[name="name"]').focus();
+}
+
+function guardarPresetDesdeModal(event) {
+    event.preventDefault();
+    const data = new FormData(event.target);
+    presetsData.unshift({ id: 'pre_' + Date.now(), name: data.get('name').trim(), plugin: data.get('plugin').trim() || 'Neural DSP', amp: data.get('amp').trim(), cab: '', drive: data.get('drive').trim(), notes: data.get('notes').trim() });
+    savePresets();
+    cerrarRiffModal();
+    renderRiffLab();
+}
+
+function abrirModalConfirmacion(title, message, onConfirm) {
+    const modal = getRiffModal();
+    modal.style.display = 'flex';
+    modal.innerHTML = `<div class="riff-modal-card riff-confirm-card"><div class="riff-modal-header"><div><span class="section-kicker">Confirmación</span><h2>${escapeHtmlRiff(title)}</h2></div><button type="button" class="riff-modal-close" onclick="cerrarRiffModal()">×</button></div><p>${escapeHtmlRiff(message)}</p><div class="riff-modal-actions"><button class="riff-modal-secondary" onclick="cerrarRiffModal()">Cancelar</button><button class="riff-modal-danger" id="riff-confirm-action">Eliminar</button></div></div>`;
+    document.getElementById('riff-confirm-action').onclick = () => { onConfirm(); cerrarRiffModal(); };
 }
 
 function escapeHtmlRiff(str) {
