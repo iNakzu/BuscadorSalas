@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/notas.css') }}?v=10">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/agenda.css') }}?v=10">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/horario.css') }}?v=10">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/habitos_guitarra.css') }}?v=1">
 </head>
 <body>
 
@@ -160,6 +161,21 @@
                     <line x1="12" y1="19" x2="12" y2="22"></line>
                 </svg>
                 <span>Apuntes por Voz</span>
+            </button>
+            <button type="button" class="tab-btn" onclick="cambiarTab('tab-habitos', this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <span>Hábitos</span>
+            </button>
+            <button type="button" class="tab-btn" onclick="cambiarTab('tab-riff', this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 18V5l12-2v13"></path>
+                    <circle cx="6" cy="18" r="3"></circle>
+                    <circle cx="18" cy="16" r="3"></circle>
+                </svg>
+                <span>Riff Lab & Gear</span>
             </button>
             <button type="button" class="tab-btn" onclick="cambiarTab('tab-corrector', this)">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1161,6 +1177,188 @@
             </div>
         </section>
     
+        <!-- TAB HÁBITOS DIARIOS -->
+        <section id="tab-habitos" class="panel">
+            <div class="habit-tracker-container">
+                <div class="control-card" style="margin-bottom: 20px;">
+                    <div class="filter-header-row" style="margin-bottom: 16px;">
+                        <div class="filter-header-title">Registro de Hábitos Diarios</div>
+                        <button class="btn-bloque-actual" onclick="resetHabitosHoy()" style="width: auto; padding: 7px 12px; font-size: 12px; background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #f87171;">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                            Reiniciar Hoy
+                        </button>
+                    </div>
+
+                    <!-- Métricas de Hábitos -->
+                    <div class="habit-stats-grid">
+                        <div class="habit-stat-card">
+                            <div class="habit-stat-icon" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                            </div>
+                            <div>
+                                <div class="habit-stat-val" id="habitos-metric-hoy">0/0</div>
+                                <div class="habit-stat-label">Completados Hoy</div>
+                            </div>
+                        </div>
+
+                        <div class="habit-stat-card">
+                            <div class="habit-stat-icon" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"></path><path d="M12 20V4"></path><path d="M6 20v-6"></path></svg>
+                            </div>
+                            <div>
+                                <div class="habit-stat-val" id="habitos-metric-pct">0%</div>
+                                <div class="habit-stat-label">Progreso Diario</div>
+                            </div>
+                        </div>
+
+                        <div class="habit-stat-card">
+                            <div class="habit-stat-icon" style="background: rgba(251, 191, 36, 0.15); color: #fbbf24;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            </div>
+                            <div>
+                                <div class="habit-stat-val" id="habitos-metric-racha">0 d</div>
+                                <div class="habit-stat-label">Mejor Racha</div>
+                            </div>
+                        </div>
+
+                        <div class="habit-stat-card">
+                            <div class="habit-stat-icon" style="background: rgba(168, 85, 247, 0.15); color: #c084fc;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            </div>
+                            <div>
+                                <div class="habit-stat-val" id="habitos-metric-total">0</div>
+                                <div class="habit-stat-label">Total Hábitos</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input para agregar nuevo hábito -->
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                        <input type="text" id="nuevo-habito-input" placeholder="Nuevo hábito (Ej: Estudiar para solemne, tocar 30min...)" style="flex-grow: 1; min-width: 220px; background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 11px 14px; color: #fff; font-size: 14px; outline: none;">
+                        <select id="nuevo-habito-categoria" style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 11px 14px; color: #e2e8f0; font-size: 13.5px; outline: none; cursor: pointer;">
+                            <option value="Estudio">Estudio</option>
+                            <option value="Salud">Salud / Higiene</option>
+                            <option value="Música">Guitarra & Música</option>
+                            <option value="Polonia">Polonia & Idioma</option>
+                            <option value="Gatos">Gatos & Casa</option>
+                            <option value="General">General</option>
+                        </select>
+                        <button class="btn-bloque-actual" onclick="agregarHabitoModal()" style="width: auto; padding: 10px 16px;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            Agregar Hábito
+                        </button>
+                    </div>
+
+                    <!-- Lista de Hábitos -->
+                    <div id="habitos-list">
+                        <!-- Injected by habitos.js -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB GUITARRA / RIFF LAB & NEURAL DSP -->
+        <section id="tab-riff" class="panel">
+            <div class="riff-lab-container">
+                <div class="control-card" style="margin-bottom: 20px;">
+                    <div class="filter-header-row" style="margin-bottom: 16px;">
+                        <div class="filter-header-title">Riff Lab & Neural DSP Hub</div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn-bloque-actual" onclick="agregarNuevoCover()" style="width: auto; padding: 8px 14px; font-size: 12.5px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                Nuevo Cover
+                            </button>
+                            <button class="btn-bloque-actual" onclick="agregarNuevoPreset()" style="width: auto; padding: 8px 14px; font-size: 12.5px; background: rgba(168, 85, 247, 0.2); border-color: rgba(168, 85, 247, 0.4); color: #c084fc;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                                Nuevo Preset
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Métricas de Guitarra -->
+                    <div class="riff-stats-grid">
+                        <div class="riff-stat-card">
+                            <div class="habit-stat-icon" style="background: rgba(139, 92, 246, 0.15); color: #a78bfa;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+                            </div>
+                            <div>
+                                <div class="habit-stat-val" id="riff-metric-covers">0</div>
+                                <div class="habit-stat-label">Covers en Lista</div>
+                            </div>
+                        </div>
+
+                        <div class="riff-stat-card">
+                            <div class="habit-stat-icon" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 10"></polyline></svg>
+                            </div>
+                            <div>
+                                <div class="habit-stat-val" id="riff-metric-mastered">0/0</div>
+                                <div class="habit-stat-label">Dominados al 100%</div>
+                            </div>
+                        </div>
+
+                        <div class="riff-stat-card">
+                            <div class="habit-stat-icon" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                            </div>
+                            <div>
+                                <div class="habit-stat-val" id="riff-metric-presets">0</div>
+                                <div class="habit-stat-label">Presets Neural DSP</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Metrónomo / Speed Trainer Integrado -->
+                    <div class="metronome-box">
+                        <div style="display: flex; align-items: center; gap: 14px;">
+                            <div class="metronome-pulse-dot" id="metronome-dot"></div>
+                            <div class="metronome-display">
+                                <span class="metronome-bpm" id="metronome-bpm-val">120</span>
+                                <span style="font-size: 13px; font-weight: 700; color: #94a3b8;">BPM</span>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 10px; flex: 1; max-width: 320px; min-width: 180px;">
+                            <button onclick="changeBpm(-5)" class="habit-action-btn" style="font-weight: 700; padding: 4px 8px;" title="Bajar 5 BPM">-5</button>
+                            <input type="range" id="metronome-slider" min="40" max="280" value="120" style="flex: 1; accent-color: #38bdf8; cursor: pointer;">
+                            <button onclick="changeBpm(5)" class="habit-action-btn" style="font-weight: 700; padding: 4px 8px;" title="Subir 5 BPM">+5</button>
+                        </div>
+
+                        <button id="metronome-play-btn" onclick="toggleMetronome()" class="btn-bloque-actual" style="width: auto; padding: 8px 18px; font-size: 13px;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            <span>Iniciar</span>
+                        </button>
+                    </div>
+
+                    <!-- Pestañas de Vista Interna -->
+                    <div class="riff-nav-switch">
+                        <button class="riff-switch-btn active" id="btn-view-covers" onclick="switchRiffView('covers')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+                            Repertorio de Metal / Covers
+                        </button>
+                        <button class="riff-switch-btn" id="btn-view-presets" onclick="switchRiffView('presets')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                            Presets & Cadenas Neural DSP
+                        </button>
+                    </div>
+
+                    <!-- Vista 1: Covers Grid -->
+                    <div id="riff-covers-container">
+                        <div class="riff-grid" id="riff-covers-grid">
+                            <!-- Injected by riff_lab.js -->
+                        </div>
+                    </div>
+
+                    <!-- Vista 2: Presets Grid -->
+                    <div id="riff-presets-container" style="display: none;">
+                        <div class="riff-grid" id="riff-presets-grid">
+                            <!-- Injected by riff_lab.js -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    
         <!-- TAB CORRECTOR -->
         <section id="tab-corrector" class="panel">
             <div class="glass-panel" style="max-width: 800px; margin: 0 auto;">
@@ -1253,6 +1451,8 @@
 <script src="{{ url_for('static', filename='js/kanban.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/gastos.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/notasvoz.js') }}?v=5" defer></script>
-<script src="{{ url_for('static', filename='js/ia_tools.js') }}?v=6" defer></script>
+<script src="{{ url_for('static', filename='js/habitos.js') }}?v=1" defer></script>
+<script src="{{ url_for('static', filename='js/riff_lab.js') }}?v=1" defer></script>
+<script src="{{ url_for('static', filename='js/ia_tools.js') }}?v=12" defer></script>
 </body>
 </html>

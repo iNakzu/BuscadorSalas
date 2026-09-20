@@ -1689,7 +1689,7 @@ def generar_respuesta_gemini(mensaje_usuario, historial=None, imagen=None, dia_d
         f"{contexto_sala_real}\n"
         f"DATOS LOCALES DE LA APLICACIÓN DEL USUARIO (MEMORIA DEL NAVEGADOR):\n"
         f"{json.dumps(contexto_local, indent=2, ensure_ascii=False) if contexto_local else 'No hay contexto local disponible.'}\n"
-        f"INFORMACIÓN: El json de arriba contiene el estado de la app del usuario. 'mi_horario' contiene sus clases y roles ('student' o 'assistant'). 'amigos_perfiles' contiene los horarios de sus amigos guardados (Nico, Cata, etc). 'malla_progreso' indica el estado de sus ramos en la malla interactiva (ej. ramo 2 es Calculo, si está aprobado dice true). 'agenda_eventos' contiene las fechas de sus certámenes, controles, y tareas agendadas en su radar de fechas.\n"
+        f"INFORMACIÓN: El json de arriba contiene el estado de la app del usuario. 'mi_horario' contiene sus clases y roles ('student' o 'assistant'). 'amigos_perfiles' contiene los horarios de sus amigos guardados (Nico, Cata, etc). 'malla_progreso' indica el estado de sus ramos en la malla interactiva. 'agenda_eventos' contiene las fechas de sus certámenes, controles, y tareas agendadas. 'habitos_diarios' contiene su registro de hábitos y rachas de estudio, salud, etc. 'guitarra_covers' contiene su repertorio de metal/covers de guitarra con afinaciones y BPMs. 'presets_neural_dsp' contiene sus cadenas de audio y presets de plugins de Neural DSP (Gojira, Petrucci, Nolly, Fortin).\n"
     )
 
     prompt_sistema = (

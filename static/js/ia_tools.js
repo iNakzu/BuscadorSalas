@@ -213,7 +213,10 @@ async function enviarChatGlobal() {
         evaluaciones_notas: localStorage.getItem('agendaData') || 'Vacío',
         tareas_kanban: localStorage.getItem('kanban_board') || 'Vacío',
         gastos: localStorage.getItem('mis_gastos') || 'Vacío',
-        apuntes_voz: localStorage.getItem('apuntes_voz') || 'Vacío'
+        apuntes_voz: localStorage.getItem('apuntes_voz') || 'Vacío',
+        habitos_diarios: localStorage.getItem('mis_habitos') || 'Vacío',
+        guitarra_covers: localStorage.getItem('riff_covers') || 'Vacío',
+        presets_neural_dsp: localStorage.getItem('riff_presets') || 'Vacío'
     };
     
     // Añadir mensaje de loading
