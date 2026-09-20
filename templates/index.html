@@ -1461,20 +1461,11 @@
 
                 <!-- Grid Principal de Dos Columnas: Metro vs Buses en Vivo -->
                 <div class="transporte-columns-grid" style="margin-bottom: 20px;">
-                    <!-- Columna 1: Líneas de Metro con Detalle Interactivo -->
+                    <!-- Columna 1: Estado de Líneas de Metro -->
                     <div class="control-card" style="margin-bottom: 0;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
-                            <div style="font-size: 14.5px; font-weight: 700; color: #f8fafc; display: flex; align-items: center; gap: 6px;">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                                Líneas de Metro de Santiago
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 6px;">
-                                <div style="display:flex; align-items:center; gap:4px; background:rgba(15,23,42,0.5); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:3px 8px;">
-                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="#1d9bf0" style="flex-shrink:0;"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                                    <span style="font-size:10px; color:#64748b;">Monitoreo activo</span>
-                                </div>
-                                <span style="font-size: 11px; color: #94a3b8;">Toca una línea para ver estaciones</span>
-                            </div>
+                        <div style="font-size: 14.5px; font-weight: 700; color: #f8fafc; display: flex; align-items: center; gap: 6px; margin-bottom: 14px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            Estado de Líneas · Metro de Santiago
                         </div>
                         <!-- Panel de alertas de X — oculto por defecto, visible cuando hay alertas -->
                         <div id="metro-alertas-panel" style="display:none;"></div>
@@ -1484,18 +1475,16 @@
                     </div>
 
 
-                    <!-- Columna 2: Llegada de Buses en Vivo por GPS -->
+                    <!-- Columna 2: Llegadas en Vivo GPS -->
                     <div class="control-card" style="margin-bottom: 0; display: flex; flex-direction: column;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
-                            <div style="font-size: 14.5px; font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 6px;">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4"></rect><path d="M7 16h10"></path></svg>
-                                Llegadas en Vivo (GPS Buses Red)
-                            </div>
+                        <div style="font-size: 14.5px; font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 6px; margin-bottom: 12px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4"></rect><path d="M7 16h10"></path></svg>
+                            Llegadas en Vivo · Buses GPS
                         </div>
 
                         <!-- Buscador de Paraderos -->
                         <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 16px;">
-                            <input type="text" id="transporte-codigo-input" placeholder="Código de paradero (ej: PA349, PI400, PC156)..." style="flex: 1; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 10px 14px; color: #fff; font-size: 13px; outline: none; text-transform: uppercase;">
+                            <input type="text" id="transporte-codigo-input" placeholder="Código paradero (ej: PA349)..." style="flex: 1; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 10px 14px; color: #fff; font-size: 13px; outline: none; text-transform: uppercase;">
                             <button onclick="consultarParaderoManual()" class="btn-bloque-actual" style="width: auto; padding: 10px 18px; font-size: 13px;">
                                 Buscar
                             </button>

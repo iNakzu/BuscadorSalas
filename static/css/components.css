@@ -1165,3 +1165,12 @@
         gap: 10px !important;
     }
 }
+
+/* En pantallas <=420px el mini-grid de recorrido/horario dentro
+   de cada cápsula de Metro se apila en 1 columna */
+@media (max-width: 420px) {
+    .linea-expand-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
