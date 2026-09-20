@@ -117,12 +117,22 @@
 }
 
 .habit-add-row {
+    align-items: center;
     border-bottom: 1px solid rgba(255,255,255,0.06);
     display: flex;
     gap: 18px;
     justify-content: space-between;
     margin-bottom: 18px;
     padding: 4px 0 20px;
+}
+
+.habit-add-row > .btn-bloque-actual {
+    flex: 0 0 auto;
+    gap: 7px;
+    min-height: 39px;
+    padding: 9px 14px;
+    white-space: nowrap;
+    width: auto;
 }
 
 .habit-add-heading, .habit-list-toolbar > div:first-child {
@@ -767,6 +777,11 @@
 
     .habit-add-fields input, .habit-add-fields select, .habit-add-fields button, .riff-status-filter {
         max-width: none;
+        width: 100%;
+    }
+
+    .habit-add-row > .btn-bloque-actual {
+        justify-content: center;
         width: 100%;
     }
 
