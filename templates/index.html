@@ -1468,12 +1468,21 @@
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                                 Líneas de Metro de Santiago
                             </div>
-                            <span style="font-size: 11px; color: #94a3b8;">Toca una línea para ver estaciones</span>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <div style="display:flex; align-items:center; gap:4px; background:rgba(15,23,42,0.5); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:3px 8px;">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="#1d9bf0" style="flex-shrink:0;"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                                    <span style="font-size:10px; color:#64748b;">Monitoreo activo</span>
+                                </div>
+                                <span style="font-size: 11px; color: #94a3b8;">Toca una línea para ver estaciones</span>
+                            </div>
                         </div>
+                        <!-- Panel de alertas de X — oculto por defecto, visible cuando hay alertas -->
+                        <div id="metro-alertas-panel" style="display:none;"></div>
                         <div id="metro-lineas-grid" style="display: flex; flex-direction: column; gap: 10px;">
                             <!-- Injected by transporte.js -->
                         </div>
                     </div>
+
 
                     <!-- Columna 2: Llegada de Buses en Vivo por GPS -->
                     <div class="control-card" style="margin-bottom: 0; display: flex; flex-direction: column;">

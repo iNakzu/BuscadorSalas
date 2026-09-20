@@ -6,6 +6,8 @@ import datetime
 import difflib
 import urllib
 import urllib.parse
+import threading
+import xml.etree.ElementTree as ET
 from urllib.request import Request, urlopen
 from urllib.error import URLError
 from flask import Flask, request, render_template, jsonify, url_for, Response
@@ -179,6 +181,192 @@ class DataManager:
         }
 
 dm = DataManager()
+
+# =============================================================================
+# SISTEMA DE ALERTAS DE METRO VÍA X (Twitter) — RSS de @metrodesantiago
+# Poller de fondo: consulta el feed RSS del Nitter mirror cada 2 minutos.
+# Los tweets que contengan palabras clave de interrupción son parseados para
+# extraer la línea, estación, tramo o combinación afectada.
+# =============================================================================
+
+_metro_alertas_lock = threading.Lock()
+_metro_alertas: list = []          # Lista de las últimas alertas detectadas
+_metro_alertas_ultimo_check: str = ""  # ISO timestamp del último chequeo exitoso
+
+# Nitter RSS mirrors (se prueba en orden hasta que uno responda)
+_NITTER_FEEDS = [
+    "https://nitter.cz/metrodesantiago/rss",
+    "https://nitter.privacydev.net/metrodesantiago/rss",
+    "https://nitter.poast.org/metrodesantiago/rss",
+]
+
+# Palabras clave que identifican un tweet de alerta de interrupción
+_ALERT_KEYWORDS = [
+    "cerrad", "suspendid", "no operativ", "fuera de servicio",
+    "interrupcio", "interrupción", "parcial", "emergencia",
+    "tramo", "combinacion", "combinación", "sin servicio",
+    "retrasos", "lentitud", "evacua", "detenid", "demora"
+]
+
+# Identificadores de líneas del Metro de Santiago
+_LINEAS_RE = re.compile(
+    r'\b(L(?:ínea|inea)?\s*(?:1|2|3|4A|4|5|6)|línea\s*\d[A]?|L[1-6](?:A)?)\b',
+    re.IGNORECASE
+)
+
+# Frases de estaciones (captura "Estación X" o variantes comunes)
+_ESTACION_RE = re.compile(
+    r'[Ee]staci[oó]n\s+([A-Za-záéíóúñÁÉÍÓÚÑ\s]+?)(?:\s*[\(\,\.\-]|$)',
+)
+
+
+def _normalizar_linea(raw: str) -> str:
+    """Normaliza el identificador de línea a formato estándar: L1, L2, ..., L4A, L6."""
+    raw = raw.strip().upper()
+    raw = raw.replace("LINEA", "").replace("LÍNEA", "").replace(" ", "")
+    if not raw.startswith("L"):
+        raw = "L" + raw
+    return raw
+
+
+def _parsear_tweet_alerta(titulo: str, descripcion: str) -> dict | None:
+    """
+    Analiza el texto de un tweet y retorna un dict con los campos de alerta
+    si contiene palabras clave de interrupción; retorna None si no es alerta.
+    """
+    texto = f"{titulo} {descripcion}".lower()
+
+    # Filtrar si no contiene ninguna palabra clave de alerta
+    if not any(kw in texto for kw in _ALERT_KEYWORDS):
+        return None
+
+    # Detectar tipo de alerta
+    tipo = "red"
+    if "estacion" in texto or "estación" in texto:
+        tipo = "estacion"
+    elif "tramo" in texto:
+        tipo = "tramo"
+    elif "combinac" in texto:
+        tipo = "combinacion"
+
+    # Extraer líneas afectadas
+    lineas_raw = _LINEAS_RE.findall(titulo + " " + descripcion)
+    lineas = list({_normalizar_linea(l) for l in lineas_raw}) if lineas_raw else []
+
+    # Extraer nombre de estación si aplica
+    est_match = _ESTACION_RE.search(titulo + " " + descripcion)
+    estacion = est_match.group(1).strip().title() if est_match else None
+
+    # Construir target legible
+    if estacion and lineas:
+        target = f"{estacion} ({', '.join(lineas)})"
+    elif estacion:
+        target = estacion
+    elif lineas:
+        target = ", ".join(lineas)
+    else:
+        target = "Red General"
+
+    return {
+        "tipo": tipo,
+        "target": target,
+        "lineas": lineas,
+        "estacion": estacion,
+        "mensaje": titulo[:280],
+        "fuente": "X @metrodesantiago"
+    }
+
+
+def poll_metro_x():
+    """
+    Descarga el RSS feed de @metrodesantiago vía Nitter mirrors y extrae alertas.
+    Se ejecuta en un hilo daemon en segundo plano cada 120 segundos.
+    """
+    global _metro_alertas, _metro_alertas_ultimo_check
+
+    while True:
+        try:
+            rss_content = None
+            for feed_url in _NITTER_FEEDS:
+                try:
+                    req = Request(
+                        feed_url,
+                        headers={
+                            "User-Agent": "Mozilla/5.0 (compatible; BuscadorSalasBot/1.0; +https://buscadorsalas.cl)",
+                            "Accept": "application/rss+xml, application/xml, text/xml",
+                        }
+                    )
+                    with urlopen(req, timeout=8) as resp:
+                        if resp.status == 200:
+                            rss_content = resp.read().decode("utf-8", errors="replace")
+                            print(f"[MetroPoller] Feed OK desde {feed_url}")
+                            break
+                except Exception as feed_err:
+                    print(f"[MetroPoller] Mirror {feed_url} falló: {feed_err}")
+                    continue
+
+            if not rss_content:
+                print("[MetroPoller] Todos los mirrors de Nitter fallaron. Se reintentará en 2 min.")
+                time.sleep(120)
+                continue
+
+            # Parsear XML del RSS
+            root = ET.fromstring(rss_content)
+            ns = ""  # RSS 2.0 no usa namespace
+            items = root.findall(".//item")
+
+            nuevas_alertas = []
+            now_iso = get_chile_now().isoformat()
+
+            for item in items[:20]:  # Analizar los últimos 20 tweets
+                titulo_el = item.find("title")
+                desc_el = item.find("description")
+                pub_el = item.find("pubDate")
+                link_el = item.find("link")
+
+                titulo = titulo_el.text or "" if titulo_el is not None else ""
+                desc = desc_el.text or "" if desc_el is not None else ""
+                pub_date = pub_el.text or "" if pub_el is not None else ""
+                link = link_el.text or "" if link_el is not None else ""
+
+                # Ignorar si el texto es del canal (primer item "RSS" del canal)
+                if "metrodesantiago" in titulo.lower() and len(titulo) < 30:
+                    continue
+
+                alerta = _parsear_tweet_alerta(titulo, desc)
+                if alerta:
+                    alerta["ts"] = pub_date or now_iso
+                    alerta["link"] = link
+                    alerta["id"] = f"alert-{hash(titulo + pub_date) & 0xFFFFFF}"
+                    nuevas_alertas.append(alerta)
+
+            with _metro_alertas_lock:
+                _metro_alertas = nuevas_alertas[:10]  # Guardar máximo 10 alertas recientes
+                _metro_alertas_ultimo_check = now_iso
+
+            if nuevas_alertas:
+                print(f"[MetroPoller] {len(nuevas_alertas)} alerta(s) detectada(s): {[a['target'] for a in nuevas_alertas]}")
+            else:
+                print(f"[MetroPoller] Sin alertas activas en X @metrodesantiago.")
+
+        except ET.ParseError as xml_err:
+            print(f"[MetroPoller] Error XML al parsear RSS: {xml_err}")
+        except Exception as ex:
+            print(f"[MetroPoller] Error inesperado: {ex}")
+
+        time.sleep(120)  # Esperar 2 minutos antes del próximo chequeo
+
+
+def _iniciar_poller_metro():
+    """Inicia el hilo daemon del poller de Metro X en segundo plano."""
+    t = threading.Thread(target=poll_metro_x, name="MetroXPoller", daemon=True)
+    t.start()
+    print("[MetroPoller] Hilo de monitoreo de X @metrodesantiago iniciado.")
+
+
+# Iniciar el poller al arrancar la aplicación
+_iniciar_poller_metro()
+
 
 def nombre_dia(n):
     return DIAS_SEMANA.get(int(n), str(n))
@@ -2052,6 +2240,11 @@ def api_transporte():
         "adulto_mayor": {"horario": "Todo horario", "metro": "$250", "bus": "$370"}
     }
 
+    # Obtener alertas activas del poller de X (thread-safe)
+    with _metro_alertas_lock:
+        alertas_activas = list(_metro_alertas)
+        ultimo_check = _metro_alertas_ultimo_check
+
     return jsonify({
         "hora_chile": hora_actual,
         "metro_abierto": metro_abierto,
@@ -2059,8 +2252,26 @@ def api_transporte():
         "lineas_metro": lineas_metro,
         "tarifas": tarifas_vigentes,
         "paradero": paradero_info,
-        "paradero_id": paradero_id
+        "paradero_id": paradero_id,
+        "alertas": alertas_activas,
+        "alertas_ultimo_check": ultimo_check
     })
 
+
+@app.route("/api/metro-alertas", methods=["GET"])
+def api_metro_alertas():
+    """Endpoint dedicado para consultar las alertas activas del Metro de Santiago."""
+    with _metro_alertas_lock:
+        alertas = list(_metro_alertas)
+        ultimo_check = _metro_alertas_ultimo_check
+    return jsonify({
+        "alertas": alertas,
+        "total": len(alertas),
+        "ultimo_check": ultimo_check,
+        "fuente": "X @metrodesantiago via Nitter RSS"
+    })
+
+
 if __name__ == "__main__":
+
     app.run(debug=True, host="127.0.0.1", port=5000)
