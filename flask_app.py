@@ -1965,20 +1965,99 @@ def api_transporte():
         metro_abierto = (now_chile.hour > 6 or (now_chile.hour == 6 and now_chile.minute >= 0)) and (now_chile.hour < 23)
 
     lineas_metro = [
-        {"linea": "L1", "color": "#e11d48", "nombre": "Línea 1 (San Pablo - Los Dominicos)", "estado": "Operativa", "estaciones_cercanas": ["Los Héroes", "República", "La Moneda"]},
-        {"linea": "L2", "color": "#f59e0b", "nombre": "Línea 2 (Vespucio Norte - Hospital El Pino)", "estado": "Operativa", "estaciones_cercanas": ["Toesca (Campus Vergara UDP)", "Los Héroes", "Parque O'Higgins"]},
-        {"linea": "L3", "color": "#9333ea", "nombre": "Línea 3 (Plaza Quilicura - F. Castillo Velasco)", "estado": "Operativa", "estaciones_cercanas": ["Universidad de Chile", "Plaza de Armas"]},
-        {"linea": "L4", "color": "#0284c7", "nombre": "Línea 4 (Tobalaba - Plaza de Puente Alto)", "estado": "Operativa", "estaciones_cercanas": ["Tobalaba", "Plaza Egaña"]},
-        {"linea": "L4A", "color": "#06b6d4", "nombre": "Línea 4A (La Cisterna - Vicuña Mackenna)", "estado": "Operativa", "estaciones_cercanas": ["La Cisterna"]},
-        {"linea": "L5", "color": "#10b981", "nombre": "Línea 5 (Plaza de Maipú - Vicente Valdés)", "estado": "Operativa", "estaciones_cercanas": ["Parque Bustamante", "Bellas Artes"]},
-        {"linea": "L6", "color": "#7c3aed", "nombre": "Línea 6 (Cerrillos - Los Leones)", "estado": "Operativa", "estaciones_cercanas": ["Franklin", "Ñuñoa", "Los Leones"]}
+        {
+            "linea": "L1",
+            "color": "#e11d48",
+            "nombre": "Línea 1",
+            "terminales": "San Pablo ⇄ Los Dominicos",
+            "estado": "Operativa",
+            "estaciones_total": 27,
+            "longitud_km": "20.4 km",
+            "combinaciones": ["L2 (Los Héroes)", "L3 (U. de Chile)", "L4 (Tobalaba)", "L5 (San Pablo, Baquedano)", "L6 (Los Leones)"],
+            "principales_estaciones": ["San Pablo", "Pajaritos", "Estación Central", "Los Héroes", "U. de Chile", "Baquedano", "Tobalaba", "Manquehue", "Los Dominicos"]
+        },
+        {
+            "linea": "L2",
+            "color": "#f59e0b",
+            "nombre": "Línea 2",
+            "terminales": "Vespucio Norte ⇄ Hospital El Pino",
+            "estado": "Operativa",
+            "estaciones_total": 26,
+            "longitud_km": "24.6 km",
+            "combinaciones": ["L1 (Los Héroes)", "L3 (Puente Cal y Canto)", "L4A (La Cisterna)", "L5 (Santa Ana)", "L6 (Franklin)"],
+            "principales_estaciones": ["Vespucio Norte", "Zapadores", "Cal y Canto", "Santa Ana", "Los Héroes", "Toesca", "Franklin", "La Cisterna", "Hospital El Pino"]
+        },
+        {
+            "linea": "L3",
+            "color": "#9333ea",
+            "nombre": "Línea 3",
+            "terminales": "Plaza Quilicura ⇄ Fernando Castillo Velasco",
+            "estado": "Operativa",
+            "estaciones_total": 21,
+            "longitud_km": "24.8 km",
+            "combinaciones": ["L1 (U. de Chile)", "L2 (Puente Cal y Canto)", "L4 (Plaza Egaña)", "L5 (Plaza de Armas, Irarrázaval)", "L6 (Ñuñoa)"],
+            "principales_estaciones": ["Plaza Quilicura", "Conchalí", "Hospitales", "Cal y Canto", "Plaza de Armas", "U. de Chile", "Irarrázaval", "Ñuñoa", "Plaza Egaña", "F. Castillo Velasco"]
+        },
+        {
+            "linea": "L4",
+            "color": "#0284c7",
+            "nombre": "Línea 4",
+            "terminales": "Tobalaba ⇄ Plaza de Puente Alto",
+            "estado": "Operativa",
+            "estaciones_total": 23,
+            "longitud_km": "24.7 km",
+            "combinaciones": ["L1 (Tobalaba)", "L3 (Plaza Egaña)", "L4A (Vicuña Mackenna)", "L5 (Vicente Valdés)"],
+            "principales_estaciones": ["Tobalaba", "Cristóbal Colón", "Francisco Bilbao", "Príncipe de Gales", "Plaza Egaña", "Macul", "Vicuña Mackenna", "Vicente Valdés", "Plaza de Puente Alto"]
+        },
+        {
+            "linea": "L4A",
+            "color": "#06b6d4",
+            "nombre": "Línea 4A",
+            "terminales": "La Cisterna ⇄ Vicuña Mackenna",
+            "estado": "Operativa",
+            "estaciones_total": 6,
+            "longitud_km": "7.7 km",
+            "combinaciones": ["L2 (La Cisterna)", "L4 (Vicuña Mackenna)"],
+            "principales_estaciones": ["La Cisterna", "San Ramón", "Santa Rosa", "La Granja", "Santa Julia", "Vicuña Mackenna"]
+        },
+        {
+            "linea": "L5",
+            "color": "#10b981",
+            "nombre": "Línea 5",
+            "terminales": "Plaza de Maipú ⇄ Vicente Valdés",
+            "estado": "Operativa",
+            "estaciones_total": 30,
+            "longitud_km": "30.0 km",
+            "combinaciones": ["L1 (San Pablo, Baquedano)", "L2 (Santa Ana)", "L3 (Plaza de Armas, Irarrázaval)", "L4 (Vicente Valdés)", "L6 (Ñuble)"],
+            "principales_estaciones": ["Plaza de Maipú", "Monte Tabor", "Pudahuel", "San Pablo", "Santa Ana", "Plaza de Armas", "Baquedano", "Irarrázaval", "Ñuble", "Vicente Valdés"]
+        },
+        {
+            "linea": "L6",
+            "color": "#7c3aed",
+            "nombre": "Línea 6",
+            "terminales": "Cerrillos ⇄ Los Leones",
+            "estado": "Operativa",
+            "estaciones_total": 10,
+            "longitud_km": "15.3 km",
+            "combinaciones": ["L1 (Los Leones)", "L2 (Franklin)", "L3 (Ñuñoa)", "L5 (Ñuble)"],
+            "principales_estaciones": ["Cerrillos", "Lo Valledor", "Franklin", "Biobío", "Ñuble", "Estadio Nacional", "Ñuñoa", "Inés de Suárez", "Los Leones"]
+        }
     ]
+
+    tarifas_vigentes = {
+        "punta": {"horario": "07:00 - 08:59 y 18:00 - 19:59", "metro": "$840", "bus": "$740"},
+        "valle": {"horario": "09:00 - 17:59 y 20:00 - 20:44", "metro": "$760", "bus": "$740"},
+        "bajo":  {"horario": "06:00 - 06:59 y 20:45 - 23:00", "metro": "$680", "bus": "$740"},
+        "estudiante": {"horario": "Todo horario", "metro": "$250", "bus": "$250"},
+        "adulto_mayor": {"horario": "Todo horario", "metro": "$250", "bus": "$370"}
+    }
 
     return jsonify({
         "hora_chile": hora_actual,
         "metro_abierto": metro_abierto,
         "horario_metro_desc": "Lun-Vie: 06:00 a 23:00 | Sáb: 06:30 a 23:00 | Dom/Fest: 08:00 a 23:00",
         "lineas_metro": lineas_metro,
+        "tarifas": tarifas_vigentes,
         "paradero": paradero_info,
         "paradero_id": paradero_id
     })
