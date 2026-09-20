@@ -1364,28 +1364,6 @@
                         </div>
                     </div>
 
-                    <!-- Metrónomo / Speed Trainer Integrado -->
-                    <div class="metronome-box">
-                        <div style="display: flex; align-items: center; gap: 14px;">
-                            <div class="metronome-pulse-dot" id="metronome-dot"></div>
-                            <div class="metronome-display">
-                                <span class="metronome-bpm" id="metronome-bpm-val">120</span>
-                                <span style="font-size: 13px; font-weight: 700; color: #94a3b8;">BPM</span>
-                            </div>
-                        </div>
-
-                        <div style="display: flex; align-items: center; gap: 10px; flex: 1; max-width: 320px; min-width: 180px;">
-                            <button onclick="changeBpm(-5)" class="habit-action-btn" style="font-weight: 700; padding: 4px 8px;" title="Bajar 5 BPM">-5</button>
-                            <input type="range" id="metronome-slider" min="40" max="280" value="120" style="flex: 1; accent-color: #38bdf8; cursor: pointer;">
-                            <button onclick="changeBpm(5)" class="habit-action-btn" style="font-weight: 700; padding: 4px 8px;" title="Subir 5 BPM">+5</button>
-                        </div>
-
-                        <button id="metronome-play-btn" onclick="toggleMetronome()" class="btn-bloque-actual" style="width: auto; padding: 8px 18px; font-size: 13px;">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                            <span>Iniciar</span>
-                        </button>
-                    </div>
-
                     <!-- Pestañas de Vista Interna -->
                     <div class="riff-nav-switch">
                         <button class="riff-switch-btn active" id="btn-view-covers" onclick="switchRiffView('covers')">

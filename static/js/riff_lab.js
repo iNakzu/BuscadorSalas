@@ -1,5 +1,5 @@
 // ==========================================================================
-// RIFF LAB & GEAR HUB - GUITAR COVERS, NEURAL DSP PRESETS & METRONOME
+// RIFF LAB & GEAR HUB - GUITAR COVERS & NEURAL DSP PRESETS
 // ==========================================================================
 
 let coversData = [];
@@ -112,7 +112,6 @@ function initRiffLab() {
     }
 
     renderRiffLab();
-    initMetronome();
 }
 
 function saveCovers() {
@@ -408,106 +407,6 @@ function agregarNuevoPreset() {
     presetsData.unshift(nuevo);
     savePresets();
     renderRiffLab();
-}
-
-// ==========================================================================
-// SPEED TRAINER METRONOME (HTML5 WEB AUDIO API SYNTHESIZER)
-// ==========================================================================
-let metronomeAudioCtx = null;
-let isMetronomeRunning = false;
-let metronomeBpm = 120;
-let metronomeTimer = null;
-
-function initMetronome() {
-    const bpmSlider = document.getElementById('metronome-slider');
-    const bpmVal = document.getElementById('metronome-bpm-val');
-    if (bpmSlider && bpmVal) {
-        bpmSlider.value = metronomeBpm;
-        bpmVal.innerText = metronomeBpm;
-        bpmSlider.oninput = function() {
-            setMetronomeBpm(parseInt(this.value, 10));
-        };
-    }
-}
-
-function setMetronomeBpm(bpm) {
-    metronomeBpm = Math.max(40, Math.min(300, bpm));
-    const bpmVal = document.getElementById('metronome-bpm-val');
-    const bpmSlider = document.getElementById('metronome-slider');
-    if (bpmVal) bpmVal.innerText = metronomeBpm;
-    if (bpmSlider) bpmSlider.value = metronomeBpm;
-
-    if (isMetronomeRunning) {
-        toggleMetronome();
-        toggleMetronome();
-    }
-}
-
-function changeBpm(delta) {
-    setMetronomeBpm(metronomeBpm + delta);
-}
-
-function playClickSound() {
-    try {
-        if (!metronomeAudioCtx) {
-            metronomeAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (metronomeAudioCtx.state === 'suspended') {
-            metronomeAudioCtx.resume();
-        }
-
-        const osc = metronomeAudioCtx.createOscillator();
-        const gain = metronomeAudioCtx.createGain();
-
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(1050, metronomeAudioCtx.currentTime); // Sharp woodblock click
-        gain.gain.setValueAtTime(1, metronomeAudioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, metronomeAudioCtx.currentTime + 0.05);
-
-        osc.connect(gain);
-        gain.connect(metronomeAudioCtx.destination);
-
-        osc.start();
-        osc.stop(metronomeAudioCtx.currentTime + 0.05);
-
-        // Flash visual dot
-        const dot = document.getElementById('metronome-dot');
-        if (dot) {
-            dot.classList.add('pulse');
-            setTimeout(() => dot.classList.remove('pulse'), 90);
-        }
-    } catch(e) { }
-}
-
-function toggleMetronome() {
-    const btn = document.getElementById('metronome-play-btn');
-    if (isMetronomeRunning) {
-        clearInterval(metronomeTimer);
-        isMetronomeRunning = false;
-        if (btn) {
-            btn.innerHTML = `
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                <span>Iniciar</span>
-            `;
-            btn.style.background = 'rgba(56, 189, 248, 0.15)';
-            btn.style.borderColor = 'rgba(56, 189, 248, 0.35)';
-            btn.style.color = '#38bdf8';
-        }
-    } else {
-        isMetronomeRunning = true;
-        playClickSound();
-        const intervalMs = (60 / metronomeBpm) * 1000;
-        metronomeTimer = setInterval(playClickSound, intervalMs);
-        if (btn) {
-            btn.innerHTML = `
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
-                <span>Detener</span>
-            `;
-            btn.style.background = 'rgba(239, 68, 68, 0.2)';
-            btn.style.borderColor = 'rgba(239, 68, 68, 0.4)';
-            btn.style.color = '#f87171';
-        }
-    }
 }
 
 function escapeHtmlRiff(str) {

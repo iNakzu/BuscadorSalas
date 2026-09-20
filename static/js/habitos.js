@@ -22,7 +22,7 @@ const DEFAULT_HABITOS = [
     },
     {
         id: 'hab_3',
-        title: 'Practicar guitarra eléctrica (Riffs / Metrónomo)',
+        title: 'Practicar guitarra eléctrica (Riffs)',
         category: 'Música',
         created_at: new Date().toISOString(),
         history: {}

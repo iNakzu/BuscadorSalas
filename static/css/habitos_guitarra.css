@@ -655,48 +655,6 @@
     white-space: pre-wrap;
 }
 
-/* Metronome interactive capsule */
-.metronome-box {
-    background: rgba(15, 23, 42, 0.65);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 20px;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-}
-
-.metronome-display {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-}
-
-.metronome-bpm {
-    font-size: 36px;
-    font-weight: 800;
-    color: #38bdf8;
-    line-height: 1;
-    min-width: 65px;
-}
-
-.metronome-pulse-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: #475569;
-    transition: all 0.08s ease;
-}
-
-.metronome-pulse-dot.pulse {
-    background: #38bdf8;
-    box-shadow: 0 0 16px #38bdf8;
-    transform: scale(1.35);
-}
-
 /* Responsive Mobile Layout */
 @media (max-width: 768px) {
     .habit-stats-grid, .riff-stats-grid {
@@ -779,17 +737,6 @@
 
     .riff-grid {
         grid-template-columns: 1fr;
-    }
-
-    .metronome-box {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 12px;
-        padding: 14px;
-    }
-
-    .metronome-display {
-        justify-content: center;
     }
 
     .riff-nav-switch {
