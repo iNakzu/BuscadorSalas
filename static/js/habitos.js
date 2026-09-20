@@ -3,6 +3,7 @@
 // ==========================================================================
 
 let habitosData = [];
+let activeHabitoFilter = 'all';
 
 const DEFAULT_HABITOS = [
     {
@@ -101,6 +102,9 @@ function renderHabitos() {
     const hoyEl = document.getElementById('habitos-metric-hoy');
     const pctEl = document.getElementById('habitos-metric-pct');
     const rachaEl = document.getElementById('habitos-metric-racha');
+    const progressPctEl = document.getElementById('habitos-progress-pct');
+    const progressBarEl = document.getElementById('habitos-progress-bar');
+    const progressCopyEl = document.getElementById('habitos-progress-copy');
     if (!listEl) return;
 
     const hoyStr = getHoyDateStr();
@@ -121,6 +125,11 @@ function renderHabitos() {
     if (hoyEl) hoyEl.innerText = `${completadosHoy}/${total}`;
     if (pctEl) pctEl.innerText = `${pct}%`;
     if (rachaEl) rachaEl.innerText = `${maxRacha} d`;
+    if (progressPctEl) progressPctEl.innerText = `${pct}%`;
+    if (progressBarEl) progressBarEl.style.width = `${pct}%`;
+    if (progressCopyEl) {
+        progressCopyEl.innerText = total === 0 ? 'Agrega tu primera rutina' : pct === 100 ? 'Día completado' : `${total - completadosHoy} por completar`;
+    }
 
     if (habitosData.length === 0) {
         listEl.innerHTML = `
@@ -149,10 +158,26 @@ function renderHabitos() {
     }
 
     let html = '';
-    habitosData.forEach(h => {
+    const visibleHabitos = habitosData.filter(h => {
+        const done = !!(h.history && h.history[hoyStr]);
+        return activeHabitoFilter === 'all' || (activeHabitoFilter === 'done' ? done : !done);
+    });
+
+    if (visibleHabitos.length === 0) {
+        listEl.innerHTML = `
+            <div class="habit-empty-state">
+                <strong>${habitosData.length ? 'No hay hábitos en este filtro' : 'No tienes hábitos registrados'}</strong>
+                <span>${habitosData.length ? 'Cambia el filtro para ver tus otras rutinas.' : 'Agrega un hábito arriba para empezar a construir tu racha.'}</span>
+            </div>
+        `;
+        return;
+    }
+
+    visibleHabitos.forEach(h => {
         const isDoneHoy = !!(h.history && h.history[hoyStr]);
         const racha = calcularRacha(h.history || {});
         const category = h.category || 'General';
+        const weeklyDone = past7Days.filter(d => h.history && h.history[d.key]).length;
 
         html += `
             <div class="habit-item-card ${isDoneHoy ? 'completed' : ''}" id="habit-card-${h.id}">
@@ -166,6 +191,9 @@ function renderHabitos() {
                     <div class="habit-title-row">
                         <span class="habit-title">${escapeHtmlHabitos(h.title)}</span>
                         <span class="habit-category-pill">${escapeHtmlHabitos(category)}</span>
+                        <span class="habit-week-badge" title="Completado ${weeklyDone} de 7 días esta semana">
+                            ${weeklyDone}/7
+                        </span>
                         <span class="habit-streak-badge" title="Racha consecutiva">
                             ✦ ${racha}d
                         </span>
@@ -197,6 +225,12 @@ function renderHabitos() {
     });
 
     listEl.innerHTML = html;
+}
+
+function filtrarHabitos(filter, button) {
+    activeHabitoFilter = filter;
+    document.querySelectorAll('[data-habit-filter]').forEach(el => el.classList.toggle('active', el === button));
+    renderHabitos();
 }
 
 function toggleHabitoHoy(id) {

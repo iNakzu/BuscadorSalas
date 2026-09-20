@@ -5,6 +5,7 @@
 let coversData = [];
 let presetsData = [];
 let activeRiffTab = 'covers'; // 'covers' | 'presets'
+let riffSearchQuery = '';
 
 const DEFAULT_COVERS = [
     {
@@ -134,6 +135,53 @@ function renderRiffLab() {
     renderRiffMetrics();
     renderCoversList();
     renderPresetsList();
+    updateRiffFocus();
+}
+
+function getFilteredCovers() {
+    const statusFilter = document.getElementById('riff-status-filter');
+    const status = statusFilter ? statusFilter.value : 'all';
+    const query = riffSearchQuery.trim().toLowerCase();
+    return coversData.filter(c => {
+        const matchesStatus = status === 'all' || c.status === status;
+        const haystack = `${c.title} ${c.artist} ${c.tuning} ${c.presetUsed} ${c.notes}`.toLowerCase();
+        return matchesStatus && (!query || haystack.includes(query));
+    });
+}
+
+function getFilteredPresets() {
+    const query = riffSearchQuery.trim().toLowerCase();
+    return presetsData.filter(p => {
+        const haystack = `${p.name} ${p.plugin} ${p.amp} ${p.cab} ${p.drive} ${p.notes}`.toLowerCase();
+        return !query || haystack.includes(query);
+    });
+}
+
+function filtrarRiffLab(query) {
+    riffSearchQuery = query || '';
+    renderCoversList();
+    renderPresetsList();
+}
+
+function updateRiffFocus() {
+    const titleEl = document.getElementById('riff-focus-title');
+    const subtitleEl = document.getElementById('riff-focus-subtitle');
+    if (!titleEl || !subtitleEl) return;
+    const next = coversData.find(c => c.status !== 'mastered') || coversData[0];
+    if (!next) return;
+    const progress = next.targetBpm > 0 ? Math.min(100, Math.round((next.currentBpm / next.targetBpm) * 100)) : 100;
+    titleEl.textContent = `${next.title} · ${next.currentBpm} BPM`;
+    subtitleEl.textContent = `${progress}% del objetivo · ${next.status === 'learning' ? 'Construye la base' : 'Pule la precisión'}`;
+}
+
+function focusNextCover() {
+    const next = coversData.find(c => c.status !== 'mastered') || coversData[0];
+    if (!next) return;
+    const search = document.getElementById('riff-search-input');
+    const status = document.getElementById('riff-status-filter');
+    if (search) search.value = next.title;
+    if (status) status.value = 'all';
+    filtrarRiffLab(next.title);
 }
 
 function renderRiffMetrics() {
@@ -152,19 +200,20 @@ function renderRiffMetrics() {
 function renderCoversList() {
     const container = document.getElementById('riff-covers-grid');
     if (!container) return;
+    const visibleCovers = getFilteredCovers();
 
-    if (coversData.length === 0) {
+    if (visibleCovers.length === 0) {
         container.innerHTML = `
             <div style="grid-column: 1 / -1; text-align: center; padding: 40px 20px; color: #64748b;">
-                <div style="font-size: 15px; font-weight: 600; color: #94a3b8; margin-bottom: 6px;">No tienes covers en tu repertorio</div>
-                <div style="font-size: 13px;">Haz clic en "Nuevo Cover" para agregar canciones y afinar tu práctica.</div>
+                <div style="font-size: 15px; font-weight: 600; color: #94a3b8; margin-bottom: 6px;">No hay resultados para tu búsqueda</div>
+                <div style="font-size: 13px;">Prueba con otro término o cambia el estado seleccionado.</div>
             </div>
         `;
         return;
     }
 
     let html = '';
-    coversData.forEach(c => {
+    visibleCovers.forEach(c => {
         let statusLabel = 'Aprendiendo';
         if (c.status === 'polishing') statusLabel = 'Puliendo';
         if (c.status === 'mastered') statusLabel = 'Dominado';
@@ -234,8 +283,9 @@ function renderCoversList() {
 function renderPresetsList() {
     const container = document.getElementById('riff-presets-grid');
     if (!container) return;
+    const visiblePresets = getFilteredPresets();
 
-    if (presetsData.length === 0) {
+    if (visiblePresets.length === 0) {
         container.innerHTML = `
             <div style="grid-column: 1 / -1; text-align: center; padding: 40px 20px; color: #64748b;">
                 <div style="font-size: 15px; font-weight: 600; color: #94a3b8; margin-bottom: 6px;">No tienes presets guardados</div>
@@ -246,7 +296,7 @@ function renderPresetsList() {
     }
 
     let html = '';
-    presetsData.forEach(p => {
+    visiblePresets.forEach(p => {
         html += `
             <div class="preset-card">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start;">

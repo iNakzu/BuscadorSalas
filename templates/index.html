@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/notas.css') }}?v=10">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/agenda.css') }}?v=10">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/horario.css') }}?v=11">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/habitos_guitarra.css') }}?v=2">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/habitos_guitarra.css') }}?v=3">
 </head>
 <body>
 
@@ -1197,11 +1197,24 @@
         <section id="tab-habitos" class="panel">
             <div class="habit-tracker-container">
                 <div class="control-card" style="margin-bottom: 20px;">
-                    <div class="filter-header-row" style="margin-bottom: 16px;">
-                        <div class="filter-header-title">Registro de Hábitos Diarios</div>
-                        <button onclick="resetHabitosHoy()" class="habit-action-btn" style="width: 34px; height: 34px; border-radius: 9px; color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.15); display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;" title="Reiniciar hábitos de hoy">
+                    <div class="habit-hero">
+                        <div class="habit-hero-copy">
+                            <div class="section-kicker">Ritmo personal · Hoy</div>
+                            <div class="filter-header-title">Registro de Hábitos Diarios</div>
+                            <p>Convierte tus pequeñas acciones en una rutina visible. Marca lo que completes y revisa tu constancia de la semana.</p>
+                        </div>
+                        <button onclick="resetHabitosHoy()" class="habit-reset-btn" title="Reiniciar hábitos de hoy">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                            <span>Reiniciar hoy</span>
                         </button>
+                    </div>
+
+                    <div class="habit-today-progress">
+                        <div>
+                            <div class="habit-progress-label">Progreso de hoy</div>
+                            <div class="habit-progress-value"><span id="habitos-progress-pct">0%</span><span id="habitos-progress-copy">Listo para empezar</span></div>
+                        </div>
+                        <div class="habit-progress-track"><div id="habitos-progress-bar"></div></div>
                     </div>
 
                     <!-- Métricas de Hábitos -->
@@ -1247,10 +1260,14 @@
                         </div>
                     </div>
 
-                    <!-- Input para agregar nuevo hábito -->
-                    <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
-                        <input type="text" id="nuevo-habito-input" placeholder="Nuevo hábito (Ej: Estudiar para solemne, tocar 30min...)" style="flex-grow: 1; min-width: 220px; background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 11px 14px; color: #fff; font-size: 14px; outline: none;">
-                        <select id="nuevo-habito-categoria" style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 11px 14px; color: #e2e8f0; font-size: 13.5px; outline: none; cursor: pointer;">
+                    <div class="habit-add-row">
+                        <div class="habit-add-heading">
+                            <span class="section-kicker">Nueva rutina</span>
+                            <strong>Añadir un hábito</strong>
+                        </div>
+                        <div class="habit-add-fields">
+                        <input type="text" id="nuevo-habito-input" placeholder="Ej: Leer 20 minutos..." autocomplete="off">
+                        <select id="nuevo-habito-categoria">
                             <option value="Estudio">Estudio</option>
                             <option value="Salud">Salud / Higiene</option>
                             <option value="Música">Guitarra & Música</option>
@@ -1258,13 +1275,24 @@
                             <option value="Gatos">Gatos & Casa</option>
                             <option value="General">General</option>
                         </select>
-                        <button class="btn-bloque-actual" onclick="agregarHabitoModal()" style="width: auto; padding: 10px 16px;">
+                        <button class="btn-bloque-actual" onclick="agregarHabitoModal()">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                             Agregar Hábito
                         </button>
+                        </div>
                     </div>
 
-                    <!-- Lista de Hábitos -->
+                    <div class="habit-list-toolbar">
+                        <div>
+                            <span class="section-kicker">Tu tablero</span>
+                            <strong>Rutinas activas</strong>
+                        </div>
+                        <div class="habit-filter-group">
+                            <button class="habit-filter-btn active" data-habit-filter="all" onclick="filtrarHabitos('all', this)">Todos</button>
+                            <button class="habit-filter-btn" data-habit-filter="pending" onclick="filtrarHabitos('pending', this)">Pendientes</button>
+                            <button class="habit-filter-btn" data-habit-filter="done" onclick="filtrarHabitos('done', this)">Completados</button>
+                        </div>
+                    </div>
                     <div id="habitos-list">
                         <!-- Injected by habitos.js -->
                     </div>
@@ -1276,9 +1304,13 @@
         <section id="tab-riff" class="panel">
             <div class="riff-lab-container">
                 <div class="control-card" style="margin-bottom: 20px;">
-                    <div class="filter-header-row" style="margin-bottom: 16px;">
-                        <div class="filter-header-title">Riff Lab & Neural DSP Hub</div>
-                        <div style="display: flex; gap: 8px;">
+                    <div class="riff-hero">
+                        <div class="riff-hero-copy">
+                            <div class="section-kicker">Practice system · Guitar workspace</div>
+                            <div class="filter-header-title">Riff Lab & Neural DSP Hub</div>
+                            <p>Organiza tu repertorio, registra tus metas de velocidad y conserva tus cadenas de sonido en un solo lugar.</p>
+                        </div>
+                        <div class="riff-hero-actions">
                             <button class="btn-bloque-actual" onclick="agregarNuevoCover()" style="width: auto; padding: 8px 14px; font-size: 12.5px;">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                                 Nuevo Cover
@@ -1288,6 +1320,15 @@
                                 Nuevo Preset
                             </button>
                         </div>
+                    </div>
+
+                    <div class="riff-focus-strip">
+                        <div class="riff-focus-copy">
+                            <span class="section-kicker">Sesión rápida</span>
+                            <strong id="riff-focus-title">Elige un cover y empieza a practicar</strong>
+                            <span id="riff-focus-subtitle">Sube el tempo en pasos pequeños para mantener precisión.</span>
+                        </div>
+                        <button class="riff-focus-button" onclick="focusNextCover()">Sugerir siguiente <span>→</span></button>
                     </div>
 
                     <!-- Métricas de Guitarra -->
@@ -1355,6 +1396,19 @@
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
                             Presets & Cadenas Neural DSP
                         </button>
+                    </div>
+
+                    <div class="riff-library-toolbar">
+                        <div class="riff-search-wrap">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
+                            <input id="riff-search-input" type="search" placeholder="Buscar por canción, artista o plugin..." oninput="filtrarRiffLab(this.value)" autocomplete="off">
+                        </div>
+                        <select id="riff-status-filter" class="riff-status-filter" onchange="filtrarRiffLab(document.getElementById('riff-search-input').value)">
+                            <option value="all">Todos los estados</option>
+                            <option value="learning">Aprendiendo</option>
+                            <option value="polishing">Puliendo</option>
+                            <option value="mastered">Dominado</option>
+                        </select>
                     </div>
 
                     <!-- Vista 1: Covers Grid -->
@@ -1624,8 +1678,8 @@
 <script src="{{ url_for('static', filename='js/kanban.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/gastos.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/notasvoz.js') }}?v=6" defer></script>
-<script src="{{ url_for('static', filename='js/habitos.js') }}?v=1" defer></script>
-<script src="{{ url_for('static', filename='js/riff_lab.js') }}?v=3" defer></script>
+<script src="{{ url_for('static', filename='js/habitos.js') }}?v=2" defer></script>
+<script src="{{ url_for('static', filename='js/riff_lab.js') }}?v=4" defer></script>
 <script src="{{ url_for('static', filename='js/transporte.js') }}?v=5" defer></script>
 <script src="{{ url_for('static', filename='js/clima.js') }}?v=3" defer></script>
 <script src="{{ url_for('static', filename='js/ia_tools.js') }}?v=15" defer></script>

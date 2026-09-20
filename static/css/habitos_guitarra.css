@@ -4,10 +4,240 @@
 
 /* Habit Tracker Container */
 .habit-tracker-container, .riff-lab-container {
-    max-width: 900px;
+    max-width: 1040px;
     margin: 0 auto;
     width: 100%;
     box-sizing: border-box;
+}
+
+.section-kicker {
+    display: block;
+    color: #38bdf8;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    line-height: 1.3;
+    text-transform: uppercase;
+}
+
+.habit-hero, .riff-hero {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.habit-hero-copy p, .riff-hero-copy p {
+    color: #94a3b8;
+    font-size: 13px;
+    line-height: 1.55;
+    margin: 6px 0 0;
+    max-width: 620px;
+}
+
+.habit-reset-btn {
+    align-items: center;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.28);
+    border-radius: 9px;
+    color: #f87171;
+    cursor: pointer;
+    display: inline-flex;
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 700;
+    gap: 6px;
+    padding: 9px 11px;
+    transition: all 0.2s ease;
+}
+
+.habit-reset-btn:hover {
+    background: rgba(239, 68, 68, 0.18);
+    border-color: rgba(239, 68, 68, 0.5);
+}
+
+.habit-today-progress, .riff-focus-strip {
+    background: linear-gradient(105deg, rgba(56, 189, 248, 0.12), rgba(139, 92, 246, 0.1));
+    border: 1px solid rgba(56, 189, 248, 0.17);
+    border-radius: 14px;
+    margin-bottom: 18px;
+    padding: 14px 16px;
+}
+
+.habit-today-progress {
+    align-items: center;
+    display: grid;
+    gap: 18px;
+    grid-template-columns: minmax(170px, 0.65fr) minmax(180px, 1fr);
+}
+
+.habit-progress-label, .habit-progress-value {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+}
+
+.habit-progress-label {
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.habit-progress-value {
+    margin-top: 4px;
+}
+
+.habit-progress-value span:first-child {
+    color: #f8fafc;
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.habit-progress-value span:last-child {
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+.habit-progress-track {
+    background: rgba(15, 23, 42, 0.7);
+    border-radius: 99px;
+    height: 9px;
+    overflow: hidden;
+}
+
+#habitos-progress-bar {
+    background: linear-gradient(90deg, #38bdf8, #34d399);
+    border-radius: inherit;
+    height: 100%;
+    transition: width 0.3s ease;
+    width: 0;
+}
+
+.habit-add-row {
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    gap: 18px;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    padding: 4px 0 20px;
+}
+
+.habit-add-heading, .habit-list-toolbar > div:first-child {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.habit-add-heading strong, .habit-list-toolbar strong {
+    color: #e2e8f0;
+    font-size: 14px;
+}
+
+.habit-add-fields {
+    display: flex;
+    flex: 1;
+    gap: 8px;
+    justify-content: flex-end;
+    max-width: 680px;
+}
+
+.habit-add-fields input, .habit-add-fields select, .riff-search-wrap input, .riff-status-filter {
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 9px;
+    box-sizing: border-box;
+    color: #e2e8f0;
+    font-size: 13px;
+    min-height: 39px;
+    outline: none;
+    padding: 9px 12px;
+}
+
+.habit-add-fields input {
+    flex: 1;
+    min-width: 150px;
+}
+
+.habit-add-fields select {
+    max-width: 160px;
+}
+
+.habit-add-fields input:focus, .habit-add-fields select:focus, .riff-search-wrap:focus-within, .riff-status-filter:focus {
+    border-color: rgba(56, 189, 248, 0.55);
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.08);
+}
+
+.habit-add-fields button {
+    flex-shrink: 0;
+    padding: 9px 13px;
+    width: auto;
+}
+
+.habit-list-toolbar {
+    align-items: flex-end;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.habit-filter-group {
+    background: rgba(15,23,42,0.55);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 9px;
+    display: flex;
+    gap: 3px;
+    padding: 3px;
+}
+
+.habit-filter-btn {
+    background: transparent;
+    border: 0;
+    border-radius: 6px;
+    color: #64748b;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 7px 9px;
+}
+
+.habit-filter-btn.active {
+    background: rgba(56,189,248,0.16);
+    color: #7dd3fc;
+}
+
+.habit-week-badge {
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.22);
+    border-radius: 20px;
+    color: #7dd3fc;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 7px;
+}
+
+.habit-empty-state {
+    align-items: center;
+    background: rgba(15,23,42,0.32);
+    border: 1px dashed rgba(148,163,184,0.2);
+    border-radius: 12px;
+    color: #64748b;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 32px 20px;
+    text-align: center;
+}
+
+.habit-empty-state strong {
+    color: #cbd5e1;
+    font-size: 14px;
+}
+
+.habit-empty-state span {
+    font-size: 12px;
 }
 
 /* Glassmorphism Header Metric Cards */
@@ -214,6 +444,86 @@
     width: fit-content;
 }
 
+.riff-hero-actions {
+    display: flex;
+    flex-shrink: 0;
+    gap: 8px;
+}
+
+.riff-focus-strip {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}
+
+.riff-focus-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.riff-focus-copy strong {
+    color: #f8fafc;
+    font-size: 15px;
+}
+
+.riff-focus-copy > span:last-child {
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+.riff-focus-button {
+    background: rgba(56,189,248,0.12);
+    border: 1px solid rgba(56,189,248,0.28);
+    border-radius: 8px;
+    color: #7dd3fc;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 9px 12px;
+    white-space: nowrap;
+}
+
+.riff-focus-button span {
+    font-size: 16px;
+    margin-left: 4px;
+}
+
+.riff-library-toolbar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.riff-search-wrap {
+    align-items: center;
+    background: rgba(15,23,42,0.7);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 9px;
+    display: flex;
+    flex: 1;
+    gap: 8px;
+    padding: 0 11px;
+}
+
+.riff-search-wrap svg {
+    color: #64748b;
+    flex-shrink: 0;
+}
+
+.riff-search-wrap input {
+    background: transparent;
+    border: 0;
+    min-height: 39px;
+    padding-left: 0;
+    width: 100%;
+}
+
+.riff-status-filter {
+    cursor: pointer;
+    min-width: 155px;
+}
+
 .riff-switch-btn {
     background: transparent;
     border: none;
@@ -253,6 +563,10 @@
     flex-direction: column;
     gap: 10px;
     transition: all 0.2s ease;
+}
+
+.cover-card {
+    min-height: 245px;
 }
 
 .cover-card:hover, .preset-card:hover {
@@ -413,6 +727,46 @@
         gap: 10px;
     }
 
+    .habit-hero, .riff-hero, .habit-add-row, .riff-focus-strip {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .habit-reset-btn, .riff-focus-button {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .habit-today-progress {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .habit-add-fields, .riff-library-toolbar {
+        flex-direction: column;
+        max-width: none;
+    }
+
+    .habit-add-fields input, .habit-add-fields select, .habit-add-fields button, .riff-status-filter {
+        max-width: none;
+        width: 100%;
+    }
+
+    .habit-list-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .habit-filter-group {
+        width: 100%;
+    }
+
+    .habit-filter-btn {
+        flex: 1;
+    }
+
     .habit-title {
         font-size: 13.5px;
     }
@@ -449,5 +803,33 @@
         padding: 7px 10px;
         font-size: 12px;
     }
-}
 
+    .riff-hero-actions {
+        width: 100%;
+    }
+
+    .riff-hero-actions .btn-bloque-actual {
+        flex: 1;
+        justify-content: center;
+        min-width: 0;
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+    }
+
+    .habit-title-row {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .habit-info {
+        min-width: 0;
+    }
+
+    .habit-title {
+        flex-basis: 100%;
+    }
+
+    .habit-days-row {
+        gap: 4px;
+    }
+}
