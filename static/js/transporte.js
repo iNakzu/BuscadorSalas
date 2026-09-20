@@ -3,83 +3,10 @@
 // ==============================================================================
 
 let datosTransporteCache = null;
-let currentTransporteTab = 'lineas';
 let activeParaderoCode = 'PA349';
 
-const PARADEROS_FRECUENTES = [
-    { code: 'PA349', label: 'Los Héroes (L1/L2)' },
-    { code: 'PA187', label: 'República (L1)' },
-    { code: 'PA374', label: 'U. de Chile (L1/L3)' },
-    { code: 'PA344', label: 'Plaza de Armas (L3/L5)' },
-    { code: 'PC156', label: 'Tobalaba (L1/L4)' },
-    { code: 'PI400', label: 'Pajaritos (L1 Intermodal)' },
-    { code: 'PA450', label: 'Toesca / Vergara (L2)' }
-];
-
 async function initTransporte() {
-    renderChipsParaderos();
     await cargarDatosTransporte();
-}
-
-function switchTransporteTab(tabName) {
-    currentTransporteTab = tabName;
-
-    const views = {
-        'lineas': document.getElementById('transporte-view-lineas'),
-        'tarifas': document.getElementById('transporte-view-tarifas'),
-        'buses': document.getElementById('transporte-view-buses')
-    };
-
-    const btns = {
-        'lineas': document.getElementById('subtab-btn-lineas'),
-        'tarifas': document.getElementById('subtab-btn-tarifas'),
-        'buses': document.getElementById('subtab-btn-buses')
-    };
-
-    Object.keys(views).forEach(k => {
-        if (views[k]) {
-            views[k].style.display = (k === tabName) ? 'block' : 'none';
-        }
-        if (btns[k]) {
-            if (k === tabName) {
-                btns[k].classList.add('active');
-            } else {
-                btns[k].classList.remove('active');
-            }
-        }
-    });
-
-    if (tabName === 'buses' && (!datosTransporteCache || !datosTransporteCache.paradero)) {
-        cargarBusesParadero(activeParaderoCode);
-    }
-}
-
-function renderChipsParaderos() {
-    const container = document.getElementById('chips-paraderos-rapidos');
-    if (!container) return;
-
-    let html = '';
-    PARADEROS_FRECUENTES.forEach(p => {
-        const isActive = p.code === activeParaderoCode;
-        html += `
-            <button type="button" class="switch-chip ${isActive ? 'active' : ''}" onclick="seleccionarParaderoChip('${p.code}', this)" style="font-size: 11.5px; padding: 4px 10px;">
-                ${escapeHtmlTrans(p.label)}
-            </button>
-        `;
-    });
-    container.innerHTML = html;
-}
-
-function seleccionarParaderoChip(code, btn) {
-    activeParaderoCode = code;
-    const input = document.getElementById('transporte-codigo-input');
-    if (input) input.value = code;
-
-    const chips = document.querySelectorAll('#chips-paraderos-rapidos .switch-chip');
-    chips.forEach(c => c.classList.remove('active'));
-    if (btn) btn.classList.add('active');
-
-    cargarBusesParadero(code);
 }
 
 function consultarParaderoManual() {
