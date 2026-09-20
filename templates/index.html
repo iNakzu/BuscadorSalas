@@ -1421,7 +1421,7 @@
                     <div class="filter-header-row" style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;">
                         <div style="min-width: 0; flex: 1;">
                             <div class="filter-header-title">Metro &amp; Transporte</div>
-                            <div style="font-size: 12px; color: #94a3b8; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Estado en vivo · GPS micros · Tarifas del sistema</div>
+                            <div style="font-size: 12px; color: #94a3b8; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Estado en vivo</div>
                         </div>
                         <div style="display: flex; gap: 8px; align-items: center; flex-shrink: 0;">
                             <div id="metro-horario-badge" style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #34d399; background: rgba(16, 185, 129, 0.12); padding: 6px 12px; border-radius: 20px; border: 1px solid rgba(16, 185, 129, 0.25); white-space: nowrap;">
@@ -1469,7 +1469,7 @@
                             Estado de Líneas · Metro de Santiago
                         </div>
                         <!-- Panel de alertas de X — oculto por defecto, visible cuando hay alertas -->
-                        <div id="metro-alertas-panel" style="display:none;"></div>
+                        <div id="metro-alertas-panel" class="metro-alertas-panel" style="display:none;"></div>
                         <div id="metro-lineas-grid" style="display: flex; flex-direction: column; gap: 10px;">
                             <!-- Injected by transporte.js -->
                         </div>
@@ -1485,14 +1485,14 @@
 
                         <!-- Buscador de Paraderos -->
                         <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 16px;">
-                            <input type="text" id="transporte-codigo-input" placeholder="Código paradero (ej: PA349)..." style="flex: 1; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 10px 14px; color: #fff; font-size: 13px; outline: none; text-transform: uppercase;">
+                            <input type="text" id="transporte-codigo-input" placeholder="Código de paradero..." style="flex: 1; min-width: 0; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 10px 14px; color: #fff; font-size: 13px; outline: none; text-transform: uppercase;">
                             <button onclick="consultarParaderoManual()" class="btn-bloque-actual" style="width: auto; padding: 10px 18px; font-size: 13px;">
                                 Buscar
                             </button>
                         </div>
 
                         <!-- Lista de Buses aproximándose -->
-                        <div id="transporte-buses-list" style="display: flex; flex-direction: column; gap: 8px; flex: 1;">
+                        <div id="transporte-buses-list" class="transporte-buses-list" style="display: flex; flex-direction: column; gap: 8px; flex: 1;">
                             <!-- Injected by transporte.js -->
                         </div>
                     </div>

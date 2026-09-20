@@ -4,8 +4,7 @@
 // ==============================================================================
 
 let datosTransporteCache = null;
-let activeParaderoCode = 'PA349';
-let _alertasAnterioresIds = new Set();
+let activeParaderoCode = null;
 
 async function initTransporte() {
     await cargarDatosTransporte();
@@ -16,11 +15,60 @@ function consultarParaderoManual() {
     if (!input) return;
     const val = input.value.trim().toUpperCase();
     if (!val) {
-        alert('Ingresa un código de paradero válido (ej: PA349).');
+        alert('Ingresa un código de paradero válido.');
         return;
     }
     activeParaderoCode = val;
     cargarBusesParadero(val);
+}
+
+function formatearMensajeAlerta(str) {
+    return (str || '')
+        .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '✓');
+}
+
+function compactarServicio(str) {
+    return (str || 'Servicio')
+        .replace(/No hay buses que se dirijan al paradero/gi, 'Sin buses')
+        .replace(/Servicio en Horario Habil/gi, 'Horario activo')
+        .replace(/Servicio en Horario Hábil/gi, 'Horario activo');
+}
+
+function esPublicacionFinJornada(alerta) {
+    const texto = (alerta && alerta.mensaje ? alerta.mensaje : '').toLowerCase();
+    return (texto.includes('finaliza') && texto.includes('jornada')) ||
+        texto.includes('fin de la jornada');
+}
+
+function alertaDentroDe24Horas(alerta) {
+    const fecha = new Date(alerta && alerta.ts ? alerta.ts : '');
+    if (Number.isNaN(fecha.getTime())) return false;
+    const diferencia = Date.now() - fecha.getTime();
+    return diferencia >= -5 * 60 * 1000 && diferencia <= 24 * 60 * 60 * 1000;
+}
+
+function filtrarAlertasActivas(alertas) {
+    const vigentes = (alertas || []).filter(a =>
+        alertaDentroDe24Horas(a) &&
+        !esPublicacionFinJornada(a)
+    );
+    if (vigentes.some(a => a.resolucion_global)) return [];
+    return vigentes.filter(a => !a.resolucion && !a.resolucion_global);
+}
+
+function formatearFechaAlerta(value) {
+    if (!value) return '';
+    const fecha = new Date(value);
+    if (Number.isNaN(fecha.getTime())) return '';
+    return new Intl.DateTimeFormat('es-CL', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+        timeZone: 'America/Santiago'
+    }).format(fecha);
 }
 
 // ─── Escape helper ────────────────────────────────────────────────────────────
@@ -38,8 +86,7 @@ function escapeHtmlTrans(str) {
 function _alertasDeLinea(alertas, lineaCode) {
     if (!alertas || alertas.length === 0) return [];
     return alertas.filter(a =>
-        (a.lineas && a.lineas.includes(lineaCode)) ||
-        a.tipo === 'red'
+        a.lineas && a.lineas.includes(lineaCode)
     );
 }
 
@@ -95,7 +142,8 @@ function _mostrarToastAlerta(alertas) {
 // ─── Panel de alertas global (encima del grid de líneas) ──────────────────────
 function _renderPanelAlertas(alertas, container) {
     if (!container) return;
-    if (!alertas || alertas.length === 0) {
+    alertas = filtrarAlertasActivas(alertas);
+    if (alertas.length === 0) {
         container.innerHTML = '';
         container.style.display = 'none';
         return;
@@ -103,7 +151,7 @@ function _renderPanelAlertas(alertas, container) {
     container.style.display = 'block';
 
     let html = `
-        <div style="background:rgba(153,27,27,0.12);border:1px solid rgba(248,113,113,0.35);border-radius:12px;padding:12px 14px;margin-bottom:12px;">
+        <div class="metro-alertas-scroll" style="background:rgba(153,27,27,0.12);border:1px solid rgba(248,113,113,0.35);border-radius:12px;padding:12px 14px;margin-bottom:12px;">
             <div style="display:flex;align-items:center;gap:7px;margin-bottom:9px;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                 <span style="font-size:11px;font-weight:800;color:#f87171;text-transform:uppercase;letter-spacing:.07em;">Alertas detectadas vía X</span>
@@ -118,12 +166,14 @@ function _renderPanelAlertas(alertas, container) {
         ).join('');
         html += `
             <div style="background:rgba(0,0,0,0.25);border-radius:8px;padding:9px 11px;border-left:3px solid #f87171;">
-                <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:3px;">
-                    <span style="color:#fca5a5;font-size:11px;font-weight:700;">${escapeHtmlTrans(a.target)}</span>
-                    ${lineasBadges}
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;min-width:0;">
+                    <div style="display:flex;align-items:center;gap:5px;min-width:0;flex:1;flex-wrap:wrap;">
+                        <span style="color:#fca5a5;font-size:11px;font-weight:700;">${escapeHtmlTrans(a.target)}</span>
+                        ${lineasBadges}
+                    </div>
+                    <span style="color:#64748b;font-size:10px;font-weight:600;white-space:nowrap;flex-shrink:0;">${escapeHtmlTrans(formatearFechaAlerta(a.ts))}</span>
                 </div>
-                <div style="color:#94a3b8;font-size:11px;line-height:1.4;">${escapeHtmlTrans(a.mensaje.substring(0,160))}${a.mensaje.length>160?'…':''}</div>
-                ${a.link ? `<a href="${escapeHtmlTrans(a.link)}" target="_blank" rel="noopener noreferrer" style="color:#38bdf8;font-size:10px;margin-top:4px;display:inline-block;text-decoration:none;">Ver publicación en X ↗</a>` : ''}
+                <div style="color:#94a3b8;font-size:11px;line-height:1.4;">${escapeHtmlTrans(formatearMensajeAlerta(a.mensaje.substring(0,160)))}${a.mensaje.length>160?'…':''}</div>
             </div>
         `;
     });
@@ -158,9 +208,11 @@ function _renderLineaCapsule(l, alertasLinea) {
                 </div>
                 ${alertasLinea.map(a => `
                     <div style="background:rgba(153,27,27,0.2);border:1px solid rgba(248,113,113,0.25);border-radius:8px;padding:8px 10px;margin-bottom:5px;">
-                        <div style="color:#fca5a5;font-weight:700;font-size:12px;margin-bottom:3px;">${escapeHtmlTrans(a.target)}</div>
-                        <div style="color:#94a3b8;font-size:11px;line-height:1.4;">${escapeHtmlTrans(a.mensaje.substring(0,200))}${a.mensaje.length>200?'…':''}</div>
-                        ${a.link ? `<a href="${escapeHtmlTrans(a.link)}" target="_blank" rel="noopener noreferrer" style="color:#38bdf8;font-size:10px;margin-top:4px;display:inline-block;text-decoration:none;">Ver en X ↗</a>` : ''}
+                        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:3px;min-width:0;">
+                            <div style="color:#fca5a5;font-weight:700;font-size:12px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtmlTrans(a.target)}</div>
+                            <span style="color:#64748b;font-size:10px;font-weight:600;white-space:nowrap;flex-shrink:0;">${escapeHtmlTrans(formatearFechaAlerta(a.ts))}</span>
+                        </div>
+                        <div style="color:#94a3b8;font-size:11px;line-height:1.4;">${escapeHtmlTrans(formatearMensajeAlerta(a.mensaje.substring(0,200)))}${a.mensaje.length>200?'…':''}</div>
                     </div>
                 `).join('')}
             </div>
@@ -174,20 +226,8 @@ function _renderLineaCapsule(l, alertasLinea) {
         `;
     }
 
-    // Si hay combinaciones relevantes — útil para buscar alternativas si la línea está cerrada
-    if (l.combinaciones && l.combinaciones.length > 0) {
-        expandHtml += `
-            <div style="margin-top:${tieneAlerta ? '10px' : '0'};">
-                <div style="color:#64748b;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;">Líneas alternativas en esta línea</div>
-                <div style="display:flex;flex-wrap:wrap;gap:5px;">
-                    ${l.combinaciones.map(c => `<span style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:2px 8px;font-size:10.5px;color:#94a3b8;">${escapeHtmlTrans(c)}</span>`).join('')}
-                </div>
-            </div>
-        `;
-    }
-
     return `
-        <div style="
+        <div class="metro-linea-capsule" style="
             background:rgba(15,23,42,0.60);
             border:1px solid ${tieneAlerta ? 'rgba(248,113,113,0.45)' : 'rgba(255,255,255,0.08)'};
             border-radius:14px;
@@ -195,7 +235,7 @@ function _renderLineaCapsule(l, alertasLinea) {
             ${tieneAlerta ? 'box-shadow:0 0 0 1px rgba(248,113,113,0.12),0 4px 20px rgba(153,27,27,0.1);' : ''}
         ">
             <!-- Header de la cápsula -->
-            <div
+            <div class="metro-linea-header"
                 onclick="toggleLineaDetalle('${l.linea}')"
                 style="
                     padding:13px 15px;
@@ -239,7 +279,7 @@ function _renderLineaCapsule(l, alertasLinea) {
             </div>
 
             <!-- Detalle expandible -->
-            <div id="detalle-linea-${l.linea}" style="display:none;padding:12px 15px;border-top:1px solid rgba(255,255,255,0.06);background:rgba(8,12,24,0.5);">
+            <div id="detalle-linea-${l.linea}" class="metro-linea-detail" style="display:none;padding:12px 15px;border-top:1px solid rgba(255,255,255,0.08);background:rgba(15,23,42,0.60);">
                 ${expandHtml}
             </div>
         </div>
@@ -258,7 +298,8 @@ async function cargarDatosTransporte() {
     }
 
     try {
-        const res  = await fetch(`/api/transporte?stop=${encodeURIComponent(activeParaderoCode)}`);
+        const stopQuery = activeParaderoCode ? `?stop=${encodeURIComponent(activeParaderoCode)}` : '';
+        const res  = await fetch(`/api/transporte${stopQuery}`);
         const data = await res.json();
         datosTransporteCache = data;
 
@@ -267,14 +308,13 @@ async function cargarDatosTransporte() {
             const abierto = data.metro_abierto;
             horarioBadge.innerHTML = `
                 <span class="status-dot" style="${abierto ? 'background:#34d399;box-shadow:0 0 6px #10b981;' : 'background:#f43f5e;box-shadow:0 0 6px #f43f5e;'}"></span>
-                <span>${abierto ? 'Red Operativa (' + data.hora_chile + ' hrs)' : 'Metro Cerrado (' + data.hora_chile + ' hrs)'}</span>
+                <span>${abierto ? 'Red Operativa' : 'Metro Cerrado'}</span>
             `;
         }
 
         // 2. Panel global de alertas
-        const alertas = data.alertas || [];
+        const alertas = filtrarAlertasActivas(data.alertas);
         _renderPanelAlertas(alertas, alertasPanel);
-        if (alertas.length > 0) _mostrarToastAlerta(alertas);
 
         // 3. Cápsulas de líneas
         if (lineasGrid && Array.isArray(data.lineas_metro)) {
@@ -356,11 +396,21 @@ function renderBusesList(paraderoData, code) {
     const busesList = document.getElementById('transporte-buses-list');
     if (!busesList) return;
 
+    if (!code) {
+        busesList.innerHTML = `
+            <div style="text-align:center;padding:22px 16px;background:rgba(15,23,42,0.4);border-radius:10px;border:1px dashed rgba(255,255,255,0.08);color:#94a3b8;font-size:12.5px;">
+                <div style="font-weight:600;color:#f8fafc;margin-bottom:4px;">Busca un paradero</div>
+                <div style="font-size:11px;color:#64748b;">Ingresa un código para ver sus buses.</div>
+            </div>
+        `;
+        return;
+    }
+
     if (!paraderoData || !paraderoData.services || paraderoData.services.length === 0) {
         busesList.innerHTML = `
             <div style="text-align:center;padding:22px 16px;background:rgba(15,23,42,0.4);border-radius:10px;border:1px dashed rgba(255,255,255,0.08);color:#94a3b8;font-size:12.5px;">
-                <div style="font-weight:600;color:#f8fafc;margin-bottom:4px;">Sin datos GPS para <span style="color:#38bdf8;">${escapeHtmlTrans(code)}</span></div>
-                <div style="font-size:11px;color:#64748b;">Puede ser horario nocturno o código no válido.</div>
+                <div style="font-weight:600;color:#f8fafc;margin-bottom:4px;">No hay buses disponibles</div>
+                <div style="font-size:11px;color:#64748b;">Revisa el código del paradero.</div>
             </div>
         `;
         return;
@@ -373,28 +423,39 @@ function renderBusesList(paraderoData, code) {
         </div>
     `;
 
-    paraderoData.services.forEach(s => {
+    const services = [...paraderoData.services].sort((a, b) => {
+        const aTieneGps = Array.isArray(a.buses) && a.buses.length > 0;
+        const bTieneGps = Array.isArray(b.buses) && b.buses.length > 0;
+        if (aTieneGps !== bTieneGps) return bTieneGps - aTieneGps;
+        if (!aTieneGps) return 0;
+        const aMin = Number(a.buses[0].min_arrival_time);
+        const bMin = Number(b.buses[0].min_arrival_time);
+        return (Number.isFinite(aMin) ? aMin : Number.MAX_SAFE_INTEGER) -
+            (Number.isFinite(bMin) ? bMin : Number.MAX_SAFE_INTEGER);
+    });
+
+    services.forEach(s => {
         const hasBuses     = Array.isArray(s.buses) && s.buses.length > 0;
         const primerBus    = hasBuses ? s.buses[0] : null;
         const tiempoLlegada = primerBus
             ? (primerBus.min_arrival_time !== undefined
                 ? `${primerBus.min_arrival_time}–${primerBus.max_arrival_time} min`
                 : 'En camino')
-            : 'Sin buses cercanos';
+            : 'Sin buses';
         const distancia = primerBus && primerBus.meters_distance ? `${primerBus.meters_distance} m` : '';
 
         html += `
-            <div style="background:rgba(15,23,42,0.55);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:11px 13px;display:flex;justify-content:space-between;align-items:center;gap:10px;">
+            <div class="transporte-bus-row" style="background:rgba(15,23,42,0.55);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:11px 13px;display:flex;justify-content:space-between;align-items:center;gap:10px;">
                 <div style="display:flex;align-items:center;gap:10px;min-width:0;">
                     <span style="background:linear-gradient(135deg,#0284c7,#0369a1);color:#fff;font-weight:800;font-size:12.5px;padding:5px 10px;border-radius:8px;min-width:48px;text-align:center;flex-shrink:0;">${escapeHtmlTrans(s.id)}</span>
                     <div style="min-width:0;">
-                        <div style="font-size:12.5px;font-weight:600;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtmlTrans(s.status_description || 'Servicio regular')}</div>
+                        <div style="font-size:12.5px;font-weight:600;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtmlTrans(compactarServicio(s.status_description || 'Servicio regular'))}</div>
                         ${distancia ? `<div style="font-size:10.5px;color:#64748b;margin-top:1px;">GPS: ${distancia}</div>` : ''}
                     </div>
                 </div>
                 <div style="text-align:right;flex-shrink:0;">
                     <div style="font-size:13px;font-weight:700;color:${hasBuses ? '#38bdf8' : '#64748b'};">${escapeHtmlTrans(tiempoLlegada)}</div>
-                    <div style="font-size:10px;color:#94a3b8;">${hasBuses ? 'Arribo est.' : 'Sin datos'}</div>
+                    <div style="font-size:10px;color:#94a3b8;">${hasBuses ? 'Arribo' : 'Sin buses'}</div>
                 </div>
             </div>
         `;
@@ -403,36 +464,18 @@ function renderBusesList(paraderoData, code) {
     busesList.innerHTML = html;
 }
 
-// ─── CSS de animación toast (inyectado una sola vez) ─────────────────────────
-(function _injectCSS() {
-    if (document.getElementById('metro-toast-style')) return;
-    const s = document.createElement('style');
-    s.id = 'metro-toast-style';
-    s.textContent = `
-        @keyframes slideInToast {
-            from { opacity:0; transform:translateX(40px); }
-            to   { opacity:1; transform:translateX(0); }
-        }
-    `;
-    document.head.appendChild(s);
-})();
-
 // ─── Auto-polling de alertas (cada 90 s, sin recargar la página) ──────────────
 // Consulta /api/metro-alertas en silencio. Si llegan alertas nuevas:
-//  · muestra toast de notificación
 //  · actualiza el panel de alertas global
 //  · actualiza el color del badge de cada línea afectada
 async function _pollAlertas() {
     try {
         const res  = await fetch('/api/metro-alertas', { cache: 'no-store' });
         const data = await res.json();
-        const alertas = data.alertas || [];
+        const alertas = filtrarAlertasActivas(data.alertas);
 
         // Actualizar panel global
         _renderPanelAlertas(alertas, document.getElementById('metro-alertas-panel'));
-
-        // Mostrar toast solo para alertas nuevas
-        if (alertas.length > 0) _mostrarToastAlerta(alertas);
 
         // Actualizar badge de estado de cada línea (rojo/verde) sin rerenderizar todo
         if (datosTransporteCache && Array.isArray(datosTransporteCache.lineas_metro)) {
@@ -475,4 +518,3 @@ document.addEventListener('DOMContentLoaded', () => {
     // Esperar 10 s después de cargar para empezar el polling periódico
     setTimeout(_iniciarPollingAlertas, 10000);
 });
-

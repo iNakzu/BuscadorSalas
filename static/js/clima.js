@@ -81,7 +81,7 @@ async function cargarClimaGlobal() {
                                 <span style="font-size: 11px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.05em;">${meta.tag}</span>
                                 <div style="font-size: 17px; font-weight: 800; color: #f8fafc; margin-top: 2px;">${meta.nombre}</div>
                             </div>
-                            <div style="background: rgba(15, 23, 42, 0.6); padding: 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06);">
+                            <div style="padding: 0;">
                                 ${iconSvg}
                             </div>
                         </div>
@@ -92,7 +92,7 @@ async function cargarClimaGlobal() {
                         </div>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; background: rgba(15, 23, 42, 0.45); border: 1px solid rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; font-size: 11.5px;">
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 11.5px;">
                         <div>
                             <div style="color: #64748b; font-size: 10px;">Sensación</div>
                             <div style="color: #cbd5e1; font-weight: 700;">${Math.round(c.apparent_temperature)}°C</div>

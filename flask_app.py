@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import html
 import time
 import datetime
 import difflib
@@ -8,6 +9,7 @@ import urllib
 import urllib.parse
 import threading
 import xml.etree.ElementTree as ET
+from email.utils import parsedate_to_datetime
 from urllib.request import Request, urlopen
 from urllib.error import URLError
 from flask import Flask, request, render_template, jsonify, url_for, Response
@@ -208,6 +210,13 @@ _ALERT_KEYWORDS = [
     "retrasos", "lentitud", "evacua", "detenid", "demora"
 ]
 
+_RESOLUTION_KEYWORDS = [
+    "operativ", "restablecid", "normalizad", "solucionad",
+    "sin problemas", "servicio disponible", "funcionando con normalidad",
+    "toda la red operativa", "toda la red disponible",
+    "red se encuentra operativa", "red operativa"
+]
+
 # Identificadores de líneas del Metro de Santiago
 _LINEAS_RE = re.compile(
     r'\b(L(?:ínea|inea)?\s*(?:1|2|3|4A|4|5|6)|línea\s*\d[A]?|L[1-6](?:A)?)\b',
@@ -234,11 +243,29 @@ def _parsear_tweet_alerta(titulo: str, descripcion: str) -> dict | None:
     Analiza el texto de un tweet y retorna un dict con los campos de alerta
     si contiene palabras clave de interrupción; retorna None si no es alerta.
     """
-    texto = f"{titulo} {descripcion}".lower()
+    texto = _normalizar_texto_alerta(f"{titulo} {descripcion}")
 
-    # Filtrar si no contiene ninguna palabra clave de alerta
-    if not any(kw in texto for kw in _ALERT_KEYWORDS):
+    if _es_publicacion_fin_jornada(texto):
         return None
+
+    es_resolucion = any(kw in texto for kw in _RESOLUTION_KEYWORDS)
+    es_resolucion_global = any(kw in texto for kw in (
+        "toda la red operativa",
+        "toda la red disponible",
+        "toda la red se encuentra operativa",
+        "toda la red se encuentra disponible",
+        "red se encuentra operativa",
+        "red operativa"
+    ))
+    es_nueva_incidencia = any(kw in texto for kw in _ALERT_KEYWORDS)
+    if not es_nueva_incidencia and not es_resolucion:
+        return None
+    if es_resolucion and not any(
+        kw in texto for kw in ("no operativ", "fuera de servicio", "suspendid", "cerrad", "interrup")
+    ):
+        es_resolucion = True
+    else:
+        es_resolucion = False
 
     # Detectar tipo de alerta
     tipo = "red"
@@ -273,8 +300,65 @@ def _parsear_tweet_alerta(titulo: str, descripcion: str) -> dict | None:
         "lineas": lineas,
         "estacion": estacion,
         "mensaje": titulo[:280],
-        "fuente": "X @metrodesantiago"
+        "fuente": "X @metrodesantiago",
+        "resolucion": es_resolucion,
+        "resolucion_global": es_resolucion_global
     }
+
+
+def _normalizar_texto_alerta(value: str) -> str:
+    """Normaliza espacios y entidades para comparar textos del RSS de forma estable."""
+    return re.sub(r"\s+", " ", html.unescape(value or "")).strip().lower()
+
+
+def _es_publicacion_fin_jornada(texto: str) -> bool:
+    return (
+        "finaliza" in texto and "jornada" in texto
+    ) or "fin de la jornada" in texto
+
+
+def _parsear_fecha_rss(value: str):
+    """Convierte pubDate RFC 822 a la zona horaria de Chile."""
+    if not value:
+        return None
+    try:
+        if "T" in value:
+            parsed = datetime.datetime.fromisoformat(value.replace("Z", "+00:00"))
+        else:
+            parsed = parsedate_to_datetime(value)
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=datetime.timezone.utc)
+        return parsed.astimezone(CHILE_TZ)
+    except (TypeError, ValueError, OverflowError):
+        return None
+
+
+def _alerta_dentro_de_24_horas(alerta: dict) -> bool:
+    publicada = _parsear_fecha_rss(alerta.get("ts", ""))
+    if publicada is None:
+        return False
+    ahora = get_chile_now()
+    return ahora - datetime.timedelta(hours=24) <= publicada <= ahora + datetime.timedelta(minutes=5)
+
+
+def _obtener_alertas_activas():
+    """Filtra la caché y aplica resoluciones globales antes de responder la API."""
+    with _metro_alertas_lock:
+        candidatas = [
+            alerta for alerta in _metro_alertas
+            if _alerta_dentro_de_24_horas(alerta)
+            and not _es_publicacion_fin_jornada(
+                _normalizar_texto_alerta(alerta.get("mensaje", ""))
+            )
+        ]
+
+    candidatas.sort(
+        key=lambda alerta: _parsear_fecha_rss(alerta.get("ts", "")) or datetime.datetime.min.replace(tzinfo=CHILE_TZ),
+        reverse=True
+    )
+    if any(alerta.get("resolucion_global") for alerta in candidatas):
+        return []
+    return [alerta for alerta in candidatas if not alerta.get("resolucion")]
 
 
 def poll_metro_x():
@@ -315,7 +399,7 @@ def poll_metro_x():
             ns = ""  # RSS 2.0 no usa namespace
             items = root.findall(".//item")
 
-            nuevas_alertas = []
+            alertas_feed = []
             now_iso = get_chile_now().isoformat()
 
             for item in items[:20]:  # Analizar los últimos 20 tweets
@@ -329,16 +413,60 @@ def poll_metro_x():
                 pub_date = pub_el.text or "" if pub_el is not None else ""
                 link = link_el.text or "" if link_el is not None else ""
 
+                published_at = _parsear_fecha_rss(pub_date)
+                now = get_chile_now()
+                if published_at is None or published_at < now - datetime.timedelta(hours=24) or published_at > now + datetime.timedelta(minutes=5):
+                    continue
+
                 # Ignorar si el texto es del canal (primer item "RSS" del canal)
                 if "metrodesantiago" in titulo.lower() and len(titulo) < 30:
                     continue
 
                 alerta = _parsear_tweet_alerta(titulo, desc)
                 if alerta:
-                    alerta["ts"] = pub_date or now_iso
+                    alerta["ts"] = published_at.isoformat()
                     alerta["link"] = link
                     alerta["id"] = f"alert-{hash(titulo + pub_date) & 0xFFFFFF}"
-                    nuevas_alertas.append(alerta)
+                    alerta["_published_at"] = published_at
+                    alertas_feed.append(alerta)
+
+            # Se procesa de más nuevo a más antiguo: el último estado publicado
+            # para cada línea prevalece sobre cualquier aviso anterior.
+            alertas_feed.sort(key=lambda alerta: alerta["_published_at"], reverse=True)
+            activas = {}
+            estados_vistos = set()
+            lineas_red = ["L1", "L2", "L3", "L4", "L4A", "L5", "L6"]
+            for alerta in alertas_feed:
+                if alerta.get("resolucion_global"):
+                    activas.clear()
+                    estados_vistos.update(lineas_red)
+                    continue
+                lineas = alerta["lineas"]
+                if lineas:
+                    lineas_nuevas = [linea for linea in lineas if linea not in estados_vistos]
+                    estados_vistos.update(lineas_nuevas)
+                    for alerta_global in activas.values():
+                        if not alerta_global.get("lineas") and lineas_nuevas:
+                            alerta_global["lineas"] = [
+                                linea for linea in alerta_global.get("_lineas_red", lineas_red)
+                                if linea not in estados_vistos
+                            ]
+                    if not alerta.get("resolucion"):
+                        for linea in lineas_nuevas:
+                            activas[linea] = alerta
+                elif not estados_vistos:
+                    estados_vistos.update(lineas_red)
+                    if not alerta.get("resolucion"):
+                        alerta["_lineas_red"] = lineas_red[:]
+                        alerta["lineas"] = lineas_red[:]
+                        activas[f'{alerta["tipo"]}:{alerta["target"]}'] = alerta
+                    else:
+                        activas.clear()
+
+            nuevas_alertas = list(activas.values())[:10]
+            for alerta in nuevas_alertas:
+                alerta.pop("_published_at", None)
+                alerta.pop("_lineas_red", None)
 
             with _metro_alertas_lock:
                 _metro_alertas = nuevas_alertas[:10]  # Guardar máximo 10 alertas recientes
@@ -2129,16 +2257,17 @@ def api_clima():
 
 @app.route("/api/transporte", methods=["GET"])
 def api_transporte():
-    paradero_id = request.args.get("stop", "PA450").strip().upper()
+    paradero_id = request.args.get("stop", "").strip().upper()
     paradero_info = None
 
-    try:
-        url = f"https://api.xor.cl/red/bus-stop/{urllib.parse.quote(paradero_id)}"
-        req = Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        with urlopen(req, timeout=6) as r:
-            paradero_info = json.loads(r.read().decode("utf-8"))
-    except Exception:
-        paradero_info = None
+    if paradero_id:
+        try:
+            url = f"https://api.xor.cl/red/bus-stop/{urllib.parse.quote(paradero_id)}"
+            req = Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            with urlopen(req, timeout=6) as r:
+                paradero_info = json.loads(r.read().decode("utf-8"))
+        except Exception:
+            paradero_info = None
 
     now_chile = get_chile_now()
     hora_actual = now_chile.strftime("%H:%M")
@@ -2240,9 +2369,8 @@ def api_transporte():
         "adulto_mayor": {"horario": "Todo horario", "metro": "$250", "bus": "$370"}
     }
 
-    # Obtener alertas activas del poller de X (thread-safe)
+    alertas_activas = _obtener_alertas_activas()
     with _metro_alertas_lock:
-        alertas_activas = list(_metro_alertas)
         ultimo_check = _metro_alertas_ultimo_check
 
     return jsonify({
@@ -2261,8 +2389,8 @@ def api_transporte():
 @app.route("/api/metro-alertas", methods=["GET"])
 def api_metro_alertas():
     """Endpoint dedicado para consultar las alertas activas del Metro de Santiago."""
+    alertas = _obtener_alertas_activas()
     with _metro_alertas_lock:
-        alertas = list(_metro_alertas)
         ultimo_check = _metro_alertas_ultimo_check
     return jsonify({
         "alertas": alertas,

@@ -1148,10 +1148,10 @@
     box-sizing: border-box;
 }
 
-/* En pantallas >= 700px activar dos columnas explícitas */
+/* En escritorio mantener una lectura lineal, sin dividir Metro & Red al medio. */
 @media (min-width: 700px) {
     .transporte-columns-grid {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 }
 
@@ -1200,3 +1200,62 @@
     }
 }
 
+/* Metro & Red: el contenido dinámico nunca debe ensanchar el viewport móvil. */
+#tab-transporte,
+#tab-transporte > div,
+#tab-transporte .control-card,
+#metro-lineas-grid,
+#metro-alertas-panel,
+#transporte-buses-list {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.metro-alertas-scroll,
+.metro-linea-capsule,
+.metro-linea-detail,
+.transporte-bus-row {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.metro-linea-header {
+    min-width: 0;
+}
+
+.metro-linea-header > div:first-child,
+.metro-linea-header > div:first-child > div:last-child {
+    min-width: 0;
+}
+
+.transporte-bus-row > div {
+    min-width: 0;
+}
+
+@media (max-width: 699px) {
+    #tab-transporte .transporte-columns-grid {
+        width: 100%;
+        min-width: 0;
+    }
+
+    #tab-transporte .control-card {
+        overflow: hidden;
+    }
+
+    #metro-alertas-panel,
+    #transporte-buses-list {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #tab-transporte #transporte-codigo-input {
+        min-width: 0;
+        width: 100%;
+    }
+
+    #tab-transporte #transporte-buses-list {
+        min-width: 0;
+    }
+}
