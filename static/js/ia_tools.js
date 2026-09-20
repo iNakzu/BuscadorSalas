@@ -3,9 +3,13 @@ async function corregirTexto() {
     const input = document.getElementById('corrector-input').value.trim();
     if (!input) return;
     
-    document.getElementById('corrector-loading').style.display = 'block';
     document.getElementById('corrector-output-container').style.display = 'none';
-    document.getElementById('btn-corregir').disabled = true;
+    const btn = document.getElementById('btn-corregir');
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+    document.getElementById('btn-corregir-text').innerText = 'Buscando todas las faltas ortográficas...';
+    document.getElementById('btn-corregir-icon').innerHTML = '<line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>';
+    document.getElementById('btn-corregir-icon').classList.add('ai-spin');
     
     const prompt = `Corrige la ortografía, puntuación, mayúsculas y tildes del siguiente texto. ES CRÍTICO que NO cambies las palabras originales, el estilo, el tono ni la intención del mensaje.
 Debes devolver tu respuesta EXACTAMENTE con este formato (incluyendo las etiquetas entre corchetes):
