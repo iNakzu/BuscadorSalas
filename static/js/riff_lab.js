@@ -207,7 +207,11 @@ function renderCoversList() {
                 ` : ''}
 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px;">
-                    <div style="display: flex; gap: 4px;">
+                    <div style="display: flex; gap: 4px; align-items: center;">
+                        <button onclick="buscarTabSongsterr('${escapeHtmlRiff(c.artist)}', '${escapeHtmlRiff(c.title)}')" class="habit-action-btn" style="font-size: 11px; padding: 3px 8px; color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 6px; gap: 4px;" title="Buscar tablatura en Songsterr API">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            <span>Tab</span>
+                        </button>
                         <button onclick="cambiarEstadoCover('${c.id}', 'learning')" class="habit-action-btn" style="font-size: 11px; padding: 3px 6px;" title="Aprendiendo">1</button>
                         <button onclick="cambiarEstadoCover('${c.id}', 'polishing')" class="habit-action-btn" style="font-size: 11px; padding: 3px 6px;" title="Puliendo">2</button>
                         <button onclick="cambiarEstadoCover('${c.id}', 'mastered')" class="habit-action-btn" style="font-size: 11px; padding: 3px 6px; color: #34d399;" title="Dominado">✓</button>
@@ -464,6 +468,101 @@ function escapeHtmlRiff(str) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
+}
+
+// ==============================================================================
+// SONGSTERR API TAB INTEGRATION
+// ==============================================================================
+async function buscarTabSongsterr(artist, title) {
+    const query = `${artist} ${title}`.trim();
+    const modalId = 'modal-songsterr';
+    let modal = document.getElementById(modalId);
+    
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = modalId;
+        modal.style.cssText = 'position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); z-index: 1050; display: flex; align-items: center; justify-content: center; padding: 20px;';
+        document.body.appendChild(modal);
+    }
+
+    modal.style.display = 'flex';
+    modal.innerHTML = `
+        <div style="background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 16px; max-width: 550px; width: 100%; max-height: 80vh; overflow-y: auto; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); display: flex; flex-direction: column; gap: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 28px; height: 28px; border-radius: 7px; background: rgba(56, 189, 248, 0.2); color: #38bdf8; display: flex; align-items: center; justify-content: center;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+                    </div>
+                    <div style="font-size: 15px; font-weight: 700; color: #f8fafc;">Songsterr Tabs API</div>
+                </div>
+                <button onclick="document.getElementById('${modalId}').style.display = 'none'" style="background: none; border: none; color: #94a3b8; font-size: 20px; cursor: pointer; padding: 4px;">✕</button>
+            </div>
+            <div style="font-size: 13px; color: #94a3b8;">Buscando tablaturas interactivas para: <strong style="color: #38bdf8;">${escapeHtmlRiff(query)}</strong>...</div>
+            <div id="songsterr-results-box" style="display: flex; flex-direction: column; gap: 8px; min-height: 80px; justify-content: center; align-items: center;">
+                <span class="status-dot"></span>
+                <span style="font-size: 12px; color: #64748b; margin-top: 6px;">Consultando catálogo oficial de Songsterr...</span>
+            </div>
+        </div>
+    `;
+
+    try {
+        const res = await fetch(`/api/songsterr?pattern=${encodeURIComponent(query)}`);
+        const songs = await res.json();
+        const box = document.getElementById('songsterr-results-box');
+
+        if (!Array.isArray(songs) || songs.length === 0) {
+            box.innerHTML = `
+                <div style="text-align: center; padding: 20px 0; color: #94a3b8;">
+                    <div style="font-size: 14px; font-weight: 600; color: #f8fafc; margin-bottom: 4px;">No se encontraron tabs exactos</div>
+                    <div style="font-size: 12px; margin-bottom: 12px;">Puedes buscarlo directamente en Songsterr web:</div>
+                    <a href="https://www.songsterr.com/a/wa/search?pattern=${encodeURIComponent(query)}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(56, 189, 248, 0.18); border: 1px solid rgba(56, 189, 248, 0.35); color: #38bdf8; padding: 7px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 600; text-decoration: none;">
+                        Abrir búsqueda en Songsterr ➔
+                    </a>
+                </div>
+            `;
+            return;
+        }
+
+        let listHtml = '';
+        songs.slice(0, 5).forEach(s => {
+            const songUrl = `https://www.songsterr.com/a/wsa/${encodeURIComponent(s.artist.toLowerCase().replace(/\\s+/g, '-'))}-${encodeURIComponent(s.title.toLowerCase().replace(/\\s+/g, '-'))}-tab-s${s.songId}`;
+            const tracksCount = (s.tracks && s.tracks.length) ? s.tracks.length : 1;
+            
+            listHtml += `
+                <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+                    <div>
+                        <div style="font-size: 14px; font-weight: 700; color: #f1f5f9;">${escapeHtmlRiff(s.title)}</div>
+                        <div style="font-size: 12px; color: #94a3b8; display: flex; gap: 8px; align-items: center; margin-top: 2px;">
+                            <span>${escapeHtmlRiff(s.artist)}</span>
+                            <span style="color: #64748b;">•</span>
+                            <span style="color: #a78bfa; font-size: 11px;">${tracksCount} pistas (Guitarras, Bajo, Batería)</span>
+                        </div>
+                    </div>
+                    <a href="${songUrl}" target="_blank" rel="noopener noreferrer" style="background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%); color: #ffffff; padding: 6px 14px; border-radius: 7px; font-size: 12px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0; box-shadow: 0 2px 10px rgba(56,189,248,0.35);">
+                        <span>Tocar Tab</span> ➔
+                    </a>
+                </div>
+            `;
+        });
+
+        box.style.display = 'flex';
+        box.style.flexDirection = 'column';
+        box.style.alignItems = 'stretch';
+        box.innerHTML = listHtml;
+
+    } catch (e) {
+        const box = document.getElementById('songsterr-results-box');
+        if (box) {
+            box.innerHTML = `
+                <div style="color: #f87171; font-size: 12.5px; text-align: center; padding: 10px 0;">
+                    Error al consultar Songsterr API. <br>
+                    <a href="https://www.songsterr.com/a/wa/search?pattern=${encodeURIComponent(query)}" target="_blank" rel="noopener noreferrer" style="color: #38bdf8; text-decoration: underline; margin-top: 6px; display: inline-block;">
+                        Buscar manualmente en Songsterr ➔
+                    </a>
+                </div>
+            `;
+        }
+    }
 }
 
 document.addEventListener('DOMContentLoaded', initRiffLab);

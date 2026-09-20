@@ -177,6 +177,22 @@
                 </svg>
                 <span>Riff Lab & Gear</span>
             </button>
+            <button type="button" class="tab-btn" onclick="cambiarTab('tab-transporte', this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="4"></rect>
+                    <path d="M7 16h10"></path>
+                    <path d="M9 8h6"></path>
+                    <circle cx="7.5" cy="12.5" r=".5" fill="currentColor"></circle>
+                    <circle cx="16.5" cy="12.5" r=".5" fill="currentColor"></circle>
+                </svg>
+                <span>Metro & Red</span>
+            </button>
+            <button type="button" class="tab-btn" onclick="cambiarTab('tab-clima', this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path>
+                </svg>
+                <span>Clima Global</span>
+            </button>
             <button type="button" class="tab-btn" onclick="cambiarTab('tab-corrector', this)">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -1396,6 +1412,81 @@
             </div>
         </section>
 
+        <!-- TAB TRANSPORTE Y METRO -->
+        <section id="tab-transporte" class="panel">
+            <div class="control-card" style="max-width: 900px; margin: 0 auto 20px;">
+                <div class="filter-header-row" style="margin-bottom: 16px;">
+                    <div>
+                        <div class="filter-header-title">Transporte Público & Metro de Santiago</div>
+                        <div style="font-size: 12px; color: #94a3b8; margin-top: 2px;">Llegada de micros en paraderos UDP y estado de la red de Metro en vivo</div>
+                    </div>
+                    <div id="metro-horario-badge" style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #34d399; background: rgba(16, 185, 129, 0.12); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(16, 185, 129, 0.25);">
+                        <span class="status-dot"></span>
+                        <span>Red Operativa</span>
+                    </div>
+                </div>
+
+                <!-- Selector de Paradero Universitario -->
+                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px; flex-wrap: wrap;">
+                    <label for="transporte-paradero-select" style="font-size: 13px; font-weight: 700; color: #cbd5e1;">Paradero Universitario:</label>
+                    <select id="transporte-paradero-select" onchange="cambiarParadero(this.value)" style="flex: 1; min-width: 220px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 9px 12px; color: #fff; font-size: 13px; outline: none;">
+                        <!-- Injected by transporte.js -->
+                    </select>
+                    <button onclick="cargarDatosTransporte()" class="habit-action-btn" style="width: 36px; height: 36px; border-radius: 8px; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8;" title="Actualizar tiempos de llegada">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                    </button>
+                </div>
+
+                <!-- Grid de 2 Columnas: Metro vs Red de Buses -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
+                    <!-- Columna 1: Buses en vivo -->
+                    <div>
+                        <div style="font-size: 13px; font-weight: 700; color: #38bdf8; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4"></rect><path d="M7 16h10"></path></svg>
+                            Buses acercándose a tu paradero
+                        </div>
+                        <div id="transporte-buses-list" style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="text-align: center; padding: 20px; color: #94a3b8;"><span class="status-dot"></span> Consultando GPS de buses...</div>
+                        </div>
+                    </div>
+
+                    <!-- Columna 2: Líneas de Metro -->
+                    <div>
+                        <div style="font-size: 13px; font-weight: 700; color: #cbd5e1; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            Líneas de Metro de Santiago
+                        </div>
+                        <div id="metro-lineas-grid" style="display: flex; flex-direction: column; gap: 8px;">
+                            <!-- Injected by transporte.js -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB CLIMA GLOBAL -->
+        <section id="tab-clima" class="panel">
+            <div style="max-width: 900px; margin: 0 auto;">
+                <div class="control-card" style="margin-bottom: 18px;">
+                    <div class="filter-header-row" style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;">
+                        <div>
+                            <div class="filter-header-title">Monitor de Clima Satelital en Tiempo Real</div>
+                            <div style="font-size: 12px; color: #94a3b8; margin-top: 2px;">Pronósticos oficiales en vivo vía Open-Meteo API</div>
+                        </div>
+                        <button onclick="cargarClimaGlobal()" class="btn-bloque-actual" style="width: auto; padding: 7px 14px; font-size: 12px;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                            Actualizar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Grilla de Tarjetas de Clima -->
+                <div id="clima-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 20px;">
+                    <!-- Injected by clima.js -->
+                </div>
+            </div>
+        </section>
+
         <!-- TAB CHAT GLOBAL IA -->
         <section id="tab-chatglobal" class="panel">
             <div class="chatglobal-panel-container">
@@ -1477,7 +1568,9 @@
 <script src="{{ url_for('static', filename='js/gastos.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/notasvoz.js') }}?v=6" defer></script>
 <script src="{{ url_for('static', filename='js/habitos.js') }}?v=1" defer></script>
-<script src="{{ url_for('static', filename='js/riff_lab.js') }}?v=1" defer></script>
+<script src="{{ url_for('static', filename='js/riff_lab.js') }}?v=2" defer></script>
+<script src="{{ url_for('static', filename='js/transporte.js') }}?v=1" defer></script>
+<script src="{{ url_for('static', filename='js/clima.js') }}?v=1" defer></script>
 <script src="{{ url_for('static', filename='js/ia_tools.js') }}?v=15" defer></script>
 </body>
 </html>

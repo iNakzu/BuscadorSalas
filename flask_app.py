@@ -4,10 +4,11 @@ import json
 import time
 import datetime
 import difflib
+import urllib
+import urllib.parse
 from urllib.request import Request, urlopen
 from urllib.error import URLError
-from flask import Flask, request, render_template, jsonify, url_for
-import os
+from flask import Flask, request, render_template, jsonify, url_for, Response
 
 app = Flask(__name__)
 
@@ -1860,6 +1861,113 @@ def api_chat():
 
     respuesta = responder_con_ia(mensaje, historial=historial, imagen=imagen, contexto_local=contexto_local)
     return jsonify({"respuesta": respuesta})
+
+# ==============================================================================
+# PROXYS DE APIS PÚBLICAS: METRO/RED MOVILIDAD, CLIMA INTERNACIONAL Y SONGSTERR
+# ==============================================================================
+
+@app.route("/api/songsterr", methods=["GET"])
+def api_songsterr():
+    pattern = request.args.get("pattern", "").strip()
+    if not pattern:
+        return jsonify([])
+    try:
+        quoted = urllib.parse.quote(pattern)
+        url = f"https://www.songsterr.com/api/songs?pattern={quoted}"
+        req = Request(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"})
+        with urlopen(req, timeout=8) as r:
+            return Response(r.read(), mimetype="application/json")
+    except Exception as e:
+        return jsonify({"error": str(e), "results": []}), 500
+
+@app.route("/api/clima", methods=["GET"])
+def api_clima():
+    ciudades = {
+        "santiago": {
+            "nombre": "Santiago, Chile",
+            "tag": "Campus UDP",
+            "lat": -33.45,
+            "lon": -70.66,
+            "tz": "America/Santiago"
+        },
+        "wroclaw": {
+            "nombre": "Wrocław, Polonia",
+            "tag": "Intercambio Universitario",
+            "lat": 51.1079,
+            "lon": 17.0385,
+            "tz": "Europe/Warsaw"
+        },
+        "usa": {
+            "nombre": "New York, USA",
+            "tag": "Horario Este (EST)",
+            "lat": 40.7128,
+            "lon": -74.0060,
+            "tz": "America/New_York"
+        }
+    }
+
+    ciudad_key = request.args.get("ciudad", "").lower()
+    meta = ciudades.get(ciudad_key)
+    if not meta:
+        return jsonify({"error": "Ciudad no soportada. Usa 'santiago', 'wroclaw' o 'usa'."}), 400
+
+    try:
+        url = (
+            f"https://api.open-meteo.com/v1/forecast?latitude={meta['lat']}&longitude={meta['lon']}"
+            f"&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m"
+            f"&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone={urllib.parse.quote(meta['tz'])}"
+        )
+        req = Request(url, headers={"User-Agent": "BuscadorSalasUDP/1.0"})
+        with urlopen(req, timeout=8) as r:
+            data = json.loads(r.read().decode("utf-8"))
+            data["meta"] = meta
+            return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": f"No se pudo consultar el clima: {str(e)}"}), 500
+
+@app.route("/api/transporte", methods=["GET"])
+def api_transporte():
+    paradero_id = request.args.get("stop", "PA450").strip().upper()
+    paradero_info = None
+
+    try:
+        url = f"https://api.xor.cl/red/bus-stop/{urllib.parse.quote(paradero_id)}"
+        req = Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urlopen(req, timeout=6) as r:
+            paradero_info = json.loads(r.read().decode("utf-8"))
+    except Exception:
+        paradero_info = None
+
+    now_chile = get_chile_now()
+    hora_actual = now_chile.strftime("%H:%M")
+    dia_sem = now_chile.weekday()
+
+    # Horario oficial de funcionamiento de Metro de Santiago
+    if dia_sem == 6: # Domingo
+        metro_abierto = (now_chile.hour > 8 or (now_chile.hour == 8 and now_chile.minute >= 0)) and (now_chile.hour < 23)
+    elif dia_sem == 5: # Sábado
+        metro_abierto = (now_chile.hour > 6 or (now_chile.hour == 6 and now_chile.minute >= 30)) and (now_chile.hour < 23)
+    else: # Lunes a Viernes
+        metro_abierto = (now_chile.hour > 6 or (now_chile.hour == 6 and now_chile.minute >= 0)) and (now_chile.hour < 23)
+
+    lineas_metro = [
+        {"linea": "L1", "color": "#e11d48", "nombre": "Línea 1 (San Pablo - Los Dominicos)", "estado": "Operativa", "estaciones_cercanas": ["Los Héroes", "República", "La Moneda"]},
+        {"linea": "L2", "color": "#f59e0b", "nombre": "Línea 2 (Vespucio Norte - Hospital El Pino)", "estado": "Operativa", "estaciones_cercanas": ["Toesca (Campus Vergara UDP)", "Los Héroes", "Parque O'Higgins"]},
+        {"linea": "L3", "color": "#9333ea", "nombre": "Línea 3 (Plaza Quilicura - F. Castillo Velasco)", "estado": "Operativa", "estaciones_cercanas": ["Universidad de Chile", "Plaza de Armas"]},
+        {"linea": "L4", "color": "#0284c7", "nombre": "Línea 4 (Tobalaba - Plaza de Puente Alto)", "estado": "Operativa", "estaciones_cercanas": ["Tobalaba", "Plaza Egaña"]},
+        {"linea": "L4A", "color": "#06b6d4", "nombre": "Línea 4A (La Cisterna - Vicuña Mackenna)", "estado": "Operativa", "estaciones_cercanas": ["La Cisterna"]},
+        {"linea": "L5", "color": "#10b981", "nombre": "Línea 5 (Plaza de Maipú - Vicente Valdés)", "estado": "Operativa", "estaciones_cercanas": ["Parque Bustamante", "Bellas Artes"]},
+        {"linea": "L6", "color": "#7c3aed", "nombre": "Línea 6 (Cerrillos - Los Leones)", "estado": "Operativa", "estaciones_cercanas": ["Franklin", "Ñuñoa", "Los Leones"]}
+    ]
+
+    return jsonify({
+        "hora_chile": hora_actual,
+        "metro_abierto": metro_abierto,
+        "horario_metro_desc": "Lun-Vie: 06:00 a 23:00 | Sáb: 06:30 a 23:00 | Dom/Fest: 08:00 a 23:00",
+        "lineas_metro": lineas_metro,
+        "paradero": paradero_info,
+        "paradero_id": paradero_id
+    })
 
 if __name__ == "__main__":
     app.run(debug=True, host="127.0.0.1", port=5000)
