@@ -1394,3 +1394,9 @@ header {
     0%, 100% { transform: scaleY(0.2); }
     50% { transform: scaleY(1); }
 }
+
+/* Corrector IA - Yellow dots for the learning capsule */
+#corrector-explicacion .status-dot {
+    background: #fbbf24 !important;
+    box-shadow: 0 0 6px #f59e0b !important;
+}
