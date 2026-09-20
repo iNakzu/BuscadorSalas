@@ -190,8 +190,8 @@ function actualizarHeroMiHorario() {
     if (localStorage.getItem('isStudying') === 'true') {
         heroEl.innerHTML = `
             <div class="my-hero-top">
-                <div class="my-hero-status-pill now" style="background: rgba(139, 92, 246, 0.18); color: #c084fc; border-color: rgba(139, 92, 246, 0.4);">
-                    <span class="pulse-dot" style="background: #c084fc; box-shadow: 0 0 10px #c084fc;"></span>
+                <div class="my-hero-status-pill estudio">
+                    <span class="pulse-dot-purple"></span>
                     <span>Modo Estudio</span>
                 </div>
             </div>

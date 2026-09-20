@@ -529,7 +529,7 @@ async function buscarTabSongsterr(artist, title) {
             const tracksCount = (s.tracks && s.tracks.length) ? s.tracks.length : 1;
             
             listHtml += `
-                <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+                <div class="songsterr-item-row" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
                     <div>
                         <div style="font-size: 14px; font-weight: 700; color: #f1f5f9;">${escapeHtmlRiff(s.title)}</div>
                         <div style="font-size: 12px; color: #94a3b8; display: flex; gap: 8px; align-items: center; margin-top: 2px;">

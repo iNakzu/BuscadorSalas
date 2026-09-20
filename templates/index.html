@@ -14,11 +14,11 @@
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=11">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}?v=10">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}?v=11">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ai.css') }}?v=12">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/notas.css') }}?v=10">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/agenda.css') }}?v=10">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/horario.css') }}?v=10">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/horario.css') }}?v=11">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/habitos_guitarra.css') }}?v=2">
 </head>
 <body>
@@ -1438,7 +1438,7 @@
                 </div>
 
                 <!-- Grid de 2 Columnas: Metro vs Red de Buses -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
+                <div class="transporte-columns-grid">
                     <!-- Columna 1: Buses en vivo -->
                     <div>
                         <div style="font-size: 13px; font-weight: 700; color: #38bdf8; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
@@ -1558,7 +1558,7 @@
 
 <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/datos_prueba_amigos.js') }}" defer></script>
-<script src="{{ url_for('static', filename='js/horario.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/horario.js') }}?v=11" defer></script>
 
 
 <script src="{{ url_for('static', filename='js/progreso.js') }}" defer></script>
@@ -1568,9 +1568,9 @@
 <script src="{{ url_for('static', filename='js/gastos.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/notasvoz.js') }}?v=6" defer></script>
 <script src="{{ url_for('static', filename='js/habitos.js') }}?v=1" defer></script>
-<script src="{{ url_for('static', filename='js/riff_lab.js') }}?v=2" defer></script>
-<script src="{{ url_for('static', filename='js/transporte.js') }}?v=1" defer></script>
-<script src="{{ url_for('static', filename='js/clima.js') }}?v=1" defer></script>
+<script src="{{ url_for('static', filename='js/riff_lab.js') }}?v=3" defer></script>
+<script src="{{ url_for('static', filename='js/transporte.js') }}?v=2" defer></script>
+<script src="{{ url_for('static', filename='js/clima.js') }}?v=2" defer></script>
 <script src="{{ url_for('static', filename='js/ia_tools.js') }}?v=15" defer></script>
 </body>
 </html>

@@ -48,6 +48,28 @@
     box-shadow: 0 0 14px rgba(16, 185, 129, 0.25);
 }
 
+.my-hero-status-pill.estudio {
+    background: rgba(139, 92, 246, 0.18) !important;
+    color: #c084fc !important;
+    border: 1px solid rgba(139, 92, 246, 0.45) !important;
+    box-shadow: 0 0 16px rgba(139, 92, 246, 0.4) !important;
+}
+
+.pulse-dot-purple {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #c084fc;
+    box-shadow: 0 0 8px #a855f7;
+    display: inline-block;
+    animation: pulseDotPurple 2.2s infinite ease-in-out;
+}
+
+@keyframes pulseDotPurple {
+    0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 8px #a855f7; }
+    50% { opacity: 0.6; transform: scale(0.85); box-shadow: 0 0 3px #a855f7; }
+}
+
 .my-hero-status-pill.next {
     background: rgba(59, 130, 246, 0.18);
     color: #60a5fa;

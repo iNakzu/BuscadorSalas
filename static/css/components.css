@@ -1131,4 +1131,37 @@
 }
 
 /* VARIANTES DE DISEÑO DEL CYCLER */
+.cycler-name-container {
+    width: 80px;
+    text-align: center;
+}
 
+/* RESPONSIVE TRANSPORTE & CLIMA INTEGRATIONS */
+.transporte-columns-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px;
+}
+
+@media (max-width: 768px) {
+    .transporte-columns-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    #clima-cards-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    #modal-songsterr > div {
+        padding: 16px !important;
+        max-height: 85vh !important;
+    }
+
+    .songsterr-item-row {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+    }
+}
