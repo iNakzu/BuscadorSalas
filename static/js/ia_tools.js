@@ -239,13 +239,8 @@ async function enviarChatGlobal() {
     avatar.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>';
     
     const bubble = document.createElement('div');
-    bubble.style.background = 'rgba(30, 41, 59, 0.7)';
-    bubble.style.border = '1px solid rgba(255,255,255,0.05)';
-    bubble.style.padding = '14px 18px';
-    bubble.style.borderRadius = '4px 18px 18px 18px';
-    bubble.style.color = '#94a3b8';
-    bubble.style.fontSize = '15px';
-    bubble.innerHTML = '<span style="animation: pulse-red 1.5s infinite;">Pensando...</span>';
+    bubble.className = 'ai-typing-indicator';
+    bubble.innerHTML = '<span class="ai-typing-dot"></span><span class="ai-typing-dot"></span><span class="ai-typing-dot"></span>';
     
     loadingDiv.appendChild(avatar);
     loadingDiv.appendChild(bubble);
