@@ -15,7 +15,7 @@ function consultarParaderoManual() {
     if (!input) return;
     const val = input.value.trim().toUpperCase();
     if (!val) {
-        alert('Ingresa un código de paradero válido.');
+        mostrarAlertaWeb('Ingresa un código de paradero válido.', 'Código inválido', 'error');
         return;
     }
     activeParaderoCode = val;

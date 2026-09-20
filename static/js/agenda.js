@@ -331,12 +331,12 @@ function toggleCompletado(id) {
 }
 
 function eliminarEventoAgenda(id) {
-    if (confirm('¿Estás seguro de que deseas eliminar este evento?')) {
+    confirmarWeb('¿Estás seguro de que deseas eliminar este evento?', () => {
         AGENDA_DATA = AGENDA_DATA.filter(x => x.id !== id);
         saveAgenda();
         renderAgenda();
         renderCalendar();
-    }
+    }, 'Eliminar evento');
 }
 
 function formatearFecha(isoStr, hasTime) {

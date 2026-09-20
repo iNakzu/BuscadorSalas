@@ -588,6 +588,11 @@
 .riff-modal-card label { display: flex; flex-direction: column; gap: 6px; color: #cbd5e1; font-size: 12px; font-weight: 600; }
 .riff-modal-card input, .riff-modal-card textarea { box-sizing: border-box; width: 100%; border: 1px solid rgba(255,255,255,0.12); border-radius: 9px; background: rgba(30,41,59,0.76); color: #f8fafc; padding: 10px 11px; font: inherit; font-weight: 400; resize: vertical; }
 .riff-modal-card input:focus, .riff-modal-card textarea:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 3px rgba(56,189,248,0.12); }
+.riff-modal-card select { box-sizing: border-box; width: 100%; border: 1px solid rgba(255,255,255,0.12); border-radius: 9px; background: rgba(30,41,59,0.76); color: #f8fafc; padding: 10px 11px; font: inherit; }
+.habit-modal-card { gap: 15px; }
+.habit-modal-subtitle { color: #94a3b8; font-size: 12px; margin: 7px 0 0; line-height: 1.45; }
+.habit-label-hint { color: #64748b; font-weight: 400; }
+.habit-modal-tip { display: flex; gap: 8px; align-items: flex-start; padding: 10px 11px; border: 1px solid rgba(168,85,247,0.2); border-radius: 9px; background: rgba(168,85,247,0.08); color: #c4b5fd; font-size: 11px; line-height: 1.45; }
 .riff-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .riff-modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
 .riff-modal-actions button { border-radius: 8px; cursor: pointer; padding: 9px 14px; font-weight: 700; }

@@ -249,42 +249,39 @@ function toggleHabitoHoy(id) {
 }
 
 function agregarHabitoModal() {
-    const input = document.getElementById('nuevo-habito-input');
-    const catSelect = document.getElementById('nuevo-habito-categoria');
-    if (!input) return;
-
-    const title = input.value.trim();
-    const category = catSelect ? catSelect.value : 'General';
-
-    if (!title) {
-        alert("Por favor ingresa un nombre para el hábito.");
-        return;
+    let modal = document.getElementById('habito-form-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'habito-form-modal';
+        modal.className = 'riff-web-modal';
+        document.body.appendChild(modal);
     }
-
-    const nuevo = {
-        id: 'hab_' + Date.now(),
-        title: title,
-        category: category,
-        created_at: new Date().toISOString(),
-        history: {}
-    };
-
-    habitosData.unshift(nuevo);
-    saveHabitos();
-    input.value = '';
-    renderHabitos();
+    modal.style.display = 'flex';
+    modal.innerHTML = `
+        <form class="riff-modal-card habit-modal-card" onsubmit="guardarHabitoDesdeModal(event)">
+            <div class="riff-modal-header"><div><span class="section-kicker">Ritmo personal</span><h2>Crear nuevo hábito</h2><p class="habit-modal-subtitle">Diseña una rutina clara, pequeña y fácil de mantener.</p></div><button type="button" class="riff-modal-close" onclick="cerrarHabitoModal()">×</button></div>
+            <label>Nombre del hábito<input name="title" required maxlength="80" placeholder="Ej. Leer 20 minutos antes de dormir" autocomplete="off"></label>
+            <div class="riff-form-grid">
+                <label>Categoría<select name="category"><option value="Estudio">Estudio</option><option value="Salud">Salud / Higiene</option><option value="Música">Guitarra & Música</option><option value="Polonia">Polonia & Idioma</option><option value="Gatos">Gatos & Casa</option><option value="General">General</option></select></label>
+                <label>Frecuencia<select name="frequency"><option value="Diario">Todos los días</option><option value="Lunes a viernes">Lunes a viernes</option><option value="Flexible">Flexible</option></select></label>
+            </div>
+            <label>Intención <span class="habit-label-hint">Opcional</span><textarea name="description" rows="3" maxlength="180" placeholder="¿Qué quieres conseguir con esta rutina?"></textarea></label>
+            <div class="habit-modal-tip"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5"></path><path d="M12 8h.01"></path></svg><span>Empieza con una acción concreta. La constancia importa más que hacerlo perfecto.</span></div>
+            <div class="riff-modal-actions"><button type="button" class="riff-modal-secondary" onclick="cerrarHabitoModal()">Cancelar</button><button class="riff-modal-primary" type="submit">Guardar hábito</button></div>
+        </form>`;
+    modal.querySelector('input[name="title"]').focus();
 }
 
 function eliminarHabito(id) {
-    if (confirm("¿Estás seguro de que deseas eliminar este hábito?")) {
+    confirmarWeb("¿Estás seguro de que deseas eliminar este hábito?", () => {
         habitosData = habitosData.filter(h => h.id !== id);
         saveHabitos();
         renderHabitos();
-    }
+    }, 'Eliminar hábito');
 }
 
 function resetHabitosHoy() {
-    if (confirm("¿Deseas reiniciar los estados de todos los hábitos marcados para hoy?")) {
+    confirmarWeb("¿Deseas reiniciar los estados de todos los hábitos marcados para hoy?", () => {
         const hoyStr = getHoyDateStr();
         habitosData.forEach(h => {
             if (h.history && h.history[hoyStr]) {
@@ -293,7 +290,34 @@ function resetHabitosHoy() {
         });
         saveHabitos();
         renderHabitos();
+    }, 'Reiniciar progreso de hoy');
+}
+
+function guardarHabitoDesdeModal(event) {
+    event.preventDefault();
+    const data = new FormData(event.target);
+    const title = data.get('title').trim();
+    if (!title) {
+        mostrarAlertaWeb('Escribe un nombre para identificar tu rutina.', 'Falta el nombre', 'error');
+        return;
     }
+    habitosData.unshift({
+        id: 'hab_' + Date.now(),
+        title,
+        category: data.get('category') || 'General',
+        frequency: data.get('frequency') || 'Diario',
+        description: data.get('description').trim(),
+        created_at: new Date().toISOString(),
+        history: {}
+    });
+    saveHabitos();
+    cerrarHabitoModal();
+    renderHabitos();
+}
+
+function cerrarHabitoModal() {
+    const modal = document.getElementById('habito-form-modal');
+    if (modal) modal.style.display = 'none';
 }
 
 function escapeHtmlHabitos(str) {
@@ -308,12 +332,4 @@ function escapeHtmlHabitos(str) {
 
 document.addEventListener('DOMContentLoaded', () => {
     initHabitos();
-    const input = document.getElementById('nuevo-habito-input');
-    if (input) {
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                agregarHabitoModal();
-            }
-        });
-    }
 });

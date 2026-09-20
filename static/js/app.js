@@ -1148,7 +1148,7 @@ function removerImagenAdjunta() {
 
 function procesarArchivoImagen(file) {
     if (!file || !file.type.startsWith('image/')) {
-        alert('Por favor selecciona un archivo de imagen válido (PNG, JPEG, WebP).');
+        mostrarAlertaWeb('Por favor selecciona un archivo de imagen válido (PNG, JPEG, WebP).', 'Archivo inválido', 'error');
         return;
     }
 
@@ -1408,9 +1408,9 @@ document.addEventListener('click', function(e) {
 });
 
 window.borrarCacheApp = function() {
-    if (confirm("¿Estás seguro de que deseas borrar toda la caché de la aplicación? Esto restablecerá tu horario, progreso de malla y configuraciones locales.")) {
+    confirmarWeb("¿Estás seguro de que deseas borrar toda la caché de la aplicación? Esto restablecerá tu horario, progreso de malla y configuraciones locales.", () => {
         localStorage.clear();
         sessionStorage.clear();
         window.location.reload(true);
-    }
+    }, 'Borrar caché local');
 };

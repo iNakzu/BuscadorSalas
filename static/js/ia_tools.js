@@ -71,7 +71,7 @@ ${input}`;
             
             document.getElementById('corrector-output-container').style.display = 'block';
         } else {
-            alert('Error al corregir el texto.');
+            mostrarAlertaWeb('Error al corregir el texto.', 'No se pudo corregir', 'error');
         }
     } catch (e) {
         const errBtn = document.getElementById('btn-corregir');
@@ -81,14 +81,14 @@ ${input}`;
         document.getElementById('btn-corregir-icon').classList.remove('ai-spin');
         document.getElementById('btn-corregir-icon').innerHTML = '<path d="M4 6h16"></path><path d="M4 12h8"></path><path d="M4 18h4"></path><path d="m14 15 2 2 4-4"></path>';
         document.getElementById('btn-corregir').disabled = false;
-        alert('Error de conexión.');
+        mostrarAlertaWeb('Error de conexión.', 'Error de conexión', 'error');
     }
 }
 
 function copiarCorreccion() {
     const text = document.getElementById('corrector-output').innerText;
     navigator.clipboard.writeText(text).then(() => {
-        alert('Texto copiado al portapapeles');
+        mostrarAlertaWeb('Texto copiado al portapapeles', 'Texto copiado');
     });
 }
 
@@ -298,4 +298,3 @@ function limpiarHistorialChatGlobal() {
         `;
     }
 }
-

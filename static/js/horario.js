@@ -407,7 +407,7 @@ function actualizarContadoresFiltrosMiHorario() {
 
 function restablecerHorarioDefault() {
     if (vistaHorarioActual !== 'nakzu') { mostrarToast('Solo puedes restablecer tu propio horario'); return; }
-    if (confirm('¿Deseas restablecer tu horario al original de 20 clases predeterminadas? Se revertirán las asignaturas agregadas o eliminadas.')) {
+    confirmarWeb('¿Deseas restablecer tu horario al original de 20 clases predeterminadas? Se revertirán las asignaturas agregadas o eliminadas.', () => {
         try {
             if (typeof localStorage !== 'undefined') {
                 localStorage.removeItem('mi_horario_custom_v1');
@@ -419,7 +419,7 @@ function restablecerHorarioDefault() {
         renderMiHorario();
         actualizarHeroMiHorario();
         mostrarToast('Horario restablecido a la versión inicial');
-    }
+    }, 'Restablecer horario');
 }
 
 function eliminarClaseMiHorario(id, ev) {
@@ -428,13 +428,13 @@ function eliminarClaseMiHorario(id, ev) {
     const idx = MI_HORARIO_DATA.clases.findIndex(c => c.id === id);
     if (idx === -1) return;
     const c = MI_HORARIO_DATA.clases[idx];
-    if (confirm(`¿Eliminar "${c.curso}" de este bloque (${c.diaNombre} ${c.bloqueLabel})?`)) {
+    confirmarWeb(`¿Eliminar "${c.curso}" de este bloque (${c.diaNombre} ${c.bloqueLabel})?`, () => {
         MI_HORARIO_DATA.clases.splice(idx, 1);
         guardarMiHorarioEnStorage();
         renderMiHorario();
         actualizarHeroMiHorario();
         mostrarToast(`"${c.curso}" eliminada de tu horario`);
-    }
+    }, 'Eliminar clase');
 }
 
 let modalRolSeleccionado = 'student';
@@ -788,12 +788,12 @@ function guardarNuevaClaseModal(ev) {
     const rol = modalRolSeleccionado;
 
     if (!curso) {
-        alert('Por favor escribe el nombre de la asignatura.');
+        mostrarAlertaWeb('Por favor escribe el nombre de la asignatura.', 'Falta la asignatura', 'error');
         document.getElementById('modal-add-curso').focus();
         return;
     }
     if (!sala) {
-        alert('Por favor ingresa la sala asignada (ej. E441.2.S201).');
+        mostrarAlertaWeb('Por favor ingresa la sala asignada (ej. E441.2.S201).', 'Falta la sala', 'error');
         document.getElementById('modal-add-sala').focus();
         return;
     }

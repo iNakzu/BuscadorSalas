@@ -38,7 +38,7 @@ function toggleTimer() {
                 isRunning = false;
                 localStorage.removeItem('isStudying');
                 if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
-                alert(currentMode === 'estudio' ? '¡Bloque de estudio terminado! Tómate un descanso.' : '¡Descanso terminado! Volvamos al estudio.');
+                mostrarAlertaWeb(currentMode === 'estudio' ? '¡Bloque de estudio terminado! Tómate un descanso.' : '¡Descanso terminado! Volvamos al estudio.', 'Sesión completada');
                 switchMode(currentMode === 'estudio' ? 'descanso' : 'estudio');
             }
         }, 1000);
@@ -118,7 +118,7 @@ function toggleRadio() {
             bar.style.transition = 'transform 0.3s ease';
         });
     } else {
-        radioAudio.play().catch(e => alert("Error al reproducir radio: " + e));
+        radioAudio.play().catch(e => mostrarAlertaWeb("Error al reproducir radio: " + e, 'No se pudo reproducir', 'error'));
         isRadioPlaying = true;
         updateVisualizer();
     }

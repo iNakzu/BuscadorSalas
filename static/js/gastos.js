@@ -58,11 +58,11 @@ function agregarGasto() {
     const monto = parseInt(montoInput.value, 10);
     
     if (!desc) {
-        alert("Ingresa una descripción para el gasto.");
+        mostrarAlertaWeb("Ingresa una descripción para el gasto.", 'Falta la descripción', 'error');
         return;
     }
     if (isNaN(monto) || monto <= 0) {
-        alert("Ingresa un monto válido mayor a 0.");
+        mostrarAlertaWeb("Ingresa un monto válido mayor a 0.", 'Monto inválido', 'error');
         return;
     }
     
@@ -81,11 +81,11 @@ function agregarGasto() {
 }
 
 function borrarGasto(id) {
-    if(confirm("¿Eliminar este gasto?")) {
+    confirmarWeb("¿Eliminar este gasto?", () => {
         misGastos = misGastos.filter(g => g.id !== id);
         saveGastos();
         renderGastos();
-    }
+    }, 'Eliminar gasto');
 }
 
 document.addEventListener('DOMContentLoaded', initGastos);

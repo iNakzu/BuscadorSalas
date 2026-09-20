@@ -19,9 +19,9 @@ async function toggleVozRecording() {
             // Verificar si el navegador soporta getUserMedia o si el contexto no es seguro
             if (!navigator.mediaDevices && !navigator.getUserMedia && !navigator.webkitGetUserMedia && !navigator.mozGetUserMedia) {
                 if (window.location.protocol !== 'https:') {
-                    alert('El navegador bloquea el micrófono por seguridad al estar en HTTP.\n\nPor favor ingresa a través de:\nhttps://144.22.33.41');
+                    mostrarAlertaWeb('El navegador bloquea el micrófono por seguridad al estar en HTTP.\n\nPor favor ingresa a través de:\nhttps://144.22.33.41', 'Micrófono bloqueado', 'error');
                 } else {
-                    alert('Tu navegador no tiene habilitada la API de micrófono o está restringida.');
+                    mostrarAlertaWeb('Tu navegador no tiene habilitada la API de micrófono o está restringida.', 'Micrófono no disponible', 'error');
                 }
                 return;
             }
@@ -87,11 +87,11 @@ async function toggleVozRecording() {
         } catch (err) {
             console.error('Error al acceder al micrófono:', err);
             if (window.location.protocol !== 'https:') {
-                alert('El navegador exige conexión segura HTTPS para acceder al micrófono.\n\nAsegúrate de ingresar usando:\nhttps://144.22.33.41');
+                mostrarAlertaWeb('El navegador exige conexión segura HTTPS para acceder al micrófono.\n\nAsegúrate de ingresar usando:\nhttps://144.22.33.41', 'Conexión no segura', 'error');
             } else if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-                alert('Permiso de micrófono denegado. Por favor toca el candado o icono del sitio en la barra del navegador y activa el permiso de micrófono.');
+                mostrarAlertaWeb('Permiso de micrófono denegado. Por favor toca el candado o icono del sitio en la barra del navegador y activa el permiso de micrófono.', 'Permiso denegado', 'error');
             } else {
-                alert('Error al acceder al micrófono: ' + (err.message || err));
+                mostrarAlertaWeb('Error al acceder al micrófono: ' + (err.message || err), 'Error de micrófono', 'error');
             }
         }
     } else {
@@ -144,7 +144,7 @@ async function procesarAudioGrabado() {
             document.getElementById('voz-loading').style.display = 'none';
             
             if (data.error) {
-                alert('Error de IA: ' + data.error);
+                mostrarAlertaWeb('Error de IA: ' + data.error, 'Error de IA', 'error');
                 return;
             }
             
@@ -160,7 +160,7 @@ async function procesarAudioGrabado() {
             
         } catch (err) {
             document.getElementById('voz-loading').style.display = 'none';
-            alert('Error de conexión con el servidor.');
+            mostrarAlertaWeb('Error de conexión con el servidor.', 'Error de conexión', 'error');
         }
     }
 }
@@ -222,11 +222,11 @@ function toggleApunte(id) {
 }
 
 function borrarApunte(id) {
-    if(confirm('¿Eliminar este apunte permanentemente?')) {
+    confirmarWeb('¿Eliminar este apunte permanentemente?', () => {
         misApuntes = misApuntes.filter(a => a.id !== id);
         saveApuntes();
         renderApuntesVoz();
-    }
+    }, 'Eliminar apunte');
 }
 
 function formatApunteText(texto) {
@@ -268,7 +268,7 @@ async function handleAudioUpload(inputElement) {
     
     // Check file size (limit to 10MB approx)
     if (file.size > 15 * 1024 * 1024) {
-        alert("El archivo es muy pesado. Intenta con un audio de máximo 15MB.");
+        mostrarAlertaWeb("El archivo es muy pesado. Intenta con un audio de máximo 15MB.", 'Archivo demasiado pesado', 'error');
         return;
     }
     
@@ -296,7 +296,7 @@ async function handleAudioUpload(inputElement) {
             inputElement.value = ''; // reset
             
             if (data.error) {
-                alert('Error de IA: ' + data.error);
+                mostrarAlertaWeb('Error de IA: ' + data.error, 'Error de IA', 'error');
                 return;
             }
             
@@ -313,7 +313,7 @@ async function handleAudioUpload(inputElement) {
         } catch (err) {
             document.getElementById('voz-loading').style.display = 'none';
             inputElement.value = '';
-            alert('Error de conexión con el servidor.');
+            mostrarAlertaWeb('Error de conexión con el servidor.', 'Error de conexión', 'error');
         }
     }
 }

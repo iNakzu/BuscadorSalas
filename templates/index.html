@@ -1265,21 +1265,10 @@
                             <span class="section-kicker">Nueva rutina</span>
                             <strong>Añadir un hábito</strong>
                         </div>
-                        <div class="habit-add-fields">
-                        <input type="text" id="nuevo-habito-input" placeholder="Ej: Leer 20 minutos..." autocomplete="off">
-                        <select id="nuevo-habito-categoria">
-                            <option value="Estudio">Estudio</option>
-                            <option value="Salud">Salud / Higiene</option>
-                            <option value="Música">Guitarra & Música</option>
-                            <option value="Polonia">Polonia & Idioma</option>
-                            <option value="Gatos">Gatos & Casa</option>
-                            <option value="General">General</option>
-                        </select>
                         <button class="btn-bloque-actual" onclick="agregarHabitoModal()">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                             Agregar Hábito
                         </button>
-                        </div>
                     </div>
 
                     <div class="habit-list-toolbar">
@@ -1661,6 +1650,7 @@
 </script>
 
 
+<script src="{{ url_for('static', filename='js/ui_feedback.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/datos_prueba_amigos.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/horario.js') }}?v=11" defer></script>
