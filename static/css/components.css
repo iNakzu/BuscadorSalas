@@ -1139,14 +1139,31 @@
 /* RESPONSIVE TRANSPORTE & CLIMA INTEGRATIONS */
 .transporte-columns-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    /* minmax(0,1fr) en vez de minmax(320px,1fr) — evita overflow horizontal */
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
     gap: 16px;
+    /* Nunca puede exceder el ancho disponible */
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
-@media (max-width: 768px) {
+/* En pantallas >= 700px activar dos columnas explícitas */
+@media (min-width: 700px) {
+    .transporte-columns-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 699px) {
     .transporte-columns-grid {
         grid-template-columns: 1fr;
-        gap: 14px;
+        gap: 12px;
+    }
+
+    /* Reducir padding de los cards en móvil para ganar espacio */
+    #tab-transporte .control-card {
+        padding: 14px !important;
     }
 
     #clima-cards-grid {
@@ -1164,13 +1181,22 @@
         align-items: flex-start !important;
         gap: 10px !important;
     }
+
+    /* El texto "Operativa"/"Afectada" se oculta en pantallas muy estrechas;
+       solo queda el punto de color (más compacto) */
+    .estado-txt {
+        display: none;
+    }
 }
 
-/* En pantallas <=420px el mini-grid de recorrido/horario dentro
-   de cada cápsula de Metro se apila en 1 columna */
-@media (max-width: 420px) {
-    .linea-expand-grid {
-        grid-template-columns: 1fr !important;
+/* En pantallas muy estrechas (<380px) reducir padding aún más */
+@media (max-width: 380px) {
+    body {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    #tab-transporte .control-card {
+        padding: 10px !important;
     }
 }
 

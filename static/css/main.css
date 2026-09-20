@@ -68,7 +68,13 @@ body {
     color: var(--text-main);
     min-height: 100vh;
     padding: 24px 16px 60px;
+    overflow-x: hidden; /* Previene scroll horizontal en móvil */
 }
+
+html {
+    overflow-x: hidden;
+}
+
 
 .container {
     max-width: 1380px;

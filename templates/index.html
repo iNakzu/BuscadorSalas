@@ -1415,20 +1415,20 @@
         <!-- TAB TRANSPORTE Y METRO -->
         <!-- TAB TRANSPORTE: RED METROPOLITANA & METRO DE SANTIAGO -->
         <section id="tab-transporte" class="panel">
-            <div style="max-width: 1000px; margin: 0 auto 24px;">
+            <div style="max-width: 1000px; margin: 0 auto 24px; width: 100%; box-sizing: border-box;">
                 <!-- Header Card General -->
                 <div class="control-card" style="margin-bottom: 18px;">
                     <div class="filter-header-row" style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;">
-                        <div>
-                            <div class="filter-header-title">Red de Transporte & Metro de Santiago</div>
-                            <div style="font-size: 12.5px; color: #94a3b8; margin-top: 3px;">Estado operacional de la red en vivo, GPS de micros, detalle por línea y tarifas del sistema</div>
+                        <div style="min-width: 0; flex: 1;">
+                            <div class="filter-header-title">Metro &amp; Transporte</div>
+                            <div style="font-size: 12px; color: #94a3b8; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Estado en vivo · GPS micros · Tarifas del sistema</div>
                         </div>
-                        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                            <div id="metro-horario-badge" style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #34d399; background: rgba(16, 185, 129, 0.12); padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(16, 185, 129, 0.25);">
+                        <div style="display: flex; gap: 8px; align-items: center; flex-shrink: 0;">
+                            <div id="metro-horario-badge" style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #34d399; background: rgba(16, 185, 129, 0.12); padding: 6px 12px; border-radius: 20px; border: 1px solid rgba(16, 185, 129, 0.25); white-space: nowrap;">
                                 <span class="status-dot"></span>
-                                <span>Consultando red...</span>
+                                <span>Consultando...</span>
                             </div>
-                            <button onclick="cargarDatosTransporte()" class="btn-bloque-actual" style="width: 36px; height: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 9px;" title="Actualizar datos en tiempo real" aria-label="Actualizar">
+                            <button onclick="cargarDatosTransporte()" class="btn-bloque-actual" style="width: 36px; height: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 9px; flex-shrink: 0;" title="Actualizar datos en tiempo real" aria-label="Actualizar">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
                             </button>
                         </div>
@@ -1436,26 +1436,27 @@
                 </div>
 
                 <!-- Resumen Rápido de Métricas Operacionales -->
-                <div class="transporte-metrics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px;">
-                    <div style="background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px 16px;">
-                        <div style="font-size: 11px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.05em;">Red de Metro</div>
-                        <div style="font-size: 20px; font-weight: 800; color: #f8fafc; margin-top: 2px;">7 Líneas Activas</div>
-                        <div style="font-size: 11.5px; color: #94a3b8; margin-top: 2px;">143 estaciones • 149 km</div>
+                <!-- minmax(0,1fr) evita que las columnas desborden el viewport en móvil -->
+                <div class="transporte-metrics-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px;">
+                    <div style="background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 13px 14px;">
+                        <div style="font-size: 10.5px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.05em;">Red Metro</div>
+                        <div style="font-size: 18px; font-weight: 800; color: #f8fafc; margin-top: 2px;">7 Líneas</div>
+                        <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">143 est. · 149 km</div>
                     </div>
-                    <div style="background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px 16px;">
-                        <div style="font-size: 11px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.05em;">Tarifa Estudiante TNE</div>
-                        <div style="font-size: 20px; font-weight: 800; color: #f8fafc; margin-top: 2px;">$250 Tarifa Plana</div>
-                        <div style="font-size: 11.5px; color: #94a3b8; margin-top: 2px;">Metro + Buses 24/7</div>
+                    <div style="background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 13px 14px;">
+                        <div style="font-size: 10.5px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.05em;">TNE Escolar</div>
+                        <div style="font-size: 18px; font-weight: 800; color: #f8fafc; margin-top: 2px;">$250 Plana</div>
+                        <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Metro + Buses 24/7</div>
                     </div>
-                    <div style="background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px 16px;">
-                        <div style="font-size: 11px; font-weight: 700; color: #34d399; text-transform: uppercase; letter-spacing: 0.05em;">Tope Mensual DaleQR!</div>
-                        <div style="font-size: 20px; font-weight: 800; color: #f8fafc; margin-top: 2px;">$39.000 Gratis</div>
-                        <div style="font-size: 11.5px; color: #94a3b8; margin-top: 2px;">Viajes libres al llegar al tope</div>
+                    <div style="background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 13px 14px;">
+                        <div style="font-size: 10.5px; font-weight: 700; color: #34d399; text-transform: uppercase; letter-spacing: 0.05em;">DaleQR!</div>
+                        <div style="font-size: 18px; font-weight: 800; color: #f8fafc; margin-top: 2px;">$39.000</div>
+                        <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Viajes gratis al tope</div>
                     </div>
-                    <div style="background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px 16px;">
-                        <div style="font-size: 11px; font-weight: 700; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.05em;">Horario de Servicio</div>
-                        <div style="font-size: 20px; font-weight: 800; color: #f8fafc; margin-top: 2px;">06:00 - 23:00</div>
-                        <div style="font-size: 11.5px; color: #94a3b8; margin-top: 2px;">Lun a Vie (Sáb 06:30 / Dom 08:00)</div>
+                    <div style="background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 13px 14px;">
+                        <div style="font-size: 10.5px; font-weight: 700; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.05em;">Horario</div>
+                        <div style="font-size: 18px; font-weight: 800; color: #f8fafc; margin-top: 2px;">06:00–23:00</div>
+                        <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Sáb 06:30 · Dom 08:00</div>
                     </div>
                 </div>
 
