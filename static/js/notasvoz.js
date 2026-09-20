@@ -16,11 +16,48 @@ function saveApuntes() {
 async function toggleVozRecording() {
     if (!isRecordingVoz) {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            mediaRecorder = new MediaRecorder(stream);
+            // Verificar si el navegador soporta getUserMedia o si el contexto no es seguro
+            if (!navigator.mediaDevices && !navigator.getUserMedia && !navigator.webkitGetUserMedia && !navigator.mozGetUserMedia) {
+                if (window.location.protocol !== 'https:') {
+                    alert('El navegador bloquea el micrófono por seguridad al estar en HTTP.\n\nPor favor ingresa a través de:\nhttps://144.22.33.41');
+                } else {
+                    alert('Tu navegador no tiene habilitada la API de micrófono o está restringida.');
+                }
+                return;
+            }
+
+            // Polyfill para compatibilidad universal (Safari iOS, Chrome Android, navegadores antiguos)
+            const getUserMediaFn = (constraints) => {
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    return navigator.mediaDevices.getUserMedia(constraints);
+                }
+                const legacyFn = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+                if (legacyFn) {
+                    return new Promise((resolve, reject) => {
+                        legacyFn.call(navigator, constraints, resolve, reject);
+                    });
+                }
+                return Promise.reject(new Error('getUserMedia no está disponible en este navegador'));
+            };
+
+            const stream = await getUserMediaFn({ audio: true });
+
+            // Detectar el mejor formato soportado por el navegador (audio/webm en Chrome/Firefox, audio/mp4 en Safari)
+            let chosenMimeType = '';
+            const testTypes = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/aac', 'audio/ogg;codecs=opus'];
+            for (let t of testTypes) {
+                if (typeof MediaRecorder.isTypeSupported === 'function' && MediaRecorder.isTypeSupported(t)) {
+                    chosenMimeType = t;
+                    break;
+                }
+            }
+
+            const options = chosenMimeType ? { mimeType: chosenMimeType } : {};
+            mediaRecorder = new MediaRecorder(stream, options);
+            mediaRecorder._chosenMime = chosenMimeType || 'audio/webm';
             
             mediaRecorder.ondataavailable = event => {
-                if (event.data.size > 0) {
+                if (event.data && event.data.size > 0) {
                     audioChunks.push(event.data);
                 }
             };
@@ -28,7 +65,7 @@ async function toggleVozRecording() {
             mediaRecorder.onstop = procesarAudioGrabado;
             
             audioChunks = [];
-            mediaRecorder.start();
+            mediaRecorder.start(250); // Emitir chunks cada 250ms
             isRecordingVoz = true;
             
             // UI Updates
@@ -48,7 +85,14 @@ async function toggleVozRecording() {
             }, 1000);
             
         } catch (err) {
-            alert('Error al acceder al micrófono: ' + err);
+            console.error('Error al acceder al micrófono:', err);
+            if (window.location.protocol !== 'https:') {
+                alert('El navegador exige conexión segura HTTPS para acceder al micrófono.\n\nAsegúrate de ingresar usando:\nhttps://144.22.33.41');
+            } else if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                alert('Permiso de micrófono denegado. Por favor toca el candado o icono del sitio en la barra del navegador y activa el permiso de micrófono.');
+            } else {
+                alert('Error al acceder al micrófono: ' + (err.message || err));
+            }
         }
     } else {
         mediaRecorder.stop();
@@ -76,7 +120,8 @@ function updateVozTimer() {
 }
 
 async function procesarAudioGrabado() {
-    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+    const mime = (mediaRecorder && mediaRecorder._chosenMime) ? mediaRecorder._chosenMime : 'audio/webm';
+    const audioBlob = new Blob(audioChunks, { type: mime });
     
     // Convert Blob to Base64
     const reader = new FileReader();
@@ -90,7 +135,7 @@ async function procesarAudioGrabado() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     audioBase64: base64data,
-                    mimeType: 'audio/webm'
+                    mimeType: mime
                 })
             });
             
