@@ -1,8 +1,8 @@
 // ==============================================================================
-// CLIMA GLOBAL: SANTIAGO (UDP), WROCŁAW (POLONIA) Y NEW YORK (USA)
+// CLIMA: SANTIAGO, CHILLÁN, ANCUD (CHILOÉ), WROCŁAW (POLONIA), NEW YORK (USA)
 // ==============================================================================
 
-const CIUDADES_CLIMA = ['santiago', 'wroclaw', 'usa'];
+const CIUDADES_CLIMA = ['santiago', 'chillan', 'ancud', 'wroclaw', 'usa'];
 
 function getWeatherDescription(code, isDay) {
     // WMO Weather interpretation codes

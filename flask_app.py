@@ -1885,21 +1885,35 @@ def api_clima():
     ciudades = {
         "santiago": {
             "nombre": "Santiago, Chile",
-            "tag": "Campus UDP",
+            "tag": "Región Metropolitana",
             "lat": -33.45,
             "lon": -70.66,
             "tz": "America/Santiago"
         },
+        "chillan": {
+            "nombre": "Chillán, Chile",
+            "tag": "Región de Ñuble",
+            "lat": -36.6067,
+            "lon": -72.1034,
+            "tz": "America/Santiago"
+        },
+        "ancud": {
+            "nombre": "Ancud, Chiloé",
+            "tag": "Región de Los Lagos",
+            "lat": -41.8697,
+            "lon": -73.8203,
+            "tz": "America/Santiago"
+        },
         "wroclaw": {
             "nombre": "Wrocław, Polonia",
-            "tag": "Intercambio Universitario",
+            "tag": "Baja Silesia, Europa",
             "lat": 51.1079,
             "lon": 17.0385,
             "tz": "Europe/Warsaw"
         },
         "usa": {
             "nombre": "New York, USA",
-            "tag": "Horario Este (EST)",
+            "tag": "Costa Este, Norteamérica",
             "lat": 40.7128,
             "lon": -74.0060,
             "tz": "America/New_York"
@@ -1909,7 +1923,7 @@ def api_clima():
     ciudad_key = request.args.get("ciudad", "").lower()
     meta = ciudades.get(ciudad_key)
     if not meta:
-        return jsonify({"error": "Ciudad no soportada. Usa 'santiago', 'wroclaw' o 'usa'."}), 400
+        return jsonify({"error": "Ciudad no soportada."}), 400
 
     try:
         url = (
