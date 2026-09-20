@@ -14,7 +14,7 @@ Debes devolver tu respuesta EXACTAMENTE con este formato (incluyendo las etiquet
 (el texto corregido aquí, sin comillas extra ni introducciones)
 
 [EXPLICACION]
-(explica de forma breve y amigable, con viñetas cortas, qué errores ortotipográficos encontraste y por qué los corregiste, para que el estudiante aprenda)
+(lista una por una absolutamente TODAS las faltas ortográficas y gramaticales que encontraste, usando viñetas cortas, y explica por qué se corrigieron para que el estudiante aprenda)
 
 Texto a corregir:
 ${input}`;
