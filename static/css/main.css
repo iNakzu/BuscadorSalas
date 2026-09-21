@@ -877,10 +877,11 @@ header {
     display: block;
     width: 100%;
     text-align: center;
+    white-space: nowrap;
 }
 
 .cronometro-time-input {
-    width: 2ch;
+    width: 1em;
     height: 1em;
     padding: 0;
     border: 0;
@@ -890,13 +891,14 @@ header {
     font: inherit;
     font-variant-numeric: tabular-nums;
     text-align: center;
+    letter-spacing: -0.12em;
     caret-color: #f8fafc;
     vertical-align: baseline;
     appearance: none;
 }
 
 .cronometro-time-input.reloj-sec {
-    width: 2ch;
+    width: 1em;
     height: auto;
 }
 
