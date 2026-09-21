@@ -183,14 +183,15 @@ function _renderPanelAlertas(alertas, container) {
 }
 
 // ─── Cápsula de línea rediseñada — útil e informativa ────────────────────────
-function _renderLineaCapsule(l, alertasLinea) {
+function _renderLineaCapsule(l, alertasLinea, metroAbierto) {
     const tieneAlerta = alertasLinea.length > 0;
+    const servicioActivo = Boolean(metroAbierto);
 
     // Estado del badge
-    const estadoColor = tieneAlerta ? '#f87171' : '#34d399';
-    const estadoBg    = tieneAlerta ? 'rgba(248,113,113,0.12)' : 'rgba(16,185,129,0.10)';
-    const estadoBorder= tieneAlerta ? 'rgba(248,113,113,0.35)' : 'rgba(16,185,129,0.25)';
-    const estadoTxt   = tieneAlerta ? 'Afectada' : 'Operativa';
+    const estadoColor = tieneAlerta ? '#f87171' : (servicioActivo ? '#34d399' : '#fbbf24');
+    const estadoBg    = tieneAlerta ? 'rgba(248,113,113,0.12)' : (servicioActivo ? 'rgba(16,185,129,0.10)' : 'rgba(245,158,11,0.12)');
+    const estadoBorder= tieneAlerta ? 'rgba(248,113,113,0.35)' : (servicioActivo ? 'rgba(16,185,129,0.25)' : 'rgba(245,158,11,0.3)');
+    const estadoTxt   = tieneAlerta ? 'Afectada' : (servicioActivo ? 'Operativa' : 'Metro cerrado');
 
     // Construir el contenido del panel expandible — solo info útil:
     // 1. Alertas activas (si hay)
@@ -217,11 +218,18 @@ function _renderLineaCapsule(l, alertasLinea) {
                 `).join('')}
             </div>
         `;
-    } else {
+    } else if (servicioActivo) {
         expandHtml += `
             <div style="display:flex;align-items:center;gap:7px;background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2);border-radius:8px;padding:9px 12px;margin-bottom:10px;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                 <span style="color:#86efac;font-size:12px;font-weight:600;">Sin interrupciones reportadas.</span>
+            </div>
+        `;
+    } else {
+        expandHtml += `
+            <div style="display:flex;align-items:center;gap:7px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:8px;padding:9px 12px;margin-bottom:10px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+                <span style="color:#fcd34d;font-size:12px;font-weight:600;">Servicio fuera de horario. Revisa el horario de apertura en el encabezado.</span>
             </div>
         `;
     }
@@ -319,7 +327,7 @@ async function cargarDatosTransporte() {
         // 3. Cápsulas de líneas
         if (lineasGrid && Array.isArray(data.lineas_metro)) {
             lineasGrid.innerHTML = data.lineas_metro
-                .map(l => _renderLineaCapsule(l, _alertasDeLinea(alertas, l.linea)))
+                .map(l => _renderLineaCapsule(l, _alertasDeLinea(alertas, l.linea), data.metro_abierto))
                 .join('');
         }
 
