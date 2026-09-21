@@ -3,6 +3,7 @@ let timerInterval = null;
 let timerRunning = false;
 let timerRemaining = 10 * 60;
 let timerValues = { hours: 0, minutes: 10, seconds: 0 };
+let timerEndAt = null;
 let stopwatchInterval = null;
 let stopwatchRunning = false;
 let stopwatchCentiseconds = 0;
@@ -87,6 +88,27 @@ function renderReloj() {
 function renderTimer() {
     const container = document.getElementById('timer-container');
     if (!container) return;
+    if (timerRunning) {
+        container.innerHTML = `
+            <div class="tiempo-page timer-running-page">
+                <div class="timer-progress-ring" style="--timer-progress: ${getTimerProgress()}">
+                    <div class="timer-progress-content">
+                        <div class="timer-progress-label">Timer</div>
+                        <div class="reloj-time timer-running-display" id="timer-running-display">00:00<span class="reloj-sec">:00</span></div>
+                        <div class="timer-finish-time" id="timer-finish-time">${getTimerEndLabel()}</div>
+                    </div>
+                </div>
+                <div class="tiempo-primary-actions timer-running-actions">
+                    <button id="timer-main-btn" class="tiempo-main-btn" onclick="toggleTimer()">Pausar</button>
+                    <button class="tiempo-reset-btn" onclick="resetTimer()" title="Reiniciar" aria-label="Reiniciar">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 12a8 8 0 1 0 2.3-5.7"></path><path d="M4 4v5h5"></path></svg>
+                    </button>
+                </div>
+            </div>
+        `;
+        updateTimerUI();
+        return;
+    }
     container.innerHTML = `
         <div class="tiempo-page">
             <div class="tiempo-wheel-picker" aria-label="Duración del timer">
@@ -189,10 +211,14 @@ function toggleTimer() {
     if (timerRunning) {
         clearInterval(timerInterval);
         timerRunning = false;
+        timerEndAt = null;
+        renderTimer();
     } else {
         if (timerRemaining <= 0) timerRemaining = getTimerSeconds();
         if (timerRemaining <= 0) return;
         timerRunning = true;
+        timerEndAt = Date.now() + timerRemaining * 1000;
+        renderTimer();
         timerInterval = setInterval(() => {
             timerRemaining -= 1;
             updateTimerUI();
@@ -200,6 +226,8 @@ function toggleTimer() {
                 clearInterval(timerInterval);
                 timerRunning = false;
                 timerRemaining = 0;
+                timerEndAt = null;
+                renderTimer();
                 if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
                 mostrarAlertaWeb('El timer llegó a cero.', 'Tiempo cumplido');
                 updateTimerUI();
@@ -212,12 +240,36 @@ function toggleTimer() {
 function resetTimer() {
     clearInterval(timerInterval);
     timerRunning = false;
+    timerEndAt = null;
     timerValues = { hours: 0, minutes: 10, seconds: 0 };
     timerRemaining = 10 * 60;
     renderTimer();
 }
 
+function getTimerProgress() {
+    const total = Math.max(1, getTimerSeconds());
+    return Math.max(0, Math.min(1, timerRemaining / total));
+}
+
+function getTimerEndLabel() {
+    return `Termina a las ${new Date(timerEndAt || Date.now() + timerRemaining * 1000).toLocaleTimeString('es-CL', {
+        hour: '2-digit',
+        minute: '2-digit'
+    })}`;
+}
+
 function updateTimerUI() {
+    const runningDisplay = document.getElementById('timer-running-display');
+    if (runningDisplay) {
+        const hours = Math.floor(timerRemaining / 3600);
+        const minutes = Math.floor((timerRemaining % 3600) / 60);
+        const seconds = timerRemaining % 60;
+        runningDisplay.innerHTML = `${formatUnit(hours)}:${formatUnit(minutes)}<span class="reloj-sec">:${formatUnit(seconds)}</span>`;
+        const ring = document.querySelector('.timer-progress-ring');
+        if (ring) ring.style.setProperty('--timer-progress', getTimerProgress());
+        const finish = document.getElementById('timer-finish-time');
+        if (finish) finish.textContent = getTimerEndLabel();
+    }
     const parts = {
         hours: Math.floor(timerRemaining / 3600),
         minutes: Math.floor((timerRemaining % 3600) / 60),
@@ -243,7 +295,7 @@ function updateTimerUI() {
     const endLabel = document.getElementById('timer-end-label');
     if (endLabel) {
         endLabel.textContent = timerRunning
-            ? `Termina a las ${new Date(Date.now() + timerRemaining * 1000).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}`
+            ? getTimerEndLabel()
             : '';
     }
 }

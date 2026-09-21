@@ -1151,17 +1151,7 @@ header {
     }
 
     .tiempo-wheel::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        right: 0;
-        top: 52%;
-        height: 76px;
-        transform: translateY(-50%);
-        border-top: 1px solid rgba(56, 189, 248, 0.18);
-        border-bottom: 1px solid rgba(56, 189, 248, 0.18);
-        border-radius: 18px;
-        pointer-events: none;
+        display: none;
     }
 
     .tiempo-wheel-label {
@@ -1304,6 +1294,73 @@ header {
 
     .tiempo-stopwatch-display {
         margin: 44px auto 68px;
+    }
+
+    .timer-running-page {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 52px;
+    }
+
+    .timer-progress-ring {
+        --timer-progress: 1;
+        position: relative;
+        width: clamp(270px, 62vw, 470px);
+        aspect-ratio: 1;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: conic-gradient(#8b7cff calc(var(--timer-progress) * 1turn), rgba(148, 163, 184, 0.14) 0);
+        box-shadow: 0 0 42px rgba(139, 124, 255, 0.18);
+        animation: timerRingIn 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .timer-progress-ring::before {
+        content: "";
+        position: absolute;
+        width: inherit;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: #0b1220;
+        transform: scale(0.965);
+    }
+
+    .timer-progress-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .timer-progress-label {
+        color: #94a3b8;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .timer-running-display {
+        font-size: clamp(58px, 12vw, 118px);
+    }
+
+    .timer-finish-time {
+        color: #cbd5e1;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .timer-running-actions {
+        margin-top: 0;
+    }
+
+    @keyframes timerRingIn {
+        from { opacity: 0; transform: scale(0.82); }
+        to { opacity: 1; transform: scale(1); }
     }
 
     .tiempo-laps {
