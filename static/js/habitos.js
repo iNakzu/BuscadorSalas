@@ -262,14 +262,61 @@ function agregarHabitoModal() {
             <div class="riff-modal-header"><div><span class="section-kicker">Ritmo personal</span><h2>Crear nuevo hábito</h2><p class="habit-modal-subtitle">Diseña una rutina clara, pequeña y fácil de mantener.</p></div><button type="button" class="riff-modal-close" onclick="cerrarHabitoModal()">×</button></div>
             <label>Nombre del hábito<input name="title" required maxlength="80" placeholder="Ej. Leer 20 minutos antes de dormir" autocomplete="off"></label>
             <div class="riff-form-grid">
-                <label>Categoría<select name="category"><option value="Estudio">Estudio</option><option value="Salud">Salud / Higiene</option><option value="Música">Guitarra & Música</option><option value="Polonia">Polonia & Idioma</option><option value="Gatos">Gatos & Casa</option><option value="General">General</option></select></label>
-                <label>Frecuencia<select name="frequency"><option value="Diario">Todos los días</option><option value="Lunes a viernes">Lunes a viernes</option><option value="Flexible">Flexible</option></select></label>
+                <label>Categoría
+                    <input type="hidden" name="category" id="habito-category-value" value="Estudio">
+                    <div class="custom-dropdown habit-custom-dropdown" id="habito-category-dropdown">
+                        <button type="button" class="dropdown-trigger" onclick="toggleDropdown('habito-category-dropdown')">
+                            <span id="habito-category-label">Estudio</span>
+                            <svg class="dropdown-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                        <div class="dropdown-menu">
+                            ${renderHabitoDropdownItem('habito-category-dropdown', 'Estudio', 'Estudio', 'habito-category-value', 'habito-category-label')}
+                            ${renderHabitoDropdownItem('habito-category-dropdown', 'Salud', 'Salud / Higiene', 'habito-category-value', 'habito-category-label')}
+                            ${renderHabitoDropdownItem('habito-category-dropdown', 'Música', 'Guitarra & Música', 'habito-category-value', 'habito-category-label')}
+                            ${renderHabitoDropdownItem('habito-category-dropdown', 'Polonia', 'Polonia & Idioma', 'habito-category-value', 'habito-category-label')}
+                            ${renderHabitoDropdownItem('habito-category-dropdown', 'Gatos', 'Gatos & Casa', 'habito-category-value', 'habito-category-label')}
+                            ${renderHabitoDropdownItem('habito-category-dropdown', 'General', 'General', 'habito-category-value', 'habito-category-label')}
+                        </div>
+                    </div>
+                </label>
+                <label>Frecuencia
+                    <input type="hidden" name="frequency" id="habito-frequency-value" value="Diario">
+                    <div class="custom-dropdown habit-custom-dropdown" id="habito-frequency-dropdown">
+                        <button type="button" class="dropdown-trigger" onclick="toggleDropdown('habito-frequency-dropdown')">
+                            <span id="habito-frequency-label">Todos los días</span>
+                            <svg class="dropdown-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                        <div class="dropdown-menu">
+                            ${renderHabitoDropdownItem('habito-frequency-dropdown', 'Diario', 'Todos los días', 'habito-frequency-value', 'habito-frequency-label')}
+                            ${renderHabitoDropdownItem('habito-frequency-dropdown', 'Lunes a viernes', 'Lunes a viernes', 'habito-frequency-value', 'habito-frequency-label')}
+                            ${renderHabitoDropdownItem('habito-frequency-dropdown', 'Flexible', 'Flexible', 'habito-frequency-value', 'habito-frequency-label')}
+                        </div>
+                    </div>
+                </label>
             </div>
             <label>Intención <span class="habit-label-hint">Opcional</span><textarea name="description" rows="3" maxlength="180" placeholder="¿Qué quieres conseguir con esta rutina?"></textarea></label>
             <div class="habit-modal-tip"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5"></path><path d="M12 8h.01"></path></svg><span>Empieza con una acción concreta. La constancia importa más que hacerlo perfecto.</span></div>
             <div class="riff-modal-actions"><button type="button" class="riff-modal-secondary" onclick="cerrarHabitoModal()">Cancelar</button><button class="riff-modal-primary" type="submit">Guardar hábito</button></div>
         </form>`;
     modal.querySelector('input[name="title"]').focus();
+}
+
+function renderHabitoDropdownItem(dropdownId, value, label, valueId, labelId) {
+    return `<div class="dropdown-item ${value === 'Estudio' || value === 'Diario' ? 'active' : ''}" onclick="seleccionarHabitoOpcion('${dropdownId}', '${escapeHtmlHabitos(value)}', '${escapeHtmlHabitos(label)}', '${valueId}', '${labelId}')"><span>${escapeHtmlHabitos(label)}</span><svg class="habit-dropdown-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg></div>`;
+}
+
+function seleccionarHabitoOpcion(dropdownId, value, label, valueId, labelId) {
+    const valueInput = document.getElementById(valueId);
+    const labelElement = document.getElementById(labelId);
+    const dropdown = document.getElementById(dropdownId);
+    if (valueInput) valueInput.value = value;
+    if (labelElement) labelElement.textContent = label;
+    if (dropdown) {
+        dropdown.classList.remove('open');
+        dropdown.querySelectorAll('.dropdown-item').forEach(item => {
+            item.classList.toggle('active', item.textContent.trim().startsWith(label));
+        });
+    }
 }
 
 function eliminarHabito(id) {
