@@ -1313,7 +1313,7 @@ header {
     .timer-progress-ring {
         --timer-progress: 1;
         position: relative;
-        width: clamp(270px, 62vw, 470px);
+        width: clamp(310px, 70vw, 540px);
         aspect-ratio: 1;
         display: grid;
         place-items: center;
@@ -1334,7 +1334,7 @@ header {
         top: 1.2%;
         left: calc(50% - 2px);
         width: 4px;
-        height: 8.5%;
+        height: 5.2%;
         border-radius: 999px;
         background: #8b7cff;
         opacity: 0.08;
