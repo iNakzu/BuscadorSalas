@@ -53,6 +53,11 @@ function updateClock() {
 }
 
 function toggleStopwatch() {
+    if (!stopwatchRunning) {
+        const configuredSeconds = getTimerInputSeconds();
+        timerConfigured = configuredSeconds > 0;
+        if (timerConfigured) countdownTime = configuredSeconds;
+    }
     if (timerConfigured) {
         toggleCountdown();
         return;
@@ -135,11 +140,11 @@ function updateStopwatchDisplay() {
         const hours = Math.floor(countdownTime / 3600);
         const displayMinutes = Math.floor((countdownTime % 3600) / 60);
         timeEl.innerHTML = `
-            <input class="cronometro-time-input" value="${hours.toString().padStart(2, '0')}" aria-label="Horas" oninput="markTimerConfigured()" ${stopwatchRunning ? 'readonly' : ''}>
+            <input class="cronometro-time-input" value="${hours.toString().padStart(2, '0')}" inputmode="numeric" maxlength="2" aria-label="Horas" onfocus="this.select()" oninput="markTimerConfigured()" ${stopwatchRunning ? 'readonly' : ''}>
             <span>:</span>
-            <input class="cronometro-time-input" value="${displayMinutes.toString().padStart(2, '0')}" aria-label="Minutos" oninput="markTimerConfigured()" ${stopwatchRunning ? 'readonly' : ''}>
+            <input class="cronometro-time-input" value="${displayMinutes.toString().padStart(2, '0')}" inputmode="numeric" maxlength="2" aria-label="Minutos" onfocus="this.select()" oninput="markTimerConfigured()" ${stopwatchRunning ? 'readonly' : ''}>
             <span>:</span>
-            <input class="cronometro-time-input cronometro-seconds-input" value="${seconds.toString().padStart(2, '0')}" aria-label="Segundos" oninput="markTimerConfigured()" ${stopwatchRunning ? 'readonly' : ''}>
+            <input class="cronometro-time-input cronometro-seconds-input" value="${seconds.toString().padStart(2, '0')}" inputmode="numeric" maxlength="2" aria-label="Segundos" onfocus="this.select()" oninput="markTimerConfigured()" ${stopwatchRunning ? 'readonly' : ''}>
         `;
         const endEl = document.getElementById('crono-end-time');
         if (endEl) {
@@ -238,11 +243,11 @@ function renderCronometro() {
             <div class="cronometro-shell">
                 <div class="cronometro-display-card">
                     <div class="reloj-time cronometro-display" id="crono-time-display">
-                        <input class="cronometro-time-input" id="timer-hours" value="00" inputmode="numeric" maxlength="2" aria-label="Horas" oninput="markTimerConfigured()">
+                        <input class="cronometro-time-input" id="timer-hours" value="00" inputmode="numeric" maxlength="2" aria-label="Horas" onfocus="this.select()" oninput="markTimerConfigured()">
                         <span>:</span>
-                        <input class="cronometro-time-input" id="timer-minutes" value="00" inputmode="numeric" maxlength="2" aria-label="Minutos" oninput="markTimerConfigured()">
+                        <input class="cronometro-time-input" id="timer-minutes" value="00" inputmode="numeric" maxlength="2" aria-label="Minutos" onfocus="this.select()" oninput="markTimerConfigured()">
                         <span>:</span>
-                        <input class="cronometro-time-input" id="timer-seconds" value="00" inputmode="numeric" maxlength="2" aria-label="Segundos" oninput="markTimerConfigured()">
+                        <input class="cronometro-time-input cronometro-seconds-input" id="timer-seconds" value="00" inputmode="numeric" maxlength="2" aria-label="Segundos" onfocus="this.select()" oninput="markTimerConfigured()">
                     </div>
                     <div class="cronometro-end-time" id="crono-end-time"></div>
                 </div>

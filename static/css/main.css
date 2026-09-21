@@ -857,15 +857,17 @@ header {
     justify-content: center;
     min-height: 0;
     margin: 0 0 20px;
-    padding: 10px 0;
+    padding: 0;
 }
 
 .cronometro-display {
     display: inline-flex;
     align-items: center;
     gap: 2px;
-    font-size: clamp(42px, 8vw, 72px);
-    letter-spacing: -0.04em;
+    justify-content: center;
+    width: 100%;
+    font-size: clamp(42px, 8vw, 80px);
+    letter-spacing: -0.035em;
     text-shadow: none;
 }
 
@@ -879,16 +881,19 @@ header {
     font: inherit;
     font-variant-numeric: tabular-nums;
     text-align: center;
+    caret-color: #f8fafc;
 }
 
 .cronometro-time-input:focus {
-    color: #67e8f9;
+    color: #f8fafc;
+    background: transparent;
+    box-shadow: none;
 }
 
 .cronometro-seconds-input,
 .cronometro-seconds-value {
     color: #94a3b8;
-    font-size: 0.62em;
+    font-size: 0.68em;
 }
 
 .cronometro-end-time {
@@ -956,7 +961,7 @@ header {
 }
 
 .cronometro-actions .estudio-btn {
-    min-width: 132px;
+    min-width: 48px;
 }
 
 .cronometro-shell .btn-reset {
