@@ -140,10 +140,10 @@ function renderTimer() {
                 ${renderWheel('seconds', 'Segundos', 0, 59)}
             </div>
             <div class="tiempo-presets">
-                <button class="${isTimerPresetSelected(5 * 60) ? 'selected' : ''}" onclick="setTimerPreset(5 * 60)">05:00</button>
-                <button class="${isTimerPresetSelected(10 * 60) ? 'selected' : ''}" onclick="setTimerPreset(10 * 60)">10:00</button>
-                <button class="${isTimerPresetSelected(15 * 60) ? 'selected' : ''}" onclick="setTimerPreset(15 * 60)">15:00</button>
-                <button class="${isTimerPresetSelected(30 * 60) ? 'selected' : ''}" onclick="setTimerPreset(30 * 60)">30:00</button>
+                <button data-seconds="300" class="${isTimerPresetSelected(5 * 60) ? 'selected' : ''}" onclick="setTimerPreset(5 * 60)">05:00</button>
+                <button data-seconds="600" class="${isTimerPresetSelected(10 * 60) ? 'selected' : ''}" onclick="setTimerPreset(10 * 60)">10:00</button>
+                <button data-seconds="900" class="${isTimerPresetSelected(15 * 60) ? 'selected' : ''}" onclick="setTimerPreset(15 * 60)">15:00</button>
+                <button data-seconds="1800" class="${isTimerPresetSelected(30 * 60) ? 'selected' : ''}" onclick="setTimerPreset(30 * 60)">30:00</button>
             </div>
             <div class="tiempo-primary-actions">
                 <button id="timer-main-btn" class="tiempo-main-btn" onclick="toggleTimer()">${timerRunning ? 'Pausar' : 'Iniciar'}</button>
@@ -228,7 +228,7 @@ function bindTimerWheelGestures() {
             remainder += distance;
             if (Math.abs(remainder) >= 22) {
                 const steps = Math.trunc(remainder / 22);
-                changeTimerValue(wheel.dataset.field, steps);
+                changeTimerValue(wheel.dataset.field, steps, false);
                 remainder -= steps * 22;
                 dragged = true;
             }
@@ -259,7 +259,7 @@ function setTimeMode(mode) {
     renderStopwatch();
 }
 
-function changeTimerValue(field, delta) {
+function changeTimerValue(field, delta, shouldRender = true) {
     if (timerRunning) return;
     const limits = { hours: [0, 99], minutes: [0, 59], seconds: [0, 59] };
     const [min, max] = limits[field];
@@ -268,7 +268,32 @@ function changeTimerValue(field, delta) {
     if (value > max) value = min;
     timerValues[field] = value;
     timerRemaining = getTimerSeconds();
-    renderTimer();
+    if (shouldRender) {
+        renderTimer();
+    } else {
+        updateTimerWheelDisplay(field, min, max);
+        updateTimerPresetButtons();
+    }
+}
+
+function updateTimerWheelDisplay(field, min, max) {
+    const wheel = document.querySelector(`.tiempo-wheel[data-field="${field}"]`);
+    if (!wheel) return;
+    const values = wheel.querySelectorAll('.tiempo-wheel-value');
+    if (values.length < 3) return;
+    const value = timerValues[field];
+    const previous = value <= min ? max : value - 1;
+    const next = value >= max ? min : value + 1;
+    values[0].textContent = formatUnit(previous);
+    values[1].textContent = formatUnit(value);
+    values[2].textContent = formatUnit(next);
+}
+
+function updateTimerPresetButtons() {
+    document.querySelectorAll('.tiempo-presets button').forEach(button => {
+        const preset = Number(button.dataset.seconds);
+        button.classList.toggle('selected', preset === getTimerSeconds());
+    });
 }
 
 function setTimerPreset(seconds) {
