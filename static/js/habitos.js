@@ -8,7 +8,7 @@ let activeHabitoFilter = 'all';
 const DEFAULT_HABITOS = [
     {
         id: 'hab_1',
-        title: 'Estudiar / Repasar ramos UDP',
+        title: 'Estudiar',
         created_at: new Date().toISOString(),
         history: {}
     },
@@ -20,16 +20,10 @@ const DEFAULT_HABITOS = [
     },
     {
         id: 'hab_3',
-        title: 'Practicar guitarra eléctrica (Riffs)',
+        title: 'Practicar guitarra eléctrica',
         created_at: new Date().toISOString(),
         history: {}
     },
-    {
-        id: 'hab_5',
-        title: 'Cuidar / mimar a mis gatos',
-        created_at: new Date().toISOString(),
-        history: {}
-    }
 ];
 
 function getHoyDateStr() {
@@ -46,8 +40,23 @@ function initHabitos() {
         if (stored) {
             habitosData = JSON.parse(stored);
             const habitosAntes = habitosData.length;
-            habitosData = habitosData.filter(habito => habito.id !== 'hab_4' && !/polaco/i.test(habito.title || ''));
-            if (habitosData.length !== habitosAntes) saveHabitos();
+            habitosData = habitosData.filter(habito => (
+                habito.id !== 'hab_4' &&
+                habito.id !== 'hab_5' &&
+                !/polaco|gatos/i.test(habito.title || '')
+            ));
+            let nombresActualizados = false;
+            habitosData.forEach(habito => {
+                if (habito.id === 'hab_1' && habito.title !== 'Estudiar') {
+                    habito.title = 'Estudiar';
+                    nombresActualizados = true;
+                }
+                if (habito.id === 'hab_3' && habito.title !== 'Practicar guitarra eléctrica') {
+                    habito.title = 'Practicar guitarra eléctrica';
+                    nombresActualizados = true;
+                }
+            });
+            if (habitosData.length !== habitosAntes || nombresActualizados) saveHabitos();
         } else {
             habitosData = DEFAULT_HABITOS;
             saveHabitos();
