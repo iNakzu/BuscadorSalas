@@ -891,10 +891,17 @@ header {
     font: inherit;
     font-variant-numeric: tabular-nums;
     text-align: center;
-    letter-spacing: -0.12em;
+    letter-spacing: -0.2em;
     caret-color: #f8fafc;
     vertical-align: baseline;
     appearance: none;
+}
+
+.cronometro-time-separator.reloj-sec {
+    color: #94a3b8;
+    font-size: 0.5em;
+    font-weight: 600;
+    vertical-align: baseline;
 }
 
 .cronometro-time-input.reloj-sec {
