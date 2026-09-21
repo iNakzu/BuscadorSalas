@@ -294,7 +294,7 @@ function actualizarHeroMiHorario() {
             <div class="my-hero-body">
                 <div class="my-hero-class-info">
                     <div class="my-hero-title">
-                        <span>${proximaHoy.curso}</span>
+                        <span>${escapeHtml(proximaHoy.curso)}</span>
                     </div>
                     <div class="my-hero-subtitle">
                         <span>Inicia a las <strong>${proximaHoy.horaInicio}</strong></span>
