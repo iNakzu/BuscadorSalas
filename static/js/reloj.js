@@ -36,6 +36,12 @@ function updateClock() {
         dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
         dateEl.textContent = dateStr;
     }
+    const chronoDateEl = document.getElementById('crono-date-display');
+    if (chronoDateEl) {
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        let dateStr = now.toLocaleDateString('es-ES', options);
+        chronoDateEl.textContent = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+    }
     
     // Update cities
     const timeNy = document.getElementById('time-ny');
@@ -249,6 +255,7 @@ function renderCronometro() {
                         <span>:</span>
                         <input class="cronometro-time-input cronometro-seconds-input" id="timer-seconds" value="00" inputmode="numeric" maxlength="2" aria-label="Segundos" onfocus="this.select()" oninput="markTimerConfigured()">
                     </div>
+                    <div class="reloj-date cronometro-date" id="crono-date-display"></div>
                     <div class="cronometro-end-time" id="crono-end-time"></div>
                 </div>
                 <div class="cronometro-actions">

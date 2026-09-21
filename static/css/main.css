@@ -820,6 +820,9 @@ header {
 }
 
 .cronometro-shell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     width: min(100%, 720px);
     padding: 0;
 }
@@ -856,8 +859,9 @@ header {
     align-items: center;
     justify-content: center;
     min-height: 0;
-    margin: 0 0 20px;
-    padding: 0;
+    width: 100%;
+    margin: 28px 0 20px;
+    padding: 20px 0 0;
 }
 
 .cronometro-display {
@@ -902,6 +906,11 @@ header {
     font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.03em;
+}
+
+.cronometro-date {
+    margin: 12px 0 0;
+    font-size: 16px;
 }
 
 .cronometro-config {
