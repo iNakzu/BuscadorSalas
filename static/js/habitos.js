@@ -244,6 +244,32 @@ function toggleHabitoHoy(id) {
     renderHabitos();
 }
 
+function renderHabitoDropdownItem(dropdownId, value, label, inputId, labelId) {
+    const escapedValue = value.replace(/'/g, "\\'");
+    const escapedLabel = label.replace(/'/g, "\\'");
+    return `
+        <div class="dropdown-item ${value === 'Diario' ? 'active' : ''}" data-val="${escapeHtmlHabitos(value)}"
+             onclick="selectHabitoFrequency('${dropdownId}', '${escapedValue}', '${escapedLabel}', '${inputId}', '${labelId}')">
+            ${escapeHtmlHabitos(label)}
+            <span class="habit-dropdown-check">✓</span>
+        </div>
+    `;
+}
+
+function selectHabitoFrequency(dropdownId, value, label, inputId, labelId) {
+    const dropdown = document.getElementById(dropdownId);
+    const input = document.getElementById(inputId);
+    const labelElement = document.getElementById(labelId);
+
+    if (dropdown) dropdown.classList.remove('open');
+    if (input) input.value = value;
+    if (labelElement) labelElement.textContent = label;
+
+    document.querySelectorAll(`#${dropdownId} .dropdown-item`).forEach(item => {
+        item.classList.toggle('active', item.dataset.val === value);
+    });
+}
+
 function agregarHabitoModal() {
     let modal = document.getElementById('habito-form-modal');
     if (!modal) {
