@@ -9,35 +9,30 @@ const DEFAULT_HABITOS = [
     {
         id: 'hab_1',
         title: 'Estudiar / Repasar ramos UDP',
-        category: 'Estudio',
         created_at: new Date().toISOString(),
         history: {}
     },
     {
         id: 'hab_2',
         title: 'Lavarme los dientes (mañana y noche)',
-        category: 'Salud',
         created_at: new Date().toISOString(),
         history: {}
     },
     {
         id: 'hab_3',
         title: 'Practicar guitarra eléctrica (Riffs)',
-        category: 'Música',
         created_at: new Date().toISOString(),
         history: {}
     },
     {
         id: 'hab_4',
         title: 'Aprender vocabulario en Polaco',
-        category: 'Polonia',
         created_at: new Date().toISOString(),
         history: {}
     },
     {
         id: 'hab_5',
         title: 'Cuidar / mimar a mis gatos',
-        category: 'Gatos',
         created_at: new Date().toISOString(),
         history: {}
     }
@@ -176,7 +171,6 @@ function renderHabitos() {
     visibleHabitos.forEach(h => {
         const isDoneHoy = !!(h.history && h.history[hoyStr]);
         const racha = calcularRacha(h.history || {});
-        const category = h.category || 'General';
         const weeklyDone = past7Days.filter(d => h.history && h.history[d.key]).length;
 
         html += `
@@ -191,7 +185,6 @@ function renderHabitos() {
                     <div class="habit-title-row">
                         <div class="habit-title-block">
                             <span class="habit-title">${escapeHtmlHabitos(h.title)}</span>
-                            <span class="habit-category-pill">${escapeHtmlHabitos(category)}</span>
                         </div>
                         <div class="habit-card-metrics">
                             <span class="habit-week-badge" title="Completado ${weeklyDone} de 7 días esta semana">
@@ -209,7 +202,7 @@ function renderHabitos() {
                             const isDone = !!(h.history && h.history[d.key]);
                             return `
                                 <div class="habit-day-cell ${isDone ? 'done' : ''} ${d.isToday ? 'today' : ''}" title="${d.key}: ${isDone ? 'Completado' : 'Pendiente'}">
-                                    <span>${d.letter}</span><i></i>
+                                    <span>${d.letter}</span><i class="habit-day-dot"></i>
                                 </div>
                             `;
                         }).join('')}
@@ -266,23 +259,6 @@ function agregarHabitoModal() {
             <div class="riff-modal-header"><div><span class="section-kicker">Ritmo personal</span><h2>Crear nuevo hábito</h2><p class="habit-modal-subtitle">Diseña una rutina clara, pequeña y fácil de mantener.</p></div><button type="button" class="riff-modal-close" onclick="cerrarHabitoModal()">×</button></div>
             <label>Nombre del hábito<input name="title" required maxlength="80" placeholder="Ej. Leer 20 minutos antes de dormir" autocomplete="off"></label>
             <div class="riff-form-grid">
-                <label>Categoría
-                    <input type="hidden" name="category" id="habito-category-value" value="Estudio">
-                    <div class="custom-dropdown habit-custom-dropdown" id="habito-category-dropdown">
-                        <button type="button" class="dropdown-trigger" onclick="toggleDropdown('habito-category-dropdown')">
-                            <span id="habito-category-label">Estudio</span>
-                            <svg class="dropdown-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                        </button>
-                        <div class="dropdown-menu">
-                            ${renderHabitoDropdownItem('habito-category-dropdown', 'Estudio', 'Estudio', 'habito-category-value', 'habito-category-label')}
-                            ${renderHabitoDropdownItem('habito-category-dropdown', 'Salud', 'Salud / Higiene', 'habito-category-value', 'habito-category-label')}
-                            ${renderHabitoDropdownItem('habito-category-dropdown', 'Música', 'Guitarra & Música', 'habito-category-value', 'habito-category-label')}
-                            ${renderHabitoDropdownItem('habito-category-dropdown', 'Polonia', 'Polonia & Idioma', 'habito-category-value', 'habito-category-label')}
-                            ${renderHabitoDropdownItem('habito-category-dropdown', 'Gatos', 'Gatos & Casa', 'habito-category-value', 'habito-category-label')}
-                            ${renderHabitoDropdownItem('habito-category-dropdown', 'General', 'General', 'habito-category-value', 'habito-category-label')}
-                        </div>
-                    </div>
-                </label>
                 <label>Frecuencia
                     <input type="hidden" name="frequency" id="habito-frequency-value" value="Diario">
                     <div class="custom-dropdown habit-custom-dropdown" id="habito-frequency-dropdown">
@@ -303,24 +279,6 @@ function agregarHabitoModal() {
             <div class="riff-modal-actions"><button type="button" class="riff-modal-secondary" onclick="cerrarHabitoModal()">Cancelar</button><button class="riff-modal-primary" type="submit">Guardar hábito</button></div>
         </form>`;
     modal.querySelector('input[name="title"]').focus();
-}
-
-function renderHabitoDropdownItem(dropdownId, value, label, valueId, labelId) {
-    return `<div class="dropdown-item ${value === 'Estudio' || value === 'Diario' ? 'active' : ''}" onclick="seleccionarHabitoOpcion('${dropdownId}', '${escapeHtmlHabitos(value)}', '${escapeHtmlHabitos(label)}', '${valueId}', '${labelId}')"><span>${escapeHtmlHabitos(label)}</span><svg class="habit-dropdown-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg></div>`;
-}
-
-function seleccionarHabitoOpcion(dropdownId, value, label, valueId, labelId) {
-    const valueInput = document.getElementById(valueId);
-    const labelElement = document.getElementById(labelId);
-    const dropdown = document.getElementById(dropdownId);
-    if (valueInput) valueInput.value = value;
-    if (labelElement) labelElement.textContent = label;
-    if (dropdown) {
-        dropdown.classList.remove('open');
-        dropdown.querySelectorAll('.dropdown-item').forEach(item => {
-            item.classList.toggle('active', item.textContent.trim().startsWith(label));
-        });
-    }
 }
 
 function eliminarHabito(id) {
@@ -355,7 +313,6 @@ function guardarHabitoDesdeModal(event) {
     habitosData.unshift({
         id: 'hab_' + Date.now(),
         title,
-        category: data.get('category') || 'General',
         frequency: data.get('frequency') || 'Diario',
         description: data.get('description').trim(),
         created_at: new Date().toISOString(),
