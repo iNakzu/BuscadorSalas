@@ -228,6 +228,67 @@
     padding: 2px 7px;
 }
 
+.habit-card-metrics {
+    align-items: center;
+    display: flex;
+    flex-shrink: 0;
+    gap: 6px;
+}
+
+.habit-week-badge {
+    align-items: center;
+    display: inline-flex;
+    gap: 5px;
+    white-space: nowrap;
+}
+
+.habit-metric-label {
+    color: #64748b;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.habit-week-progress {
+    margin-bottom: 9px;
+    max-width: 430px;
+}
+
+.habit-week-progress-copy {
+    align-items: center;
+    color: #64748b;
+    display: flex;
+    font-size: 10px;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.habit-week-progress-copy strong {
+    color: #94a3b8;
+    font-size: 10px;
+}
+
+.habit-week-progress-track {
+    background: rgba(15, 23, 42, 0.8);
+    border-radius: 99px;
+    height: 4px;
+    overflow: hidden;
+}
+
+.habit-week-progress-track span {
+    background: linear-gradient(90deg, #38bdf8, #8b5cf6);
+    border-radius: inherit;
+    display: block;
+    height: 100%;
+    min-width: 4px;
+    transition: width .25s ease;
+}
+
+.habit-item-card.completed .habit-week-progress-track span {
+    background: linear-gradient(90deg, #34d399, #10b981);
+}
+
 .habit-empty-state {
     align-items: center;
     background: rgba(15,23,42,0.32);
@@ -303,12 +364,14 @@
 
 /* Habit List */
 .habit-item-card {
-    background: rgba(30, 41, 59, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.07);
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(115deg, rgba(30, 41, 59, 0.82), rgba(15, 23, 42, 0.72));
+    border: 1px solid rgba(148, 163, 184, 0.14);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border-radius: 12px;
-    padding: 14px 16px;
+    border-radius: 16px;
+    padding: 16px 18px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -317,9 +380,27 @@
     transition: all 0.22s ease;
 }
 
+.habit-item-card::before {
+    background: linear-gradient(180deg, #38bdf8, #8b5cf6);
+    content: '';
+    inset: 0 auto 0 0;
+    position: absolute;
+    width: 3px;
+}
+
+.habit-item-card:hover {
+    border-color: rgba(56, 189, 248, 0.32);
+    box-shadow: 0 10px 28px rgba(2, 6, 23, 0.28);
+    transform: translateY(-2px);
+}
+
 .habit-item-card.completed {
     border-color: rgba(52, 211, 153, 0.4);
     background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(30, 41, 59, 0.65) 100%);
+}
+
+.habit-item-card.completed::before {
+    background: linear-gradient(180deg, #34d399, #10b981);
 }
 
 .habit-check-btn {
@@ -357,13 +438,22 @@
 .habit-title-row {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.habit-title-block {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
     gap: 8px;
-    margin-bottom: 3px;
+    min-width: 0;
 }
 
 .habit-title {
     font-size: 14.5px;
-    font-weight: 600;
+    font-weight: 750;
     color: #f1f5f9;
     word-break: break-word;
 }
@@ -382,9 +472,10 @@
     font-weight: 700;
     padding: 2px 8px;
     border-radius: 20px;
-    background: rgba(251, 191, 36, 0.15);
-    border: 1px solid rgba(251, 191, 36, 0.3);
+    background: rgba(251, 191, 36, 0.12);
+    border: 1px solid rgba(251, 191, 36, 0.25);
     color: #fbbf24;
+    white-space: nowrap;
 }
 
 .habit-category-pill {
@@ -418,28 +509,42 @@
 /* 7-Day History Mini Matrix */
 .habit-days-row {
     display: flex;
-    gap: 5px;
-    margin-top: 6px;
+    gap: 6px;
+    margin-top: 0;
 }
 
-.habit-day-dot {
-    width: 18px;
-    height: 18px;
-    border-radius: 5px;
+.habit-day-cell {
+    align-items: center;
+    color: #64748b;
+    display: flex;
+    flex-direction: column;
     font-size: 9px;
     font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: #64748b;
+    gap: 3px;
+    min-width: 18px;
 }
 
-.habit-day-dot.done {
+.habit-day-cell i {
+    background: rgba(100, 116, 139, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 5px;
+    display: block;
+    height: 7px;
+    width: 18px;
+}
+
+.habit-day-cell.done {
+    color: #a7f3d0;
+}
+
+.habit-day-cell.done i {
     background: rgba(16, 185, 129, 0.25);
     border-color: rgba(52, 211, 153, 0.5);
-    color: #34d399;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.2);
+}
+
+.habit-day-cell.today i {
+    border-color: #38bdf8;
 }
 
 /* Guitar / Riff Lab Styling */
@@ -809,12 +914,6 @@
         font-size: 13.5px;
     }
 
-    .habit-day-dot {
-        width: 16px;
-        height: 16px;
-        font-size: 8px;
-    }
-
     .riff-grid {
         grid-template-columns: 1fr;
     }
@@ -848,18 +947,52 @@
 
     .habit-title-row {
         align-items: flex-start;
-        flex-wrap: wrap;
+        flex-direction: column;
+        gap: 8px;
     }
 
     .habit-info {
         min-width: 0;
+        width: 100%;
     }
 
     .habit-title {
         flex-basis: 100%;
     }
 
+    .habit-title-block {
+        align-items: flex-start;
+        width: 100%;
+    }
+
+    .habit-card-metrics {
+        width: 100%;
+    }
+
+    .habit-card-metrics .habit-week-badge,
+    .habit-card-metrics .habit-streak-badge {
+        flex: 0 1 auto;
+    }
+
+    .habit-item-card {
+        align-items: flex-start;
+        padding: 14px;
+    }
+
+    .habit-check-btn {
+        margin-top: 1px;
+    }
+
     .habit-days-row {
         gap: 4px;
+    }
+
+    .habit-day-cell {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .habit-day-cell i {
+        width: 100%;
     }
 }

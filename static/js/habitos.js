@@ -189,23 +189,31 @@ function renderHabitos() {
 
                 <div class="habit-info">
                     <div class="habit-title-row">
-                        <span class="habit-title">${escapeHtmlHabitos(h.title)}</span>
-                        <span class="habit-category-pill">${escapeHtmlHabitos(category)}</span>
-                        <span class="habit-week-badge" title="Completado ${weeklyDone} de 7 días esta semana">
-                            ${weeklyDone}/7
-                        </span>
-                        <span class="habit-streak-badge" title="Racha consecutiva">
-                            ✦ ${racha}d
-                        </span>
+                        <div class="habit-title-block">
+                            <span class="habit-title">${escapeHtmlHabitos(h.title)}</span>
+                            <span class="habit-category-pill">${escapeHtmlHabitos(category)}</span>
+                        </div>
+                        <div class="habit-card-metrics">
+                            <span class="habit-week-badge" title="Completado ${weeklyDone} de 7 días esta semana">
+                                <span class="habit-metric-label">Semana</span>${weeklyDone}/7
+                            </span>
+                            <span class="habit-streak-badge" title="Racha consecutiva">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 3c2.5 3 5 5.4 5 9a5 5 0 1 1-10 0c0-1.6.7-3.1 2-4.5"></path><path d="M12 11c.9 1 1.5 2 1.5 3.2a1.5 1.5 0 0 1-3 0c0-.8.4-1.6 1.5-3.2Z"></path></svg>
+                                ${racha}d
+                            </span>
+                        </div>
                     </div>
 
-                    <!-- 7-Day History Mini Matrix -->
-                    <div class="habit-days-row">
+                    <div class="habit-week-progress">
+                        <div class="habit-week-progress-copy"><span>Constancia semanal</span><strong>${weeklyDone}/7 días</strong></div>
+                        <div class="habit-week-progress-track"><span style="width: ${(weeklyDone / 7) * 100}%"></span></div>
+                    </div>
+                    <div class="habit-days-row" aria-label="Historial de los últimos siete días">
                         ${past7Days.map(d => {
                             const isDone = !!(h.history && h.history[d.key]);
                             return `
-                                <div class="habit-day-dot ${isDone ? 'done' : ''}" title="${d.key}: ${isDone ? 'Completado' : 'Pendiente'}" style="${d.isToday ? 'border-color: #38bdf8;' : ''}">
-                                    ${d.letter}
+                                <div class="habit-day-cell ${isDone ? 'done' : ''} ${d.isToday ? 'today' : ''}" title="${d.key}: ${isDone ? 'Completado' : 'Pendiente'}">
+                                    <span>${d.letter}</span><i></i>
                                 </div>
                             `;
                         }).join('')}
