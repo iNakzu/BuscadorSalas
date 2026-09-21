@@ -204,10 +204,6 @@ function renderHabitos() {
                         </div>
                     </div>
 
-                    <div class="habit-week-progress">
-                        <div class="habit-week-progress-copy"><span>Constancia semanal</span><strong>${weeklyDone}/7 días</strong></div>
-                        <div class="habit-week-progress-track"><span style="width: ${(weeklyDone / 7) * 100}%"></span></div>
-                    </div>
                     <div class="habit-days-row" aria-label="Historial de los últimos siete días">
                         ${past7Days.map(d => {
                             const isDone = !!(h.history && h.history[d.key]);
