@@ -497,6 +497,17 @@
     gap: 8px;
 }
 
+.riff-hero-actions .riff-preset-btn {
+    background: linear-gradient(135deg, #a855f7, #7c3aed);
+    border: 1px solid rgba(192, 132, 252, 0.55);
+    box-shadow: 0 3px 12px rgba(168, 85, 247, 0.32);
+    gap: 8px;
+}
+
+.riff-hero-actions .riff-preset-btn:hover {
+    box-shadow: 0 5px 16px rgba(168, 85, 247, 0.5);
+}
+
 .riff-focus-strip {
     align-items: center;
     display: flex;
