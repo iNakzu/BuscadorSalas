@@ -1304,6 +1304,12 @@ header {
         gap: 52px;
     }
 
+    @property --timer-progress {
+        syntax: "<number>";
+        inherits: false;
+        initial-value: 1;
+    }
+
     .timer-progress-ring {
         --timer-progress: 1;
         position: relative;
@@ -1314,6 +1320,7 @@ header {
         border-radius: 50%;
         background: conic-gradient(#8b7cff calc(var(--timer-progress) * 1turn), rgba(148, 163, 184, 0.14) 0);
         box-shadow: 0 0 42px rgba(139, 124, 255, 0.18);
+        transition: --timer-progress 1s linear;
         animation: timerRingIn 0.55s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
