@@ -12,7 +12,8 @@ let isZenMode = false;
 
 function initReloj() {
     renderReloj();
-    renderTiempo();
+    renderTimer();
+    renderStopwatch();
     startClock();
 }
 
@@ -67,51 +68,52 @@ function renderReloj() {
     `;
 }
 
-function renderTiempo() {
-    const container = document.getElementById('tiempo-container');
+function renderTimer() {
+    const container = document.getElementById('timer-container');
     if (!container) return;
     container.innerHTML = `
         <div class="tiempo-page">
-            <div class="tiempo-mode-switch" role="tablist" aria-label="Herramienta de tiempo">
-                <button class="tiempo-mode-btn ${activeTimeMode === 'timer' ? 'active' : ''}" onclick="setTimeMode('timer')" role="tab">Timer</button>
-                <button class="tiempo-mode-btn ${activeTimeMode === 'stopwatch' ? 'active' : ''}" onclick="setTimeMode('stopwatch')" role="tab">Cronómetro</button>
+            <div class="tiempo-wheel-picker" aria-label="Duración del timer">
+                ${renderWheel('hours', 'Horas', 0, 99)}
+                <span class="tiempo-wheel-colon">:</span>
+                ${renderWheel('minutes', 'Minutos', 0, 59)}
+                <span class="tiempo-wheel-colon">:</span>
+                ${renderWheel('seconds', 'Segundos', 0, 59)}
             </div>
-            <div id="timer-panel" class="tiempo-panel ${activeTimeMode === 'timer' ? 'active' : ''}">
-                <div class="tiempo-wheel-picker" aria-label="Duración del timer">
-                    ${renderWheel('hours', 'Horas', 0, 99)}
-                    <span class="tiempo-wheel-colon">:</span>
-                    ${renderWheel('minutes', 'Minutos', 0, 59)}
-                    <span class="tiempo-wheel-colon">:</span>
-                    ${renderWheel('seconds', 'Segundos', 0, 59)}
-                </div>
-                <div class="tiempo-presets">
-                    <button onclick="setTimerPreset(5 * 60)">05:00</button>
-                    <button class="selected" onclick="setTimerPreset(10 * 60)">10:00</button>
-                    <button onclick="setTimerPreset(15 * 60)">15:00</button>
-                    <button onclick="setTimerPreset(30 * 60)">30:00</button>
-                </div>
-                <div class="tiempo-primary-actions">
-                    <button id="timer-main-btn" class="tiempo-main-btn" onclick="toggleTimer()">${timerRunning ? 'Pausar' : 'Iniciar'}</button>
-                    <button class="tiempo-reset-btn" onclick="resetTimer()" title="Reiniciar" aria-label="Reiniciar">
-                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 12a8 8 0 1 0 2.3-5.7"></path><path d="M4 4v5h5"></path></svg>
-                    </button>
-                </div>
-                <div id="timer-end-label" class="tiempo-end-label"></div>
+            <div class="tiempo-presets">
+                <button onclick="setTimerPreset(5 * 60)">05:00</button>
+                <button class="selected" onclick="setTimerPreset(10 * 60)">10:00</button>
+                <button onclick="setTimerPreset(15 * 60)">15:00</button>
+                <button onclick="setTimerPreset(30 * 60)">30:00</button>
             </div>
-            <div id="stopwatch-panel" class="tiempo-panel ${activeTimeMode === 'stopwatch' ? 'active' : ''}">
-                <div class="reloj-time tiempo-stopwatch-display" id="stopwatch-display">00:00<span class="reloj-sec">.00</span></div>
-                <div class="tiempo-primary-actions">
-                    <button class="tiempo-secondary-btn" onclick="recordLap()" ${stopwatchRunning ? '' : 'disabled'}>Vuelta</button>
-                    <button id="stopwatch-main-btn" class="tiempo-main-btn" onclick="toggleStopwatch()">${stopwatchRunning ? 'Pausar' : 'Iniciar'}</button>
-                    <button class="tiempo-reset-btn" onclick="resetStopwatch()" title="Reiniciar" aria-label="Reiniciar">
-                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 12a8 8 0 1 0 2.3-5.7"></path><path d="M4 4v5h5"></path></svg>
-                    </button>
-                </div>
-                <div id="stopwatch-laps" class="tiempo-laps"></div>
+            <div class="tiempo-primary-actions">
+                <button id="timer-main-btn" class="tiempo-main-btn" onclick="toggleTimer()">${timerRunning ? 'Pausar' : 'Iniciar'}</button>
+                <button class="tiempo-reset-btn" onclick="resetTimer()" title="Reiniciar" aria-label="Reiniciar">
+                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 12a8 8 0 1 0 2.3-5.7"></path><path d="M4 4v5h5"></path></svg>
+                </button>
             </div>
+            <div id="timer-end-label" class="tiempo-end-label"></div>
         </div>
     `;
     updateTimerUI();
+}
+
+function renderStopwatch() {
+    const container = document.getElementById('cronometro-container');
+    if (!container) return;
+    container.innerHTML = `
+        <div class="tiempo-page">
+            <div class="reloj-time tiempo-stopwatch-display" id="stopwatch-display">00:00<span class="reloj-sec">.00</span></div>
+            <div class="tiempo-primary-actions">
+                <button class="tiempo-secondary-btn" onclick="recordLap()" ${stopwatchRunning ? '' : 'disabled'}>Vuelta</button>
+                <button id="stopwatch-main-btn" class="tiempo-main-btn" onclick="toggleStopwatch()">${stopwatchRunning ? 'Pausar' : 'Iniciar'}</button>
+                <button class="tiempo-reset-btn" onclick="resetStopwatch()" title="Reiniciar" aria-label="Reiniciar">
+                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 12a8 8 0 1 0 2.3-5.7"></path><path d="M4 4v5h5"></path></svg>
+                </button>
+            </div>
+            <div id="stopwatch-laps" class="tiempo-laps"></div>
+        </div>
+    `;
     updateStopwatchUI();
 }
 
@@ -136,7 +138,8 @@ function formatUnit(value) {
 function setTimeMode(mode) {
     if (timerRunning || stopwatchRunning) return;
     activeTimeMode = mode;
-    renderTiempo();
+    renderTimer();
+    renderStopwatch();
 }
 
 function changeTimerValue(field, delta) {
@@ -148,7 +151,7 @@ function changeTimerValue(field, delta) {
     if (value > max) value = min;
     timerValues[field] = value;
     timerRemaining = getTimerSeconds();
-    renderTiempo();
+    renderTimer();
 }
 
 function setTimerPreset(seconds) {
@@ -159,7 +162,7 @@ function setTimerPreset(seconds) {
         seconds: seconds % 60
     };
     timerRemaining = seconds;
-    renderTiempo();
+    renderTimer();
 }
 
 function getTimerSeconds() {
@@ -195,7 +198,7 @@ function resetTimer() {
     timerRunning = false;
     timerValues = { hours: 0, minutes: 10, seconds: 0 };
     timerRemaining = 10 * 60;
-    renderTiempo();
+    renderTimer();
 }
 
 function updateTimerUI() {

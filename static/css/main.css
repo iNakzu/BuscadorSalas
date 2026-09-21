@@ -1083,8 +1083,9 @@ header {
     .reloj-time {
         font-size: 160px;
     }
+}
 
-    /* Timer / cronometro estilo reloj del sistema */
+/* Timer / cronometro estilo reloj del sistema */
     .tiempo-page {
         width: min(100%, 760px);
         min-height: 60vh;
@@ -1364,6 +1365,7 @@ header {
             margin-bottom: 78px;
         }
     }
+@media (min-width: 768px) {
     .reloj-sec {
         font-size: 80px;
     }

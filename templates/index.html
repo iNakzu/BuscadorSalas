@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=20">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=21">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}?v=11">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ai.css') }}?v=12">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/notas.css') }}?v=10">
@@ -133,12 +133,18 @@
                 </svg>
                 <span>Hora</span>
             </button>
-            <button type="button" class="tab-btn" onclick="cambiarTab('tab-tiempo', this)">
+            <button type="button" class="tab-btn" onclick="cambiarTab('tab-timer', this)">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="13" r="8"></circle>
                     <path d="M12 5V2"></path><path d="M9 2h6"></path><path d="M12 13l3-2"></path>
                 </svg>
-                <span>Temporizador</span>
+                <span>Timer</span>
+            </button>
+            <button type="button" class="tab-btn" onclick="cambiarTab('tab-cronometro', this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="10" y1="2" x2="14" y2="2"></line><line x1="12" y1="14" x2="15" y2="11"></line><circle cx="12" cy="14" r="8"></circle>
+                </svg>
+                <span>Cronómetro</span>
             </button>
             <button type="button" class="tab-btn" onclick="cambiarTab('tab-kanban', this)">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1113,9 +1119,14 @@
             <div id="reloj-container"></div>
         </section>
         
-        <!-- TAB TEMPORIZADOR Y CRONOMETRO -->
-        <section id="tab-tiempo" class="panel">
-            <div id="tiempo-container"></div>
+        <!-- TAB TIMER -->
+        <section id="tab-timer" class="panel">
+            <div id="timer-container"></div>
+        </section>
+
+        <!-- TAB CRONOMETRO -->
+        <section id="tab-cronometro" class="panel">
+            <div id="cronometro-container"></div>
         </section>
         
         <!-- TAB KANBAN -->
@@ -1708,7 +1719,7 @@
 
 <script src="{{ url_for('static', filename='js/progreso.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/estudio.js') }}?v=11" defer></script>
-<script src="{{ url_for('static', filename='js/reloj.js') }}?v=14" defer></script>
+<script src="{{ url_for('static', filename='js/reloj.js') }}?v=15" defer></script>
 <script src="{{ url_for('static', filename='js/kanban.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/gastos.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/notasvoz.js') }}?v=6" defer></script>
