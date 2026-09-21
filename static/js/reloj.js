@@ -40,6 +40,22 @@ function updateClock() {
     const date = dateText.charAt(0).toUpperCase() + dateText.slice(1);
     const dateEl = document.getElementById('reloj-date-display');
     if (dateEl) dateEl.textContent = date;
+
+    const cityTimes = [
+        ['time-ny', 'America/New_York'],
+        ['time-wroclaw', 'Europe/Warsaw'],
+        ['time-tokyo', 'Asia/Tokyo']
+    ];
+    cityTimes.forEach(([id, timeZone]) => {
+        const cityEl = document.getElementById(id);
+        if (cityEl) {
+            cityEl.textContent = now.toLocaleTimeString('es-ES', {
+                timeZone,
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+    });
 }
 
 function toggleZenMode() {
