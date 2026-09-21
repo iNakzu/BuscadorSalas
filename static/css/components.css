@@ -1225,6 +1225,59 @@
     min-width: 0;
 }
 
+.metro-status-capsule {
+    align-items: center;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 14px;
+    display: flex;
+    gap: 9px;
+    max-width: 245px;
+    min-width: 0;
+    padding: 8px 11px;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.metro-status-icon {
+    align-items: center;
+    border: 1px solid;
+    border-radius: 9px;
+    display: inline-flex;
+    flex-shrink: 0;
+    height: 28px;
+    justify-content: center;
+    width: 28px;
+}
+
+.metro-status-icon .estado-dot {
+    border-radius: 50%;
+    display: block;
+    height: 8px;
+    width: 8px;
+}
+
+.metro-status-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.metro-status-copy strong {
+    color: currentColor;
+    font-size: 11px;
+    line-height: 1.15;
+    white-space: nowrap;
+}
+
+.metro-status-copy small {
+    color: #94a3b8;
+    font-size: 9.5px;
+    line-height: 1.15;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .metro-linea-header > div:first-child,
 .metro-linea-header > div:first-child > div:last-child {
     min-width: 0;
@@ -1253,6 +1306,10 @@
     #tab-transporte #transporte-codigo-input {
         min-width: 0;
         width: 100%;
+    }
+
+    #tab-transporte .metro-status-capsule {
+        max-width: 190px;
     }
 
     #tab-transporte #transporte-buses-list {
