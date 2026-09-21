@@ -126,6 +126,36 @@
     flex-wrap: wrap;
 }
 
+.my-hero-next-label {
+    display: block;
+    margin-bottom: 4px;
+    color: #60a5fa;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.my-hero-next-time {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border: 1px solid rgba(96, 165, 250, 0.22);
+    border-radius: 8px;
+    background: rgba(59, 130, 246, 0.1);
+    color: #bfdbfe;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.my-hero-next-time svg {
+    color: #60a5fa;
+    flex: 0 0 auto;
+}
+
 .my-hero-subtitle {
     font-size: 13px;
     color: var(--text-muted);

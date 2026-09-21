@@ -295,10 +295,21 @@ function actualizarHeroMiHorario() {
             <div class="my-hero-body">
                 <div class="my-hero-class-info">
                     <div class="my-hero-title">
-                        <span>Próxima clase <span style="color: #64748b; font-weight: 500;">·</span> ${escapeHtml(proximaHoy.curso)}</span>
+                        <div>
+                            <span class="my-hero-next-label">Próxima clase</span>
+                            <span>${escapeHtml(proximaHoy.curso)}</span>
+                        </div>
                     </div>
                     <div class="my-hero-subtitle">
-                        <span>A las <strong>${proximaHoy.horaInicio}</strong></span>
+                        <span class="my-hero-next-time">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="9"></circle>
+                                <polyline points="12 7 12 12 15 14"></polyline>
+                            </svg>
+                            <span>${proximaHoy.horaInicio}</span>
+                            <span style="color: #64748b;">·</span>
+                            <span>Bloque ${proximaHoy.bloqueNum}</span>
+                        </span>
                     </div>
                 </div>
             </div>
