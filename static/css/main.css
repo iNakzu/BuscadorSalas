@@ -823,8 +823,17 @@ header {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: min(100%, 720px);
+    width: 100%;
     padding: 0;
+}
+
+.cronometro-page {
+    min-height: 60vh;
+}
+
+.cronometro-spacer {
+    width: 100%;
+    height: 118px;
 }
 
 .cronometro-mode-switch {
@@ -860,8 +869,8 @@ header {
     justify-content: center;
     min-height: 0;
     width: 100%;
-    margin: 28px 0 20px;
-    padding: 20px 0 0;
+    margin: 0 0 20px;
+    padding: 0;
 }
 
 .cronometro-display {
@@ -870,8 +879,10 @@ header {
     gap: 2px;
     justify-content: center;
     width: 100%;
-    font-size: clamp(42px, 8vw, 80px);
-    letter-spacing: -0.035em;
+    font-size: 80px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.04em;
     text-shadow: none;
 }
 
@@ -897,7 +908,7 @@ header {
 .cronometro-seconds-input,
 .cronometro-seconds-value {
     color: #94a3b8;
-    font-size: 0.68em;
+    font-size: 0.5em;
 }
 
 .cronometro-end-time {
@@ -909,8 +920,7 @@ header {
 }
 
 .cronometro-date {
-    margin: 12px 0 0;
-    font-size: 16px;
+    margin: 20px 0 0;
 }
 
 .cronometro-config {
@@ -992,8 +1002,22 @@ header {
         margin: 0 0 18px;
     }
 
+    .cronometro-spacer {
+        height: 92px;
+    }
+
+    .cronometro-display {
+        font-size: 80px;
+    }
+
     .cronometro-config {
         flex-wrap: wrap;
+    }
+
+    @media (min-width: 768px) {
+        .cronometro-display {
+            font-size: 160px;
+        }
     }
 
     .cronometro-actions .estudio-btn {

@@ -245,8 +245,9 @@ function renderCronometro() {
     if (!container) return;
 
     container.innerHTML = `
-        <div class="reloj-wrapper" style="min-height:0; width:100%;">
+        <div class="reloj-wrapper cronometro-page">
             <div class="cronometro-shell">
+                <div class="cronometro-spacer" aria-hidden="true"></div>
                 <div class="cronometro-display-card">
                     <div class="reloj-time cronometro-display" id="crono-time-display">
                         <input class="cronometro-time-input" id="timer-hours" value="00" inputmode="numeric" maxlength="2" aria-label="Horas" onfocus="this.select()" oninput="markTimerConfigured()">
