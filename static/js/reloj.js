@@ -145,13 +145,7 @@ function updateStopwatchDisplay() {
         const seconds = countdownTime % 60;
         const hours = Math.floor(countdownTime / 3600);
         const displayMinutes = Math.floor((countdownTime % 3600) / 60);
-        timeEl.innerHTML = `
-            <input class="cronometro-time-input" value="${hours.toString().padStart(2, '0')}" inputmode="numeric" maxlength="2" aria-label="Horas" onfocus="this.select()" oninput="markTimerConfigured()" ${stopwatchRunning ? 'readonly' : ''}>
-            <span>:</span>
-            <input class="cronometro-time-input" value="${displayMinutes.toString().padStart(2, '0')}" inputmode="numeric" maxlength="2" aria-label="Minutos" onfocus="this.select()" oninput="markTimerConfigured()" ${stopwatchRunning ? 'readonly' : ''}>
-            <span>:</span>
-            <input class="cronometro-time-input reloj-sec" value="${seconds.toString().padStart(2, '0')}" inputmode="numeric" maxlength="2" aria-label="Segundos" onfocus="this.select()" oninput="markTimerConfigured()" ${stopwatchRunning ? 'readonly' : ''}>
-        `;
+        timeEl.innerHTML = `<input class="cronometro-time-input" value="${hours.toString().padStart(2, '0')}" inputmode="numeric" maxlength="2" aria-label="Horas" onfocus="this.select()" oninput="markTimerConfigured()" ${stopwatchRunning ? 'readonly' : ''}><span>:</span><input class="cronometro-time-input" value="${displayMinutes.toString().padStart(2, '0')}" inputmode="numeric" maxlength="2" aria-label="Minutos" onfocus="this.select()" oninput="markTimerConfigured()" ${stopwatchRunning ? 'readonly' : ''}><span>:</span><input class="cronometro-time-input reloj-sec" value="${seconds.toString().padStart(2, '0')}" inputmode="numeric" maxlength="2" aria-label="Segundos" onfocus="this.select()" oninput="markTimerConfigured()" ${stopwatchRunning ? 'readonly' : ''}>`;
         const endEl = document.getElementById('crono-end-time');
         if (endEl) {
             endEl.textContent = countdownEndAt
@@ -168,11 +162,7 @@ function updateStopwatchDisplay() {
     let m = totalMinutes % 60;
     let h = Math.floor(totalMinutes / 60);
     
-    timeEl.innerHTML = `
-        <span>${h.toString().padStart(2, '0')}</span><span>:</span>
-        <span>${m.toString().padStart(2, '0')}</span><span>:</span>
-        <span class="reloj-sec">${s.toString().padStart(2, '0')}</span>
-    `;
+    timeEl.innerHTML = `<span>${h.toString().padStart(2, '0')}</span><span>:</span><span>${m.toString().padStart(2, '0')}</span><span>:</span><span class="reloj-sec">${s.toString().padStart(2, '0')}</span>`;
     const endEl = document.getElementById('crono-end-time');
     if (endEl) endEl.textContent = '';
 }
