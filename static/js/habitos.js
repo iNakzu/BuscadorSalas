@@ -142,33 +142,6 @@ function renderHabitos() {
         });
     }
 
-    const overviewEl = document.getElementById('habit-overview');
-    if (overviewEl) {
-        const weekTotal = past7Days.reduce((sum, day) => (
-            sum + habitosData.filter(h => h.history && h.history[day.key]).length
-        ), 0);
-        const weekGoal = Math.max(total * 7, 1);
-        const weekPct = Math.round((weekTotal / weekGoal) * 100);
-        overviewEl.innerHTML = `
-            <div class="habit-overview-donut" style="--habit-day-progress: ${pct}%;">
-                <div class="habit-donut-inner"><strong>${pct}%</strong></div>
-            </div>
-            <div class="habit-overview-copy">
-                <div class="habit-overview-heading"><span class="section-kicker">Resumen de constancia</span><strong>Tu ritmo de los últimos 7 días</strong></div>
-                <div class="habit-week-strip">
-                    ${past7Days.map(day => {
-                        const done = habitosData.filter(h => h.history && h.history[day.key]).length;
-                        const dayPct = total ? Math.round((done / total) * 100) : 0;
-                        return `<div class="habit-week-day ${day.isToday ? 'today' : ''}" title="${day.date}: ${done} de ${total} hábitos completados">
-                            <span>${day.letter}</span><i style="--day-progress: ${dayPct}%"></i><small>${done}/${total}</small>
-                        </div>`;
-                    }).join('')}
-                </div>
-                <div class="habit-overview-foot"><span>${weekTotal} completados esta semana</span><strong>${weekPct}% de constancia</strong></div>
-            </div>
-        `;
-    }
-
     if (habitosData.length === 0) {
         listEl.innerHTML = `
             <div style="text-align: center; padding: 40px 20px; color: #64748b;">
@@ -198,6 +171,7 @@ function renderHabitos() {
     visibleHabitos.forEach(h => {
         const isDoneHoy = !!(h.history && h.history[hoyStr]);
         const racha = calcularRacha(h.history || {});
+        const weeklyDone = past7Days.filter(d => h.history && h.history[d.key]).length;
         html += `
             <div class="habit-item-card ${isDoneHoy ? 'completed' : ''}" id="habit-card-${h.id}">
                 <button class="habit-check-btn" onclick="toggleHabitoHoy('${h.id}')" title="${isDoneHoy ? 'Marcar como pendiente' : 'Marcar como completado'}">
@@ -212,11 +186,25 @@ function renderHabitos() {
                             <span class="habit-title">${escapeHtmlHabitos(h.title)}</span>
                         </div>
                         <div class="habit-card-metrics">
+                            <span class="habit-week-badge" title="Completado ${weeklyDone} de 7 días esta semana">
+                                <span class="habit-metric-label">Semana</span>${weeklyDone}/7
+                            </span>
                             <span class="habit-streak-badge" title="Racha consecutiva">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 3c2.5 3 5 5.4 5 9a5 5 0 1 1-10 0c0-1.6.7-3.1 2-4.5"></path><path d="M12 11c.9 1 1.5 2 1.5 3.2a1.5 1.5 0 0 1-3 0c0-.8.4-1.6 1.5-3.2Z"></path></svg>
                                 ${racha}d
                             </span>
                         </div>
+                    </div>
+
+                    <div class="habit-days-row" aria-label="Historial de los últimos siete días">
+                        ${past7Days.map(d => {
+                            const isDone = !!(h.history && h.history[d.key]);
+                            return `
+                                <div class="habit-day-cell ${isDone ? 'done' : ''} ${d.isToday ? 'today' : ''}" title="${d.key}: ${isDone ? 'Completado' : 'Pendiente'}">
+                                    <span>${d.letter}</span><i class="habit-day-dot"></i>
+                                </div>
+                            `;
+                        }).join('')}
                     </div>
                 </div>
 
