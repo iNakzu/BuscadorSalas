@@ -223,6 +223,7 @@ function renderCoversList() {
         if (c.status === 'mastered') statusLabel = 'Dominado';
 
         const bpmProgress = c.targetBpm > 0 ? Math.min(100, Math.round((c.currentBpm / c.targetBpm) * 100)) : 100;
+        const tuningLabel = getCompactTuningLabel(c.tuning);
 
         html += `
             <div class="cover-card">
@@ -231,7 +232,7 @@ function renderCoversList() {
                         <div class="cover-title">${escapeHtmlRiff(c.title)}</div>
                         <div class="cover-artist">${escapeHtmlRiff(c.artist)}</div>
                     </div>
-                    <span class="tuning-pill" title="Afinación de guitarra"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18"></path><path d="M8 7l4-4 4 4"></path><path d="M8 17l4 4 4-4"></path></svg> ${escapeHtmlRiff(c.tuning)}</span>
+                    <span class="tuning-pill" title="Afinación: ${escapeHtmlRiff(c.tuning)}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18"></path><path d="M8 7l4-4 4 4"></path><path d="M8 17l4 4 4-4"></path></svg> ${escapeHtmlRiff(tuningLabel)}</span>
                 </div>
 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
@@ -532,6 +533,16 @@ function escapeHtmlRiff(str) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
+}
+
+function getCompactTuningLabel(tuning) {
+    const value = (tuning || '').toString().trim();
+    if (!value) return '';
+
+    return value
+        .replace(/\s*\(([A-G](?:#|b)?(?:\s*-\s*[A-G](?:#|b)?)+)\)/gi, '')
+        .replace(/\s+[A-G](?:#|b)?(?:\s*-\s*[A-G](?:#|b)?)+$/i, '')
+        .trim();
 }
 
 // ==============================================================================
