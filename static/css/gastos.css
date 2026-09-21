@@ -46,7 +46,7 @@
 .gastos-hero-total { align-self: center; display: flex; flex-direction: column; min-width: 180px; text-align: right; }
 .gastos-hero-total span, .gastos-hero-total small { color: #94a3b8; font-size: 11px; }
 .gastos-hero-total strong { color: #6ee7b7; font-size: 36px; letter-spacing: -.04em; line-height: 1; margin: 5px 0; }
-.gastos-hero-total strong span { font-size: 1.18em; }
+.gastos-hero-total strong span { font-size: 1.08em; }
 
 .gastos-metrics { display: grid; gap: 10px; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 14px; }
 .gastos-metric-card {
