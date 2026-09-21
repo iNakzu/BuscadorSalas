@@ -127,11 +127,8 @@ function switchRiffView(view) {
     activeRiffTab = view;
     document.getElementById('btn-view-covers').classList.toggle('active', view === 'covers');
     document.getElementById('btn-view-presets').classList.toggle('active', view === 'presets');
-    document.getElementById('btn-view-kanban').classList.toggle('active', view === 'kanban');
     document.getElementById('riff-covers-container').style.display = view === 'covers' ? 'block' : 'none';
     document.getElementById('riff-presets-container').style.display = view === 'presets' ? 'block' : 'none';
-    document.getElementById('riff-kanban-container').style.display = view === 'kanban' ? 'block' : 'none';
-    if (view === 'kanban') renderRiffKanban();
 }
 
 function renderRiffLab() {
@@ -285,6 +282,43 @@ function renderCoversList() {
     container.innerHTML = html;
 }
 
+function renderRiffKanban() {
+    const container = document.getElementById('riff-kanban-grid');
+    if (!container) return;
+    const cols = [
+        { id: 'learning', title: 'Aprendiendo', color: '#f59e0b', hint: 'Construye la base' },
+        { id: 'polishing', title: 'Puliendo', color: '#38bdf8', hint: 'Sube precisión y BPM' },
+        { id: 'mastered', title: 'Dominado', color: '#34d399', hint: 'Listo para tocar' }
+    ];
+    container.innerHTML = cols.map(col => {
+        const items = coversData.filter(c => c.status === col.id);
+        return `
+            <div class="riff-kanban-column">
+                <div class="riff-kanban-column-header" style="border-top-color: ${col.color};">
+                    <div><strong>${col.title}</strong><span>${col.hint}</span></div>
+                    <b>${items.length}</b>
+                </div>
+                <div class="riff-kanban-list">
+                    ${items.length ? items.map(c => `
+                        <article class="riff-kanban-card">
+                            <div>
+                                <strong>${escapeHtmlRiff(c.title)}</strong>
+                                <span>${escapeHtmlRiff(c.artist)}</span>
+                            </div>
+                            <div class="riff-kanban-card-meta">${c.currentBpm}/${c.targetBpm} BPM</div>
+                            <div class="riff-kanban-card-actions">
+                                ${col.id !== 'learning' ? `<button onclick="cambiarEstadoCover('${c.id}', 'learning')">Aprendiendo</button>` : ''}
+                                ${col.id !== 'polishing' ? `<button onclick="cambiarEstadoCover('${c.id}', 'polishing')">Puliendo</button>` : ''}
+                                ${col.id !== 'mastered' ? `<button onclick="cambiarEstadoCover('${c.id}', 'mastered')">Dominado</button>` : ''}
+                            </div>
+                        </article>
+                    `).join('') : '<div class="riff-kanban-empty">Sin covers en esta etapa</div>'}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
 function renderPresetsList() {
     const container = document.getElementById('riff-presets-grid');
     if (!container) return;
@@ -298,43 +332,6 @@ function renderPresetsList() {
             </div>
         `;
         return;
-    }
-
-    function renderRiffKanban() {
-        const container = document.getElementById('riff-kanban-grid');
-        if (!container) return;
-        const cols = [
-            { id: 'learning', title: 'Aprendiendo', color: '#f59e0b', hint: 'Construye la base' },
-            { id: 'polishing', title: 'Puliendo', color: '#38bdf8', hint: 'Sube precisión y BPM' },
-            { id: 'mastered', title: 'Dominado', color: '#34d399', hint: 'Listo para tocar' }
-        ];
-        container.innerHTML = cols.map(col => {
-            const items = coversData.filter(c => c.status === col.id);
-            return `
-                <div class="riff-kanban-column">
-                    <div class="riff-kanban-column-header" style="border-top-color: ${col.color};">
-                        <div><strong>${col.title}</strong><span>${col.hint}</span></div>
-                        <b>${items.length}</b>
-                    </div>
-                    <div class="riff-kanban-list">
-                        ${items.length ? items.map(c => `
-                            <article class="riff-kanban-card">
-                                <div>
-                                    <strong>${escapeHtmlRiff(c.title)}</strong>
-                                    <span>${escapeHtmlRiff(c.artist)}</span>
-                                </div>
-                                <div class="riff-kanban-card-meta">${c.currentBpm}/${c.targetBpm} BPM</div>
-                                <div class="riff-kanban-card-actions">
-                                    ${col.id !== 'learning' ? `<button onclick="cambiarEstadoCover('${c.id}', 'learning')">Aprendiendo</button>` : ''}
-                                    ${col.id !== 'polishing' ? `<button onclick="cambiarEstadoCover('${c.id}', 'polishing')">Puliendo</button>` : ''}
-                                    ${col.id !== 'mastered' ? `<button onclick="cambiarEstadoCover('${c.id}', 'mastered')">Dominado</button>` : ''}
-                                </div>
-                            </article>
-                        `).join('') : '<div class="riff-kanban-empty">Sin covers en esta etapa</div>'}
-                    </div>
-                </div>
-            `;
-        }).join('');
     }
 
     let html = '';
