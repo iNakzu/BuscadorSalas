@@ -1186,10 +1186,17 @@
 .my-card-footer::before {
     content: "";
     position: absolute;
-    top: -3px;
+    top: -8px;
     left: 0;
     right: 0;
-    border-top: 1px dashed rgba(255, 255, 255, 0.12);
+    height: 2px;
+    background: repeating-linear-gradient(
+        to right,
+        rgba(148, 163, 184, 0.34) 0,
+        rgba(148, 163, 184, 0.34) 9px,
+        transparent 9px,
+        transparent 15px
+    );
 }
 
 /* SALA CLICABLE PREMIUM */
