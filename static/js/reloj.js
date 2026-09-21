@@ -10,6 +10,7 @@ let stopwatchCentiseconds = 0;
 let stopwatchLaps = [];
 let activeTimeMode = 'timer';
 let isZenMode = false;
+const TIMER_SEGMENTS = 60;
 
 function initReloj() {
     renderReloj();
@@ -92,6 +93,9 @@ function renderTimer() {
         container.innerHTML = `
             <div class="tiempo-page timer-running-page">
                 <div class="timer-progress-ring" style="--timer-progress: ${getTimerProgress()}">
+                    <div class="timer-segments" aria-hidden="true">
+                        ${Array.from({ length: TIMER_SEGMENTS }, (_, index) => `<span class="timer-segment ${index < Math.ceil(getTimerProgress() * TIMER_SEGMENTS) ? 'active' : ''}" style="--segment-angle: ${index * (360 / TIMER_SEGMENTS)}deg"></span>`).join('')}
+                    </div>
                     <div class="timer-progress-content">
                         <div class="timer-progress-label">Timer</div>
                         <div class="reloj-time timer-running-display" id="timer-running-display">00:00<span class="reloj-sec">:00</span></div>
@@ -267,6 +271,10 @@ function updateTimerUI() {
         runningDisplay.innerHTML = `${formatUnit(hours)}:${formatUnit(minutes)}<span class="reloj-sec">:${formatUnit(seconds)}</span>`;
         const ring = document.querySelector('.timer-progress-ring');
         if (ring) ring.style.setProperty('--timer-progress', getTimerProgress());
+        const activeSegments = Math.ceil(getTimerProgress() * TIMER_SEGMENTS);
+        document.querySelectorAll('.timer-segment').forEach((segment, index) => {
+            segment.classList.toggle('active', index < activeSegments);
+        });
         const finish = document.getElementById('timer-finish-time');
         if (finish) finish.textContent = getTimerEndLabel();
     }

@@ -1318,10 +1318,34 @@ header {
         display: grid;
         place-items: center;
         border-radius: 50%;
-        background: conic-gradient(#8b7cff calc(var(--timer-progress) * 1turn), rgba(148, 163, 184, 0.14) 0);
+        background: rgba(148, 163, 184, 0.08);
         box-shadow: 0 0 42px rgba(139, 124, 255, 0.18);
-        transition: --timer-progress 1s linear;
         animation: timerRingIn 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .timer-segments {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+    }
+
+    .timer-segment {
+        position: absolute;
+        top: 1.2%;
+        left: calc(50% - 2px);
+        width: 4px;
+        height: 8.5%;
+        border-radius: 999px;
+        background: #8b7cff;
+        opacity: 0.08;
+        transform-origin: 50% 588%;
+        transform: rotate(var(--segment-angle));
+        transition: opacity 1.1s ease, filter 1.1s ease;
+    }
+
+    .timer-segment.active {
+        opacity: 1;
+        filter: drop-shadow(0 0 5px rgba(139, 124, 255, 0.72));
     }
 
     .timer-progress-ring::before {
