@@ -874,15 +874,14 @@ header {
 }
 
 .cronometro-display {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    justify-content: center;
+    display: block;
     width: 100%;
+    text-align: center;
 }
 
 .cronometro-time-input {
     width: 1.28em;
+    height: 1em;
     padding: 0;
     border: 0;
     outline: 0;
@@ -892,6 +891,13 @@ header {
     font-variant-numeric: tabular-nums;
     text-align: center;
     caret-color: #f8fafc;
+    vertical-align: baseline;
+    appearance: none;
+}
+
+.cronometro-time-input.reloj-sec {
+    width: 1em;
+    height: auto;
 }
 
 .cronometro-time-input:focus {
