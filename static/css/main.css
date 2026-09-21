@@ -819,6 +819,169 @@ header {
     border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
+.cronometro-shell {
+    width: min(100%, 720px);
+    padding: 28px;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 28px;
+    background: radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.12), transparent 42%), rgba(15, 23, 42, 0.72);
+    box-shadow: 0 24px 70px rgba(2, 8, 23, 0.35);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+.cronometro-mode-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 14px;
+    background: rgba(2, 8, 23, 0.42);
+}
+
+.cronometro-mode-btn {
+    padding: 10px 15px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.cronometro-mode-btn.active {
+    background: rgba(56, 189, 248, 0.16);
+    color: #bae6fd;
+    box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.22);
+}
+
+.cronometro-display-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 250px;
+    margin: 24px 0;
+    padding: 26px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 22px;
+    background: rgba(2, 8, 23, 0.38);
+    overflow: hidden;
+}
+
+.cronometro-display-card::before {
+    content: "";
+    position: absolute;
+    width: 230px;
+    height: 230px;
+    border: 1px solid rgba(56, 189, 248, 0.14);
+    border-radius: 50%;
+    box-shadow: 0 0 0 22px rgba(56, 189, 248, 0.025), 0 0 0 44px rgba(56, 189, 248, 0.018);
+    pointer-events: none;
+}
+
+.cronometro-display-label {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 13px;
+    color: #64748b;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.cronometro-display {
+    position: relative;
+    z-index: 1;
+    font-size: clamp(58px, 12vw, 112px);
+    letter-spacing: -0.06em;
+    text-shadow: 0 0 34px rgba(56, 189, 248, 0.16);
+}
+
+.cronometro-config {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 2px;
+}
+
+.cronometro-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    color: #94a3b8;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-align: left;
+    text-transform: uppercase;
+}
+
+.cronometro-field input {
+    width: 82px;
+    padding: 10px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 10px;
+    background: rgba(2, 8, 23, 0.58);
+    color: #f8fafc;
+    font-size: 15px;
+    font-weight: 700;
+    outline: none;
+    text-align: center;
+}
+
+.cronometro-field input:focus {
+    border-color: rgba(56, 189, 248, 0.65);
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+}
+
+.cronometro-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 22px 0 0;
+}
+
+.cronometro-actions .estudio-btn {
+    min-width: 132px;
+}
+
+.cronometro-shell .btn-reset {
+    color: #94a3b8;
+    border-color: rgba(148, 163, 184, 0.25);
+}
+
+@media (max-width: 500px) {
+    .cronometro-shell {
+        padding: 18px 12px;
+        border-radius: 22px;
+    }
+
+    .cronometro-mode-btn {
+        padding: 9px 10px;
+        font-size: 11px;
+    }
+
+    .cronometro-display-card {
+        min-height: 210px;
+        margin: 18px 0;
+    }
+
+    .cronometro-config {
+        flex-wrap: wrap;
+    }
+
+    .cronometro-actions .estudio-btn {
+        min-width: 0;
+        padding: 12px 15px;
+    }
+}
+
 .estudio-social-box {
     background: rgba(15, 23, 42, 0.4);
     border: 1px solid rgba(255, 255, 255, 0.05);

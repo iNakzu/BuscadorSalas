@@ -206,36 +206,36 @@ function renderCronometro() {
     if (!container) return;
 
     container.innerHTML = `
-        <div class="reloj-wrapper" style="display:flex; flex-direction:column; align-items:center; width:100%;">
-            <div style="display:flex; gap:8px; margin-bottom:18px;">
-                <button class="estudio-btn ${timerMode === 'stopwatch' ? 'btn-start' : 'btn-reset'}" onclick="setTimerMode('stopwatch')">Cronómetro</button>
-                <button class="estudio-btn ${timerMode === 'countdown' ? 'btn-start' : 'btn-reset'}" onclick="setTimerMode('countdown')">Cuenta regresiva</button>
-            </div>
-            <div class="reloj-time" id="crono-time-display">${timerMode === 'countdown' ? formatCountdownDisplay() : '00:00<span class="reloj-sec">.00</span>'}</div>
-            ${timerMode === 'countdown' ? `
-                <div style="display:flex; align-items:end; gap:8px; margin-top:22px;">
-                    <label style="display:flex; flex-direction:column; gap:5px; color:#94a3b8; font-size:11px; font-weight:700;">
-                        Minutos
-                        <input id="countdown-minutes" type="number" min="0" max="999" value="${Math.floor(countdownTime / 60)}" style="width:78px; padding:8px; border:1px solid rgba(148,163,184,.25); border-radius:8px; background:rgba(15,23,42,.7); color:#f8fafc;">
-                    </label>
-                    <label style="display:flex; flex-direction:column; gap:5px; color:#94a3b8; font-size:11px; font-weight:700;">
-                        Segundos
-                        <input id="countdown-seconds" type="number" min="0" max="59" value="${countdownTime % 60}" style="width:78px; padding:8px; border:1px solid rgba(148,163,184,.25); border-radius:8px; background:rgba(15,23,42,.7); color:#f8fafc;">
-                    </label>
-                    <button class="estudio-btn btn-reset" onclick="applyCountdown()">Aplicar</button>
+        <div class="reloj-wrapper" style="min-height:0; width:100%;">
+            <div class="cronometro-shell">
+                <div class="cronometro-mode-switch" role="tablist" aria-label="Modo de tiempo">
+                    <button class="cronometro-mode-btn ${timerMode === 'stopwatch' ? 'active' : ''}" onclick="setTimerMode('stopwatch')">Cronómetro</button>
+                    <button class="cronometro-mode-btn ${timerMode === 'countdown' ? 'active' : ''}" onclick="setTimerMode('countdown')">Cuenta regresiva</button>
                 </div>
-            ` : ''}
-            <div class="estudio-controls" style="margin-top: 30px; display:flex; justify-content:center; align-items:center; width:100%;">
-                <button id="btn-toggle-sw" class="estudio-btn ${stopwatchRunning ? 'btn-pause' : 'btn-start'}" onclick="toggleStopwatch()">
-                    ${stopwatchRunning ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-right:4px;vertical-align:-2px;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg> Pausar` : `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-right:4px;vertical-align:-2px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Iniciar`}
-                </button>
-                <button class="estudio-btn btn-reset" onclick="resetStopwatch()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:-2px;"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg> Reiniciar</button>
+                <div class="cronometro-display-card">
+                    <div class="cronometro-display-label">${timerMode === 'countdown' ? 'Tiempo restante' : 'Tiempo transcurrido'}</div>
+                    <div class="reloj-time cronometro-display" id="crono-time-display">${timerMode === 'countdown' ? formatCountdownDisplay() : '00:00<span class="reloj-sec">.00</span>'}</div>
+                </div>
+                ${timerMode === 'countdown' ? `
+                    <div class="cronometro-config">
+                        <label class="cronometro-field">
+                            Minutos
+                            <input id="countdown-minutes" type="number" min="0" max="999" value="${Math.floor(countdownTime / 60)}">
+                        </label>
+                        <label class="cronometro-field">
+                            Segundos
+                            <input id="countdown-seconds" type="number" min="0" max="59" value="${countdownTime % 60}">
+                        </label>
+                        <button class="estudio-btn btn-reset" onclick="applyCountdown()">Aplicar</button>
+                    </div>
+                ` : ''}
+                <div class="cronometro-actions">
+                    <button id="btn-toggle-sw" class="estudio-btn ${stopwatchRunning ? 'btn-pause' : 'btn-start'}" onclick="toggleStopwatch()">
+                        ${stopwatchRunning ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-right:4px;vertical-align:-2px;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg> Pausar` : `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-right:4px;vertical-align:-2px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Iniciar`}
+                    </button>
+                    <button class="estudio-btn btn-reset" onclick="resetStopwatch()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:-2px;"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg> Reiniciar</button>
+                </div>
             </div>
-            
-            </div>
-
-            
-            
         </div>
     `;
 }
