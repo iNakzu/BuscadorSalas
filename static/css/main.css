@@ -879,11 +879,6 @@ header {
     gap: 2px;
     justify-content: center;
     width: 100%;
-    font-size: 80px;
-    font-weight: 800;
-    line-height: 1;
-    letter-spacing: -0.04em;
-    text-shadow: none;
 }
 
 .cronometro-time-input {
@@ -903,12 +898,6 @@ header {
     color: #f8fafc;
     background: transparent;
     box-shadow: none;
-}
-
-.cronometro-seconds-input,
-.cronometro-seconds-value {
-    color: #94a3b8;
-    font-size: 0.5em;
 }
 
 .cronometro-end-time {
@@ -1006,18 +995,8 @@ header {
         height: 92px;
     }
 
-    .cronometro-display {
-        font-size: 80px;
-    }
-
     .cronometro-config {
         flex-wrap: wrap;
-    }
-
-    @media (min-width: 768px) {
-        .cronometro-display {
-            font-size: 160px;
-        }
     }
 
     .cronometro-actions .estudio-btn {
