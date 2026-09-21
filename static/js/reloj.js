@@ -208,16 +208,47 @@ function scrollTimerWheel(event, field) {
 function bindTimerWheelGestures() {
     document.querySelectorAll('.tiempo-wheel').forEach(wheel => {
         let startY = null;
-        wheel.addEventListener('touchstart', event => {
-            if (!timerRunning) startY = event.touches[0].clientY;
-        }, { passive: true });
-        wheel.addEventListener('touchend', event => {
-            if (timerRunning || startY === null) return;
-            const distance = startY - event.changedTouches[0].clientY;
+        let lastY = null;
+        let dragged = false;
+        let remainder = 0;
+
+        wheel.addEventListener('pointerdown', event => {
+            if (timerRunning) return;
+            startY = lastY = event.clientY;
+            dragged = false;
+            remainder = 0;
+            if (wheel.setPointerCapture) wheel.setPointerCapture(event.pointerId);
+            wheel.classList.add('is-dragging');
+        });
+
+        wheel.addEventListener('pointermove', event => {
+            if (timerRunning || lastY === null) return;
+            const distance = lastY - event.clientY;
+            lastY = event.clientY;
+            remainder += distance;
+            if (Math.abs(remainder) >= 22) {
+                const steps = Math.trunc(remainder / 22);
+                changeTimerValue(wheel.dataset.field, steps);
+                remainder -= steps * 22;
+                dragged = true;
+            }
+        });
+
+        const finishDrag = event => {
+            if (lastY === null) return;
+            if (wheel.releasePointerCapture) wheel.releasePointerCapture(event.pointerId);
             startY = null;
-            if (Math.abs(distance) < 12) return;
-            changeTimerValue(wheel.dataset.field, distance > 0 ? 1 : -1);
-        }, { passive: true });
+            lastY = null;
+            remainder = 0;
+            wheel.classList.remove('is-dragging');
+            if (dragged) {
+                event.preventDefault();
+                setTimeout(() => { dragged = false; }, 0);
+            }
+        };
+
+        wheel.addEventListener('pointerup', finishDrag);
+        wheel.addEventListener('pointercancel', finishDrag);
     });
 }
 

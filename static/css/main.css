@@ -1148,7 +1148,13 @@ header {
         align-items: center;
         gap: 8px;
         min-width: 0;
-        touch-action: pan-y;
+        touch-action: none;
+        cursor: grab;
+        user-select: none;
+    }
+
+    .tiempo-wheel.is-dragging {
+        cursor: grabbing;
     }
 
     .tiempo-wheel::after {
