@@ -1347,13 +1347,7 @@ header {
     }
 
     .timer-progress-ring::before {
-        content: "";
-        position: absolute;
-        width: inherit;
-        aspect-ratio: 1;
-        border-radius: 50%;
-        background: #0b1220;
-        transform: scale(0.965);
+        display: none;
     }
 
     .timer-progress-content {
