@@ -133,13 +133,12 @@
                 </svg>
                 <span>Hora</span>
             </button>
-            <button type="button" class="tab-btn" onclick="cambiarTab('tab-cronometro', this)">
+            <button type="button" class="tab-btn" onclick="cambiarTab('tab-tiempo', this)">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="10" y1="2" x2="14" y2="2"></line>
-                    <line x1="12" y1="14" x2="15" y2="11"></line>
-                    <circle cx="12" cy="14" r="8"></circle>
+                    <circle cx="12" cy="13" r="8"></circle>
+                    <path d="M12 5V2"></path><path d="M9 2h6"></path><path d="M12 13l3-2"></path>
                 </svg>
-                <span>Cronómetro</span>
+                <span>Temporizador</span>
             </button>
             <button type="button" class="tab-btn" onclick="cambiarTab('tab-kanban', this)">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1114,9 +1113,9 @@
             <div id="reloj-container"></div>
         </section>
         
-        <!-- TAB CRONOMETRO -->
-        <section id="tab-cronometro" class="panel">
-            <div id="cronometro-container"></div>
+        <!-- TAB TEMPORIZADOR Y CRONOMETRO -->
+        <section id="tab-tiempo" class="panel">
+            <div id="tiempo-container"></div>
         </section>
         
         <!-- TAB KANBAN -->
@@ -1709,7 +1708,7 @@
 
 <script src="{{ url_for('static', filename='js/progreso.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/estudio.js') }}?v=11" defer></script>
-<script src="{{ url_for('static', filename='js/reloj.js') }}?v=13" defer></script>
+<script src="{{ url_for('static', filename='js/reloj.js') }}?v=14" defer></script>
 <script src="{{ url_for('static', filename='js/kanban.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/gastos.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/notasvoz.js') }}?v=6" defer></script>
