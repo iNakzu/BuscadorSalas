@@ -821,7 +821,7 @@ header {
 
 .cronometro-shell {
     width: min(100%, 720px);
-    padding: 18px;
+    padding: 0;
 }
 
 .cronometro-mode-switch {
@@ -855,16 +855,40 @@ header {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 220px;
-    margin: 24px 0;
-    padding: 26px 18px;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+    min-height: 0;
+    margin: 0 0 20px;
+    padding: 10px 0;
 }
 
 .cronometro-display {
-    font-size: clamp(58px, 12vw, 112px);
-    letter-spacing: -0.06em;
-    text-shadow: 0 0 34px rgba(56, 189, 248, 0.16);
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-size: clamp(42px, 8vw, 72px);
+    letter-spacing: -0.04em;
+    text-shadow: none;
+}
+
+.cronometro-time-input {
+    width: 1.28em;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: #f8fafc;
+    font: inherit;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+}
+
+.cronometro-time-input:focus {
+    color: #67e8f9;
+}
+
+.cronometro-seconds-input,
+.cronometro-seconds-value {
+    color: #94a3b8;
+    font-size: 0.62em;
 }
 
 .cronometro-end-time {
@@ -928,7 +952,7 @@ header {
     display: flex;
     justify-content: center;
     gap: 10px;
-    margin: 22px 0 0;
+    margin: 0;
 }
 
 .cronometro-actions .estudio-btn {
@@ -942,7 +966,7 @@ header {
 
 @media (max-width: 500px) {
     .cronometro-shell {
-        padding: 10px 4px;
+        padding: 0;
     }
 
     .cronometro-mode-btn {
@@ -951,8 +975,7 @@ header {
     }
 
     .cronometro-display-card {
-        min-height: 190px;
-        margin: 18px 0;
+        margin: 0 0 18px;
     }
 
     .cronometro-config {
