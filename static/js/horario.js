@@ -909,7 +909,7 @@ function renderMiHorario() {
                     } else if (cleanSec.toLowerCase().startsWith('sec ')) {
                         cleanSec = cleanSec.replace(/^sec\s*/i, 'Sección ');
                     }
-                    const secText = (cleanSec && !cleanSec.toLowerCase().includes('ayudantía que impartes')) ? `<span class="my-type-sec">• ${escapeHtml(cleanSec)}</span>` : '';
+                    const secText = `<span class="my-type-sec">• ${escapeHtml(cleanSec && !cleanSec.toLowerCase().includes('ayudantía que impartes') ? cleanSec : 'Sección -')}</span>`;
                     const tipoHtml = `<span class="my-type-tag ${tipoCls}"><span>${escapeHtml(c.tipo || 'Cátedra')}</span>${secText}</span>`;
 
                     cardsHtml += `
@@ -929,7 +929,7 @@ function renderMiHorario() {
                             <div class="my-card-title">${escapeHtml(c.curso)}</div>
                             <div class="my-card-meta">
                                 ${tipoHtml}
-                                ${c.profesor ? `<span class="my-prof-name" title="Docente: ${escapeHtml(c.profesor)}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> <span>${escapeHtml(c.profesor)}</span></span>` : ''}
+                                <span class="my-prof-name" title="Docente: ${escapeHtml(c.profesor || '-')}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> <span>${escapeHtml(c.profesor || '-')}</span></span>
                             </div>
                             <div class="my-card-footer">
                                 <span class="my-room-pill" onclick="verHorarioDirecto('${c.sala}')" title="Ver horario de la sala ${c.sala}">
@@ -1005,7 +1005,7 @@ function renderMiHorario() {
                 } else if (cleanSec.toLowerCase().startsWith('sec ')) {
                     cleanSec = cleanSec.replace(/^sec\s*/i, 'Sección ');
                 }
-                const secText = (cleanSec && !cleanSec.toLowerCase().includes('ayudantía que impartes')) ? `<span class="my-type-sec">• ${escapeHtml(cleanSec)}</span>` : '';
+                const secText = `<span class="my-type-sec">• ${escapeHtml(cleanSec && !cleanSec.toLowerCase().includes('ayudantía que impartes') ? cleanSec : 'Sección -')}</span>`;
                 const tipoHtml = `<span class="my-type-tag ${tipoCls}"><span>${escapeHtml(c.tipo || 'Cátedra')}</span>${secText}</span>`;
 
                 timelineCardsHtml += `
@@ -1020,7 +1020,7 @@ function renderMiHorario() {
                             </div>
                             <div class="my-info-meta">
                                 ${tipoHtml}
-                                ${c.profesor ? `<span>• Prof: ${escapeHtml(c.profesor)}</span>` : ''}
+                                <span>• Prof: ${escapeHtml(c.profesor || '-')}</span>
                             </div>
                         </div>
                         <div class="my-actions-box">
