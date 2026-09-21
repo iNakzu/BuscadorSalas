@@ -163,7 +163,7 @@ function renderStopwatch() {
     if (!container) return;
     container.innerHTML = `
         <div class="tiempo-page">
-            <div class="reloj-time tiempo-stopwatch-display" id="stopwatch-display">00:00<span class="reloj-sec">.00</span></div>
+            <div class="reloj-time tiempo-stopwatch-display" id="stopwatch-display">00:00<span class="reloj-sec">:00</span></div>
             <div class="tiempo-primary-actions">
                 <button class="tiempo-secondary-btn" onclick="recordLap()" ${stopwatchRunning ? '' : 'disabled'}>Vuelta</button>
                 <button id="stopwatch-main-btn" class="tiempo-main-btn" onclick="toggleStopwatch()">${stopwatchRunning ? 'Pausar' : 'Iniciar'}</button>
@@ -393,11 +393,11 @@ function updateStopwatchUI() {
         const seconds = Math.floor(stopwatchCentiseconds / 100);
         const minutes = Math.floor(seconds / 60);
         const hours = Math.floor(minutes / 60);
-        display.innerHTML = `${formatUnit(hours)}:${formatUnit(minutes % 60)}<span class="reloj-sec">.${formatUnit(seconds % 60)}</span>`;
+        display.innerHTML = `${formatUnit(hours)}:${formatUnit(minutes % 60)}<span class="reloj-sec">:${formatUnit(seconds % 60)}</span>`;
     }
     const button = document.getElementById('stopwatch-main-btn');
     if (button) button.textContent = stopwatchRunning ? 'Pausar' : 'Iniciar';
-    const lapButton = document.querySelector('#stopwatch-panel .tiempo-secondary-btn');
+    const lapButton = document.querySelector('#cronometro-container .tiempo-secondary-btn');
     if (lapButton) lapButton.disabled = !stopwatchRunning;
     const laps = document.getElementById('stopwatch-laps');
     if (laps) laps.innerHTML = stopwatchLaps.map((lap, index) => `<div><span>Vuelta ${stopwatchLaps.length - index}</span><strong>${lap}</strong></div>`).join('');
