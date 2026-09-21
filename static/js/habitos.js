@@ -151,7 +151,7 @@ function renderHabitos() {
         const weekPct = Math.round((weekTotal / weekGoal) * 100);
         overviewEl.innerHTML = `
             <div class="habit-overview-donut" style="--habit-day-progress: ${pct}%;">
-                <div class="habit-donut-inner"><strong>${pct}%</strong><span>Hoy</span></div>
+                <div class="habit-donut-inner"><strong>${pct}%</strong></div>
             </div>
             <div class="habit-overview-copy">
                 <div class="habit-overview-heading"><span class="section-kicker">Resumen de constancia</span><strong>Tu ritmo de los últimos 7 días</strong></div>

@@ -97,14 +97,13 @@
 }
 
 .habit-donut-inner strong { color: #f8fafc; font-size: 16px; line-height: 1; }
-.habit-donut-inner span { color: #64748b; font-size: 9px; margin-top: 3px; text-transform: uppercase; }
 .habit-overview-copy { flex: 1; min-width: 0; }
 .habit-overview-heading { display: flex; flex-direction: column; gap: 2px; }
 .habit-overview-heading strong { color: #e2e8f0; font-size: 13px; }
 .habit-week-strip { align-items: flex-end; display: flex; gap: 11px; margin-top: 10px; }
 .habit-week-day { align-items: center; color: #64748b; display: flex; flex: 1; flex-direction: column; font-size: 10px; gap: 4px; min-width: 20px; }
 .habit-week-day.today { color: #7dd3fc; }
-.habit-week-day i { background: conic-gradient(#38bdf8 var(--day-progress), rgba(51, 65, 85, 0.65) 0); border-radius: 4px; display: block; height: 10px; transform: rotate(45deg); width: 10px; }
+.habit-week-day i { background: conic-gradient(#38bdf8 var(--day-progress), rgba(51, 65, 85, 0.65) 0); border-radius: 50%; display: block; height: 11px; width: 11px; }
 .habit-week-day.today i { box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.12); }
 .habit-week-day small { color: #64748b; font-size: 9px; white-space: nowrap; }
 .habit-overview-foot { border-top: 1px solid rgba(255,255,255,0.06); color: #64748b; display: flex; font-size: 10px; justify-content: space-between; margin-top: 10px; padding-top: 8px; }
