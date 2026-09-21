@@ -329,7 +329,7 @@
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-radius: 13px;
-    padding: 10px 13px;
+    padding: 13px 13px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -476,7 +476,6 @@
 .habit-day-cell.done .habit-day-dot {
     background: linear-gradient(135deg, #38bdf8, #34d399);
     border-color: rgba(125, 211, 252, 0.85);
-    box-shadow: 0 0 8px rgba(56, 189, 248, 0.24);
 }
 
 .habit-day-cell.today .habit-day-dot {
@@ -915,7 +914,7 @@
 
     .habit-item-card {
         align-items: flex-start;
-        padding: 10px 11px;
+        padding: 13px 11px;
     }
 
     .habit-check-btn {
