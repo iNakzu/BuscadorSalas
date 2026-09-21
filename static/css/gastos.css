@@ -65,9 +65,10 @@
 .gastos-icon-orange { background: rgba(251, 146, 60, .14); color: #fdba74; }
 .gastos-metric-card div { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .gastos-metric-card strong { color: #f8fafc; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gastos-metric-card:nth-child(-n+2) strong { font-size: 20px; letter-spacing: -.02em; line-height: 1.1; }
 .gastos-metric-card div span { color: #94a3b8; font-size: 10px; white-space: nowrap; }
 
-.gastos-entry-card { background: linear-gradient(135deg, rgba(56, 189, 248, .1), rgba(139, 92, 246, .09)); border: 1px solid rgba(56, 189, 248, .18); border-radius: 15px; margin-bottom: 22px; padding: 17px; }
+.gastos-entry-card { background: linear-gradient(135deg, rgba(56, 189, 248, .1), rgba(139, 92, 246, .09)); border: 1px solid rgba(56, 189, 248, .18); border-radius: 15px; margin-bottom: 22px; padding: 17px; position: relative; }
 .gastos-entry-heading { align-items: center; display: flex; justify-content: space-between; margin-bottom: 13px; }
 .gastos-entry-heading strong { color: #e2e8f0; display: block; font-size: 14px; margin-top: 4px; }
 .gastos-entry-hint { color: #64748b; font-size: 10px; }
@@ -82,6 +83,8 @@
 .gastos-amount-input:focus-within { border-color: rgba(56, 189, 248, .6); box-shadow: 0 0 0 3px rgba(56, 189, 248, .09); }
 .gastos-amount-input b { color: #6ee7b7; font-size: 13px; padding-left: 11px; }
 .gastos-amount-input input { background: transparent; border: 0; box-shadow: none; min-height: 38px; padding-left: 6px; }
+.gastos-entry-heading .gastos-add-btn { position: absolute; right: 17px; top: 50%; transform: translateY(-50%); }
+.gastos-entry-heading .gastos-add-btn:hover { transform: translateY(calc(-50% - 1px)); }
 .gastos-add-btn { align-items: center; background: linear-gradient(135deg, #0ea5e9, #6366f1); border: 0; border-radius: 9px; color: #fff; cursor: pointer; display: inline-flex; font-size: 12px; font-weight: 800; gap: 7px; min-height: 40px; padding: 0 15px; white-space: nowrap; }
 .gastos-add-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
 
@@ -136,6 +139,7 @@
     .gastos-hero-total { align-self: flex-start; text-align: left; }
     .gastos-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .gastos-entry-heading { align-items: flex-start; flex-direction: column; gap: 7px; }
+    .gastos-entry-heading .gastos-add-btn, .gastos-entry-heading .gastos-add-btn:hover { margin-top: 12px; position: static; transform: none; }
     .gastos-entry-form { align-items: stretch; flex-direction: column; }
     .gastos-field-amount { width: auto; }
     .gastos-add-btn { justify-content: center; }
