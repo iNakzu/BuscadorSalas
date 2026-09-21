@@ -1,0 +1,115 @@
+/* ==========================================================================
+   GASTOS EXPRÉS - PERSONAL EXPENSE DASHBOARD
+   ========================================================================== */
+
+.gastos-shell {
+    max-width: 1040px;
+    margin: 0 auto;
+}
+
+.gastos-hero {
+    align-items: stretch;
+    background: linear-gradient(120deg, rgba(30, 41, 59, 0.9), rgba(30, 41, 59, 0.58));
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 18px;
+    box-shadow: 0 18px 40px rgba(2, 6, 23, 0.18), inset 0 1px 0 rgba(255,255,255,0.06);
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    overflow: hidden;
+    padding: 25px 28px;
+    position: relative;
+}
+
+.gastos-hero::after {
+    background: radial-gradient(circle, rgba(52, 211, 153, 0.25), transparent 68%);
+    content: '';
+    height: 260px;
+    pointer-events: none;
+    position: absolute;
+    right: -60px;
+    top: -120px;
+    width: 260px;
+}
+
+.gastos-hero-copy, .gastos-hero-total { position: relative; z-index: 1; }
+.gastos-kicker, .gastos-section-kicker {
+    color: #34d399;
+    display: block;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+}
+.gastos-hero h1 { color: #f8fafc; font-size: 27px; letter-spacing: -.02em; margin: 7px 0 6px; }
+.gastos-hero-copy p { color: #94a3b8; font-size: 13px; line-height: 1.55; margin: 0; max-width: 510px; }
+.gastos-hero-total { align-self: center; display: flex; flex-direction: column; min-width: 180px; text-align: right; }
+.gastos-hero-total span, .gastos-hero-total small { color: #94a3b8; font-size: 11px; }
+.gastos-hero-total strong { color: #6ee7b7; font-size: 28px; letter-spacing: -.03em; margin: 3px 0; }
+
+.gastos-metrics { display: grid; gap: 10px; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 14px; }
+.gastos-metric-card {
+    align-items: center;
+    background: rgba(30, 41, 59, 0.58);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 13px;
+    display: flex;
+    gap: 10px;
+    min-width: 0;
+    padding: 13px;
+}
+.gastos-metric-icon { align-items: center; border-radius: 10px; display: inline-flex; flex-shrink: 0; height: 34px; justify-content: center; width: 34px; }
+.gastos-icon-purple { background: rgba(167, 139, 250, .14); color: #c4b5fd; }
+.gastos-icon-cyan { background: rgba(56, 189, 248, .14); color: #7dd3fc; }
+.gastos-icon-green { background: rgba(52, 211, 153, .14); color: #6ee7b7; }
+.gastos-icon-orange { background: rgba(251, 146, 60, .14); color: #fdba74; }
+.gastos-metric-card div { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.gastos-metric-card strong { color: #f8fafc; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gastos-metric-card div span { color: #94a3b8; font-size: 10px; white-space: nowrap; }
+
+.gastos-entry-card { background: linear-gradient(135deg, rgba(56, 189, 248, .1), rgba(139, 92, 246, .09)); border: 1px solid rgba(56, 189, 248, .18); border-radius: 15px; margin-bottom: 22px; padding: 17px; }
+.gastos-entry-heading { align-items: center; display: flex; justify-content: space-between; margin-bottom: 13px; }
+.gastos-entry-heading strong { color: #e2e8f0; display: block; font-size: 14px; margin-top: 4px; }
+.gastos-entry-hint { color: #64748b; font-size: 10px; }
+.gastos-entry-form { align-items: end; display: flex; gap: 10px; }
+.gastos-field { display: flex; flex-direction: column; gap: 6px; }
+.gastos-field span { color: #94a3b8; font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.gastos-field-description { flex: 1; }
+.gastos-field-amount { width: 145px; }
+.gastos-field input { background: rgba(15, 23, 42, .72); border: 1px solid rgba(255,255,255,.1); border-radius: 9px; box-sizing: border-box; color: #f8fafc; font-size: 13px; min-height: 40px; outline: none; padding: 10px 12px; width: 100%; }
+.gastos-field input:focus { border-color: rgba(56, 189, 248, .6); box-shadow: 0 0 0 3px rgba(56, 189, 248, .09); }
+.gastos-amount-input { align-items: center; background: rgba(15, 23, 42, .72); border: 1px solid rgba(255,255,255,.1); border-radius: 9px; display: flex; min-height: 40px; }
+.gastos-amount-input:focus-within { border-color: rgba(56, 189, 248, .6); box-shadow: 0 0 0 3px rgba(56, 189, 248, .09); }
+.gastos-amount-input b { color: #6ee7b7; font-size: 13px; padding-left: 11px; }
+.gastos-amount-input input { background: transparent; border: 0; box-shadow: none; min-height: 38px; padding-left: 6px; }
+.gastos-add-btn { align-items: center; background: linear-gradient(135deg, #0ea5e9, #6366f1); border: 0; border-radius: 9px; color: #fff; cursor: pointer; display: inline-flex; font-size: 12px; font-weight: 800; gap: 7px; min-height: 40px; padding: 0 15px; white-space: nowrap; }
+.gastos-add-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+.gastos-list-header { align-items: end; display: flex; justify-content: space-between; margin-bottom: 10px; }
+.gastos-list-header h2 { color: #e2e8f0; font-size: 16px; margin: 4px 0 0; }
+.gastos-list-header > span { color: #64748b; font-size: 11px; }
+.gastos-list { display: flex; flex-direction: column; gap: 8px; }
+.gasto-item { align-items: center; background: rgba(30, 41, 59, .55); border: 1px solid rgba(255,255,255,.07); border-radius: 12px; display: flex; gap: 12px; justify-content: space-between; padding: 12px 14px; transition: border-color .2s ease, transform .2s ease; }
+.gasto-item:hover { border-color: rgba(52, 211, 153, .35); transform: translateY(-1px); }
+.gasto-item-main { align-items: center; display: flex; gap: 11px; min-width: 0; }
+.gasto-item-icon { align-items: center; background: rgba(52, 211, 153, .1); border: 1px solid rgba(52, 211, 153, .18); border-radius: 9px; color: #6ee7b7; display: inline-flex; flex-shrink: 0; height: 32px; justify-content: center; width: 32px; }
+.gasto-item-copy { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.gasto-item-copy strong { color: #f1f5f9; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gasto-item-copy span { color: #64748b; font-size: 10px; }
+.gasto-item-side { align-items: center; display: flex; gap: 12px; }
+.gasto-item-amount { color: #6ee7b7; font-size: 14px; font-weight: 800; white-space: nowrap; }
+.gasto-delete-btn { align-items: center; background: transparent; border: 0; border-radius: 6px; color: #64748b; cursor: pointer; display: inline-flex; padding: 5px; }
+.gasto-delete-btn:hover { background: rgba(239,68,68,.12); color: #f87171; }
+.gastos-empty { background: rgba(15,23,42,.28); border: 1px dashed rgba(148,163,184,.2); border-radius: 12px; color: #64748b; padding: 28px 20px; text-align: center; }
+.gastos-empty strong { color: #cbd5e1; display: block; font-size: 13px; margin-bottom: 5px; }
+.gastos-empty span { font-size: 11px; }
+
+@media (max-width: 720px) {
+    .gastos-hero { align-items: flex-start; flex-direction: column; gap: 18px; padding: 21px; }
+    .gastos-hero-total { align-self: flex-start; text-align: left; }
+    .gastos-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .gastos-entry-heading { align-items: flex-start; flex-direction: column; gap: 7px; }
+    .gastos-entry-form { align-items: stretch; flex-direction: column; }
+    .gastos-field-amount { width: auto; }
+    .gastos-add-btn { justify-content: center; }
+}

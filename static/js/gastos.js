@@ -11,43 +11,67 @@ function saveGastos() {
 function renderGastos() {
     const list = document.getElementById('gastos-list');
     const totalEl = document.getElementById('gastos-total');
+    const monthEl = document.getElementById('gastos-mes');
+    const averageEl = document.getElementById('gastos-promedio');
+    const countEl = document.getElementById('gastos-cantidad');
+    const latestEl = document.getElementById('gastos-ultimo');
+    const listCountEl = document.getElementById('gastos-list-count');
     if (!list || !totalEl) return;
 
-    let total = 0;
-    
     if (misGastos.length === 0) {
-        list.innerHTML = `<div class="empty-state" style="padding: 20px 0;">No tienes gastos registrados.</div>`;
+        list.innerHTML = `<div class="gastos-empty"><strong>Aún no hay movimientos</strong><span>Agrega tu primer gasto para comenzar a ver tu resumen.</span></div>`;
         totalEl.innerText = '0';
+        if (monthEl) monthEl.innerText = '$0';
+        if (averageEl) averageEl.innerText = '$0';
+        if (countEl) countEl.innerText = '0';
+        if (latestEl) latestEl.innerText = '—';
+        if (listCountEl) listCountEl.innerText = '0 registros';
         return;
     }
 
-    let html = '';
-    
-    // Sort by newest first
     const sorted = [...misGastos].sort((a, b) => b.timestamp - a.timestamp);
+    const total = misGastos.reduce((sum, g) => sum + Number(g.monto || 0), 0);
+    const now = new Date();
+    const monthTotal = misGastos
+        .filter(g => {
+            const date = new Date(g.timestamp);
+            return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+        })
+        .reduce((sum, g) => sum + Number(g.monto || 0), 0);
+    const formatMoney = value => `$${Number(value).toLocaleString('es-CL')}`;
+    const formatDate = timestamp => new Date(timestamp).toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' });
+
+    totalEl.innerText = Number(total).toLocaleString('es-CL');
+    if (monthEl) monthEl.innerText = formatMoney(monthTotal);
+    if (averageEl) averageEl.innerText = formatMoney(total / misGastos.length);
+    if (countEl) countEl.innerText = misGastos.length;
+    if (latestEl) latestEl.innerText = new Date(sorted[0].timestamp).toLocaleDateString('es-CL', { day: '2-digit', month: 'short' });
+    if (listCountEl) listCountEl.innerText = `${misGastos.length} ${misGastos.length === 1 ? 'registro' : 'registros'}`;
     
+    let html = '';
     sorted.forEach(g => {
-        total += g.monto;
-        
-        const dateObj = new Date(g.timestamp);
-        const dateStr = dateObj.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
-        
         html += `
-            <div style="background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <span style="font-size: 14px; font-weight: 600; color: #f1f5f9;">${escapeHtml(g.desc)}</span>
-                    <span style="font-size: 11px; color: #94a3b8;">${dateStr}</span>
+            <div class="gasto-item">
+                <div class="gasto-item-main">
+                    <span class="gasto-item-icon">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 10h18"></path><path d="M7 15h3"></path></svg>
+                    </span>
+                    <div class="gasto-item-copy">
+                        <strong>${escapeHtml(g.desc)}</strong>
+                        <span>${formatDate(g.timestamp)}</span>
+                    </div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <span style="color: #10b981; font-weight: 700;">$${g.monto.toLocaleString('es-CL')}</span>
-                    <button onclick="borrarGasto('${g.id}')" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px;" title="Eliminar">🗑️</button>
+                <div class="gasto-item-side">
+                    <span class="gasto-item-amount">${formatMoney(g.monto)}</span>
+                    <button onclick="borrarGasto('${g.id}')" class="gasto-delete-btn" title="Eliminar gasto">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M6 7l1 13h10l1-13"></path><path d="M9 7V4h6v3"></path></svg>
+                    </button>
                 </div>
             </div>
         `;
     });
     
     list.innerHTML = html;
-    totalEl.innerText = total.toLocaleString('es-CL');
 }
 
 function agregarGasto() {
