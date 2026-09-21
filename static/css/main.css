@@ -1148,6 +1148,7 @@ header {
         align-items: center;
         gap: 8px;
         min-width: 0;
+        touch-action: pan-y;
     }
 
     .tiempo-wheel::after {
@@ -1313,13 +1314,13 @@ header {
     .timer-progress-ring {
         --timer-progress: 1;
         position: relative;
-        width: clamp(290px, 66vw, 510px);
+        width: clamp(310px, 70vw, 540px);
         aspect-ratio: 1;
         display: grid;
         place-items: center;
         border-radius: 50%;
         background: rgba(148, 163, 184, 0.08);
-        box-shadow: 0 0 0 8px rgba(56, 189, 248, 0.08), 0 0 42px rgba(56, 189, 248, 0.18);
+        box-shadow: 0 0 42px rgba(56, 189, 248, 0.18);
         animation: timerRingIn 0.55s cubic-bezier(0.22, 1, 0.36, 1);
     }
 

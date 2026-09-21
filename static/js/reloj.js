@@ -123,10 +123,10 @@ function renderTimer() {
                 ${renderWheel('seconds', 'Segundos', 0, 59)}
             </div>
             <div class="tiempo-presets">
-                <button onclick="setTimerPreset(5 * 60)">05:00</button>
-                <button class="selected" onclick="setTimerPreset(10 * 60)">10:00</button>
-                <button onclick="setTimerPreset(15 * 60)">15:00</button>
-                <button onclick="setTimerPreset(30 * 60)">30:00</button>
+                <button class="${isTimerPresetSelected(5 * 60) ? 'selected' : ''}" onclick="setTimerPreset(5 * 60)">05:00</button>
+                <button class="${isTimerPresetSelected(10 * 60) ? 'selected' : ''}" onclick="setTimerPreset(10 * 60)">10:00</button>
+                <button class="${isTimerPresetSelected(15 * 60) ? 'selected' : ''}" onclick="setTimerPreset(15 * 60)">15:00</button>
+                <button class="${isTimerPresetSelected(30 * 60) ? 'selected' : ''}" onclick="setTimerPreset(30 * 60)">30:00</button>
             </div>
             <div class="tiempo-primary-actions">
                 <button id="timer-main-btn" class="tiempo-main-btn" onclick="toggleTimer()">${timerRunning ? 'Pausar' : 'Iniciar'}</button>
@@ -137,6 +137,7 @@ function renderTimer() {
             <div id="timer-end-label" class="tiempo-end-label"></div>
         </div>
     `;
+    bindTimerWheelGestures();
     updateTimerUI();
 }
 
@@ -164,7 +165,7 @@ function renderWheel(field, label, min, max) {
     const previous = value <= min ? max : value - 1;
     const next = value >= max ? min : value + 1;
     return `
-        <div class="tiempo-wheel" data-field="${field}">
+        <div class="tiempo-wheel" data-field="${field}" onwheel="scrollTimerWheel(event, '${field}')">
             <div class="tiempo-wheel-label">${label}</div>
             <button class="tiempo-wheel-value muted" onclick="changeTimerValue('${field}', -1)">${formatUnit(previous)}</button>
             <button class="tiempo-wheel-value current" onclick="changeTimerValue('${field}', 0)">${formatUnit(value)}</button>
@@ -175,6 +176,32 @@ function renderWheel(field, label, min, max) {
 
 function formatUnit(value) {
     return String(value).padStart(2, '0');
+}
+
+function isTimerPresetSelected(seconds) {
+    return !timerRunning && getTimerSeconds() === seconds;
+}
+
+function scrollTimerWheel(event, field) {
+    if (timerRunning) return;
+    event.preventDefault();
+    changeTimerValue(field, event.deltaY > 0 ? 1 : -1);
+}
+
+function bindTimerWheelGestures() {
+    document.querySelectorAll('.tiempo-wheel').forEach(wheel => {
+        let startY = null;
+        wheel.addEventListener('touchstart', event => {
+            if (!timerRunning) startY = event.touches[0].clientY;
+        }, { passive: true });
+        wheel.addEventListener('touchend', event => {
+            if (timerRunning || startY === null) return;
+            const distance = startY - event.changedTouches[0].clientY;
+            startY = null;
+            if (Math.abs(distance) < 12) return;
+            changeTimerValue(wheel.dataset.field, distance > 0 ? 1 : -1);
+        }, { passive: true });
+    });
 }
 
 function setTimeMode(mode) {
