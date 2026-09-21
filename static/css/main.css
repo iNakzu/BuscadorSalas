@@ -881,7 +881,7 @@ header {
 }
 
 .cronometro-time-input {
-    width: 1em;
+    width: 1.15em;
     height: 1em;
     padding: 0;
     border: 0;
@@ -891,7 +891,9 @@ header {
     font: inherit;
     font-variant-numeric: tabular-nums;
     text-align: center;
-    letter-spacing: -0.2em;
+    letter-spacing: -0.04em;
+    margin-left: -0.075em;
+    margin-right: -0.075em;
     caret-color: #f8fafc;
     vertical-align: baseline;
     appearance: none;
