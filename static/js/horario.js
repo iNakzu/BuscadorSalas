@@ -280,10 +280,9 @@ function actualizarHeroMiHorario() {
     if (proximaHoy) {
         const diffMin = timeToMinutes(proximaHoy.horaInicio) - totalMinutes;
         const diffTexto = diffMin >= 60 ? `${Math.floor(diffMin / 60)}h ${diffMin % 60}m` : `${diffMin} min`;
-        const esAntesDeLaPrimeraClase = proximaHoy === clasesHoy[0];
         const estadoProximaClase = vistaHorarioActual === 'cruce'
             ? `Ventana libre: ${diffTexto}`
-            : (esAntesDeLaPrimeraClase ? `Antes de clases (${diffTexto})` : `En ventana (${diffTexto})`);
+            : `Próxima clase: ${proximaHoy.curso} · ${proximaHoy.horaInicio}`;
 
         heroEl.innerHTML = `
             <div class="my-hero-top">
@@ -298,8 +297,7 @@ function actualizarHeroMiHorario() {
                         <span>${proximaHoy.curso}</span>
                     </div>
                     <div class="my-hero-subtitle">
-                        <span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;">Inicia a las <strong>${proximaHoy.horaInicio}</strong> (Bloque ${proximaHoy.bloqueNum})</span>
-                        ${proximaHoy.profesor ? `<span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px; margin-top: -2px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>${proximaHoy.profesor}</span>` : ''}
+                        <span>Inicia a las <strong>${proximaHoy.horaInicio}</strong></span>
                     </div>
                 </div>
             </div>
