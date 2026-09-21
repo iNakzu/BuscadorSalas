@@ -87,7 +87,16 @@
 
 .gastos-list-header { align-items: end; display: flex; justify-content: space-between; margin-bottom: 10px; }
 .gastos-list-header h2 { color: #e2e8f0; font-size: 16px; margin: 4px 0 0; }
-.gastos-list-header > span { color: #64748b; font-size: 11px; }
+.gastos-list-tools { align-items: center; display: flex; gap: 7px; }
+.gastos-list-tools > span { color: #64748b; font-size: 11px; white-space: nowrap; }
+.gastos-list-tools input, .gastos-list-tools select { background: rgba(15, 23, 42, .7); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; box-sizing: border-box; color: #cbd5e1; font-size: 11px; min-height: 32px; outline: none; padding: 7px 9px; }
+.gastos-list-tools input { width: 145px; }
+.gastos-list-tools select { max-width: 155px; }
+.gastos-list-tools input:focus, .gastos-list-tools select:focus { border-color: rgba(56,189,248,.55); }
+.gastos-category-summary { display: flex; flex-wrap: wrap; gap: 7px; margin: -2px 0 11px; }
+.gastos-category-chip { align-items: center; background: rgba(30,41,59,.5); border: 1px solid rgba(255,255,255,.07); border-radius: 99px; color: #94a3b8; display: inline-flex; font-size: 10px; gap: 7px; padding: 5px 9px; }
+.gastos-category-chip b { color: #cbd5e1; font-weight: 700; }
+.gastos-category-chip strong { color: #6ee7b7; font-size: 10px; }
 .gastos-list { display: flex; flex-direction: column; gap: 8px; }
 .gasto-item { align-items: center; background: rgba(30, 41, 59, .55); border: 1px solid rgba(255,255,255,.07); border-radius: 12px; display: flex; gap: 12px; justify-content: space-between; padding: 12px 14px; transition: border-color .2s ease, transform .2s ease; }
 .gasto-item:hover { border-color: rgba(52, 211, 153, .35); transform: translateY(-1px); }
@@ -104,6 +113,24 @@
 .gastos-empty strong { color: #cbd5e1; display: block; font-size: 13px; margin-bottom: 5px; }
 .gastos-empty span { font-size: 11px; }
 
+.gastos-modal { align-items: center; background: rgba(2, 6, 23, .8); backdrop-filter: blur(13px); display: none; inset: 0; justify-content: center; padding: 18px; position: fixed; z-index: 1200; }
+.gastos-modal-card { background: rgba(15,23,42,.98); border: 1px solid rgba(56,189,248,.28); border-radius: 17px; box-shadow: 0 24px 70px rgba(0,0,0,.55); box-sizing: border-box; display: flex; flex-direction: column; gap: 17px; max-height: 92vh; max-width: 590px; overflow-y: auto; padding: 23px; width: 100%; }
+.gastos-modal-header { align-items: flex-start; display: flex; justify-content: space-between; }
+.gastos-modal-header h2 { color: #f8fafc; font-size: 21px; margin: 6px 0 4px; }
+.gastos-modal-header p { color: #94a3b8; font-size: 12px; margin: 0; }
+.gastos-modal-close { background: transparent; border: 0; color: #64748b; cursor: pointer; font-size: 25px; line-height: 1; padding: 0 2px; }
+.gastos-modal-close:hover { color: #f8fafc; }
+.gastos-form-grid { display: grid; gap: 13px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.gastos-form-wide { grid-column: 1 / -1; }
+.gastos-modal-field { color: #cbd5e1; display: flex; flex-direction: column; font-size: 11px; font-weight: 700; gap: 6px; }
+.gastos-modal-field input, .gastos-modal-field select, .gastos-modal-field textarea { background: rgba(30,41,59,.78); border: 1px solid rgba(255,255,255,.12); border-radius: 9px; box-sizing: border-box; color: #f8fafc; font: inherit; font-weight: 400; outline: none; padding: 10px 11px; resize: vertical; width: 100%; }
+.gastos-modal-field input, .gastos-modal-field select { min-height: 41px; }
+.gastos-modal-field input:focus, .gastos-modal-field select:focus, .gastos-modal-field textarea:focus { border-color: #38bdf8; box-shadow: 0 0 0 3px rgba(56,189,248,.1); }
+.gastos-modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.gastos-modal-actions button { border-radius: 9px; cursor: pointer; font-size: 12px; font-weight: 800; min-height: 39px; padding: 0 14px; }
+.gastos-modal-secondary { background: rgba(148,163,184,.08); border: 1px solid rgba(148,163,184,.2); color: #cbd5e1; }
+.gastos-modal-primary { background: linear-gradient(135deg, #0ea5e9, #6366f1); border: 0; color: #fff; }
+
 @media (max-width: 720px) {
     .gastos-hero { align-items: flex-start; flex-direction: column; gap: 18px; padding: 21px; }
     .gastos-hero-total { align-self: flex-start; text-align: left; }
@@ -112,4 +139,10 @@
     .gastos-entry-form { align-items: stretch; flex-direction: column; }
     .gastos-field-amount { width: auto; }
     .gastos-add-btn { justify-content: center; }
+    .gastos-list-header { align-items: flex-start; flex-direction: column; gap: 10px; }
+    .gastos-list-tools { flex-wrap: wrap; width: 100%; }
+    .gastos-list-tools input { flex: 1; min-width: 130px; }
+    .gastos-list-tools select { flex: 1; }
+    .gastos-form-grid { grid-template-columns: 1fr; }
+    .gastos-form-wide { grid-column: auto; }
 }

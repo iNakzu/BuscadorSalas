@@ -1182,30 +1182,34 @@
                     <div class="gastos-entry-heading">
                         <div>
                             <span class="gastos-section-kicker">Nuevo movimiento</span>
-                            <strong>¿En qué gastaste hoy?</strong>
+                            <strong>Registra un gasto con todos sus detalles</strong>
                         </div>
-                        <span class="gastos-entry-hint">Se guarda solo en este dispositivo</span>
-                    </div>
-                    <div class="gastos-entry-form">
-                        <label class="gastos-field gastos-field-description">
-                            <span>Descripción</span>
-                            <input type="text" id="gasto-desc" placeholder="Ej. Café, transporte o fotocopias..." autocomplete="off">
-                        </label>
-                        <label class="gastos-field gastos-field-amount">
-                            <span>Monto</span>
-                            <div class="gastos-amount-input"><b>$</b><input type="number" id="gasto-monto" placeholder="0" min="1" inputmode="numeric"></div>
-                        </label>
-                        <button class="gastos-add-btn" onclick="agregarGasto()">
+                        <button class="gastos-add-btn" type="button" onclick="abrirModalNuevoGasto()">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                             Agregar gasto
                         </button>
                     </div>
+                    <span class="gastos-entry-hint">Descripción, monto, categoría, fecha y método de pago en un solo formulario.</span>
                 </div>
 
                 <div class="gastos-list-header">
                     <div><span class="gastos-section-kicker">Actividad</span><h2>Movimientos recientes</h2></div>
-                    <span id="gastos-list-count">0 registros</span>
+                    <div class="gastos-list-tools">
+                        <input id="gastos-search" type="search" placeholder="Buscar gasto..." oninput="renderGastos()" autocomplete="off">
+                        <select id="gastos-filter-category" onchange="renderGastos()">
+                            <option value="all">Todas las categorías</option>
+                            <option value="comida">Comida</option>
+                            <option value="transporte">Transporte</option>
+                            <option value="estudio">Estudio</option>
+                            <option value="ocio">Ocio</option>
+                            <option value="hogar">Hogar</option>
+                            <option value="salud">Salud</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                        <span id="gastos-list-count">0 registros</span>
+                    </div>
                 </div>
+                <div id="gastos-category-summary" class="gastos-category-summary"></div>
                 <div id="gastos-list" class="gastos-list">
                     <!-- List of expenses injected by JS -->
                 </div>
