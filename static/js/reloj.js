@@ -12,6 +12,25 @@ let activeTimeMode = 'timer';
 let isZenMode = false;
 const TIMER_SEGMENTS = 60;
 
+function renderTimerSegments(progress) {
+    const activeSegments = Math.ceil(progress * TIMER_SEGMENTS);
+    const center = 50;
+    const innerRadius = 43;
+    const outerRadius = 47;
+    return `
+        <svg class="timer-segments" viewBox="0 0 100 100" aria-hidden="true">
+            ${Array.from({ length: TIMER_SEGMENTS }, (_, index) => {
+                const angle = (index * 360 / TIMER_SEGMENTS - 90) * Math.PI / 180;
+                const x1 = center + innerRadius * Math.cos(angle);
+                const y1 = center + innerRadius * Math.sin(angle);
+                const x2 = center + outerRadius * Math.cos(angle);
+                const y2 = center + outerRadius * Math.sin(angle);
+                return `<line class="timer-segment ${index < activeSegments ? 'active' : ''}" data-segment-index="${index}" x1="${x1.toFixed(3)}" y1="${y1.toFixed(3)}" x2="${x2.toFixed(3)}" y2="${y2.toFixed(3)}"></line>`;
+            }).join('')}
+        </svg>
+    `;
+}
+
 function initReloj() {
     renderReloj();
     renderTimer();
@@ -93,9 +112,7 @@ function renderTimer() {
         container.innerHTML = `
             <div class="tiempo-page timer-running-page">
                 <div class="timer-progress-ring" style="--timer-progress: ${getTimerProgress()}">
-                    <div class="timer-segments" aria-hidden="true">
-                        ${Array.from({ length: TIMER_SEGMENTS }, (_, index) => `<span class="timer-segment ${index < Math.ceil(getTimerProgress() * TIMER_SEGMENTS) ? 'active' : ''}" style="--segment-angle: ${index * (360 / TIMER_SEGMENTS)}deg"></span>`).join('')}
-                    </div>
+                    ${renderTimerSegments(getTimerProgress())}
                     <div class="timer-progress-content">
                         <div class="timer-progress-label">Timer</div>
                         <div class="reloj-time timer-running-display" id="timer-running-display">00:00<span class="reloj-sec">:00</span></div>
