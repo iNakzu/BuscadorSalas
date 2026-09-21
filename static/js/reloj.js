@@ -4,6 +4,7 @@ let stopwatchTime = 0; // en centésimas de segundo
 let stopwatchRunning = false;
 let timerMode = 'stopwatch';
 let countdownTime = 5 * 60;
+let countdownEndAt = null;
 
 function initReloj() {
     renderReloj();
@@ -59,8 +60,10 @@ function toggleStopwatch() {
     if (stopwatchRunning) {
         clearInterval(stopwatchInterval);
         stopwatchRunning = false;
+        countdownEndAt = null;
     } else {
         stopwatchRunning = true;
+        countdownEndAt = null;
         stopwatchInterval = setInterval(() => {
             stopwatchTime += 1;
             updateStopwatchDisplay();
@@ -74,19 +77,23 @@ function toggleCountdown() {
     if (stopwatchRunning) {
         clearInterval(stopwatchInterval);
         stopwatchRunning = false;
+        countdownEndAt = null;
     } else if (countdownTime > 0) {
         stopwatchRunning = true;
+        countdownEndAt = Date.now() + countdownTime * 1000;
         stopwatchInterval = setInterval(() => {
             countdownTime--;
             updateStopwatchDisplay();
             if (countdownTime <= 0) {
                 clearInterval(stopwatchInterval);
                 stopwatchRunning = false;
+                countdownEndAt = null;
                 if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
                 mostrarAlertaWeb('La cuenta regresiva llegó a cero.', 'Tiempo cumplido');
             }
         }, 1000);
     }
+    updateStopwatchDisplay();
     updateCronometroUI();
 }
 
@@ -95,6 +102,8 @@ function resetStopwatch() {
     stopwatchRunning = false;
     stopwatchTime = 0;
     countdownTime = getCountdownInputSeconds();
+    countdownEndAt = null;
+    updateStopwatchDisplay();
     updateStopwatchDisplay();
     updateCronometroUI();
 }
@@ -117,6 +126,7 @@ function setTimerMode(mode) {
 function applyCountdown() {
     if (stopwatchRunning) resetStopwatch();
     countdownTime = getCountdownInputSeconds();
+    countdownEndAt = null;
     updateStopwatchDisplay();
     updateCronometroUI();
 }
@@ -129,6 +139,12 @@ function updateStopwatchDisplay() {
         const minutes = Math.floor(countdownTime / 60);
         const seconds = countdownTime % 60;
         timeEl.innerHTML = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        const endEl = document.getElementById('crono-end-time');
+        if (endEl) {
+            endEl.textContent = countdownEndAt
+                ? `Termina a las ${formatClockTime(new Date(countdownEndAt))}`
+                : 'Sin iniciar';
+        }
         return;
     }
     
@@ -144,12 +160,22 @@ function updateStopwatchDisplay() {
     display += m.toString().padStart(2, '0') + ":" + s.toString().padStart(2, '0');
     
     timeEl.innerHTML = `${display}<span class="reloj-sec">.${centiseconds.toString().padStart(2, '0')}</span>`;
+    const endEl = document.getElementById('crono-end-time');
+    if (endEl) endEl.textContent = 'Sin término fijado';
+}
+
+function formatClockTime(date) {
+    return date.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
 }
 
 function updateCronometroUI() {
     const btn = document.getElementById('btn-toggle-sw');
     if (btn) {
-        btn.innerHTML = stopwatchRunning ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-right:4px;vertical-align:-2px;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg> Pausar` : `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-right:4px;vertical-align:-2px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Iniciar`;
+        btn.innerHTML = stopwatchRunning
+            ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14"></rect><rect x="14" y="5" width="4" height="14"></rect></svg>`
+            : `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="7,4 19,12 7,20"></polygon></svg>`;
+        btn.title = stopwatchRunning ? 'Pausar' : 'Iniciar';
+        btn.setAttribute('aria-label', stopwatchRunning ? 'Pausar' : 'Iniciar');
         btn.className = stopwatchRunning ? 'estudio-btn btn-pause' : 'estudio-btn btn-start';
     }
 }
@@ -209,31 +235,37 @@ function renderCronometro() {
         <div class="reloj-wrapper" style="min-height:0; width:100%;">
             <div class="cronometro-shell">
                 <div class="cronometro-mode-switch" role="tablist" aria-label="Modo de tiempo">
-                    <button class="cronometro-mode-btn ${timerMode === 'stopwatch' ? 'active' : ''}" onclick="setTimerMode('stopwatch')">Cronómetro</button>
-                    <button class="cronometro-mode-btn ${timerMode === 'countdown' ? 'active' : ''}" onclick="setTimerMode('countdown')">Cuenta regresiva</button>
+                    <button class="cronometro-mode-btn ${timerMode === 'stopwatch' ? 'active' : ''}" onclick="setTimerMode('stopwatch')" title="Cronómetro" aria-label="Cronómetro">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2.5 1.5M9 3h6"></path></svg>
+                    </button>
+                    <button class="cronometro-mode-btn ${timerMode === 'countdown' ? 'active' : ''}" onclick="setTimerMode('countdown')" title="Cuenta regresiva" aria-label="Cuenta regresiva">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4h12M6 20h12"></path><path d="M8 4c0 4 8 4 8 8s-8 4-8 8"></path></svg>
+                    </button>
                 </div>
                 <div class="cronometro-display-card">
-                    <div class="cronometro-display-label">${timerMode === 'countdown' ? 'Tiempo restante' : 'Tiempo transcurrido'}</div>
                     <div class="reloj-time cronometro-display" id="crono-time-display">${timerMode === 'countdown' ? formatCountdownDisplay() : '00:00<span class="reloj-sec">.00</span>'}</div>
+                    <div class="cronometro-end-time" id="crono-end-time">${timerMode === 'countdown' ? 'Sin iniciar' : 'Sin término fijado'}</div>
                 </div>
                 ${timerMode === 'countdown' ? `
                     <div class="cronometro-config">
-                        <label class="cronometro-field">
-                            Minutos
-                            <input id="countdown-minutes" type="number" min="0" max="999" value="${Math.floor(countdownTime / 60)}">
+                        <label class="cronometro-field" title="Minutos">
+                            <input aria-label="Minutos" id="countdown-minutes" type="number" min="0" max="999" value="${Math.floor(countdownTime / 60)}">
                         </label>
-                        <label class="cronometro-field">
-                            Segundos
-                            <input id="countdown-seconds" type="number" min="0" max="59" value="${countdownTime % 60}">
+                        <label class="cronometro-field" title="Segundos">
+                            <input aria-label="Segundos" id="countdown-seconds" type="number" min="0" max="59" value="${countdownTime % 60}">
                         </label>
-                        <button class="estudio-btn btn-reset" onclick="applyCountdown()">Aplicar</button>
+                        <button class="estudio-btn cronometro-icon-btn" onclick="applyCountdown()" title="Aplicar tiempo" aria-label="Aplicar tiempo">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+                        </button>
                     </div>
                 ` : ''}
                 <div class="cronometro-actions">
-                    <button id="btn-toggle-sw" class="estudio-btn ${stopwatchRunning ? 'btn-pause' : 'btn-start'}" onclick="toggleStopwatch()">
-                        ${stopwatchRunning ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-right:4px;vertical-align:-2px;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg> Pausar` : `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-right:4px;vertical-align:-2px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Iniciar`}
+                    <button id="btn-toggle-sw" class="estudio-btn cronometro-icon-btn ${stopwatchRunning ? 'btn-pause' : 'btn-start'}" onclick="toggleStopwatch()" title="${stopwatchRunning ? 'Pausar' : 'Iniciar'}" aria-label="${stopwatchRunning ? 'Pausar' : 'Iniciar'}">
+                        ${stopwatchRunning ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14"></rect><rect x="14" y="5" width="4" height="14"></rect></svg>` : `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="7,4 19,12 7,20"></polygon></svg>`}
                     </button>
-                    <button class="estudio-btn btn-reset" onclick="resetStopwatch()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:-2px;"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg> Reiniciar</button>
+                    <button class="estudio-btn cronometro-icon-btn btn-reset" onclick="resetStopwatch()" title="Reiniciar" aria-label="Reiniciar">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 12a8 8 0 1 0 2.3-5.7"></path><path d="M4 4v5h5"></path></svg>
+                    </button>
                 </div>
             </div>
         </div>
