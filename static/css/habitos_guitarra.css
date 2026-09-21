@@ -57,6 +57,59 @@
     border-color: rgba(239, 68, 68, 0.5);
 }
 
+.habit-overview {
+    align-items: center;
+    background: rgba(15, 23, 42, 0.48);
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    border-radius: 15px;
+    display: flex;
+    gap: 18px;
+    margin-bottom: 16px;
+    padding: 14px 16px;
+}
+
+.habit-overview-donut {
+    align-items: center;
+    background: conic-gradient(#38bdf8 var(--habit-day-progress), rgba(51, 65, 85, 0.58) 0);
+    border-radius: 50%;
+    display: flex;
+    flex: 0 0 72px;
+    height: 72px;
+    justify-content: center;
+    position: relative;
+    width: 72px;
+}
+
+.habit-overview-donut::before {
+    background: #111c31;
+    border-radius: 50%;
+    content: '';
+    inset: 7px;
+    position: absolute;
+}
+
+.habit-donut-inner {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 1;
+}
+
+.habit-donut-inner strong { color: #f8fafc; font-size: 16px; line-height: 1; }
+.habit-donut-inner span { color: #64748b; font-size: 9px; margin-top: 3px; text-transform: uppercase; }
+.habit-overview-copy { flex: 1; min-width: 0; }
+.habit-overview-heading { display: flex; flex-direction: column; gap: 2px; }
+.habit-overview-heading strong { color: #e2e8f0; font-size: 13px; }
+.habit-week-strip { align-items: flex-end; display: flex; gap: 11px; margin-top: 10px; }
+.habit-week-day { align-items: center; color: #64748b; display: flex; flex: 1; flex-direction: column; font-size: 10px; gap: 4px; min-width: 20px; }
+.habit-week-day.today { color: #7dd3fc; }
+.habit-week-day i { background: conic-gradient(#38bdf8 var(--day-progress), rgba(51, 65, 85, 0.65) 0); border-radius: 4px; display: block; height: 10px; transform: rotate(45deg); width: 10px; }
+.habit-week-day.today i { box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.12); }
+.habit-week-day small { color: #64748b; font-size: 9px; white-space: nowrap; }
+.habit-overview-foot { border-top: 1px solid rgba(255,255,255,0.06); color: #64748b; display: flex; font-size: 10px; justify-content: space-between; margin-top: 10px; padding-top: 8px; }
+.habit-overview-foot strong { color: #7dd3fc; }
+
 .habit-today-progress, .riff-focus-strip {
     background: linear-gradient(105deg, rgba(56, 189, 248, 0.12), rgba(139, 92, 246, 0.1));
     border: 1px solid rgba(56, 189, 248, 0.17);
@@ -218,36 +271,11 @@
     color: #7dd3fc;
 }
 
-.habit-week-badge {
-    background: rgba(56, 189, 248, 0.1);
-    border: 1px solid rgba(56, 189, 248, 0.22);
-    border-radius: 20px;
-    color: #7dd3fc;
-    font-size: 10px;
-    font-weight: 800;
-    padding: 2px 6px;
-}
-
 .habit-card-metrics {
     align-items: center;
     display: flex;
     flex-shrink: 0;
     gap: 6px;
-}
-
-.habit-week-badge {
-    align-items: center;
-    display: inline-flex;
-    gap: 5px;
-    white-space: nowrap;
-}
-
-.habit-metric-label {
-    color: #64748b;
-    font-size: 8px;
-    font-weight: 700;
-    letter-spacing: .04em;
-    text-transform: uppercase;
 }
 
 .habit-empty-state {
@@ -443,48 +471,6 @@
 .habit-action-btn:hover {
     color: #ef4444;
     background: rgba(239, 68, 68, 0.12);
-}
-
-/* 7-Day History Mini Matrix */
-.habit-days-row {
-    display: flex;
-    gap: 4px;
-    margin-top: 0;
-}
-
-.habit-day-cell {
-    align-items: center;
-    color: #64748b;
-    display: flex;
-    flex-direction: column;
-    font-size: 10px;
-    font-weight: 700;
-    gap: 5px;
-    min-width: 22px;
-}
-
-.habit-day-dot {
-    background: rgba(100, 116, 139, 0.25);
-    border: 1px solid rgba(148, 163, 184, 0.25);
-    border-radius: 3px;
-    display: block;
-    height: 8px;
-    width: 8px;
-}
-
-.habit-day-cell.done {
-    color: #a7f3d0;
-}
-
-.habit-day-cell.done .habit-day-dot {
-    background: #34d399;
-    border-color: #6ee7b7;
-    box-shadow: 0 0 8px rgba(16, 185, 129, 0.2);
-}
-
-.habit-day-cell.today .habit-day-dot {
-    border-color: #38bdf8;
-    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.16);
 }
 
 /* Guitar / Riff Lab Styling */
@@ -912,7 +898,6 @@
         width: auto;
     }
 
-    .habit-card-metrics .habit-week-badge,
     .habit-card-metrics .habit-streak-badge {
         flex: 0 1 auto;
     }
@@ -926,16 +911,19 @@
         margin-top: 1px;
     }
 
-    .habit-days-row {
-        gap: 4px;
+    .habit-overview {
+        align-items: flex-start;
+        gap: 12px;
+        padding: 13px;
     }
 
-    .habit-day-cell {
-        flex: 1;
-        min-width: 0;
+    .habit-overview-donut {
+        flex-basis: 62px;
+        height: 62px;
+        width: 62px;
     }
 
-    .habit-day-cell {
-        min-width: 22px;
+    .habit-week-strip {
+        gap: 5px;
     }
 }
