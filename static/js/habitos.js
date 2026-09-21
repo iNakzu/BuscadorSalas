@@ -25,12 +25,6 @@ const DEFAULT_HABITOS = [
         history: {}
     },
     {
-        id: 'hab_4',
-        title: 'Aprender vocabulario en Polaco',
-        created_at: new Date().toISOString(),
-        history: {}
-    },
-    {
         id: 'hab_5',
         title: 'Cuidar / mimar a mis gatos',
         created_at: new Date().toISOString(),
@@ -51,6 +45,9 @@ function initHabitos() {
         const stored = localStorage.getItem('mis_habitos');
         if (stored) {
             habitosData = JSON.parse(stored);
+            const habitosAntes = habitosData.length;
+            habitosData = habitosData.filter(habito => habito.id !== 'hab_4' && !/polaco/i.test(habito.title || ''));
+            if (habitosData.length !== habitosAntes) saveHabitos();
         } else {
             habitosData = DEFAULT_HABITOS;
             saveHabitos();
