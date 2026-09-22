@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/horario.css') }}?v=14">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/habitos_guitarra.css') }}?v=5">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/gastos.css') }}?v=3">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/compras.css') }}?v=1">
 </head>
 <body>
 
@@ -159,6 +160,12 @@
                     <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
                 </svg>
                 <span>Gastos Exprés</span>
+            </button>
+            <button type="button" class="tab-btn" onclick="cambiarTab('tab-compras', this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 7h15l-1.5 9h-12z"></path><path d="M6 7 5 3H2"></path><circle cx="9" cy="20" r="1.5"></circle><circle cx="18" cy="20" r="1.5"></circle>
+                </svg>
+                <span>Lista de compras</span>
             </button>
             <button type="button" class="tab-btn" onclick="cambiarTab('tab-notasvoz', this)">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1225,6 +1232,58 @@
                 </div>
             </div>
         </section>
+
+        <!-- TAB LISTA DE COMPRAS -->
+        <section id="tab-compras" class="panel">
+            <div class="compras-shell">
+                <div class="compras-hero">
+                    <div>
+                        <span class="compras-kicker">Planifica sin olvidar</span>
+                        <h1>Lista de compras</h1>
+                        <p>Guarda lo que necesitas comprar y revisa cuánto tiempo lleva esperando cada cosa.</p>
+                    </div>
+                    <div class="compras-progress">
+                        <strong id="compras-progress-value">0%</strong>
+                        <span>completado</span>
+                        <div class="compras-progress-bar"><i id="compras-progress-bar"></i></div>
+                    </div>
+                </div>
+
+                <form class="compras-add-card" onsubmit="agregarCompra(event)">
+                    <div class="compras-add-title">
+                        <div><span class="compras-section-kicker">Nuevo pendiente</span><strong>¿Qué necesitas comprar?</strong></div>
+                        <span class="compras-add-hint">Se guardará con la fecha de hoy</span>
+                    </div>
+                    <div class="compras-add-grid">
+                        <input id="compra-nombre" name="name" maxlength="80" required placeholder="Ej. Detergente, cuaderno, regalo..." autocomplete="off">
+                        <input id="compra-cantidad" name="quantity" type="number" min="1" max="999" value="1" aria-label="Cantidad">
+                        <select id="compra-categoria" name="category" aria-label="Categoría">
+                            <option value="hogar">Hogar</option><option value="comida">Comida</option><option value="estudio">Estudio</option><option value="salud">Salud</option><option value="ropa">Ropa</option><option value="otro">Otro</option>
+                        </select>
+                        <select id="compra-prioridad" name="priority" aria-label="Prioridad">
+                            <option value="normal">Prioridad normal</option><option value="alta">Prioridad alta</option><option value="baja">Prioridad baja</option>
+                        </select>
+                        <button class="compras-add-btn" type="submit">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            Agregar
+                        </button>
+                    </div>
+                    <input id="compra-nota" class="compras-note-input" name="note" maxlength="140" placeholder="Nota opcional: marca, tamaño, tienda o detalle...">
+                </form>
+
+                <div class="compras-toolbar">
+                    <div class="compras-toolbar-title"><span class="compras-section-kicker">Tus pendientes</span><strong id="compras-count">0 elementos</strong></div>
+                    <div class="compras-tools">
+                        <input id="compras-search" type="search" placeholder="Buscar..." oninput="renderCompras()" autocomplete="off">
+                        <select id="compras-status" onchange="renderCompras()"><option value="pending">Pendientes</option><option value="all">Todos</option><option value="done">Comprados</option></select>
+                        <select id="compras-sort" onchange="renderCompras()"><option value="recent">Más recientes</option><option value="oldest">Más antiguos</option><option value="priority">Prioridad</option></select>
+                    </div>
+                </div>
+                <div class="compras-summary" id="compras-summary"></div>
+                <div class="compras-list" id="compras-list"></div>
+                <button class="compras-clear-btn" type="button" onclick="limpiarComprasCompletadas()">Eliminar comprados</button>
+            </div>
+        </section>
         
         <!-- TAB NOTAS DE VOZ CON IA -->
         <section id="tab-notasvoz" class="panel">
@@ -1722,6 +1781,7 @@
 <script src="{{ url_for('static', filename='js/reloj.js') }}?v=19" defer></script>
 <script src="{{ url_for('static', filename='js/kanban.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/gastos.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/compras.js') }}?v=1" defer></script>
 <script src="{{ url_for('static', filename='js/notasvoz.js') }}?v=6" defer></script>
 <script src="{{ url_for('static', filename='js/habitos.js') }}?v=3" defer></script>
 <script src="{{ url_for('static', filename='js/riff_lab.js') }}?v=4" defer></script>
