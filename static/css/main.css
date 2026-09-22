@@ -1404,6 +1404,30 @@ header {
         margin-top: 0;
     }
 
+    .timer-focus-mode .timer-progress-label,
+    .timer-focus-mode .timer-finish-time,
+    .timer-focus-mode .timer-running-actions {
+        display: none;
+    }
+
+    .timer-focus-mode .timer-progress-content {
+        gap: 0;
+    }
+
+    @media (min-width: 768px) {
+        .timer-progress-ring {
+            width: clamp(360px, 48vw, 540px);
+        }
+
+        .timer-segment {
+            stroke-width: 2.05;
+        }
+
+        .timer-running-display {
+            font-size: clamp(82px, 11vw, 132px);
+        }
+    }
+
     @keyframes timerRingIn {
         from { opacity: 0; transform: scale(0.82); }
         to { opacity: 1; transform: scale(1); }

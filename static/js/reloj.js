@@ -10,6 +10,7 @@ let stopwatchCentiseconds = 0;
 let stopwatchLaps = [];
 let activeTimeMode = 'timer';
 let isZenMode = false;
+let isTimerFocusMode = false;
 const TIMER_SEGMENTS = 60;
 
 function renderTimerSegments(progress) {
@@ -110,12 +111,12 @@ function renderTimer() {
     if (!container) return;
     if (timerRunning) {
         container.innerHTML = `
-            <div class="tiempo-page timer-running-page">
+            <div class="tiempo-page timer-running-page ${isTimerFocusMode ? 'timer-focus-mode' : ''}">
                 <div class="timer-progress-ring" style="--timer-progress: ${getTimerProgress()}">
                     ${renderTimerSegments(getTimerProgress())}
                     <div class="timer-progress-content">
                         <div class="timer-progress-label">Timer</div>
-                        <div class="reloj-time timer-running-display" id="timer-running-display">00:00<span class="reloj-sec">:00</span></div>
+                        <div class="reloj-time timer-running-display clickeable-time" id="timer-running-display" onclick="toggleTimerFocusMode()" title="Alternar vista enfocada">00:00<span class="reloj-sec">:00</span></div>
                         <div class="timer-finish-time" id="timer-finish-time">${getTimerEndLabel()}</div>
                     </div>
                 </div>
@@ -130,6 +131,7 @@ function renderTimer() {
         updateTimerUI();
         return;
     }
+    isTimerFocusMode = false;
     container.innerHTML = `
         <div class="tiempo-page">
             <div class="tiempo-wheel-picker" aria-label="Duración del timer">
@@ -156,6 +158,12 @@ function renderTimer() {
     `;
     bindTimerWheelGestures();
     updateTimerUI();
+}
+
+function toggleTimerFocusMode() {
+    isTimerFocusMode = !isTimerFocusMode;
+    const page = document.querySelector('.timer-running-page');
+    if (page) page.classList.toggle('timer-focus-mode', isTimerFocusMode);
 }
 
 function renderStopwatch() {
@@ -344,6 +352,7 @@ function toggleTimer() {
 function resetTimer() {
     clearInterval(timerInterval);
     timerRunning = false;
+    isTimerFocusMode = false;
     timerEndAt = null;
     timerValues = { hours: 0, minutes: 10, seconds: 0 };
     timerRemaining = 10 * 60;
