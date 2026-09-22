@@ -1383,7 +1383,7 @@ header {
 
     .timer-progress-label {
         color: #7dd3fc;
-        font-size: 11px;
+        font-size: 14px;
         font-weight: 800;
         letter-spacing: 0.12em;
         text-transform: uppercase;
@@ -1396,7 +1396,7 @@ header {
 
     .timer-finish-time {
         color: #94a3b8;
-        font-size: 12px;
+        font-size: 14px;
         font-weight: 700;
     }
 
@@ -1424,8 +1424,34 @@ header {
         }
 
         .timer-running-display {
-            font-size: clamp(82px, 11vw, 132px);
+            font-size: clamp(68px, 8vw, 104px);
         }
+    }
+
+    body.timer-focus-active {
+        padding: 0;
+        overflow: hidden;
+    }
+
+    body.timer-focus-active .container {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+    }
+
+    body.timer-focus-active header,
+    body.timer-focus-active .tabs-wrapper {
+        display: none;
+    }
+
+    body.timer-focus-active #tab-timer {
+        min-height: 100vh;
+        display: block;
+    }
+
+    body.timer-focus-active .timer-running-page {
+        min-height: 100vh;
+        padding: 0;
     }
 
     @keyframes timerRingIn {

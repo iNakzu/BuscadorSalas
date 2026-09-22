@@ -132,6 +132,7 @@ function renderTimer() {
         return;
     }
     isTimerFocusMode = false;
+    document.body.classList.remove('timer-focus-active');
     container.innerHTML = `
         <div class="tiempo-page">
             <div class="tiempo-wheel-picker" aria-label="Duración del timer">
@@ -164,6 +165,7 @@ function toggleTimerFocusMode() {
     isTimerFocusMode = !isTimerFocusMode;
     const page = document.querySelector('.timer-running-page');
     if (page) page.classList.toggle('timer-focus-mode', isTimerFocusMode);
+    document.body.classList.toggle('timer-focus-active', isTimerFocusMode);
 }
 
 function renderStopwatch() {
@@ -353,6 +355,7 @@ function resetTimer() {
     clearInterval(timerInterval);
     timerRunning = false;
     isTimerFocusMode = false;
+    document.body.classList.remove('timer-focus-active');
     timerEndAt = null;
     timerValues = { hours: 0, minutes: 10, seconds: 0 };
     timerRemaining = 10 * 60;
