@@ -81,6 +81,12 @@ html {
     margin: 0 auto;
 }
 
+@media (min-width: 1440px) {
+    .container {
+        max-width: 1600px;
+    }
+}
+
 /* HEADER */
 header {
     display: flex;

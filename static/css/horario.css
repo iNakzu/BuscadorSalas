@@ -201,6 +201,14 @@
     -webkit-overflow-scrolling: touch;
 }
 
+@media (min-width: 901px) {
+    .my-week-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        overflow-x: visible;
+        scroll-snap-type: none;
+    }
+}
+
 .my-day-col {
     scroll-snap-align: center;
     background: rgba(15, 23, 42, 0.45);
