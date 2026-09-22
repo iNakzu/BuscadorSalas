@@ -343,7 +343,6 @@ function toggleTimer() {
                 timerEndAt = null;
                 renderTimer();
                 if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
-                mostrarAlertaWeb('El timer llegó a cero.', 'Tiempo cumplido');
                 updateTimerUI();
             }
         }, 1000);
