@@ -535,37 +535,38 @@ def obtener_salas(dia_numero, hora_exacta, filtro_facultad):
 
     for clase in clases:
         nodo = clase.get('node', {})
-        nombre_sala = nodo.get('place')
-        if not nombre_sala:
+        raw_place = nodo.get('place')
+        if not raw_place:
             continue
 
-        if not coincide_facultad(nombre_sala, filtro_facultad):
-            continue
+        for nombre_sala in [s.strip() for s in raw_place.split(',') if s.strip()]:
+            if not coincide_facultad(nombre_sala, filtro_facultad):
+                continue
 
-        todas_las_salas.add(nombre_sala)
+            todas_las_salas.add(nombre_sala)
 
-        if nodo.get('day') == dia_int:
-            if nombre_sala not in clases_por_sala:
-                clases_por_sala[nombre_sala] = []
+            if nodo.get('day') == dia_int:
+                if nombre_sala not in clases_por_sala:
+                    clases_por_sala[nombre_sala] = []
 
-            start_str = nodo.get('start', '')
-            finish_str = nodo.get('finish', '')
-            c_start = to_minutes(start_str)
-            c_finish = to_minutes(finish_str)
+                start_str = nodo.get('start', '')
+                finish_str = nodo.get('finish', '')
+                c_start = to_minutes(start_str)
+                c_finish = to_minutes(finish_str)
 
-            if c_finish <= c_start:
-                c_finish = c_start + 80
+                if c_finish <= c_start:
+                    c_finish = c_start + 80
 
-            clases_por_sala[nombre_sala].append({
-                'start_min': c_start,
-                'end_min': c_finish,
-                'start': format_time(start_str),
-                'finish': format_time(finish_str),
-                'course': nodo.get('course', 'Sin curso'),
-                'teacher': nodo.get('teacher', 'No informado'),
-                'section': nodo.get('section', '-'),
-                'code': nodo.get('code', '-')
-            })
+                clases_por_sala[nombre_sala].append({
+                    'start_min': c_start,
+                    'end_min': c_finish,
+                    'start': format_time(start_str),
+                    'finish': format_time(finish_str),
+                    'course': nodo.get('course', 'Sin curso'),
+                    'teacher': nodo.get('teacher', 'No informado'),
+                    'section': nodo.get('section', '-'),
+                    'code': nodo.get('code', '-')
+                })
 
     for s, cl_list in clases_por_sala.items():
         for c in cl_list:
@@ -636,7 +637,7 @@ def normalize_str(s):
     nfkd = unicodedata.normalize('NFD', str(s))
     return "".join(c for c in nfkd if not unicodedata.combining(c)).lower().strip()
 
-def buscar_profesor(nombre_buscado, dia_filtro=None, hora_filtro=None):
+def buscar_curso(nombre_buscado, dia_filtro=None, hora_filtro=None):
     clases = dm.get_classes()
     resultados = []
     tokens = [t for t in normalize_str(nombre_buscado).split() if len(t) > 0]
@@ -714,17 +715,20 @@ def buscar_curso(query, dia_filtro=None, hora_filtro=None):
             if not (h_q.startswith(c_start) or c_start.startswith(h_q.replace(":00", "")) or h_q in nodo.get('start', '')):
                 continue
 
-        resultados.append({
-            'sala': nodo.get('place', '-'),
-            'curso': curso,
-            'codigo': codigo,
-            'seccion': nodo.get('section', '-'),
-            'profe': nodo.get('teacher', 'No informado'),
-            'dia': nombre_dia(nodo.get('day')),
-            'dia_numero': nodo.get('day'),
-            'hora_inicio': c_start,
-            'hora_termino': format_time(nodo.get('finish', '')),
-        })
+        raw_place = nodo.get('place', '-')
+        places = [p.strip() for p in raw_place.split(',')] if raw_place and raw_place != '-' else ['-']
+        for p in places:
+            resultados.append({
+                'sala': p,
+                'curso': curso,
+                'codigo': codigo,
+                'seccion': nodo.get('section', '-'),
+                'profe': nodo.get('teacher', 'No informado'),
+                'dia': nombre_dia(nodo.get('day')),
+                'dia_numero': nodo.get('day'),
+                'hora_inicio': c_start,
+                'hora_termino': format_time(nodo.get('finish', '')),
+            })
     resultados.sort(key=lambda x: (x['curso'], x['dia_numero'], to_minutes(x['hora_inicio'])))
     return resultados
 
@@ -1003,7 +1007,8 @@ def inicio():
 
         if seleccion['profe'] and seleccion['profe'].strip() != "":
             modo = "profesor"
-            resultados_profe = buscar_profesor(seleccion['profe'])
+            # Usa buscar_curso para buscar profes, ramos y codigos en toda la semana
+            resultados_profe = buscar_curso(seleccion['profe'])
         else:
             modo = "salas"
             vacias, ocupadas, vacias_info = obtener_salas(seleccion['dia'], seleccion['hora'], seleccion['facultad'])
@@ -1092,7 +1097,8 @@ def api_search():
     if not q and not (dia and hora):
         return jsonify({"query": q, "dia": dia, "hora": hora, "profesores": [], "cursos": [], "salas": []})
 
-    profes = buscar_profesor(q, dia_filtro=dia, hora_filtro=hora) if q and len(q) >= 2 else []
+    # Usar buscar_curso para ambos porque ya busca por profe, codigo y ramo y separa las salas combinadas
+    profes = buscar_curso(q, dia_filtro=dia, hora_filtro=hora) if q and len(q) >= 2 else []
     cursos = buscar_curso(q, dia_filtro=dia, hora_filtro=hora)
     salas_coincidentes = [s for s in dm.all_rooms if normalize_str(q) in normalize_str(s)] if q and len(q) >= 2 else []
 
@@ -1399,7 +1405,7 @@ def consultar_estado_sala(sala_code, dia_id=None, bloque=None):
     return "\n".join(lineas)
 
 def consultar_docente_en_vivo(p_name):
-    clases_profe = buscar_profesor(p_name)
+    clases_profe = buscar_curso(p_name)
     if not clases_profe:
         return f"No encontré clases registradas para **{p_name}**."
 
@@ -1630,7 +1636,7 @@ def generar_respuesta_salas_libres(dia_id, dia_nom, bloque_ref, es_en_vivo=False
     return "\n".join(lineas)
 
 def generar_respuesta_profesor(p_name, dia_id=None):
-    clases_profe = buscar_profesor(p_name)
+    clases_profe = buscar_curso(p_name)
     if not clases_profe:
         return f"No encontré clases registradas para **{p_name}** en la base de datos."
 
