@@ -1459,15 +1459,42 @@ function toggleSolemnesMode(isSolemne) {
     const normalBlocks = document.querySelectorAll('.normal-block');
     const solemneBlocks = document.querySelectorAll('.solemne-block');
     
+    // Convert current hour
+    let currentHora = window.state ? window.state.hora : '8:30:00';
+    let newHora = '';
+    
     if (isSolemne) {
         normalBlocks.forEach(b => { b.style.display = 'none'; b.classList.remove('active'); });
-        solemneBlocks.forEach(b => b.style.display = 'inline-flex');
+        solemneBlocks.forEach(b => {
+            b.style.display = 'inline-flex';
+            if (b.dataset.val === '08:30:00_S') b.classList.add('active'); // Default active for Tab 1
+        });
+        newHora = '08:30:00_S';
     } else {
         solemneBlocks.forEach(b => { b.style.display = 'none'; b.classList.remove('active'); });
-        normalBlocks.forEach(b => b.style.display = 'inline-flex');
+        normalBlocks.forEach(b => {
+            b.style.display = 'inline-flex';
+            if (b.dataset.val === '08:30:00' || b.dataset.hora === '08:30:00') {
+                 // Only add active to the one in bar-hora (Tab 1), wait actually setHora handles this.
+                 // It's safer to just let the logic below handle it.
+            }
+        });
+        newHora = '08:30:00';
     }
     
-    // Clear active filters
+    // Fix Tab 1 active pill
+    if (window.state) {
+        window.state.hora = newHora;
+        const barHora = document.getElementById('bar-hora');
+        if (barHora) {
+            const btns = barHora.querySelectorAll('.pill-btn');
+            btns.forEach(btn => btn.classList.remove('active'));
+            const activeBtn = barHora.querySelector(`[data-val="${newHora}"]`);
+            if (activeBtn) activeBtn.classList.add('active');
+        }
+    }
+    
+    // Clear active filters for other tabs (they are optional)
     if (window.filtrosGlobales) {
         window.filtrosGlobales.hora = "";
     }
@@ -1475,13 +1502,12 @@ function toggleSolemnesMode(isSolemne) {
     window.filtroRamoHora = "";
     window.filtroMallaHora = "";
     
-    if (typeof fetchSalas === 'function') fetchSalas();
+    if (typeof fetchSalas === 'function') cargarSalas();
     if (typeof triggerProfSearch === 'function') triggerProfSearch();
     if (typeof triggerRamoSearch === 'function') triggerRamoSearch();
     if (typeof renderMalla === 'function') renderMalla();
     
     if (typeof renderMiHorario === 'function') {
-        // Horario depends on BLOQUES_HORARIOS, which we will patch in horario.js
         renderMiHorario();
     }
 }

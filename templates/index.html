@@ -278,7 +278,11 @@
                 <div class="section-label">Bloque Horario</div>
                 <div class="pill-bar" id="bar-hora">
                     {% for b in bloques %}
-                    <button type="button" class="pill-btn {% if sel.hora == b.id %}active{% endif %}" data-val="{{ b.id }}" onclick="setHora('{{ b.id }}', this)">{{ b.label }}</button>
+                        {% if '_S' in b.id %}
+                        <button type="button" class="pill-btn solemne-block" style="display:none;" data-val="{{ b.id }}" onclick="setHora('{{ b.id }}', this)">{{ b.label }}</button>
+                        {% else %}
+                        <button type="button" class="pill-btn normal-block {% if sel.hora == b.id %}active{% endif %}" data-val="{{ b.id }}" onclick="setHora('{{ b.id }}', this)">{{ b.label }}</button>
+                        {% endif %}
                     {% endfor %}
                 </div>
             </div>
