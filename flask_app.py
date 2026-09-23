@@ -505,7 +505,8 @@ def coincide_facultad(nombre_sala, filtro_facultad):
     f = filtro_facultad.strip().upper()
     if f == "INGENIERIA":
         return nombre_sala.startswith("E441") or nombre_sala.startswith("V432")
-    return f in nombre_sala.upper()
+    # Si es texto libre, aceptamos cualquier sala para evaluarla despues
+    return True
 
 def obtener_bloque_info(hora_id):
     for b in STANDARD_BLOCKS:
@@ -617,8 +618,39 @@ def obtener_salas(dia_numero, hora_exacta, filtro_facultad):
                 'texto': "Libre el resto del día"
             }
 
+    # Aplicar el filtro de texto libre al resultado final
+    filtro_f = (filtro_facultad or "").strip().upper()
+    is_text_search = filtro_f and filtro_f not in ["TODAS", "INGENIERIA"]
+    
+    tokens = [t for t in normalize_str(filtro_f).split() if len(t) > 0] if is_text_search else []
+
+    vacias_finales = []
+    for s in vacias:
+        if is_text_search:
+            info = vacias_info[s]
+            s_norm = normalize_str(s)
+            c_norm = normalize_str(info.get('proximo_curso', ''))
+            p_norm = "" # en vacias_info no guardamos profe por ahora, pero curso y sala sí
+            if not all(t in s_norm or t in c_norm for t in tokens):
+                continue
+        elif filtro_f == "INGENIERIA" and not (s.startswith("E441") or s.startswith("V432")):
+            continue
+        vacias_finales.append(s)
+
+    ocupadas_finales = {}
+    for s, info in ocupadas_dict.items():
+        if is_text_search:
+            s_norm = normalize_str(s)
+            c_norm = normalize_str(info.get('curso', ''))
+            p_norm = normalize_str(info.get('profe', ''))
+            if not all(t in s_norm or t in c_norm or t in p_norm for t in tokens):
+                continue
+        elif filtro_f == "INGENIERIA" and not (s.startswith("E441") or s.startswith("V432")):
+            continue
+        ocupadas_finales[s] = info
+
     vacias_ordenadas = sorted(
-        vacias,
+        vacias_finales,
         key=lambda s: (
             0 if vacias_info[s]['libre_todo_el_dia'] else 1,
             -(vacias_info[s]['minutos_hasta_proxima'] or 0),
@@ -626,7 +658,7 @@ def obtener_salas(dia_numero, hora_exacta, filtro_facultad):
         )
     )
 
-    ocupadas_ordenadas = dict(sorted(ocupadas_dict.items()))
+    ocupadas_ordenadas = dict(sorted(ocupadas_finales.items()))
     return vacias_ordenadas, ocupadas_ordenadas, vacias_info
 
 import unicodedata
