@@ -312,6 +312,7 @@ async function sincronizarDatos() {
 
 let debounceProf = null;
 function setProfDia(diaVal, btn) {
+    if (typeof checkSolemneAutoSwitch === "function") checkSolemneAutoSwitch(diaVal);
     document.querySelectorAll('#bar-prof-dia .pill-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     state.profDia = diaVal;
@@ -389,6 +390,7 @@ function ejecutarBusquedaDocente() {
 
 let debounceRamo = null;
 function setRamoDia(diaVal, btn) {
+    if (typeof checkSolemneAutoSwitch === "function") checkSolemneAutoSwitch(diaVal);
     document.querySelectorAll('#bar-ramo-dia .pill-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     state.ramoDia = diaVal;
@@ -507,6 +509,7 @@ function setMallaSemestre(sem) {
 }
 
 function setMallaDia(diaVal, btn) {
+    if (typeof checkSolemneAutoSwitch === "function") checkSolemneAutoSwitch(diaVal);
     document.querySelectorAll('#bar-malla-dia .pill-btn').forEach(b => b.classList.remove('active'));
     if (btn) btn.classList.add('active');
     state.mallaDia = diaVal;
@@ -671,6 +674,7 @@ function filtrarSalasLista(val) {
 }
 
 function setSalaDia(diaVal, btn) {
+    if (typeof checkSolemneAutoSwitch === "function") checkSolemneAutoSwitch(diaVal);
     document.querySelectorAll('#bar-sala-dia .pill-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     state.salaDia = diaVal;
@@ -727,13 +731,7 @@ async function renderizarHorarioSala(sala) {
 
         const diasAMostrar = state.salaDia ? [parseInt(state.salaDia)] : [1, 2, 3, 4, 5];
 
-        const bloquesEstandar = window.SOLEMNES_MODE ? [
-            { start: "08:30", finish: "10:30" },
-            { start: "10:45", finish: "12:45" },
-            { start: "13:00", finish: "15:00" },
-            { start: "15:15", finish: "17:15" },
-            { start: "17:30", finish: "19:30" }
-        ] : [
+        const bloquesNormales = [
             { start: "08:30", finish: "09:50" },
             { start: "10:00", finish: "11:20" },
             { start: "11:30", finish: "12:50" },
@@ -741,6 +739,14 @@ async function renderizarHorarioSala(sala) {
             { start: "14:30", finish: "15:50" },
             { start: "16:00", finish: "17:20" },
             { start: "17:25", finish: "18:45" }
+        ];
+        
+        const bloquesSolemnes = [
+            { start: "08:30", finish: "10:30" },
+            { start: "10:45", finish: "12:45" },
+            { start: "13:00", finish: "15:00" },
+            { start: "15:15", finish: "17:15" },
+            { start: "17:30", finish: "19:30" }
         ];
 
         const parseMin = (t) => {
@@ -756,6 +762,7 @@ async function renderizarHorarioSala(sala) {
             const matchedClases = new Set();
             let slotsHtml = '';
 
+            const bloquesEstandar = (window.statusSolemnes && window.statusSolemnes[d]) ? bloquesSolemnes : bloquesNormales;
             bloquesEstandar.forEach(b => {
                 const bStart = parseMin(b.start);
                 const bEnd = parseMin(b.finish);
