@@ -72,8 +72,8 @@ function cambiarTab(panelId, btn) {
     // Sincronizar el modo solemne con el dia activo de la nueva pestaña
     let activeDay = null;
     if (panelId === 'tab-salas') activeDay = typeof state !== 'undefined' ? state.dia : null;
-    else if (panelId === 'tab-profesor') activeDay = typeof state !== 'undefined' ? state.profDia : null;
-    else if (panelId === 'tab-ramo') activeDay = typeof state !== 'undefined' ? state.ramoDia : null;
+    else if (panelId === 'tab-profes') activeDay = typeof state !== 'undefined' ? state.profDia : null;
+    else if (panelId === 'tab-ramos') activeDay = typeof state !== 'undefined' ? state.ramoDia : null;
     else if (panelId === 'tab-horario') activeDay = typeof state !== 'undefined' ? state.salaDia : null;
     else if (panelId === 'tab-malla') activeDay = typeof state !== 'undefined' ? state.mallaDia : null;
     else if (panelId === 'tab-mihorario') activeDay = typeof state !== 'undefined' ? state.miHorarioDia : null;
