@@ -697,7 +697,13 @@ async function renderizarHorarioSala(sala) {
 
         const diasAMostrar = state.salaDia ? [parseInt(state.salaDia)] : [1, 2, 3, 4, 5];
 
-        const bloquesEstandar = [
+        const bloquesEstandar = window.SOLEMNES_MODE ? [
+            { start: "08:30", finish: "10:30" },
+            { start: "10:45", finish: "12:45" },
+            { start: "13:00", finish: "15:00" },
+            { start: "15:15", finish: "17:15" },
+            { start: "17:30", finish: "19:30" }
+        ] : [
             { start: "08:30", finish: "09:50" },
             { start: "10:00", finish: "11:20" },
             { start: "11:30", finish: "12:50" },
@@ -1414,3 +1420,36 @@ window.borrarCacheApp = function() {
         window.location.reload(true);
     }, 'Borrar caché local');
 };
+
+window.SOLEMNES_MODE = false;
+function toggleSolemnesMode(isSolemne) {
+    window.SOLEMNES_MODE = isSolemne;
+    const normalBlocks = document.querySelectorAll('.normal-block');
+    const solemneBlocks = document.querySelectorAll('.solemne-block');
+    
+    if (isSolemne) {
+        normalBlocks.forEach(b => { b.style.display = 'none'; b.classList.remove('active'); });
+        solemneBlocks.forEach(b => b.style.display = 'inline-flex');
+    } else {
+        solemneBlocks.forEach(b => { b.style.display = 'none'; b.classList.remove('active'); });
+        normalBlocks.forEach(b => b.style.display = 'inline-flex');
+    }
+    
+    // Clear active filters
+    if (window.filtrosGlobales) {
+        window.filtrosGlobales.hora = "";
+    }
+    window.filtroProfHora = "";
+    window.filtroRamoHora = "";
+    window.filtroMallaHora = "";
+    
+    if (typeof fetchSalas === 'function') fetchSalas();
+    if (typeof triggerProfSearch === 'function') triggerProfSearch();
+    if (typeof triggerRamoSearch === 'function') triggerRamoSearch();
+    if (typeof renderMalla === 'function') renderMalla();
+    
+    if (typeof renderMiHorario === 'function') {
+        // Horario depends on BLOQUES_HORARIOS, which we will patch in horario.js
+        renderMiHorario();
+    }
+}

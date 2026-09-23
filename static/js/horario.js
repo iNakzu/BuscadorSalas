@@ -849,7 +849,7 @@ function mostrarToast(mensaje) {
     }, 2800);
 }
 
-const BLOQUES_HORARIOS = [
+const BLOQUES_NORMALES = [
     { num: 1, label: '08:30 - 09:50', inicio: '08:30', fin: '09:50' },
     { num: 2, label: '10:00 - 11:20', inicio: '10:00', fin: '11:20' },
     { num: 3, label: '11:30 - 12:50', inicio: '11:30', fin: '12:50' },
@@ -858,6 +858,19 @@ const BLOQUES_HORARIOS = [
     { num: 6, label: '16:00 - 17:20', inicio: '16:00', fin: '17:20' },
     { num: 7, label: '17:25 - 18:45', inicio: '17:25', fin: '18:45' }
 ];
+const BLOQUES_SOLEMNES = [
+    { num: 1, label: '08:30 - 10:30', inicio: '08:30', fin: '10:30' },
+    { num: 2, label: '10:45 - 12:45', inicio: '10:45', fin: '12:45' },
+    { num: 3, label: '13:00 - 15:00', inicio: '13:00', fin: '15:00' },
+    { num: 4, label: '15:15 - 17:15', inicio: '15:15', fin: '17:15' },
+    { num: 5, label: '17:30 - 19:30', inicio: '17:30', fin: '19:30' }
+];
+
+Object.defineProperty(window, 'BLOQUES_HORARIOS', {
+    get: function() {
+        return window.SOLEMNES_MODE ? BLOQUES_SOLEMNES : BLOQUES_NORMALES;
+    }
+});
 
 function renderMiHorario() {
     const container = document.getElementById('mihorario-display-container');
