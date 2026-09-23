@@ -62,14 +62,26 @@ function cambiarTab(panelId, btn) {
     }
     const target = document.getElementById(panelId);
     if (target) target.classList.add('active');
-    if (panelId === 'tab-malla' && !mallaLoadedOnce) {
+    if (panelId === 'tab-malla' && !window.mallaLoadedOnce) {
         cargarClasesMalla(true);
     }
-    if (panelId === 'tab-mihorario') {
+    if (panelId === 'tab-mihorario' && typeof inicializarMiHorario === 'function') {
         inicializarMiHorario();
     }
-}
+    
+    // Sincronizar el modo solemne con el dia activo de la nueva pestaña
+    let activeDay = null;
+    if (panelId === 'tab-salas') activeDay = window.state ? window.state.dia : null;
+    else if (panelId === 'tab-profesor') activeDay = window.state ? window.state.profDia : null;
+    else if (panelId === 'tab-ramo') activeDay = window.state ? window.state.ramoDia : null;
+    else if (panelId === 'tab-horario') activeDay = window.state ? window.state.salaDia : null;
+    else if (panelId === 'tab-malla') activeDay = window.state ? window.state.mallaDia : null;
+    else if (panelId === 'tab-mihorario') activeDay = window.state ? window.state.miHorarioDia : null;
 
+    if (activeDay && typeof checkSolemneAutoSwitch === 'function') {
+        checkSolemneAutoSwitch(activeDay);
+    }
+}
 function setFacultadPill(val, btn) {
     document.querySelectorAll('#bar-facultad .pill-btn').forEach(b => b.classList.remove('active'));
     if (btn) btn.classList.add('active');
