@@ -47,8 +47,10 @@
     </header>
 
     <!-- PESTAÑAS (REDISEÑADAS: DOCK FLOTANTE CON ICONOS Y TEXTOS ACTUALIZADOS) -->
-    <div class="tabs-wrapper">
-        <nav class="tabs" aria-label="Navegación principal">
+    <div class="tabs-scroll-container">
+        <div class="scroll-fade scroll-fade-left" id="tab-fade-left"></div>
+        <div class="tabs-wrapper" id="main-tabs-wrapper">
+            <nav class="tabs" aria-label="Navegación principal">
             <button type="button" class="tab-btn active" onclick="cambiarTab('tab-salas', this)">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="3" y="3" width="7" height="7"></rect>
@@ -221,6 +223,8 @@
             </button>
 
         </nav>
+        </div>
+        <div class="scroll-fade scroll-fade-right" id="tab-fade-right"></div>
     </div>
 
     <!-- TAB 1: SALAS DISPONIBLES Y OCUPADAS -->

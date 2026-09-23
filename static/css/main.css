@@ -203,9 +203,40 @@ header {
 }
 
 /* TABS DE NAVEGACIÓN (REDISEÑO MODERNO MINIMALISTA TIPO SEGMENTED GLASS DOCK) */
+.tabs-scroll-container {
+    position: relative;
+    width: 100%;
+    margin-bottom: 26px;
+    /* Evita que los fades tapen clicks en el scrollbar si hubiera, aunque está oculto */
+}
+
+.scroll-fade {
+    position: absolute;
+    top: 0;
+    bottom: 10px; /* respeta el padding bottom */
+    width: 60px;
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.scroll-fade-left {
+    left: 0;
+    background: linear-gradient(to right, rgba(9, 13, 22, 1) 0%, rgba(9, 13, 22, 0) 100%);
+}
+
+.scroll-fade-right {
+    right: 0;
+    background: linear-gradient(to left, rgba(9, 13, 22, 1) 0%, rgba(9, 13, 22, 0) 100%);
+}
+
+.scroll-fade.is-visible {
+    opacity: 1;
+}
+
 .tabs-wrapper {
     display: flex;
-    margin-bottom: 26px;
     overflow-x: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -1453,7 +1484,7 @@ header {
     }
 
     body.timer-focus-active header,
-    body.timer-focus-active .tabs-wrapper {
+    body.timer-focus-active .tabs-scroll-container, body.timer-focus-active .tabs-wrapper {
         display: none;
     }
 

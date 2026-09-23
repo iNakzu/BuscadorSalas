@@ -1530,3 +1530,52 @@ function toggleSolemnesMode(isSolemne) {
         renderMiHorario();
     }
 }
+
+// Lógica de Scroll Horizontal de Pestañas y Sombras Dinámicas
+document.addEventListener('DOMContentLoaded', () => {
+    const tabsWrapper = document.getElementById('main-tabs-wrapper');
+    const fadeLeft = document.getElementById('tab-fade-left');
+    const fadeRight = document.getElementById('tab-fade-right');
+
+    if (!tabsWrapper) return;
+
+    // Actualizar sombras
+    function updateTabsFade() {
+        if (!fadeLeft || !fadeRight) return;
+        
+        const maxScroll = tabsWrapper.scrollWidth - tabsWrapper.clientWidth;
+        
+        if (maxScroll <= 0) {
+            fadeLeft.classList.remove('is-visible');
+            fadeRight.classList.remove('is-visible');
+            return;
+        }
+
+        if (tabsWrapper.scrollLeft <= 5) {
+            fadeLeft.classList.remove('is-visible');
+        } else {
+            fadeLeft.classList.add('is-visible');
+        }
+
+        if (tabsWrapper.scrollLeft >= maxScroll - 5) {
+            fadeRight.classList.remove('is-visible');
+        } else {
+            fadeRight.classList.add('is-visible');
+        }
+    }
+
+    // Scroll con la rueda del mouse
+    tabsWrapper.addEventListener('wheel', (e) => {
+        // Solo interceptar si es scroll vertical puro (no shift)
+        if (e.deltaY !== 0 && e.deltaX === 0) {
+            e.preventDefault();
+            tabsWrapper.scrollLeft += e.deltaY;
+        }
+    }, { passive: false });
+
+    tabsWrapper.addEventListener('scroll', updateTabsFade, { passive: true });
+    window.addEventListener('resize', updateTabsFade, { passive: true });
+    
+    // Check initial state (pequeño retraso para asegurar render)
+    setTimeout(updateTabsFade, 100);
+});
