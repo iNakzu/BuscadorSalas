@@ -164,7 +164,8 @@ class DataManager:
         for e in edges:
             p = e.get('node', {}).get('place')
             if p:
-                rooms_set.add(p)
+                for sala in [s.strip() for s in p.split(',') if s.strip()]:
+                    rooms_set.add(sala)
         self.all_rooms = sorted(list(rooms_set))
         self.total_rooms = len(self.all_rooms)
 
@@ -956,7 +957,11 @@ def horario_de_sala(nombre_sala):
 
     for clase in clases:
         nodo = clase.get('node', {})
-        if nodo.get('place', '').upper() == nombre_clean:
+        raw_place = nodo.get('place', '')
+        if not raw_place:
+            continue
+        salas_nodo = [s.strip().upper() for s in raw_place.split(',') if s.strip()]
+        if nombre_clean in salas_nodo:
             dia = nodo.get('day')
             if dia in horario_semanal:
                 horario_semanal[dia].append({
