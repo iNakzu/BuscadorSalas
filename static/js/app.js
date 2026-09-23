@@ -781,9 +781,7 @@ async function renderizarHorarioSala(sala) {
 
                 const clasesBloque = clasesDia.filter(c => {
                     const cStart = parseMin(c.start);
-                    const cEnd = parseMin(c.finish);
-                    // Cruce matemático: choca si termina después de que el bloque inicia, Y empieza antes de que el bloque termine
-                    return !(cEnd <= bStart || cStart >= bEnd);
+                    return (cStart >= bStart - 10 && cStart < bEnd - 10) || c.start === b.start;
                 });
 
                 if (clasesBloque.length > 0) {
