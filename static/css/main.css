@@ -205,12 +205,34 @@ header {
 /* TABS DE NAVEGACIÓN (REDISEÑO MODERNO MINIMALISTA TIPO SEGMENTED GLASS DOCK) */
 .tabs-wrapper {
     display: flex;
-    margin-bottom: 26px;
+    width: max-content;
+    max-width: 100%;
+    margin: 0 auto 26px auto; /* Centra el contenedor completo si es pequeño */
     overflow-x: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    padding: 4px 2px 10px 2px;
+    
+    /* Espacio lateral para que el scroll tenga "aire" al llegar a los bordes */
+    padding: 4px 24px 10px 24px;
+    box-sizing: border-box;
+    
     -webkit-overflow-scrolling: touch;
+    
+    /* Opción 1: Fade / CSS Mask (Desvanecimiento en los bordes) */
+    -webkit-mask-image: linear-gradient(
+        to right, 
+        transparent 0px, 
+        black 20px, 
+        black calc(100% - 20px), 
+        transparent 100%
+    );
+    mask-image: linear-gradient(
+        to right, 
+        transparent 0px, 
+        black 20px, 
+        black calc(100% - 20px), 
+        transparent 100%
+    );
 }
 .tabs-wrapper::-webkit-scrollbar { display: none; }
 

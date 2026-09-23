@@ -1530,3 +1530,17 @@ function toggleSolemnesMode(isSolemne) {
         renderMiHorario();
     }
 }
+
+// Lógica de Scroll Horizontal de Pestañas con Rueda del Mouse
+document.addEventListener('DOMContentLoaded', () => {
+    const tabsWrapper = document.querySelector('.tabs-wrapper');
+    if (!tabsWrapper) return;
+
+    tabsWrapper.addEventListener('wheel', (e) => {
+        // Solo interceptar si es scroll vertical puro (no shift)
+        if (e.deltaY !== 0 && e.deltaX === 0) {
+            e.preventDefault();
+            tabsWrapper.scrollLeft += e.deltaY;
+        }
+    }, { passive: false });
+});
