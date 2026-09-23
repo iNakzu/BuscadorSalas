@@ -166,11 +166,20 @@ class DataManager:
         edges = self.cache.get('data', {}).get('allSalasUdps', {}).get('edges', [])
         self.total_classes = len(edges)
         rooms_set = set()
+        self.solemne_days = {d: False for d in range(1, 8)}
         for e in edges:
-            p = e.get('node', {}).get('place')
+            node = e.get('node', {})
+            p = node.get('place')
+            d = node.get('day')
+            s_time = node.get('start')
+            
             if p:
                 for sala in [s.strip() for s in p.split(',') if s.strip()]:
                     rooms_set.add(sala)
+            
+            if d and s_time in ["10:45:00", "15:15:00", "17:30:00"]:
+                self.solemne_days[d] = True
+                
         self.all_rooms = sorted(list(rooms_set))
         self.total_rooms = len(self.all_rooms)
 
@@ -2451,3 +2460,6 @@ def api_metro_alertas():
 if __name__ == "__main__":
 
     app.run(debug=True, host="127.0.0.1", port=5000)
+@app.route("/api/solemnes_status", methods=["GET"])
+def api_solemnes_status():
+    return jsonify(dm.solemne_days if hasattr(dm, 'solemne_days') else {})

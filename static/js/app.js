@@ -1,3 +1,31 @@
+
+window.statusSolemnes = {};
+
+async function fetchSolemnesStatus() {
+    try {
+        const resp = await fetch('/api/solemnes_status');
+        window.statusSolemnes = await resp.json();
+        
+        // Auto-detect for today (dia 1-5, sab=6, dom=7)
+        let day = new Date().getDay();
+        if (day === 0) day = 7;
+        checkSolemneAutoSwitch(day);
+    } catch(e) {}
+}
+
+function checkSolemneAutoSwitch(diaStr) {
+    if (diaStr === 'ALL') return; // Do not auto-switch for ALL
+    const diaNum = parseInt(diaStr);
+    if (!isNaN(diaNum) && window.statusSolemnes[diaNum] !== undefined) {
+        const isSolemne = window.statusSolemnes[diaNum];
+        if (window.SOLEMNES_MODE !== isSolemne) {
+            const toggleEl = document.getElementById('toggle-solemnes');
+            if (toggleEl) toggleEl.checked = isSolemne;
+            toggleSolemnesMode(isSolemne);
+        }
+    }
+}
+
 let state = {
     facultad: 'INGENIERIA',
     dia: '1',
@@ -75,6 +103,8 @@ function limpiarCampusTexto() {
 }
 
 function setDia(val, btn) {
+    if (typeof checkSolemneAutoSwitch === 'function') checkSolemneAutoSwitch(val);
+
     document.querySelectorAll('#bar-dia .pill-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     state.dia = val;
@@ -1222,6 +1252,7 @@ function handleImageSelection(event) {
 
 // Permitir pegar imágenes (Ctrl+V) directamente en el input del chat
 document.addEventListener('DOMContentLoaded', () => {
+    fetchSolemnesStatus();
     const chatInput = document.getElementById('ai-chat-input');
     if (chatInput) {
         chatInput.addEventListener('paste', (e) => {
@@ -1362,6 +1393,7 @@ async function enviarMensajeIA(displayMsg = null, queryMsg = null) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    fetchSolemnesStatus();
     inicializarMiHorario();
     const hash = window.location.hash.replace('#', '') || (new URLSearchParams(window.location.search)).get('tab');
     if (hash) {
