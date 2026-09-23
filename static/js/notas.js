@@ -60,6 +60,11 @@ function updateNotasDropdown() {
     for (const key of Object.keys(NOTAS_DATA)) {
         if (key.startsWith(friendId + '|')) {
             const r = key.split('|')[1];
+            
+            // Ocultar si el usuario es ayudante (y no estudiante) de este ramo
+            const isAssistant = scheduleObj && scheduleObj.clases && scheduleObj.clases.some(c => normStr(c.curso) === normStr(r) && c.rol === 'assistant') && !scheduleObj.clases.some(c => normStr(c.curso) === normStr(r) && c.rol !== 'assistant');
+            if (isAssistant) continue;
+
             if (!myRamos.includes(normStr(r))) {
                 const data = NOTAS_DATA[key];
                 let hasGrades = false;
