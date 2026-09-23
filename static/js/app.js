@@ -71,12 +71,12 @@ function cambiarTab(panelId, btn) {
     
     // Sincronizar el modo solemne con el dia activo de la nueva pestaña
     let activeDay = null;
-    if (panelId === 'tab-salas') activeDay = window.state ? window.state.dia : null;
-    else if (panelId === 'tab-profesor') activeDay = window.state ? window.state.profDia : null;
-    else if (panelId === 'tab-ramo') activeDay = window.state ? window.state.ramoDia : null;
-    else if (panelId === 'tab-horario') activeDay = window.state ? window.state.salaDia : null;
-    else if (panelId === 'tab-malla') activeDay = window.state ? window.state.mallaDia : null;
-    else if (panelId === 'tab-mihorario') activeDay = window.state ? window.state.miHorarioDia : null;
+    if (panelId === 'tab-salas') activeDay = typeof state !== 'undefined' ? state.dia : null;
+    else if (panelId === 'tab-profesor') activeDay = typeof state !== 'undefined' ? state.profDia : null;
+    else if (panelId === 'tab-ramo') activeDay = typeof state !== 'undefined' ? state.ramoDia : null;
+    else if (panelId === 'tab-horario') activeDay = typeof state !== 'undefined' ? state.salaDia : null;
+    else if (panelId === 'tab-malla') activeDay = typeof state !== 'undefined' ? state.mallaDia : null;
+    else if (panelId === 'tab-mihorario') activeDay = typeof state !== 'undefined' ? state.miHorarioDia : null;
 
     if (activeDay && typeof checkSolemneAutoSwitch === 'function') {
         checkSolemneAutoSwitch(activeDay);
@@ -1479,7 +1479,7 @@ function toggleSolemnesMode(isSolemne) {
     const solemneBlocks = document.querySelectorAll('.solemne-block');
     
     // Convert current hour
-    let currentHora = window.state ? window.state.hora : '8:30:00';
+    let currentHora = typeof state !== 'undefined' ? state.hora : '8:30:00';
     let newHora = '';
     
     if (isSolemne) {
@@ -1502,8 +1502,8 @@ function toggleSolemnesMode(isSolemne) {
     }
     
     // Fix Tab 1 active pill
-    if (window.state) {
-        window.state.hora = newHora;
+    if (typeof state !== 'undefined') {
+        state.hora = newHora;
         const barHora = document.getElementById('bar-hora');
         if (barHora) {
             const btns = barHora.querySelectorAll('.pill-btn');
