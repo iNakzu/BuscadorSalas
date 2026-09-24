@@ -1574,12 +1574,4 @@ function toggleSolemnesMode(isSolemne) {
 document.addEventListener('DOMContentLoaded', () => {
     const tabsWrapper = document.querySelector('.tabs-wrapper');
     if (!tabsWrapper) return;
-
-    tabsWrapper.addEventListener('wheel', (e) => {
-        // Solo interceptar si es scroll vertical puro (no shift)
-        if (e.deltaY !== 0 && e.deltaX === 0) {
-            e.preventDefault();
-            tabsWrapper.scrollLeft += e.deltaY;
-        }
-    }, { passive: false });
 });
