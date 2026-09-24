@@ -1043,9 +1043,18 @@ def inicio():
     busqueda_realizada = False
     modo = "salas"
 
+    now = get_chile_now()
+    hoy_dia = now.weekday() + 1
+    if hoy_dia > 5:
+        hoy_dia = 1
+        
+    is_solemne = False
+    if hasattr(dm, 'solemne_days') and dm.solemne_days.get(hoy_dia):
+        is_solemne = True
+        
     seleccion = {
-        'dia': '1',
-        'hora': '8:30:00',
+        'dia': str(hoy_dia),
+        'hora': '08:30:00_S' if is_solemne else '08:30:00',
         'facultad': 'INGENIERIA',
         'profe': ''
     }

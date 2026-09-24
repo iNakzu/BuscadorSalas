@@ -26,23 +26,28 @@ function checkSolemneAutoSwitch(diaStr) {
     }
 }
 
+const __hoy_num = obtenerDiaActualNumero();
+const __hoy_str = __hoy_num.toString();
+// Inicializar hora default dependiendo si se cargaron statusSolemnes antes (poco probable en este punto)
+const __hora_default = (window.statusSolemnes && window.statusSolemnes[__hoy_num]) ? '08:30:00_S' : '08:30:00';
+
 let state = {
     facultad: 'INGENIERIA',
-    dia: '1',
-    hora: '8:30:00',
-    profDia: '1',
+    dia: __hoy_str,
+    hora: __hora_default,
+    profDia: __hoy_str,
     profHora: '',
-    ramoDia: '1',
+    ramoDia: __hoy_str,
     ramoHora: '',
     mallaSemestre: '8',
-    mallaDia: '1',
+    mallaDia: __hoy_str,
     mallaHora: '',
     mallaRamo: '',
-    salaDia: '1',
+    salaDia: __hoy_str,
     salaActiva: '',
     miHorarioDia: 'ALL',
     miHorarioRol: 'ALL',
-    miHorarioSearch: ''
+    filtros: {}
 };
 
 
@@ -1271,6 +1276,23 @@ function handleImageSelection(event) {
 
 // Permitir pegar imágenes (Ctrl+V) directamente en el input del chat
 document.addEventListener('DOMContentLoaded', () => {
+    // Sincronizar pills de día con el día actual (estado global)
+    const syncPillBar = (barId, val) => {
+        const bar = document.getElementById(barId);
+        if (bar) {
+            bar.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+            const btn = bar.querySelector(`[data-val="${val}"], [data-dia="${val}"]`);
+            if (btn) btn.classList.add('active');
+        }
+    };
+    if (typeof state !== 'undefined') {
+        syncPillBar('bar-dia', state.dia);
+        syncPillBar('bar-prof-dia', state.profDia);
+        syncPillBar('bar-ramo-dia', state.ramoDia);
+        syncPillBar('bar-sala-dia', state.salaDia);
+        syncPillBar('bar-malla-dia', state.mallaDia);
+    }
+
     fetchSolemnesStatus();
     const chatInput = document.getElementById('ai-chat-input');
     if (chatInput) {
@@ -1412,6 +1434,23 @@ async function enviarMensajeIA(displayMsg = null, queryMsg = null) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Sincronizar pills de día con el día actual (estado global)
+    const syncPillBar = (barId, val) => {
+        const bar = document.getElementById(barId);
+        if (bar) {
+            bar.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+            const btn = bar.querySelector(`[data-val="${val}"], [data-dia="${val}"]`);
+            if (btn) btn.classList.add('active');
+        }
+    };
+    if (typeof state !== 'undefined') {
+        syncPillBar('bar-dia', state.dia);
+        syncPillBar('bar-prof-dia', state.profDia);
+        syncPillBar('bar-ramo-dia', state.ramoDia);
+        syncPillBar('bar-sala-dia', state.salaDia);
+        syncPillBar('bar-malla-dia', state.mallaDia);
+    }
+
     fetchSolemnesStatus();
     inicializarMiHorario();
     const hash = window.location.hash.replace('#', '') || (new URLSearchParams(window.location.search)).get('tab');
