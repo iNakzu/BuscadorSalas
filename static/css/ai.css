@@ -763,18 +763,8 @@
         width: calc(100vw - 24px);
         height: 480px;
     }
-    .tabs-wrapper {
-        margin-left: -16px;
-        margin-right: -16px;
-        padding-left: 16px;
-        padding-right: 16px;
-        margin-bottom: 20px;
-    }
-    .tab-btn {
-        padding: 8px 14px;
-        font-size: 13px;
-        gap: 6px;
-    }
+    
+    
     .cards-grid { grid-template-columns: 1fr; }
     .rooms-grid { grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); }
     .header-actions { width: 100%; justify-content: space-between; }
