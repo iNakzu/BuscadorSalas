@@ -284,9 +284,8 @@ html {
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     padding: 20px;
-    margin: 0 auto 22px auto; /* Centrado automático */
+    margin-bottom: 22px;
     box-shadow: var(--shadow-card);
-    max-width: 1050px; /* Restriccion global para que los inputs no se estiren */
     width: 100%;
     box-sizing: border-box;
 }
@@ -2261,12 +2260,11 @@ html {
     flex-wrap: wrap;
 }
 
-/* Restriccion de ancho para paneles que se deforman en monitores muy anchos */
-#tab-kanban .control-card,
-#tab-progreso > div,
-#tab-solemnes,
-#tab-notasvoz {
-    max-width: 1050px;
-    margin: 0 auto;
-    width: 100%;
+
+
+/* Restriccion de ancho solo para los buscadores dentro de las control cards en PC */
+@media (min-width: 1024px) {
+    .search-field {
+        max-width: 800px;
+    }
 }
