@@ -2175,7 +2175,7 @@ html {
         background: rgba(15, 23, 42, 0.85);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
-        border-bottom: 1px solid rgba(255,255,255,0.05);
+        
     }
 
     .btn-sidebar-toggle {
