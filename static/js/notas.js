@@ -402,7 +402,7 @@ function renderNotasBuilder() {
                 
             </div>
             
-            <div class="notas-items-list" style="max-width: 800px; margin: 0 auto;">
+            <div class="notas-items-list">
                 ${itemsHtml}
                 
                 <div class="notas-add-row" style="display: flex; gap: 12px; justify-content: center; margin-bottom: 16px; margin-top: 8px;">
