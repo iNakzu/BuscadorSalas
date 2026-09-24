@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=58">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=59">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}?v=11">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ai.css') }}?v=13">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/notas.css') }}?v=10">
@@ -1322,7 +1322,7 @@
         </section>
         
         <!-- TAB NOTAS DE VOZ CON IA -->
-        <section id="tab-notasvoz" class="panel">
+        <section id="tab-notasvoz" class="panel" style="max-width: 800px; margin: 0 auto;">
             <div class="control-card" style="margin-bottom: 20px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px;">
                 
                 <div class="filter-header-title" style="margin-bottom: 10px; font-size: 18px;">Grabadora Inteligente con Gemini IA</div>
@@ -1818,7 +1818,7 @@
 <script src="{{ url_for('static', filename='js/kanban.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/gastos.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/compras.js') }}?v=1" defer></script>
-<script src="{{ url_for('static', filename='js/notasvoz.js') }}?v=7" defer></script>
+<script src="{{ url_for('static', filename='js/notasvoz.js') }}?v=8" defer></script>
 <script src="{{ url_for('static', filename='js/habitos.js') }}?v=3" defer></script>
 <script src="{{ url_for('static', filename='js/riff_lab.js') }}?v=4" defer></script>
 <script src="{{ url_for('static', filename='js/transporte.js') }}?v=5" defer></script>
