@@ -139,7 +139,7 @@ function updateRadioUI() {
             `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
     }
     if (visualizer) {
-        visualizer.style.opacity = isRadioPlaying ? '1' : '0.2';
+        visualizer.style.opacity = isRadioPlaying ? '1' : '0';
         visualizer.style.animationPlayState = isRadioPlaying ? 'running' : 'paused';
     }
 }
@@ -174,7 +174,7 @@ function renderEstudio() {
                             <div class="radio-subtitle">Chill & Focus 24/7</div>
                         </div>
                     </div>
-                    <div class="radio-visualizer" id="radio-visualizer" style="opacity: ${isRadioPlaying ? '1' : '0.2'};">
+                    <div class="radio-visualizer" id="radio-visualizer" style="opacity: ${isRadioPlaying ? '1' : '0'};">
                         <div class="bar"></div>
                         <div class="bar"></div>
                         <div class="bar"></div>
