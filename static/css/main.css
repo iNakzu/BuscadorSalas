@@ -509,7 +509,9 @@ html {
 /* =========================================
    MALLA INTERACTIVA (PROGRESO)
    ========================================= */
-.progreso-
+.progreso-header {
+    margin-bottom: 32px;
+}
 .progreso-header h2 {
     margin: 0 0 10px 0;
     font-size: 20px;
@@ -1512,7 +1514,6 @@ html {
 }
 
 /* Time.is Clone Styles */
-.reloj-
 .reloj-header h2 {
     font-size: 28px;
     font-weight: 800;
