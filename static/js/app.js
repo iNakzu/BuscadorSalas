@@ -619,7 +619,7 @@ async function cargarClasesMalla(refrescarChips = false) {
                     </span>
                     <span class="time-pill">${c.dia} ${c.hora_inicio} - ${c.hora_termino}</span>
                 </div>
-                <div class="course-name">${c.ramo_malla}</div>
+                <div class="course-name">${c.ramo_malla.toUpperCase()}</div>
                 <div class="item-meta">
                     <div>Profesor: <strong>${c.profe}</strong></div>
                     <span>Sección ${c.seccion} • Cód: ${c.codigo}</span>
