@@ -2135,24 +2135,25 @@ html {
 /* ESCRITORIO (PC): Sidebar Fija a la izquierda */
 @media (min-width: 1024px) {
     body {
-        padding-left: 280px;
+        padding-left: 290px;
     }
     
     .tabs-wrapper {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 280px;
-        height: 100vh;
-        background: rgba(15, 23, 42, 0.75);
-        backdrop-filter: blur(30px);
-        -webkit-backdrop-filter: blur(30px);
-        border-right: 1px solid rgba(255, 255, 255, 0.08);
-        padding: 40px 20px 30px 20px;
-        overflow-y: auto;
-        z-index: 1000;
-        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.4);
-    }
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 290px;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 50px 24px 30px 24px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.4);
+    box-sizing: border-box;
+}
     
     .tabs {
         display: flex;
@@ -2194,21 +2195,22 @@ html {
     }
     
     .tabs-wrapper {
-        position: fixed;
-        top: 0;
-        left: -320px; /* Hidden by default */
-        width: 280px;
-        height: 100vh;
-        background: rgba(15, 23, 42, 0.95);
-        backdrop-filter: blur(30px);
-        -webkit-backdrop-filter: blur(30px);
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 40px 20px 30px 20px;
-        transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        z-index: 9998;
-        overflow-y: auto;
-        box-shadow: 10px 0 40px rgba(0, 0, 0, 0.8);
-    }
+    position: fixed;
+    top: 0;
+    left: -320px; /* Hidden by default */
+    width: 290px;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 50px 28px 30px 28px;
+    transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 9998;
+    overflow-y: auto;
+    box-shadow: 10px 0 40px rgba(0, 0, 0, 0.8);
+    box-sizing: border-box;
+}
     
     .tabs-wrapper.open {
         left: 0;
