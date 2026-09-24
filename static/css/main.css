@@ -1403,22 +1403,25 @@ html {
     }
 
     body.timer-focus-active {
-        padding: 0;
+        padding: 0 !important;
         overflow: hidden;
     }
 
     body.timer-focus-active .container {
-        width: 100%;
-        max-width: none;
-        margin: 0;
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
     body.timer-focus-active header,
-    body.timer-focus-active 
+    body.timer-focus-active .tabs-wrapper {
+        display: none !important;
+    }
 
     body.timer-focus-active #tab-timer {
         min-height: 100vh;
-        display: block;
+        display: block !important;
     }
 
     body.timer-focus-active .timer-running-page {
