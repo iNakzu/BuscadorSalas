@@ -706,8 +706,7 @@ function renderProgreso() {
 
     const html = `
         <div class="progreso-header">
-            <h2>Malla Interactiva</h2>
-            <p>Toca un ramo para cambiar su estado (Pendiente ➔ Cursando ➔ Aprobado). Tu progreso se guardará automáticamente en tu dispositivo.</p>
+            
             
             <div class="progreso-stats">
                 <div class="stat-box">
