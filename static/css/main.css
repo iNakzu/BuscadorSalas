@@ -2133,3 +2133,75 @@ header {
     background: #fbbf24 !important;
     box-shadow: 0 0 6px #f59e0b !important;
 }
+
+/* ==========================================================================
+   DYNAMIC ISLAND / FLOATING DOCK NAVBAR (GLASSMORPHISM 2.0)
+   ========================================================================== */
+
+/* Comportamiento base mejorado para el dock */
+.tabs-wrapper {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tabs {
+    /* Incrementar el glassmorphism */
+    background: rgba(15, 23, 42, 0.85) !important;
+    backdrop-filter: blur(28px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.8), 0 0 15px rgba(14, 165, 233, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ESCRITORIO (PC): Sticky Flotante en la parte superior */
+@media (min-width: 769px) {
+    .tabs-wrapper {
+        position: sticky;
+        top: 24px;
+        z-index: 9999;
+        margin-bottom: 40px !important;
+    }
+    
+    .tabs {
+        padding: 6px !important;
+    }
+    
+    .tab-btn:hover {
+        background: rgba(255, 255, 255, 0.1) !important;
+    }
+}
+
+/* CELULARES: Dynamic Island Flotante en la parte inferior */
+@media (max-width: 768px) {
+    body {
+        /* Espacio para que el dock no tape el contenido al final de la página */
+        padding-bottom: 100px !important;
+    }
+    
+    .app-header {
+        /* Ajustar espaciado del header original ya que las tabs se fueron abajo */
+        margin-bottom: 15px;
+    }
+
+    .tabs-wrapper {
+        position: fixed;
+        bottom: 24px;
+        left: 0;
+        right: 0;
+        margin: 0 auto !important;
+        z-index: 9999;
+        /* Ajustar la máscara para que no se vea cortado abajo */
+        padding-bottom: 10px !important;
+        padding-top: 10px !important;
+    }
+    
+    .tabs {
+        /* Un poco más transparente en celular para que el blur destaque con el contenido debajo */
+        background: rgba(15, 23, 42, 0.75) !important;
+    }
+    
+    .tab-btn {
+        /* Botones un poco más compactos en celular */
+        padding: 8px 16px !important;
+        font-size: 13px !important;
+    }
+}
