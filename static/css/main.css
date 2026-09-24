@@ -88,16 +88,6 @@ html {
 }
 
 /* HEADER */
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 16px;
-    padding-bottom: 22px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 24px;
-}
 
 .brand-meta h1 {
     font-size: 20px;
@@ -515,14 +505,7 @@ header {
 /* =========================================
    MALLA INTERACTIVA (PROGRESO)
    ========================================= */
-.progreso-header {
-    background: rgba(15, 23, 42, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 20px;
-    text-align: center;
-}
+.progreso-
 .progreso-header h2 {
     margin: 0 0 10px 0;
     font-size: 20px;
@@ -1522,11 +1505,7 @@ header {
 }
 
 /* Time.is Clone Styles */
-.reloj-header {
-    width: 100%;
-    max-width: 450px;
-    margin: 0 auto 20px auto;
-}
+.reloj-
 .reloj-header h2 {
     font-size: 28px;
     font-weight: 800;
@@ -1831,18 +1810,7 @@ header {
     flex-direction: column;
     min-height: 400px;
 }
-.kanban-col-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 16px;
-    font-weight: 700;
-    font-size: 14px;
-    color: #f1f5f9;
-    border-bottom: 1px solid var(--border);
-    background: rgba(15, 23, 42, 0.6);
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
-}
+.kanban-col-
 .kanban-count {
     background: rgba(255, 255, 255, 0.1);
     padding: 2px 8px;
@@ -1979,12 +1947,7 @@ header {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(10px);
 }
-.radio-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-}
+.radio-
 .radio-icon {
     width: 40px;
     height: 40px;
@@ -2162,7 +2125,7 @@ header {
         backdrop-filter: blur(30px);
         -webkit-backdrop-filter: blur(30px);
         border-right: 1px solid rgba(255, 255, 255, 0.08);
-        padding: 120px 20px 30px 20px;
+        padding: 40px 20px 30px 20px;
         overflow-y: auto;
         z-index: 1000;
         box-shadow: 10px 0 30px rgba(0, 0, 0, 0.4);
@@ -2175,20 +2138,10 @@ header {
     }
     
     /* El header original debe ajustarse si estaba absolute/fixed */
-    header {
-        position: fixed;
-        top: 0;
-        left: 280px;
-        right: 0;
-        z-index: 999;
-        background: rgba(15, 23, 42, 0.85);
-        backdrop-filter: blur(20px);
-        border-bottom: 1px solid rgba(255,255,255,0.05);
-        padding: 15px 30px;
-    }
+    
     
     main.container {
-        margin-top: 100px;
+        margin-top: 40px;
         max-width: 1200px;
         padding: 0 30px;
     }
@@ -2196,6 +2149,19 @@ header {
 
 /* CELULAR: Drawer lateral oculto */
 @media (max-width: 1023px) {
+    header {
+        display: flex;
+        align-items: center;
+        padding: 16px 24px;
+        position: sticky;
+        top: 0;
+        z-index: 900;
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
     .btn-sidebar-toggle {
         display: block;
     }
@@ -2210,7 +2176,7 @@ header {
         backdrop-filter: blur(30px);
         -webkit-backdrop-filter: blur(30px);
         border-right: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 80px 20px 30px 20px;
+        padding: 40px 20px 30px 20px;
         transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         z-index: 9998;
         overflow-y: auto;
@@ -2227,12 +2193,41 @@ header {
         align-items: stretch;
     }
     
-    header {
-        position: sticky;
-        top: 0;
-        z-index: 900;
-        background: rgba(15, 23, 42, 0.85);
-        backdrop-filter: blur(20px);
-        border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
+    
+}
+
+/* Mobile Header */
+
+
+.mobile-header-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.mobile-title {
+    font-size: 18px;
+    font-weight: 800;
+    background: linear-gradient(to right, #ffffff, #93c5fd);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Sidebar Branding adjustments */
+.tabs-wrapper .brand-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 30px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100%;
+}
+.tabs-wrapper .brand-meta h1 {
+    font-size: 22px;
+    line-height: 1.25;
+    margin-bottom: 8px;
+}
+.tabs-wrapper .brand-meta p {
+    margin-top: 4px;
+    flex-wrap: wrap;
 }

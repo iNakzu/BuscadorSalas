@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=38">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=39">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}?v=11">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ai.css') }}?v=12">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/notas.css') }}?v=10">
@@ -28,15 +28,25 @@
 <div class="container">
     <!-- HEADER -->
     <header>
-        <div class="brand-meta">
 
-                <button type="button" class="btn-sidebar-toggle" onclick="toggleSidebar()" aria-label="Menú">
+        <div class="mobile-header-content">
+            <button type="button" class="btn-sidebar-toggle" onclick="toggleSidebar()" aria-label="Menú">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="3" y1="12" x2="21" y2="12"></line>
                         <line x1="3" y1="6" x2="21" y2="6"></line>
                         <line x1="3" y1="18" x2="21" y2="18"></line>
                     </svg>
                 </button>
+            <span class="mobile-title">Buscador Salas UDP</span>
+        </div>
+    </header>
+
+    <!-- PESTAÑAS (REDISEÑADAS: DOCK FLOTANTE CON ICONOS Y TEXTOS ACTUALIZADOS) -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <div class="tabs-wrapper" id="sidebar-menu">
+        <div class="brand-meta">
+
+                
             <h1>Universidad Diego Portales</h1>
             <p>
                 <span class="status-pill">
@@ -52,11 +62,6 @@
                 <span>Plataforma estudiantil</span>
             </p>
         </div>
-    </header>
-
-    <!-- PESTAÑAS (REDISEÑADAS: DOCK FLOTANTE CON ICONOS Y TEXTOS ACTUALIZADOS) -->
-    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
-    <div class="tabs-wrapper" id="sidebar-menu">
         <nav class="tabs" aria-label="Navegación principal">
             <button type="button" class="tab-btn active" onclick="cambiarTab('tab-salas', this)">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
