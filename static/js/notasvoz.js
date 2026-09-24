@@ -180,7 +180,7 @@ function renderApuntesVoz() {
         const dateStr = d.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
         
         html += `
-            <div class="control-card" style="position: relative;">
+            <div class="control-card" style="position: relative; margin-bottom: 0;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px; margin-bottom: 12px;">
                     <div>
                         <div style="color: #38bdf8; font-weight: 700; font-size: 14px; text-transform: capitalize;">${dateStr}</div>
