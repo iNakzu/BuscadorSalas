@@ -2140,10 +2140,11 @@ html {
     /* El header original debe ajustarse si estaba absolute/fixed */
     
     
-    main.container {
-        margin-top: 40px;
-        max-width: 1200px;
-        padding: 0 30px;
+    .container {
+        margin: 40px auto 40px auto !important; /* Centrado perfecto con auto margin horizontal */
+        max-width: 1100px !important;
+        padding: 0 40px !important;
+        box-sizing: border-box;
     }
 }
 
