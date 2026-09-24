@@ -377,11 +377,11 @@
             <div class="control-group">
                 <div class="section-label">Filtrar por Día</div>
                 <div class="pill-bar" id="bar-prof-dia">
-                    <button type="button" class="pill-btn active" data-dia="1" onclick="setProfDia('1', this)">Lunes</button>
-                    <button type="button" class="pill-btn" data-dia="2" onclick="setProfDia('2', this)">Martes</button>
-                    <button type="button" class="pill-btn" data-dia="3" onclick="setProfDia('3', this)">Miércoles</button>
-                    <button type="button" class="pill-btn" data-dia="4" onclick="setProfDia('4', this)">Jueves</button>
-                    <button type="button" class="pill-btn" data-dia="5" onclick="setProfDia('5', this)">Viernes</button>
+                    <button type="button" class="pill-btn {% if sel.dia == '1' %}active{% endif %}" data-dia="1" onclick="setProfDia('1', this)">Lunes</button>
+                    <button type="button" class="pill-btn {% if sel.dia == '2' %}active{% endif %}" data-dia="2" onclick="setProfDia('2', this)">Martes</button>
+                    <button type="button" class="pill-btn {% if sel.dia == '3' %}active{% endif %}" data-dia="3" onclick="setProfDia('3', this)">Miércoles</button>
+                    <button type="button" class="pill-btn {% if sel.dia == '4' %}active{% endif %}" data-dia="4" onclick="setProfDia('4', this)">Jueves</button>
+                    <button type="button" class="pill-btn {% if sel.dia == '5' %}active{% endif %}" data-dia="5" onclick="setProfDia('5', this)">Viernes</button>
                 </div>
             </div>
 
@@ -450,11 +450,11 @@
             <div class="control-group">
                 <div class="section-label">Filtrar por Día</div>
                 <div class="pill-bar" id="bar-ramo-dia">
-                    <button type="button" class="pill-btn active" data-dia="1" onclick="setRamoDia('1', this)">Lunes</button>
-                    <button type="button" class="pill-btn" data-dia="2" onclick="setRamoDia('2', this)">Martes</button>
-                    <button type="button" class="pill-btn" data-dia="3" onclick="setRamoDia('3', this)">Miércoles</button>
-                    <button type="button" class="pill-btn" data-dia="4" onclick="setRamoDia('4', this)">Jueves</button>
-                    <button type="button" class="pill-btn" data-dia="5" onclick="setRamoDia('5', this)">Viernes</button>
+                    <button type="button" class="pill-btn {% if sel.dia == '1' %}active{% endif %}" data-dia="1" onclick="setRamoDia('1', this)">Lunes</button>
+                    <button type="button" class="pill-btn {% if sel.dia == '2' %}active{% endif %}" data-dia="2" onclick="setRamoDia('2', this)">Martes</button>
+                    <button type="button" class="pill-btn {% if sel.dia == '3' %}active{% endif %}" data-dia="3" onclick="setRamoDia('3', this)">Miércoles</button>
+                    <button type="button" class="pill-btn {% if sel.dia == '4' %}active{% endif %}" data-dia="4" onclick="setRamoDia('4', this)">Jueves</button>
+                    <button type="button" class="pill-btn {% if sel.dia == '5' %}active{% endif %}" data-dia="5" onclick="setRamoDia('5', this)">Viernes</button>
                 </div>
             </div>
 
@@ -540,11 +540,11 @@
             <div class="control-group">
                 <div class="section-label">Filtrar por Día</div>
                 <div class="pill-bar" id="bar-malla-dia">
-                    <button type="button" class="pill-btn active" data-dia="1" onclick="setMallaDia('1', this)">Lunes</button>
-                    <button type="button" class="pill-btn" data-dia="2" onclick="setMallaDia('2', this)">Martes</button>
-                    <button type="button" class="pill-btn" data-dia="3" onclick="setMallaDia('3', this)">Miércoles</button>
-                    <button type="button" class="pill-btn" data-dia="4" onclick="setMallaDia('4', this)">Jueves</button>
-                    <button type="button" class="pill-btn" data-dia="5" onclick="setMallaDia('5', this)">Viernes</button>
+                    <button type="button" class="pill-btn {% if sel.dia == '1' %}active{% endif %}" data-dia="1" onclick="setMallaDia('1', this)">Lunes</button>
+                    <button type="button" class="pill-btn {% if sel.dia == '2' %}active{% endif %}" data-dia="2" onclick="setMallaDia('2', this)">Martes</button>
+                    <button type="button" class="pill-btn {% if sel.dia == '3' %}active{% endif %}" data-dia="3" onclick="setMallaDia('3', this)">Miércoles</button>
+                    <button type="button" class="pill-btn {% if sel.dia == '4' %}active{% endif %}" data-dia="4" onclick="setMallaDia('4', this)">Jueves</button>
+                    <button type="button" class="pill-btn {% if sel.dia == '5' %}active{% endif %}" data-dia="5" onclick="setMallaDia('5', this)">Viernes</button>
                 </div>
             </div>
 
@@ -599,11 +599,11 @@
             <div class="control-group">
                 <div class="section-label">Filtrar Día en Sala</div>
                 <div class="pill-bar" id="bar-sala-dia">
-                    <button type="button" class="pill-btn active" data-dia="1" onclick="setSalaDia('1', this)">Lunes</button>
-                    <button type="button" class="pill-btn" data-dia="2" onclick="setSalaDia('2', this)">Martes</button>
-                    <button type="button" class="pill-btn" data-dia="3" onclick="setSalaDia('3', this)">Miércoles</button>
-                    <button type="button" class="pill-btn" data-dia="4" onclick="setSalaDia('4', this)">Jueves</button>
-                    <button type="button" class="pill-btn" data-dia="5" onclick="setSalaDia('5', this)">Viernes</button>
+                    <button type="button" class="pill-btn {% if sel.dia == '1' %}active{% endif %}" data-dia="1" onclick="setSalaDia('1', this)">Lunes</button>
+                    <button type="button" class="pill-btn {% if sel.dia == '2' %}active{% endif %}" data-dia="2" onclick="setSalaDia('2', this)">Martes</button>
+                    <button type="button" class="pill-btn {% if sel.dia == '3' %}active{% endif %}" data-dia="3" onclick="setSalaDia('3', this)">Miércoles</button>
+                    <button type="button" class="pill-btn {% if sel.dia == '4' %}active{% endif %}" data-dia="4" onclick="setSalaDia('4', this)">Jueves</button>
+                    <button type="button" class="pill-btn {% if sel.dia == '5' %}active{% endif %}" data-dia="5" onclick="setSalaDia('5', this)">Viernes</button>
                 </div>
             </div>
 
