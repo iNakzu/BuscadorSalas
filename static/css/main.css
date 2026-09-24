@@ -203,54 +203,10 @@ header {
 }
 
 /* TABS DE NAVEGACIÓN (REDISEÑO MODERNO MINIMALISTA TIPO SEGMENTED GLASS DOCK) */
-.tabs-wrapper {
-    display: flex;
-    width: max-content;
-    max-width: 100%;
-    margin: 0 auto 26px auto; /* Centra el contenedor completo si es pequeño */
-    overflow-x: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    
-    /* Espacio lateral para que el scroll tenga "aire" al llegar a los bordes */
-    padding: 4px 24px 10px 24px;
-    box-sizing: border-box;
-    
-    -webkit-overflow-scrolling: touch;
-    
-    /* Opción 1: Fade / CSS Mask (Desvanecimiento en los bordes) */
-    -webkit-mask-image: linear-gradient(
-        to right, 
-        transparent 0px, 
-        black 20px, 
-        black calc(100% - 20px), 
-        transparent 100%
-    );
-    mask-image: linear-gradient(
-        to right, 
-        transparent 0px, 
-        black 20px, 
-        black calc(100% - 20px), 
-        transparent 100%
-    );
-}
-.tabs-wrapper::-webkit-scrollbar { display: none; }
 
-.tabs {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(15, 23, 42, 0.75);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    border-radius: 9999px;
-    padding: 5px;
-    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    width: max-content;
-    min-width: max-content;
-    flex-shrink: 0;
-}
+
+
+
 
 .tab-btn {
     position: relative;
@@ -1475,9 +1431,7 @@ header {
     }
 
     body.timer-focus-active header,
-    body.timer-focus-active .tabs-wrapper {
-        display: none;
-    }
+    body.timer-focus-active 
 
     body.timer-focus-active #tab-timer {
         min-height: 100vh;
@@ -2134,74 +2088,151 @@ header {
     box-shadow: 0 0 6px #f59e0b !important;
 }
 
+
+
+
 /* ==========================================================================
-   DYNAMIC ISLAND / FLOATING DOCK NAVBAR (GLASSMORPHISM 2.0)
+   SIDEBAR LAYOUT (DASHBOARD STYLE)
    ========================================================================== */
 
-/* Comportamiento base mejorado para el dock */
-.tabs-wrapper {
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+/* Hamburger Button */
+.btn-sidebar-toggle {
+    display: none;
+    background: transparent;
+    border: none;
+    color: #f8fafc;
+    cursor: pointer;
+    padding: 8px;
+    margin-right: 12px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+.btn-sidebar-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+.brand-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
-.tabs {
-    /* Incrementar el glassmorphism */
-    background: rgba(15, 23, 42, 0.85) !important;
-    backdrop-filter: blur(28px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.8), 0 0 15px rgba(14, 165, 233, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+/* Sidebar Overlay for Mobile */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 9997;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+.sidebar-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
 }
 
-/* ESCRITORIO (PC): Sticky Flotante en la parte superior */
-@media (min-width: 769px) {
-    .tabs-wrapper {
-        position: sticky;
-        top: 24px;
-        z-index: 9999;
-        margin-bottom: 40px !important;
-    }
-    
-    .tabs {
-        padding: 6px !important;
-    }
-    
-    .tab-btn:hover {
-        background: rgba(255, 255, 255, 0.1) !important;
-    }
+/* Base Tab Button adjustments for Sidebar */
+.tab-btn {
+    justify-content: flex-start !important;
+    padding: 12px 18px !important;
+    border-radius: 12px !important;
+    width: 100%;
+    margin-bottom: 4px;
+    text-align: left;
 }
 
-/* CELULARES: Dynamic Island Flotante en la parte inferior */
-@media (max-width: 768px) {
+/* ESCRITORIO (PC): Sidebar Fija a la izquierda */
+@media (min-width: 1024px) {
     body {
-        /* Espacio para que el dock no tape el contenido al final de la página */
-        padding-bottom: 100px !important;
+        padding-left: 280px;
     }
     
-    .app-header {
-        /* Ajustar espaciado del header original ya que las tabs se fueron abajo */
-        margin-bottom: 15px;
-    }
-
     .tabs-wrapper {
         position: fixed;
-        bottom: 24px;
+        top: 0;
         left: 0;
-        right: 0;
-        margin: 0 auto !important;
-        z-index: 9999;
-        /* Ajustar la máscara para que no se vea cortado abajo */
-        padding-bottom: 10px !important;
-        padding-top: 10px !important;
+        width: 280px;
+        height: 100vh;
+        background: rgba(15, 23, 42, 0.75);
+        backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(30px);
+        border-right: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 120px 20px 30px 20px;
+        overflow-y: auto;
+        z-index: 1000;
+        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.4);
     }
     
     .tabs {
-        /* Un poco más transparente en celular para que el blur destaque con el contenido debajo */
-        background: rgba(15, 23, 42, 0.75) !important;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
     }
     
-    .tab-btn {
-        /* Botones un poco más compactos en celular */
-        padding: 8px 16px !important;
-        font-size: 13px !important;
+    /* El header original debe ajustarse si estaba absolute/fixed */
+    header {
+        position: fixed;
+        top: 0;
+        left: 280px;
+        right: 0;
+        z-index: 999;
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        padding: 15px 30px;
+    }
+    
+    main.container {
+        margin-top: 100px;
+        max-width: 1200px;
+        padding: 0 30px;
+    }
+}
+
+/* CELULAR: Drawer lateral oculto */
+@media (max-width: 1023px) {
+    .btn-sidebar-toggle {
+        display: block;
+    }
+    
+    .tabs-wrapper {
+        position: fixed;
+        top: 0;
+        left: -320px; /* Hidden by default */
+        width: 280px;
+        height: 100vh;
+        background: rgba(15, 23, 42, 0.95);
+        backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(30px);
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 80px 20px 30px 20px;
+        transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 9998;
+        overflow-y: auto;
+        box-shadow: 10px 0 40px rgba(0, 0, 0, 0.8);
+    }
+    
+    .tabs-wrapper.open {
+        left: 0;
+    }
+    
+    .tabs {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    header {
+        position: sticky;
+        top: 0;
+        z-index: 900;
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255,255,255,0.05);
     }
 }
