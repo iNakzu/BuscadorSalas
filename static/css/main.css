@@ -2274,3 +2274,9 @@ html {
 #tab-progreso {
     overflow-x: auto;
 }
+
+/* Fix for Malla touching the left edge on wide monitors */
+#tab-progreso {
+    padding: 20px 40px;
+    box-sizing: border-box;
+}
