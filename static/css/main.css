@@ -2250,7 +2250,10 @@ html {
 
 /* Restriccion de ancho para paneles que se deforman en monitores muy anchos */
 #tab-kanban .control-card,
-#tab-progreso > div {
+#tab-progreso > div,
+#tab-solemnes,
+#tab-notasvoz {
     max-width: 1050px;
     margin: 0 auto;
+    width: 100%;
 }
