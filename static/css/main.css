@@ -1995,11 +1995,7 @@ html {
     display: flex;
     align-items: center;
     gap: 16px;
-    background: rgba(0, 0, 0, 0.2);
-    padding: 10px 14px;
-    border-radius: 12px;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    margin-top: 20px;
 }
 .radio-btn-play {
     width: 36px;
