@@ -177,7 +177,7 @@ class DataManager:
                 for sala in [s.strip() for s in p.split(',') if s.strip()]:
                     rooms_set.add(sala)
             
-            if d and s_time in ["10:45:00", "15:15:00", "17:30:00"]:
+            if d and s_time in ["10:45:00", "15:15:00", "17:30:00", "10:45", "15:15", "17:30"]:
                 self.solemne_days[d] = True
                 
         self.all_rooms = sorted(list(rooms_set))
