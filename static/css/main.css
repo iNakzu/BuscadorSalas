@@ -659,7 +659,7 @@ header {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 .malla-ramo-name {
-    text-transform: uppercase;
+
     font-size: 11px;
     letter-spacing: 0.3px;
     font-weight: 600;
@@ -678,7 +678,7 @@ header {
     filter: grayscale(0.5);
 }
 .estado-pendiente .malla-ramo-name {
-    text-transform: uppercase;
+
     color: rgba(255, 255, 255, 0.9);
 }
 
@@ -691,7 +691,7 @@ header {
     box-shadow: 0 0 15px rgba(251, 191, 36, 0.2);
 }
 .estado-cursando .malla-ramo-name {
-    text-transform: uppercase;
+
     color: #fbbf24;
 }
 
@@ -704,7 +704,7 @@ header {
     box-shadow: 0 0 15px rgba(var(--ramo-color), 0.3);
 }
 .estado-aprobado .malla-ramo-name {
-    text-transform: uppercase;
+
     color: #ffffff;
     text-shadow: 0 0 5px rgba(var(--ramo-color), 0.5);
 }
@@ -1700,7 +1700,7 @@ header {
     right: 5px;
 }
 .malla-ramo-name {
-    text-transform: uppercase;
+
     width: 100%;
     text-align: center;
     display: block;
