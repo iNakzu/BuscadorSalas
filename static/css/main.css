@@ -284,8 +284,11 @@ html {
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     padding: 20px;
-    margin-bottom: 22px;
+    margin: 0 auto 22px auto; /* Centrado automático */
     box-shadow: var(--shadow-card);
+    max-width: 1050px; /* Restriccion global para que los inputs no se estiren */
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* CABECERA CON BOTÓN BLOQUE ACTUAL */
@@ -355,7 +358,7 @@ html {
     background: rgba(15, 23, 42, 0.85);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
-    padding: 70px 16px 0 16px;
+    padding: 0 16px;
     width: 100%;
     margin-bottom: 12px;
     transition: all 0.2s ease;
@@ -1255,7 +1258,7 @@ html {
         justify-content: center;
         min-width: 52px;
         height: 52px;
-        padding: 70px 16px 0 16px;
+        padding: 0 16px;
         border: 1px solid rgba(148, 163, 184, 0.18);
         border-radius: 999px;
         background: rgba(15, 23, 42, 0.62);
@@ -1643,7 +1646,7 @@ html {
     text-align: center;
     display: block;
     margin: 0 auto;
-    padding: 70px 16px 0 16px;
+    padding: 0 16px;
     word-break: break-word;
 }
 .malla-ramo-icon {
