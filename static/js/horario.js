@@ -866,11 +866,7 @@ const BLOQUES_SOLEMNES = [
     { num: 5, label: '17:30 - 19:30', inicio: '17:30', fin: '19:30' }
 ];
 
-Object.defineProperty(window, 'BLOQUES_HORARIOS', {
-    get: function() {
-        return window.SOLEMNES_MODE ? BLOQUES_SOLEMNES : BLOQUES_NORMALES;
-    }
-});
+const BLOQUES_HORARIOS = BLOQUES_NORMALES;
 
 function renderMiHorario() {
     const container = document.getElementById('mihorario-display-container');
