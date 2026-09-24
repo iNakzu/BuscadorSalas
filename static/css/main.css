@@ -1813,7 +1813,19 @@ html {
     flex-direction: column;
     min-height: 400px;
 }
-.kanban-col-
+.kanban-col-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #f1f5f9;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(15, 23, 42, 0.6);
+    border-top-left-radius: var(--radius-md);
+    border-top-right-radius: var(--radius-md);
+}
 .kanban-count {
     background: rgba(255, 255, 255, 0.1);
     padding: 2px 8px;
@@ -2234,4 +2246,11 @@ html {
 .tabs-wrapper .brand-meta p {
     margin-top: 4px;
     flex-wrap: wrap;
+}
+
+/* Restriccion de ancho para paneles que se deforman en monitores muy anchos */
+#tab-kanban .control-card,
+#tab-progreso > div {
+    max-width: 1050px;
+    margin: 0 auto;
 }
