@@ -15,13 +15,13 @@
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=66">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}?v=11">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/ai.css') }}?v=13">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ai.css') }}?v=14">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/notas.css') }}?v=11">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/agenda.css') }}?v=10">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/horario.css') }}?v=15">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/habitos_guitarra.css') }}?v=5">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/gastos.css') }}?v=3">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/compras.css') }}?v=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/habitos_guitarra.css') }}?v=6">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/gastos.css') }}?v=4">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/compras.css') }}?v=2">
 </head>
 <body>
 
@@ -1177,9 +1177,8 @@
             <div class="control-card" style="margin-bottom: 20px;">
                 <div class="filter-header-row" style="margin-bottom: 16px;">
                     <div class="filter-header-title">Tablero Kanban</div>
-                    <button class="btn-bloque-actual" onclick="abrirModalNuevaTarea()" style="width: auto; padding: 8px 14px;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                        Nueva Tarea
+                    <button class="btn-bloque-actual" onclick="abrirModalNuevaTarea()" title="Nueva Tarea">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                     </button>
                 </div>
                 <div class="kanban-board" id="kanban-board">
@@ -1572,7 +1571,7 @@
     
         <!-- TAB CORRECTOR -->
         <section id="tab-corrector" class="panel">
-            <div class="glass-panel" >
+            <div class="control-card" >
                 <div class="filter-header" style="margin-bottom: 20px;">
                     <div class="filter-header-title">Corrector Ortotipográfico IA</div>
                 </div>
@@ -1611,7 +1610,7 @@
         <!-- TAB TRANSPORTE Y METRO -->
         <!-- TAB TRANSPORTE: RED METROPOLITANA & METRO DE SANTIAGO -->
         <section id="tab-transporte" class="panel">
-            <div style="max-width: 1000px; margin: 0 auto 24px; width: 100%; box-sizing: border-box;">
+            <div style="margin: 0 auto 24px; width: 100%; box-sizing: border-box;">
                 <!-- Header Card General -->
                 <div class="control-card" style="margin-bottom: 18px;">
                     <div class="filter-header-row" style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;">
@@ -1717,7 +1716,7 @@
 
         <!-- TAB CLIMA GLOBAL -->
         <section id="tab-clima" class="panel">
-            <div style="max-width: 900px; margin: 0 auto;">
+            <div style="margin: 0 auto;">
                 <div class="control-card" style="margin-bottom: 18px;">
                     <div class="filter-header-row" style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;">
                         <div>
