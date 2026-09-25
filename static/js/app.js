@@ -613,10 +613,12 @@ async function cargarClasesMalla(refrescarChips = false) {
         container.innerHTML = data.clases.map(c => `
             <div class="item-card">
                 <div class="item-top">
-                    <span class="room-pill" onclick="verHorarioDirecto('${c.sala}')" title="Ver horario de la sala ${c.sala}">
-                        <span class="status-dot occ"></span>
-                        <span>${c.sala}</span>
-                    </span>
+                    ${(c.sala || '').split(/[,/]+/).map(s => s.trim()).filter(s => s).map(s => `
+                        <span class="room-pill" onclick="verHorarioDirecto('${s}')" title="Ver horario de la sala ${s}">
+                            <span class="status-dot occ"></span>
+                            <span>${s}</span>
+                        </span>
+                    `).join('')}
                     <span class="time-pill">${c.dia} ${c.hora_inicio} - ${c.hora_termino}</span>
                 </div>
                 <div class="course-name">${c.ramo_malla.toUpperCase()}</div>

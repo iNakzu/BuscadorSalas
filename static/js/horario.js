@@ -941,10 +941,12 @@ function renderMiHorario() {
                                 <span class="my-prof-name" title="Docente: ${escapeHtml(c.profesor || '-')}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> <span>${escapeHtml(c.profesor || '-')}</span></span>
                             </div>
                             <div class="my-card-footer">
-                                <span class="my-room-pill" onclick="verHorarioDirecto('${c.sala}')" title="Ver horario de la sala ${c.sala}">
+                                ${(c.sala || '').split(/[,/]+/).map(s => s.trim()).filter(s => s).map(s => `
+                                <span class="my-room-pill" onclick="verHorarioDirecto('${s}')" title="Ver horario de la sala ${s}">
                                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-                                    <span>${escapeHtml(c.sala)}</span>
+                                    <span>${escapeHtml(s)}</span>
                                 </span>
+                                `).join('')}
                                 <span class="my-card-bloque-num">Bloque ${c.bloqueNum}</span>
                             </div>
                         </div>
@@ -1033,10 +1035,12 @@ function renderMiHorario() {
                             </div>
                         </div>
                         <div class="my-actions-box">
-                            <span class="my-room-pill" onclick="verHorarioDirecto('${c.sala}')" title="Ver horario de la sala ${c.sala}" style="font-size: 12px; padding: 6px 11px;">
+                            ${(c.sala || '').split(/[,/]+/).map(s => s.trim()).filter(s => s).map(s => `
+                            <span class="my-room-pill" onclick="verHorarioDirecto('${s}')" title="Ver horario de la sala ${s}" style="font-size: 12px; padding: 6px 11px;">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-                                <span>${c.sala}</span>
+                                <span>${s}</span>
                             </span>
+                            `).join('')}
                             ${vistaHorarioActual === 'nakzu' ? `<button type="button" class="my-btn-delete-timeline" onclick="eliminarClaseMiHorario('${c.id}', event)" title="Eliminar asignatura de este bloque">` : '<div style="display:none">'}
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                                 <span>Eliminar</span>
