@@ -31,15 +31,18 @@ function renderKanban() {
                 </div>
                 <div class="kanban-task-list">
                     ${colTasks.map(t => `
-                        <div class="kanban-task-card">
-                            <div class="kanban-task-title">${escapeHtml(t.title)}</div>
+                        <div class="kanban-task-card group">
+                            <div class="kanban-task-header">
+                                <div class="kanban-task-title">${escapeHtml(t.title)}</div>
+                                <button class="kanban-delete-btn" onclick="deleteTask('${t.id}')" title="Eliminar tarea">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                </button>
+                            </div>
                             ${t.desc ? `<div class="kanban-task-desc">${escapeHtml(t.desc)}</div>` : ''}
                             <div class="kanban-task-actions">
-                                ${col.id !== 'todo' ? `<button onclick="moveTask('${t.id}', 'todo')" title="Mover a Pendiente">←</button>` : '<span></span>'}
-                                <button onclick="deleteTask('${t.id}')" style="color: #ef4444;" title="Eliminar">×</button>
-                                ${col.id === 'todo' ? `<button onclick="moveTask('${t.id}', 'doing')" title="Mover a Haciendo">→</button>` : ''}
-                                ${col.id === 'doing' ? `<button onclick="moveTask('${t.id}', 'done')" title="Mover a Terminado">→</button>` : ''}
-                                ${col.id === 'done' ? '<span></span>' : ''}
+                                ${col.id === 'doing' ? `<button onclick="moveTask('${t.id}', 'todo')" title="Mover a Pendiente"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>` : (col.id === 'done' ? `<button onclick="moveTask('${t.id}', 'doing')" title="Mover a Haciendo"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>` : '<span></span>')}
+                                
+                                ${col.id === 'todo' ? `<button onclick="moveTask('${t.id}', 'doing')" title="Mover a Haciendo"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>` : (col.id === 'doing' ? `<button onclick="moveTask('${t.id}', 'done')" title="Mover a Terminado"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>` : '<span></span>')}
                             </div>
                         </div>
                     `).join('')}
