@@ -4,7 +4,7 @@ let isRunning = false;
 let currentMode = 'estudio'; // 'estudio' o 'descanso'
 
 // Lofi Radio State
-let radioAudio = new Audio('https://stream.laut.fm/lofi');
+let radioAudio = new Audio('https://listen.reyfm.de/lofi_128kbps.mp3');
 let isRadioPlaying = false;
 radioAudio.volume = 0.5;
 let animationId = null;
