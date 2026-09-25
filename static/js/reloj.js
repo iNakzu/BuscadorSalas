@@ -120,10 +120,12 @@ function renderTimer() {
                         <div class="timer-finish-time" id="timer-finish-time">${getTimerEndLabel()}</div>
                     </div>
                 </div>
-                <div class="tiempo-primary-actions timer-running-actions">
-                    <button id="timer-main-btn" class="tiempo-main-btn" onclick="toggleTimer()">Pausar</button>
-                    <button class="tiempo-reset-btn" onclick="resetTimer()" title="Reiniciar" aria-label="Reiniciar">
-                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 12a8 8 0 1 0 2.3-5.7"></path><path d="M4 4v5h5"></path></svg>
+                <div class="tiempo-primary-actions timer-running-actions" style="gap:20px;">
+                    <button id="timer-main-btn" class="estudio-btn-glossy btn-pause" onclick="toggleTimer()" title="Pausar">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                    </button>
+                    <button class="estudio-btn-glossy btn-reset" onclick="resetTimer()" title="Reiniciar">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
                     </button>
                 </div>
             </div>
@@ -148,10 +150,12 @@ function renderTimer() {
                 <button data-seconds="900" class="${isTimerPresetSelected(15 * 60) ? 'selected' : ''}" onclick="setTimerPreset(15 * 60)">15:00</button>
                 <button data-seconds="1800" class="${isTimerPresetSelected(30 * 60) ? 'selected' : ''}" onclick="setTimerPreset(30 * 60)">30:00</button>
             </div>
-            <div class="tiempo-primary-actions">
-                <button id="timer-main-btn" class="tiempo-main-btn" onclick="toggleTimer()">${timerRunning ? 'Pausar' : 'Iniciar'}</button>
-                <button class="tiempo-reset-btn" onclick="resetTimer()" title="Reiniciar" aria-label="Reiniciar">
-                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 12a8 8 0 1 0 2.3-5.7"></path><path d="M4 4v5h5"></path></svg>
+            <div class="tiempo-primary-actions" style="gap:20px;">
+                <button id="timer-main-btn" class="estudio-btn-glossy ${timerRunning ? 'btn-pause' : 'btn-start'}" onclick="toggleTimer()" title="${timerRunning ? 'Pausar' : 'Iniciar'}">
+                    ${timerRunning ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>` : `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-left:2px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`}
+                </button>
+                <button class="estudio-btn-glossy btn-reset" onclick="resetTimer()" title="Reiniciar">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
                 </button>
             </div>
             <div id="timer-end-label" class="tiempo-end-label"></div>
@@ -174,11 +178,15 @@ function renderStopwatch() {
     container.innerHTML = `
         <div class="tiempo-page">
             <div class="reloj-time tiempo-stopwatch-display" id="stopwatch-display">00:00<span class="reloj-sec">:00</span></div>
-            <div class="tiempo-primary-actions">
-                <button class="tiempo-secondary-btn" onclick="recordLap()" ${stopwatchRunning ? '' : 'disabled'}>Vuelta</button>
-                <button id="stopwatch-main-btn" class="tiempo-main-btn" onclick="toggleStopwatch()">${stopwatchRunning ? 'Pausar' : 'Iniciar'}</button>
-                <button class="tiempo-reset-btn" onclick="resetStopwatch()" title="Reiniciar" aria-label="Reiniciar">
-                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 12a8 8 0 1 0 2.3-5.7"></path><path d="M4 4v5h5"></path></svg>
+            <div class="tiempo-primary-actions" style="gap:20px;">
+                <button class="estudio-btn-glossy btn-reset" onclick="recordLap()" title="Vuelta" ${stopwatchRunning ? '' : 'disabled'} style="${stopwatchRunning ? '' : 'opacity: 0.5; cursor: not-allowed;'}">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+                </button>
+                <button id="stopwatch-main-btn" class="estudio-btn-glossy ${stopwatchRunning ? 'btn-pause' : 'btn-start'}" onclick="toggleStopwatch()" title="${stopwatchRunning ? 'Pausar' : 'Iniciar'}">
+                    ${stopwatchRunning ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>` : `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-left:2px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`}
+                </button>
+                <button class="estudio-btn-glossy btn-reset" onclick="resetStopwatch()" title="Reiniciar">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
                 </button>
             </div>
             <div id="stopwatch-laps" class="tiempo-laps"></div>
@@ -410,7 +418,13 @@ function updateTimerUI() {
         values[2].textContent = formatUnit(next);
     });
     const button = document.getElementById('timer-main-btn');
-    if (button) button.textContent = timerRunning ? 'Pausar' : 'Iniciar';
+    if (button) {
+        button.innerHTML = timerRunning 
+            ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>` 
+            : `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-left:2px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
+        button.className = timerRunning ? 'estudio-btn-glossy btn-pause' : 'estudio-btn-glossy btn-start';
+        button.title = timerRunning ? 'Pausar' : 'Iniciar';
+    }
     const endLabel = document.getElementById('timer-end-label');
     if (endLabel) {
         endLabel.textContent = timerRunning
@@ -463,9 +477,18 @@ function updateStopwatchUI() {
         display.innerHTML = `${formatUnit(hours)}:${formatUnit(minutes % 60)}<span class="reloj-sec">:${formatUnit(seconds % 60)}</span>`;
     }
     const button = document.getElementById('stopwatch-main-btn');
-    if (button) button.textContent = stopwatchRunning ? 'Pausar' : 'Iniciar';
-    const lapButton = document.querySelector('#cronometro-container .tiempo-secondary-btn');
-    if (lapButton) lapButton.disabled = !stopwatchRunning;
+    if (button) {
+        button.innerHTML = stopwatchRunning 
+            ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>` 
+            : `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-left:2px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
+        button.className = stopwatchRunning ? 'estudio-btn-glossy btn-pause' : 'estudio-btn-glossy btn-start';
+        button.title = stopwatchRunning ? 'Pausar' : 'Iniciar';
+    }
+    const lapButton = document.querySelector('#cronometro-container .estudio-btn-glossy[title="Vuelta"]');
+    if (lapButton) {
+        lapButton.disabled = !stopwatchRunning;
+        lapButton.style = stopwatchRunning ? '' : 'opacity: 0.5; cursor: not-allowed;';
+    }
     const laps = document.getElementById('stopwatch-laps');
     if (laps) laps.innerHTML = stopwatchLaps.map((lap, index) => `<div><span>Vuelta ${stopwatchLaps.length - index}</span><strong>${lap}</strong></div>`).join('');
 }
