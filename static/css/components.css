@@ -1201,8 +1201,7 @@
 }
 
 /* Metro & Red: el contenido dinámico nunca debe ensanchar el viewport móvil. */
-#tab-transporte,
-#tab-transporte > div,
+/* Se removio #tab-transporte para que herede max-width de .panel */
 #tab-transporte .control-card,
 #metro-lineas-grid,
 #metro-alertas-panel,
