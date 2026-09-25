@@ -1,8 +1,8 @@
 let clockInterval = null;
 let timerInterval = null;
 let timerRunning = false;
-let timerRemaining = 10 * 60;
-let timerValues = { hours: 0, minutes: 10, seconds: 0 };
+let timerRemaining = 60 * 60;
+let timerValues = { hours: 1, minutes: 0, seconds: 0 };
 let timerEndAt = null;
 let stopwatchInterval = null;
 let stopwatchRunning = false;
