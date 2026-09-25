@@ -132,6 +132,7 @@ function setRadioVolume(val) {
 function updateRadioUI() {
     const btn = document.getElementById('btn-radio-toggle');
     const visualizer = document.getElementById('radio-visualizer');
+    const focusCircle = document.querySelector('.focus-circle');
     
     if (btn) {
         btn.innerHTML = isRadioPlaying ? 
@@ -142,6 +143,13 @@ function updateRadioUI() {
         visualizer.style.opacity = isRadioPlaying ? '1' : '0';
         visualizer.style.animationPlayState = isRadioPlaying ? 'running' : 'paused';
     }
+    if (focusCircle) {
+        if (isRadioPlaying) {
+            focusCircle.classList.add('lofi-active');
+        } else {
+            focusCircle.classList.remove('lofi-active');
+        }
+    }
 }
 
 function renderEstudio() {
@@ -150,7 +158,7 @@ function renderEstudio() {
 
     const html = `
         <div class="estudio-wrapper">
-            <div class="focus-circle ${isRunning ? 'pulsing' : ''} ${currentMode}">
+            <div class="focus-circle ${isRunning ? 'pulsing' : ''} ${currentMode} ${isRadioPlaying ? 'lofi-active' : ''}">
                 <div class="focus-time" id="focus-time">${formatTime(timeLeft)}</div>
                 <div class="focus-label">${currentMode === 'estudio' ? 'ENFOQUE PROFUNDO' : 'RELAJO'}</div>
             </div>
