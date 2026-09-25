@@ -1242,16 +1242,23 @@
                     <div><span class="gastos-section-kicker">Actividad</span><h2>Movimientos recientes</h2></div>
                     <div class="gastos-list-tools">
                         <input id="gastos-search" type="search" placeholder="Buscar gasto..." oninput="renderGastos()" autocomplete="off">
-                        <select id="gastos-filter-category" onchange="renderGastos()">
-                            <option value="all">Todas las categorías</option>
-                            <option value="comida">Comida</option>
-                            <option value="transporte">Transporte</option>
-                            <option value="estudio">Estudio</option>
-                            <option value="ocio">Ocio</option>
-                            <option value="hogar">Hogar</option>
-                            <option value="salud">Salud</option>
-                            <option value="otro">Otro</option>
-                        </select>
+                        <div class="custom-dropdown" id="dd-gastos-filter-category" style="width: 170px;">
+                            <button type="button" class="dropdown-trigger my-form-input" onclick="toggleDropdown('dd-gastos-filter-category')" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left; padding: 8px 12px; height: 36px; border-radius: 8px;">
+                                <span id="label-gastos-filter-category" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px;">Todas las categorías</span>
+                                <svg class="dropdown-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink: 0; margin-left: 8px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </button>
+                            <div class="dropdown-menu">
+                                <div class="dropdown-item active" data-val="all" onclick="selectDropdownItem('dd-gastos-filter-category', 'all', 'Todas las categorías', 'renderGastos')">Todas las categorías</div>
+                                <div class="dropdown-item" data-val="comida" onclick="selectDropdownItem('dd-gastos-filter-category', 'comida', 'Comida', 'renderGastos')">Comida</div>
+                                <div class="dropdown-item" data-val="transporte" onclick="selectDropdownItem('dd-gastos-filter-category', 'transporte', 'Transporte', 'renderGastos')">Transporte</div>
+                                <div class="dropdown-item" data-val="estudio" onclick="selectDropdownItem('dd-gastos-filter-category', 'estudio', 'Estudio', 'renderGastos')">Estudio</div>
+                                <div class="dropdown-item" data-val="ocio" onclick="selectDropdownItem('dd-gastos-filter-category', 'ocio', 'Ocio', 'renderGastos')">Ocio</div>
+                                <div class="dropdown-item" data-val="hogar" onclick="selectDropdownItem('dd-gastos-filter-category', 'hogar', 'Hogar', 'renderGastos')">Hogar</div>
+                                <div class="dropdown-item" data-val="salud" onclick="selectDropdownItem('dd-gastos-filter-category', 'salud', 'Salud', 'renderGastos')">Salud</div>
+                                <div class="dropdown-item" data-val="otro" onclick="selectDropdownItem('dd-gastos-filter-category', 'otro', 'Otro', 'renderGastos')">Otro</div>
+                            </div>
+                            <input type="hidden" id="gastos-filter-category" value="all">
+                        </div>
                         <span id="gastos-list-count">0 registros</span>
                     </div>
                 </div>
@@ -1286,12 +1293,33 @@
                     <div class="compras-add-grid">
                         <input id="compra-nombre" name="name" maxlength="80" required placeholder="Ej. Detergente, cuaderno, regalo..." autocomplete="off">
                         <input id="compra-cantidad" name="quantity" type="number" min="1" max="999" value="1" aria-label="Cantidad">
-                        <select id="compra-categoria" name="category" aria-label="Categoría">
-                            <option value="hogar">Hogar</option><option value="comida">Comida</option><option value="estudio">Estudio</option><option value="salud">Salud</option><option value="ropa">Ropa</option><option value="otro">Otro</option>
-                        </select>
-                        <select id="compra-prioridad" name="priority" aria-label="Prioridad">
-                            <option value="normal">Prioridad normal</option><option value="alta">Prioridad alta</option><option value="baja">Prioridad baja</option>
-                        </select>
+                        <div class="custom-dropdown" id="dd-compra-categoria" style="flex: 1;">
+                            <button type="button" class="dropdown-trigger my-form-input" onclick="toggleDropdown('dd-compra-categoria')" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left; height: 100%; border-radius: 8px;">
+                                <span id="label-compra-categoria" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px;">Hogar</span>
+                                <svg class="dropdown-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink: 0; margin-left: 8px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </button>
+                            <div class="dropdown-menu">
+                                <div class="dropdown-item active" data-val="hogar" onclick="selectDropdownItem('dd-compra-categoria', 'hogar', 'Hogar')">Hogar</div>
+                                <div class="dropdown-item" data-val="comida" onclick="selectDropdownItem('dd-compra-categoria', 'comida', 'Comida')">Comida</div>
+                                <div class="dropdown-item" data-val="estudio" onclick="selectDropdownItem('dd-compra-categoria', 'estudio', 'Estudio')">Estudio</div>
+                                <div class="dropdown-item" data-val="salud" onclick="selectDropdownItem('dd-compra-categoria', 'salud', 'Salud')">Salud</div>
+                                <div class="dropdown-item" data-val="ropa" onclick="selectDropdownItem('dd-compra-categoria', 'ropa', 'Ropa')">Ropa</div>
+                                <div class="dropdown-item" data-val="otro" onclick="selectDropdownItem('dd-compra-categoria', 'otro', 'Otro')">Otro</div>
+                            </div>
+                            <input type="hidden" id="compra-categoria" name="category" value="hogar">
+                        </div>
+                        <div class="custom-dropdown" id="dd-compra-prioridad" style="flex: 1;">
+                            <button type="button" class="dropdown-trigger my-form-input" onclick="toggleDropdown('dd-compra-prioridad')" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left; height: 100%; border-radius: 8px;">
+                                <span id="label-compra-prioridad" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px;">Prioridad normal</span>
+                                <svg class="dropdown-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink: 0; margin-left: 8px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </button>
+                            <div class="dropdown-menu">
+                                <div class="dropdown-item active" data-val="normal" onclick="selectDropdownItem('dd-compra-prioridad', 'normal', 'Prioridad normal')">Prioridad normal</div>
+                                <div class="dropdown-item" data-val="alta" onclick="selectDropdownItem('dd-compra-prioridad', 'alta', 'Prioridad alta')">Prioridad alta</div>
+                                <div class="dropdown-item" data-val="baja" onclick="selectDropdownItem('dd-compra-prioridad', 'baja', 'Prioridad baja')">Prioridad baja</div>
+                            </div>
+                            <input type="hidden" id="compra-prioridad" name="priority" value="normal">
+                        </div>
                         <button class="compras-add-btn" type="submit">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                             Agregar
@@ -1304,8 +1332,30 @@
                     <div class="compras-toolbar-title"><span class="compras-section-kicker">Tus pendientes</span><strong id="compras-count">0 elementos</strong></div>
                     <div class="compras-tools">
                         <input id="compras-search" type="search" placeholder="Buscar..." oninput="renderCompras()" autocomplete="off">
-                        <select id="compras-status" onchange="renderCompras()"><option value="pending">Pendientes</option><option value="all">Todos</option><option value="done">Comprados</option></select>
-                        <select id="compras-sort" onchange="renderCompras()"><option value="recent">Más recientes</option><option value="oldest">Más antiguos</option><option value="priority">Prioridad</option></select>
+                        <div class="custom-dropdown" id="dd-compras-status" style="min-width: 120px;">
+                            <button type="button" class="dropdown-trigger my-form-input" onclick="toggleDropdown('dd-compras-status')" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left; padding: 8px 12px; height: 36px; border-radius: 8px;">
+                                <span id="label-compras-status" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px;">Pendientes</span>
+                                <svg class="dropdown-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink: 0; margin-left: 8px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </button>
+                            <div class="dropdown-menu">
+                                <div class="dropdown-item active" data-val="pending" onclick="selectDropdownItem('dd-compras-status', 'pending', 'Pendientes', 'renderCompras')">Pendientes</div>
+                                <div class="dropdown-item" data-val="all" onclick="selectDropdownItem('dd-compras-status', 'all', 'Todos', 'renderCompras')">Todos</div>
+                                <div class="dropdown-item" data-val="done" onclick="selectDropdownItem('dd-compras-status', 'done', 'Comprados', 'renderCompras')">Comprados</div>
+                            </div>
+                            <input type="hidden" id="compras-status" value="pending">
+                        </div>
+                        <div class="custom-dropdown" id="dd-compras-sort" style="min-width: 140px;">
+                            <button type="button" class="dropdown-trigger my-form-input" onclick="toggleDropdown('dd-compras-sort')" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left; padding: 8px 12px; height: 36px; border-radius: 8px;">
+                                <span id="label-compras-sort" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px;">Más recientes</span>
+                                <svg class="dropdown-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink: 0; margin-left: 8px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                            </button>
+                            <div class="dropdown-menu">
+                                <div class="dropdown-item active" data-val="recent" onclick="selectDropdownItem('dd-compras-sort', 'recent', 'Más recientes', 'renderCompras')">Más recientes</div>
+                                <div class="dropdown-item" data-val="oldest" onclick="selectDropdownItem('dd-compras-sort', 'oldest', 'Más antiguos', 'renderCompras')">Más antiguos</div>
+                                <div class="dropdown-item" data-val="priority" onclick="selectDropdownItem('dd-compras-sort', 'priority', 'Prioridad', 'renderCompras')">Prioridad</div>
+                            </div>
+                            <input type="hidden" id="compras-sort" value="recent">
+                        </div>
                     </div>
                 </div>
                 <div class="compras-summary" id="compras-summary"></div>
