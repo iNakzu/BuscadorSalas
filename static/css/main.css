@@ -567,11 +567,51 @@ html {
     overflow-x: auto;
     padding-bottom: 15px;
     -webkit-overflow-scrolling: touch;
+    
+    /* Break out of container trick */
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    padding-left: max(20px, calc((100vw - 1400px) / 2));
+    padding-right: max(20px, calc((100vw - 1400px) / 2));
+    box-sizing: border-box;
 }
+
+@media (min-width: 1024px) {
+    .malla-scroll-wrapper {
+        width: calc(100vw - 290px);
+        margin-left: calc(145px - 50vw + 50%);
+        padding-left: max(50px, calc((100vw - 290px - 1400px) / 2));
+        padding-right: max(50px, calc((100vw - 290px - 1400px) / 2));
+    }
+}
+@media (min-width: 1600px) {
+    .malla-scroll-wrapper {
+        padding-left: max(50px, calc((100vw - 290px - 1700px) / 2));
+        padding-right: max(50px, calc((100vw - 290px - 1700px) / 2));
+    }
+}
+
+/* Scrollbar siempre visible para que no parezca que se corta */
+.malla-scroll-wrapper::-webkit-scrollbar {
+    height: 10px;
+}
+.malla-scroll-wrapper::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+}
+.malla-scroll-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(56, 189, 248, 0.4);
+    border-radius: 10px;
+}
+.malla-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+    background: rgba(56, 189, 248, 0.8);
+}
+
 .malla-grid {
     display: flex;
     gap: 12px;
     min-width: max-content;
+    padding-right: 20px; /* Safe padding that browsers usually respect in flex */
 }
 .malla-columna {
     display: flex;
@@ -2272,12 +2312,4 @@ html {
 }
 
 
-#tab-progreso {
-    overflow-x: auto;
-}
 
-/* Fix for Malla touching the left edge on wide monitors */
-#tab-progreso {
-    padding: 20px 40px;
-    box-sizing: border-box;
-}
