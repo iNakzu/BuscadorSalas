@@ -317,7 +317,7 @@ html {
     background: linear-gradient(135deg, #10b981, #059669);
     color: #ffffff;
     border: none;
-    padding: 10px;
+    padding: 11px;
     width: 32px;
     height: 32px;
     border-radius: var(--radius-sm);
@@ -634,7 +634,7 @@ html {
     border-radius: 12px;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    padding: 10px;
+    padding: 11px;
     margin-bottom: 8px;
     cursor: pointer;
     display: flex;
@@ -979,7 +979,7 @@ html {
 
 .cronometro-field input {
     width: 82px;
-    padding: 10px;
+    padding: 11px;
     border: 1px solid rgba(148, 163, 184, 0.22);
     border-radius: 10px;
     background: rgba(2, 8, 23, 0.58);
@@ -2130,7 +2130,7 @@ html {
     box-shadow: 0 4px 12px rgba(0,0,0,0.4);
     color: #f8fafc;
     cursor: pointer;
-    padding: 10px;
+    padding: 11px;
     margin-right: 0;
     border-radius: 12px;
     transition: background 0.2s;
@@ -2327,7 +2327,7 @@ html {
 .focus-circle::before {
     content: '';
     position: absolute;
-    inset: -6px; /* Aumentado 2px para cubrir el sangrado */ /* Move exactly over the border (4px default) */
+    inset: -7px; /* Aumentado 3px en total */ /* Move exactly over the border (4px default) */
     z-index: -1;
     background: conic-gradient(from 0deg, #a855f7, #ec4899, #38bdf8, #8b5cf6, #a855f7);
     animation: lofiSpin 4s linear infinite;
@@ -2336,7 +2336,7 @@ html {
     transition: opacity 0.5s ease;
     
     /* CSS Mask trick to punch a hole in the center */
-    padding: 6px; /* The thickness of the gradient border + 2px outside */
+    padding: 7px;
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
@@ -2345,8 +2345,8 @@ html {
 
 @media (min-width: 1024px) {
     .focus-circle::before {
-        inset: -10px;
-        padding: 10px;
+        inset: -11px;
+        padding: 11px;
     }
 }
 
