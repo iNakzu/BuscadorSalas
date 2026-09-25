@@ -144,10 +144,19 @@ function updateRadioUI() {
         visualizer.style.animationPlayState = isRadioPlaying ? 'running' : 'paused';
     }
     if (focusCircle) {
+        const label = focusCircle.querySelector('.focus-label');
         if (isRadioPlaying) {
             focusCircle.classList.add('lofi-active');
+            if (label) {
+                label.textContent = currentMode === 'estudio' ? 'LOFI & FOCUS' : 'CHILL BREAK';
+                label.classList.add('lofi-text-anim');
+            }
         } else {
             focusCircle.classList.remove('lofi-active');
+            if (label) {
+                label.textContent = currentMode === 'estudio' ? 'ENFOQUE PROFUNDO' : 'RELAJO';
+                label.classList.remove('lofi-text-anim');
+            }
         }
     }
 }
@@ -160,7 +169,7 @@ function renderEstudio() {
         <div class="estudio-wrapper">
             <div class="focus-circle ${isRunning ? 'pulsing' : ''} ${currentMode} ${isRadioPlaying ? 'lofi-active' : ''}">
                 <div class="focus-time" id="focus-time">${formatTime(timeLeft)}</div>
-                <div class="focus-label">${currentMode === 'estudio' ? 'ENFOQUE PROFUNDO' : 'RELAJO'}</div>
+                <div class="focus-label ${isRadioPlaying ? 'lofi-text-anim' : ''}">${currentMode === 'estudio' ? (isRadioPlaying ? 'LOFI & FOCUS' : 'ENFOQUE PROFUNDO') : (isRadioPlaying ? 'CHILL BREAK' : 'RELAJO')}</div>
             </div>
             
             <div class="estudio-controls" style="display:flex; justify-content:center; align-items:center; width:100%;">
