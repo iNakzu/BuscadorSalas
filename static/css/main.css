@@ -259,6 +259,8 @@ html {
 /* PANELES */
 .panel {
     display: none;
+    max-width: 1050px;
+    margin: 0 auto;
 }
 .panel.active {
     display: block;
