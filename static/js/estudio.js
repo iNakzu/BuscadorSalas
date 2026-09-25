@@ -79,8 +79,36 @@ function updateEstudioUI() {
     
     const circle = document.querySelector('.focus-circle');
     if (circle) {
-        if (isRunning) circle.classList.add('pulsing');
-        else circle.classList.remove('pulsing');
+        if (isRunning) {
+            circle.classList.add('pulsing');
+            circle.classList.add('lofi-active');
+        } else {
+            circle.classList.remove('pulsing');
+            circle.classList.remove('lofi-active');
+        }
+        
+        const label = circle.querySelector('.focus-label');
+        if (label) {
+            const newText = isRunning 
+                ? (currentMode === 'estudio' ? 'DEEP FOCUS' : 'CHILL BREAK') 
+                : (currentMode === 'estudio' ? 'ENFOQUE PROFUNDO' : 'RELAJO');
+                
+            if (label.textContent !== newText) {
+                label.style.opacity = '0';
+                label.style.transform = 'translateY(4px)';
+                
+                setTimeout(() => {
+                    label.textContent = newText;
+                    if (isRunning) {
+                        label.classList.add('lofi-text-anim');
+                    } else {
+                        label.classList.remove('lofi-text-anim');
+                    }
+                    label.style.opacity = '1';
+                    label.style.transform = 'translateY(0)';
+                }, 250);
+            }
+        }
     }
 }
 
@@ -144,37 +172,6 @@ function updateRadioUI() {
         visualizer.style.opacity = isRadioPlaying ? '1' : '0';
         visualizer.style.animationPlayState = isRadioPlaying ? 'running' : 'paused';
     }
-    if (focusCircle) {
-        const label = focusCircle.querySelector('.focus-label');
-        
-        if (isRadioPlaying) {
-            focusCircle.classList.add('lofi-active');
-        } else {
-            focusCircle.classList.remove('lofi-active');
-        }
-
-        if (label) {
-            const newText = isRadioPlaying 
-                ? (currentMode === 'estudio' ? 'LOFI & FOCUS' : 'CHILL BREAK') 
-                : (currentMode === 'estudio' ? 'ENFOQUE PROFUNDO' : 'RELAJO');
-                
-            if (label.textContent !== newText) {
-                label.style.opacity = '0';
-                label.style.transform = 'translateY(4px)';
-                
-                setTimeout(() => {
-                    label.textContent = newText;
-                    if (isRadioPlaying) {
-                        label.classList.add('lofi-text-anim');
-                    } else {
-                        label.classList.remove('lofi-text-anim');
-                    }
-                    label.style.opacity = '1';
-                    label.style.transform = 'translateY(0)';
-                }, 250);
-            }
-        }
-    }
 }
 
 function renderEstudio() {
@@ -183,9 +180,9 @@ function renderEstudio() {
 
     const html = `
         <div class="estudio-wrapper">
-            <div class="focus-circle ${isRunning ? 'pulsing' : ''} ${currentMode} ${isRadioPlaying ? 'lofi-active' : ''}">
+            <div class="focus-circle ${isRunning ? 'pulsing lofi-active' : ''} ${currentMode}">
                 <div class="focus-time" id="focus-time">${formatTime(timeLeft)}</div>
-                <div class="focus-label ${isRadioPlaying ? 'lofi-text-anim' : ''}">${currentMode === 'estudio' ? (isRadioPlaying ? 'LOFI & FOCUS' : 'ENFOQUE PROFUNDO') : (isRadioPlaying ? 'CHILL BREAK' : 'RELAJO')}</div>
+                <div class="focus-label ${isRunning ? 'lofi-text-anim' : ''}">${currentMode === 'estudio' ? (isRunning ? 'DEEP FOCUS' : 'ENFOQUE PROFUNDO') : (isRunning ? 'CHILL BREAK' : 'RELAJO')}</div>
             </div>
             
             <div class="estudio-controls" style="display:flex; justify-content:center; align-items:center; width:100%;">
