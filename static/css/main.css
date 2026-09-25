@@ -317,7 +317,7 @@ html {
     background: linear-gradient(135deg, #10b981, #059669);
     color: #ffffff;
     border: none;
-    padding: 8px;
+    padding: 10px;
     width: 32px;
     height: 32px;
     border-radius: var(--radius-sm);
@@ -2327,7 +2327,7 @@ html {
 .focus-circle::before {
     content: '';
     position: absolute;
-    inset: -4px; /* Move exactly over the border (4px default) */
+    inset: -6px; /* Aumentado 2px para cubrir el sangrado */ /* Move exactly over the border (4px default) */
     z-index: -1;
     background: conic-gradient(from 0deg, #a855f7, #ec4899, #38bdf8, #8b5cf6, #a855f7);
     animation: lofiSpin 4s linear infinite;
@@ -2336,7 +2336,7 @@ html {
     transition: opacity 0.5s ease;
     
     /* CSS Mask trick to punch a hole in the center */
-    padding: 4px; /* The thickness of the gradient border */
+    padding: 6px; /* The thickness of the gradient border + 2px outside */
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
@@ -2345,8 +2345,8 @@ html {
 
 @media (min-width: 1024px) {
     .focus-circle::before {
-        inset: -8px;
-        padding: 8px;
+        inset: -10px;
+        padding: 10px;
     }
 }
 
