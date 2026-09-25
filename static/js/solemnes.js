@@ -201,6 +201,7 @@ const customStyles = `
     }
 
     .sol-time-cell {
+        position: relative;
         background: rgba(30, 41, 59, 0.6);
         border-radius: 12px;
         padding: 12px;
@@ -342,6 +343,19 @@ function renderSolemnes() {
         { num: 5, label: "17:30 - 19:30", raw: "17:30 a 19:30" }
     ];
 
+    let currentBlockNum = -1;
+    if (typeof getChileTime === 'function' && typeof timeToMinutes === 'function') {
+        const { totalMinutes } = getChileTime();
+        bloques.forEach(b => {
+            const [startStr, endStr] = b.label.split(' - ');
+            const startM = timeToMinutes(startStr);
+            const endM = timeToMinutes(endStr);
+            if (totalMinutes >= startM && totalMinutes < endM) {
+                currentBlockNum = b.num;
+            }
+        });
+    }
+
     let gridHtml = `<div class="solemnes-grid">`;
 
     // Row 1: Headers (Empty corner + 5 days)
@@ -357,9 +371,11 @@ function renderSolemnes() {
 
     // Rows 2-6: Time blocks
     bloques.forEach(b => {
+        const isCurrent = (b.num === currentBlockNum);
         // Time column
         gridHtml += `
-            <div class="sol-time-cell">
+            <div class="sol-time-cell" ${isCurrent ? 'style="background: rgba(255, 255, 255, 0.05); border-left: 2px solid #fff;"' : ''}>
+                ${isCurrent ? '<span class="pulse-dot-white" style="position: absolute; top: 12px; left: 12px;"></span>' : ''}
                 <span class="sol-time-num">Bloque ${b.num}</span>
                 <span class="sol-time-range">${b.label}</span>
             </div>
