@@ -2391,3 +2391,65 @@ html {
         background-position: 200% center;
     }
 }
+
+/* Glossy Icon Buttons */
+.estudio-btn-glossy {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(30, 41, 59, 0.5);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #e2e8f0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.estudio-btn-glossy:hover {
+    transform: translateY(-2px) scale(1.05);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.estudio-btn-glossy:active {
+    transform: translateY(1px) scale(0.95);
+}
+
+.estudio-btn-glossy.btn-start {
+    background: rgba(56, 189, 248, 0.15);
+    border-color: rgba(56, 189, 248, 0.3);
+    color: #38bdf8;
+    box-shadow: 0 4px 20px rgba(56, 189, 248, 0.2);
+}
+
+.estudio-btn-glossy.btn-start:hover {
+    background: rgba(56, 189, 248, 0.25);
+    box-shadow: 0 6px 25px rgba(56, 189, 248, 0.3);
+}
+
+.estudio-btn-glossy.btn-pause {
+    background: rgba(244, 63, 94, 0.15); /* Rose-500 tint */
+    border-color: rgba(244, 63, 94, 0.3);
+    color: #f43f5e;
+    box-shadow: 0 4px 20px rgba(244, 63, 94, 0.2);
+}
+
+.estudio-btn-glossy.btn-pause:hover {
+    background: rgba(244, 63, 94, 0.25);
+    box-shadow: 0 6px 25px rgba(244, 63, 94, 0.3);
+}
+
+.estudio-btn-glossy.btn-reset {
+    color: #94a3b8;
+}
+
+.estudio-btn-glossy.btn-reset:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.15);
+}

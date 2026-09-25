@@ -73,8 +73,8 @@ function updateTimerDisplay() {
 function updateEstudioUI() {
     const btn = document.getElementById('btn-toggle-timer');
     if (btn) {
-        btn.innerHTML = isRunning ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-right:4px;vertical-align:-2px;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg> Pausar` : `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-right:4px;vertical-align:-2px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Iniciar`;
-        btn.className = isRunning ? 'estudio-btn btn-pause' : 'estudio-btn btn-start';
+        btn.innerHTML = isRunning ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>` : `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-left:2px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
+        btn.className = isRunning ? 'estudio-btn-glossy btn-pause' : 'estudio-btn-glossy btn-start';
     }
     
     const circle = document.querySelector('.focus-circle');
@@ -185,11 +185,13 @@ function renderEstudio() {
                 <div class="focus-label ${isRunning ? 'lofi-text-anim' : ''}">${currentMode === 'estudio' ? (isRunning ? 'DEEP FOCUS' : 'ENFOQUE PROFUNDO') : (isRunning ? 'CHILL BREAK' : 'RELAJO')}</div>
             </div>
             
-            <div class="estudio-controls" style="display:flex; justify-content:center; align-items:center; width:100%;">
-                <button id="btn-toggle-timer" class="estudio-btn ${isRunning ? 'btn-pause' : 'btn-start'}" onclick="toggleEstudioTimer()">
-                    ${isRunning ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-right:4px;vertical-align:-2px;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg> Pausar` : `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-right:4px;vertical-align:-2px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Iniciar`}
+            <div class="estudio-controls" style="display:flex; justify-content:center; align-items:center; width:100%; gap: 20px;">
+                <button id="btn-toggle-timer" class="estudio-btn-glossy ${isRunning ? 'btn-pause' : 'btn-start'}" onclick="toggleEstudioTimer()" title="Iniciar / Pausar">
+                    ${isRunning ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>` : `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-left:2px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`}
                 </button>
-                <button class="estudio-btn btn-reset" onclick="resetEstudioTimer()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:-2px;"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg> Reiniciar</button>
+                <button class="estudio-btn-glossy btn-reset" onclick="resetEstudioTimer()" title="Reiniciar ciclo">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+                </button>
             </div>
             
             <!-- MODERN LOFI RADIO -->
