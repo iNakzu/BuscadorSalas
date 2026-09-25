@@ -146,7 +146,7 @@ function renderCalendar() {
         html += `<div class="cal-day empty"></div>`;
     }
     
-    container.innerHTML = html;
+    container.innerHTML = `<div style="max-width: 900px; margin: 0 auto;">${html}</div>`;
 }
 
 function changeCalendarMonth(delta) {
@@ -531,7 +531,7 @@ function renderAgenda() {
         `;
     });
     
-    container.innerHTML = html;
+    container.innerHTML = `<div style="max-width: 900px; margin: 0 auto;">${html}</div>`;
 }
 
 // Inicializar al cargar
