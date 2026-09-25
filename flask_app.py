@@ -174,7 +174,8 @@ class DataManager:
             s_time = node.get('start')
             
             if p:
-                for sala in [s.strip() for s in p.split(',') if s.strip()]:
+                import re as re_local
+                for sala in [s.strip() for s in re_local.split(r'[,/]', p) if s.strip()]:
                     rooms_set.add(sala)
             
             if d and s_time:
@@ -558,7 +559,8 @@ def obtener_salas(dia_numero, hora_exacta, filtro_facultad):
         if not raw_place:
             continue
 
-        for nombre_sala in [s.strip() for s in raw_place.split(',') if s.strip()]:
+        import re as re_local
+        for nombre_sala in [s.strip() for s in re_local.split(r'[,/]', raw_place) if s.strip()]:
             if not coincide_facultad(nombre_sala, filtro_facultad):
                 continue
 
@@ -766,7 +768,8 @@ def buscar_curso(query, dia_filtro=None, hora_filtro=None):
                 continue
 
         raw_place = nodo.get('place', '-')
-        places = [p.strip() for p in raw_place.split(',')] if raw_place and raw_place != '-' else ['-']
+        import re as re_local
+        places = [p.strip() for p in re_local.split(r'[,/]', raw_place)] if raw_place and raw_place != '-' else ['-']
         for p in places:
             resultados.append({
                 'sala': p,
@@ -943,18 +946,24 @@ def obtener_clases_malla(semestre=8, dia_filtro=None, ramo_filtro=None, hora_fil
             if not (h_q.startswith(c_start) or c_start.startswith(h_q.replace(":00", "")) or h_q in n.get('start', '')):
                 continue
 
-        resultados.append({
-            'ramo_malla': matched_ramo,
-            'curso_oficial': curso_oficial,
-            'seccion': n.get('section', '-'),
-            'codigo': n.get('code', '-'),
-            'dia': nombre_dia(n.get('day')),
-            'dia_numero': n.get('day'),
-            'hora_inicio': c_start,
-            'hora_termino': format_time(n.get('finish', '')),
-            'sala': n.get('place', '-'),
-            'profe': n.get('teacher', 'No informado')
-        })
+        raw_place = n.get('place', '-')
+        import re as re_local
+        places = [p.strip() for p in re_local.split(r'[,/]', raw_place)] if raw_place and raw_place != '-' else ['-']
+        
+        for p in places:
+            if not p: continue
+            resultados.append({
+                'ramo_malla': matched_ramo,
+                'curso_oficial': curso_oficial,
+                'seccion': n.get('section', '-'),
+                'codigo': n.get('code', '-'),
+                'dia': nombre_dia(n.get('day')),
+                'dia_numero': n.get('day'),
+                'hora_inicio': c_start,
+                'hora_termino': format_time(n.get('finish', '')),
+                'sala': p,
+                'profe': n.get('teacher', 'No informado')
+            })
 
     # Ordenar primero los ramos más temprano (8:30 en adelante), luego por día, nombre y sección
     def sort_key_malla(item):
@@ -977,7 +986,8 @@ def horario_de_sala(nombre_sala):
         raw_place = nodo.get('place', '')
         if not raw_place:
             continue
-        salas_nodo = [s.strip().upper() for s in raw_place.split(',') if s.strip()]
+        import re as re_local
+        salas_nodo = [s.strip().upper() for s in re_local.split(r'[,/]', raw_place) if s.strip()]
         if nombre_clean in salas_nodo:
             dia = nodo.get('day')
             if dia in horario_semanal:
