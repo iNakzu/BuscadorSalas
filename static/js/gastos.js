@@ -144,8 +144,32 @@ function abrirModalNuevoGasto() {
                 <label class="gastos-modal-field gastos-form-wide">Descripción<input name="desc" required maxlength="80" placeholder="Ej. Almuerzo en el casino" autocomplete="off"></label>
                 <label class="gastos-modal-field">Monto<input name="monto" type="number" min="1" step="1" required placeholder="0" inputmode="numeric"></label>
                 <label class="gastos-modal-field">Fecha<input name="date" type="date" value="${today}" required></label>
-                <label class="gastos-modal-field">Categoría<select name="category" required>${Object.entries(GASTO_CATEGORIES).map(([value, label]) => `<option value="${value}">${label}</option>`).join('')}</select></label>
-                <label class="gastos-modal-field">Método de pago<select name="payment" required>${Object.entries(GASTO_PAYMENTS).map(([value, label]) => `<option value="${value}">${label}</option>`).join('')}</select></label>
+                <div class="gastos-modal-field">
+                    <label style="display:block; margin-bottom:4px; font-size:12px; font-weight:600; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">Categoría</label>
+                    <div class="custom-dropdown" id="dd-gasto-modal-category" style="width: 100%;">
+                        <button type="button" class="dropdown-trigger my-form-input" onclick="toggleDropdown('dd-gasto-modal-category')" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left; padding: 10px 14px; border-radius: 8px;">
+                            <span id="label-gasto-modal-category" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px;">Comida</span>
+                            <svg class="dropdown-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink: 0; margin-left: 8px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                        <div class="dropdown-menu">
+                            ${Object.entries(GASTO_CATEGORIES).map(([value, label]) => `<div class="dropdown-item ${value === 'comida' ? 'active' : ''}" data-val="${value}" onclick="selectDropdownItem('dd-gasto-modal-category', '${value}', '${label}')">${label}</div>`).join('')}
+                        </div>
+                        <input type="hidden" id="gasto-modal-category" name="category" required value="comida">
+                    </div>
+                </div>
+                <div class="gastos-modal-field">
+                    <label style="display:block; margin-bottom:4px; font-size:12px; font-weight:600; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">Método de pago</label>
+                    <div class="custom-dropdown" id="dd-gasto-modal-payment" style="width: 100%;">
+                        <button type="button" class="dropdown-trigger my-form-input" onclick="toggleDropdown('dd-gasto-modal-payment')" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left; padding: 10px 14px; border-radius: 8px;">
+                            <span id="label-gasto-modal-payment" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px;">Débito / Cuenta RUT</span>
+                            <svg class="dropdown-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink: 0; margin-left: 8px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                        <div class="dropdown-menu">
+                            ${Object.entries(GASTO_PAYMENTS).map(([value, label]) => `<div class="dropdown-item ${value === 'debito' ? 'active' : ''}" data-val="${value}" onclick="selectDropdownItem('dd-gasto-modal-payment', '${value}', '${label}')">${label}</div>`).join('')}
+                        </div>
+                        <input type="hidden" id="gasto-modal-payment" name="payment" required value="debito">
+                    </div>
+                </div>
                 <label class="gastos-modal-field gastos-form-wide">Nota opcional<textarea name="note" rows="3" maxlength="180" placeholder="Agrega contexto, lugar o recordatorio..."></textarea></label>
             </div>
             <div class="gastos-modal-actions"><button type="button" class="gastos-modal-secondary" onclick="cerrarModalGasto()">Cancelar</button><button class="gastos-modal-primary" type="submit">Guardar gasto</button></div>
