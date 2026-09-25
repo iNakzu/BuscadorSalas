@@ -34,12 +34,13 @@ function toggleEstudioTimer() {
                 timeLeft--;
                 updateTimerDisplay();
             } else {
-                clearInterval(focusTimer);
-                isRunning = false;
-                localStorage.removeItem('isStudying');
                 if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
-                mostrarAlertaWeb(currentMode === 'estudio' ? '¡Bloque de estudio terminado! Tómate un descanso.' : '¡Descanso terminado! Volvamos al estudio.', 'Sesión completada');
-                switchMode(currentMode === 'estudio' ? 'descanso' : 'estudio');
+                // Seamlessly swap mode and time without stopping
+                currentMode = currentMode === 'estudio' ? 'descanso' : 'estudio';
+                timeLeft = currentMode === 'estudio' ? 30 * 60 : 15 * 60;
+                
+                // Re-render UI to update text and circle colors
+                renderEstudio();
             }
         }, 1000);
     }
