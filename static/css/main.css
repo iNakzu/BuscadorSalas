@@ -2315,38 +2315,47 @@ html {
 
 
 /* --- LOFI STYLES --- */
-.focus-circle.lofi-active {
+.focus-circle {
     position: relative;
-    border-color: transparent !important;
-    background: rgba(30, 41, 59, 0.7);
-    overflow: hidden; /* To keep the glow inside if needed, wait, border-radius handles it mostly */
-    box-shadow: 0 0 40px rgba(168, 85, 247, 0.2) !important;
+    overflow: hidden;
     z-index: 1;
+    /* Transition background and border to avoid jumping */
+    transition: all 0.5s ease;
 }
 
-.focus-circle.lofi-active::before {
+/* Base pseudo-elements always exist but are invisible */
+.focus-circle::before {
     content: '';
     position: absolute;
-    top: -10px; right: -10px; bottom: -10px; left: -10px;
-    z-index: -1;
+    top: -20px; right: -20px; bottom: -20px; left: -20px;
+    z-index: -2;
     background: conic-gradient(from 0deg, #a855f7, #ec4899, #38bdf8, #8b5cf6, #a855f7);
     animation: lofiSpin 4s linear infinite;
     border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.5s ease;
 }
 
-.focus-circle.lofi-active::after {
+.focus-circle::after {
     content: '';
     position: absolute;
-    inset: 4px; /* thickness of the border */
-    background: var(--bg-panel, rgba(30, 41, 59, 0.9)); /* Glass center */
+    inset: 0; /* Matches exact padding box */
+    background: var(--bg-panel, rgba(30, 41, 59, 0.8));
     border-radius: 50%;
     z-index: -1;
+    opacity: 0;
+    transition: opacity 0.5s ease;
 }
 
-@media (min-width: 1024px) {
-    .focus-circle.lofi-active::after {
-        inset: 8px; /* Thicker border on desktop */
-    }
+/* Active Lofi Styles */
+.focus-circle.lofi-active {
+    border-color: transparent !important;
+    box-shadow: 0 0 40px rgba(168, 85, 247, 0.2) !important;
+}
+
+.focus-circle.lofi-active::before,
+.focus-circle.lofi-active::after {
+    opacity: 1;
 }
 
 @keyframes lofiSpin {
