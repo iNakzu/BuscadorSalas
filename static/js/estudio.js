@@ -145,17 +145,32 @@ function updateRadioUI() {
     }
     if (focusCircle) {
         const label = focusCircle.querySelector('.focus-label');
+        
         if (isRadioPlaying) {
             focusCircle.classList.add('lofi-active');
-            if (label) {
-                label.textContent = currentMode === 'estudio' ? 'LOFI & FOCUS' : 'CHILL BREAK';
-                label.classList.add('lofi-text-anim');
-            }
         } else {
             focusCircle.classList.remove('lofi-active');
-            if (label) {
-                label.textContent = currentMode === 'estudio' ? 'ENFOQUE PROFUNDO' : 'RELAJO';
-                label.classList.remove('lofi-text-anim');
+        }
+
+        if (label) {
+            const newText = isRadioPlaying 
+                ? (currentMode === 'estudio' ? 'LOFI & FOCUS' : 'CHILL BREAK') 
+                : (currentMode === 'estudio' ? 'ENFOQUE PROFUNDO' : 'RELAJO');
+                
+            if (label.textContent !== newText) {
+                label.style.opacity = '0';
+                label.style.transform = 'translateY(4px)';
+                
+                setTimeout(() => {
+                    label.textContent = newText;
+                    if (isRadioPlaying) {
+                        label.classList.add('lofi-text-anim');
+                    } else {
+                        label.classList.remove('lofi-text-anim');
+                    }
+                    label.style.opacity = '1';
+                    label.style.transform = 'translateY(0)';
+                }, 250);
             }
         }
     }
