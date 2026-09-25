@@ -2317,9 +2317,8 @@ html {
 /* --- LOFI STYLES --- */
 .focus-circle {
     position: relative;
-    overflow: hidden;
     z-index: 1;
-    /* Transition background and border to avoid jumping */
+    /* transition border-color specifically to transparent cyan, not black */
     transition: all 0.5s ease;
 }
 
@@ -2327,34 +2326,36 @@ html {
 .focus-circle::before {
     content: '';
     position: absolute;
-    top: -20px; right: -20px; bottom: -20px; left: -20px;
-    z-index: -2;
+    inset: -4px; /* Move exactly over the border (4px default) */
+    z-index: -1;
     background: conic-gradient(from 0deg, #a855f7, #ec4899, #38bdf8, #8b5cf6, #a855f7);
     animation: lofiSpin 4s linear infinite;
     border-radius: 50%;
     opacity: 0;
     transition: opacity 0.5s ease;
+    
+    /* CSS Mask trick to punch a hole in the center */
+    padding: 4px; /* The thickness of the gradient border */
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    box-sizing: border-box;
 }
 
-.focus-circle::after {
-    content: '';
-    position: absolute;
-    inset: 0; /* Matches exact padding box */
-    background: var(--bg-panel, rgba(30, 41, 59, 0.8));
-    border-radius: 50%;
-    z-index: -1;
-    opacity: 0;
-    transition: opacity 0.5s ease;
+@media (min-width: 1024px) {
+    .focus-circle::before {
+        inset: -8px;
+        padding: 8px;
+    }
 }
 
 /* Active Lofi Styles */
 .focus-circle.lofi-active {
-    border-color: transparent !important;
+    border-color: rgba(56, 189, 248, 0) !important; /* Avoid black flash by fading to transparent cyan */
     box-shadow: 0 0 40px rgba(168, 85, 247, 0.2) !important;
 }
 
-.focus-circle.lofi-active::before,
-.focus-circle.lofi-active::after {
+.focus-circle.lofi-active::before {
     opacity: 1;
 }
 
