@@ -1138,6 +1138,66 @@ def api_salas():
         "ocupadas": ocupadas
     })
 
+
+@app.route("/api/sync_horario", methods=["POST"])
+def api_sync_horario():
+    data = request.get_json() or {}
+    horario_usuario = data.get("clases", [])
+    if not horario_usuario:
+        return jsonify([])
+        
+    clases_reales = dm.get_classes()
+    resultados = []
+    
+    import re as re_local
+    
+    for c_user in horario_usuario:
+        # El usuario nos manda el curso y la seccion
+        # Tratamos de hacer match
+        curso_q = normalize_str(c_user.get('curso', ''))
+        sec_q = str(c_user.get('seccion', '')).lower().replace('sección', '').replace('sec', '').strip()
+        dia_user = c_user.get('dia')
+        hora_user = str(c_user.get('horaInicio', '')).strip()
+        
+        matched_node = None
+        
+        for c in clases_reales:
+            n = c.get('node', {})
+            # Match de dia
+            if dia_user and n.get('day') != dia_user:
+                continue
+                
+            # Match de hora
+            c_start = format_time(n.get('start', ''))
+            if hora_user and not (hora_user.startswith(c_start) or c_start.startswith(hora_user.replace(":00", "")) or hora_user in n.get('start', '')):
+                continue
+                
+            # Match de curso
+            curso_n = normalize_str(n.get('course', ''))
+            if curso_q not in curso_n:
+                continue
+                
+            # Match de seccion
+            sec_n = str(n.get('section', '')).lower()
+            sections_n = [s.strip() for s in re_local.split(r'[,/]', sec_n)] if sec_n else []
+            if sec_q and sec_q not in sections_n and sec_q != sec_n:
+                # Si no hace match exacto, puede que sea ayudantia sin seccion clara, pero el dia y hora ya mandan
+                # Para estar seguros, si tiene seccion preferimos que haga match
+                pass
+                
+            matched_node = n
+            break
+            
+        if matched_node:
+            c_user['sala'] = matched_node.get('place', '-')
+            c_user['profesor'] = matched_node.get('teacher', '')
+            c_user['horaInicio'] = format_time(matched_node.get('start', ''))
+            c_user['horaFin'] = format_time(matched_node.get('finish', ''))
+            
+        resultados.append(c_user)
+        
+    return jsonify(resultados)
+
 @app.route("/api/ahora", methods=["GET"])
 def api_ahora():
     facultad = request.args.get("facultad", "INGENIERIA")

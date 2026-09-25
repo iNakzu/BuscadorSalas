@@ -135,6 +135,7 @@ function cambiarVistaHorario(vista, btn) {
     if (btn) btn.classList.add('active');
     renderMiHorario();
     actualizarHeroMiHorario();
+    if (typeof autoSyncHorario === 'function') autoSyncHorario(vista);
 }
 
 function generarHorarioCruce() {
@@ -1182,3 +1183,40 @@ window.cycleHorarioProfile = function(direction) {
         }, 200); // Mitad de la animación
     }
 };
+
+let syncCache = {};
+async function autoSyncHorario(friendId) {
+    if (syncCache[friendId]) return; // Ya se sincronizó en esta sesión
+    
+    let targetObj = null;
+    if (friendId === 'nakzu') {
+        targetObj = MI_HORARIO_DATA;
+    } else if (HORARIOS_GUARDADOS && HORARIOS_GUARDADOS[friendId]) {
+        targetObj = HORARIOS_GUARDADOS[friendId];
+    }
+    
+    if (!targetObj || !targetObj.clases || targetObj.clases.length === 0) return;
+    
+    try {
+        const resp = await fetch('/api/sync_horario', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ clases: targetObj.clases })
+        });
+        
+        if (resp.ok) {
+            const nuevasClases = await resp.json();
+            if (nuevasClases && nuevasClases.length > 0) {
+                targetObj.clases = nuevasClases;
+                syncCache[friendId] = true;
+                if (friendId === 'nakzu') saveMiHorario();
+                renderMiHorario(); // Re-renderizar con salas actualizadas
+            }
+        }
+    } catch(e) {
+        console.error("Error sincronizando horario:", e);
+    }
+}
+
+// Auto-sync al cargar
+setTimeout(() => autoSyncHorario('nakzu'), 1500);
