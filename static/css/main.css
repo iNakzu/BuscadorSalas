@@ -259,7 +259,7 @@ html {
 /* PANELES */
 .panel {
     display: none;
-    max-width: 1050px;
+    max-width: 1400px;
     margin: 0 auto;
 }
 .panel.active {
