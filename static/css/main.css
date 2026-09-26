@@ -2524,3 +2524,17 @@ html {
 .spin {
     animation: spin 1s linear infinite;
 }
+
+@keyframes pulseDotDynamic {
+    0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 6px currentColor; }
+    50% { opacity: 0.6; transform: scale(0.85); box-shadow: 0 0 2px currentColor; }
+}
+.estado-dot-anim {
+    border-radius: 50%;
+    display: block;
+    height: 6px;
+    width: 6px;
+    background-color: currentColor;
+    animation: pulseDotDynamic 2.2s infinite ease-in-out;
+    flex-shrink: 0;
+}

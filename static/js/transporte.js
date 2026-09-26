@@ -251,6 +251,7 @@ function _renderLineaCapsule(l, alertasLinea, metroAbierto) {
                 <!-- Der: estado + chevron -->
                 <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
                     <div id="estado-badge-${l.linea}" style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:${estadoColor};background:${estadoBg};padding:4px 9px;border-radius:7px;border:1px solid ${estadoBorder};">
+                        <span class="estado-dot-anim"></span>
                         <span class="estado-txt">${estadoTxt}</span>
                     </div>
                     <svg id="chevron-${l.linea}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color:#64748b;transition:transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
@@ -294,7 +295,8 @@ function _renderEstadoMetroCapsule(metroAbierto, alertas) {
             };
 
     return `
-        <div class="metro-status-capsule" style="color:${estado.color};background:${estado.bg};border-color:${estado.border};padding-left:12px;">
+        <div class="metro-status-capsule" style="color:${estado.color};background:${estado.bg};border-color:${estado.border};padding-left:12px;display:flex;align-items:center;gap:10px;">
+            <span class="estado-dot-anim"></span>
             <span class="metro-status-copy">
                 <strong>${estado.title}</strong>
                 <small>${estado.detail}</small>
