@@ -250,13 +250,8 @@ function actualizarHeroMiHorario() {
         return nowMins >= ini && nowMins < fin;
     });
 
-    const claseEnVentana = !claseActiva && clasesHoy.find(c => {
-        const ini = timeToMinutes(c.horaInicio);
-        const diff = ini - nowMins;
-        return diff > 0 && diff <= 15;
-    });
-
-    const proximaHoy = !claseActiva && !claseEnVentana && clasesHoy.find(c => {
+    // Cualquier clase pendiente hoy (sin importar cuánto falta)
+    const proximaHoy = !claseActiva && clasesHoy.find(c => {
         const ini = timeToMinutes(c.horaInicio);
         return ini > nowMins;
     });
@@ -303,31 +298,6 @@ function actualizarHeroMiHorario() {
                 <div class="my-hero-progress-bar ${getColorClass(c)}" style="width: ${progreso}%;"></div>
             </div>`;
 
-    } else if (claseEnVentana) {
-        const c = claseEnVentana;
-        const minsParaEmpezar = timeToMinutes(c.horaInicio) - nowMins;
-
-        html = `
-            <div class="my-hero-top">
-                <div class="my-hero-status-pill now">
-                    <span class="pulse-dot"></span>
-                    <span>En ventana</span>
-                </div>
-            </div>
-            <div class="my-hero-body">
-                <div class="my-hero-class-info">
-                    <div class="my-hero-title">Próxima clase en ${minsParaEmpezar}m</div>
-                    <div class="my-hero-subtitle">
-                        <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-top: 4px;">
-                            <span>Tu próxima clase es <strong>${escapeHtml(c.curso)}</strong></span>
-                            <span style="${pill_style}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg>${c.bloqueLabel}</span>
-                            ${c.rol !== 'assistant' ? `<span style="${pill_style}"><span class="hide-on-mobile">${c.tipo}</span><span class="show-mobile-inline">${getShortTipo(c.tipo)}</span></span>` : ''}
-                            ${c.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${c.sala}</span></span>` : ''}
-                        </div>
-                    </div>
-                </div>
-            </div>`;
-
     } else if (proximaHoy) {
         const c = proximaHoy;
         const minsParaEmpezar = timeToMinutes(c.horaInicio) - nowMins;
@@ -335,9 +305,9 @@ function actualizarHeroMiHorario() {
 
         html = `
             <div class="my-hero-top">
-                <div class="my-hero-status-pill done">
+                <div class="my-hero-status-pill now">
                     <span class="pulse-dot"></span>
-                    <span>Entre clases</span>
+                    <span>En ventana</span>
                 </div>
             </div>
             <div class="my-hero-body">
