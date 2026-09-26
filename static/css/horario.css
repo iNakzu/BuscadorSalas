@@ -1656,3 +1656,8 @@
     box-shadow: 0 0 8px #38bdf8 !important;
 }
 
+
+.my-hero-status-pill.done .pulse-dot {
+    background-color: #94a3b8 !important;
+    box-shadow: 0 0 8px #64748b !important;
+}

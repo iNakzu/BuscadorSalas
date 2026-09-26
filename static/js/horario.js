@@ -225,6 +225,7 @@ function actualizarHeroMiHorario() {
     const htmlFinde = `
             <div class="my-hero-top">
                 <div class="my-hero-status-pill done">
+                    <span class="pulse-dot"></span>
                     <span>Fin de semana</span>
                 </div>
             </div>
@@ -390,6 +391,7 @@ function actualizarHeroMiHorario() {
     const htmlSiguiente = `
         <div class="my-hero-top">
             <div class="my-hero-status-pill done">
+                <span class="pulse-dot"></span>
                 <span>Fuera de jornada</span>
             </div>
         </div>
