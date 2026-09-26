@@ -635,7 +635,7 @@ def obtener_salas(dia_numero, hora_exacta, filtro_facultad):
                 'proximo_curso': None,
                 'minutos_hasta_proxima': None,
                 'libre_todo_el_dia': True,
-                'texto': "Libre el resto del día"
+                'texto': "Sin más clases"
             }
 
     # Aplicar el filtro de texto libre al resultado final
