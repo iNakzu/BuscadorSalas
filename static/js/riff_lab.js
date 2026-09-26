@@ -3,8 +3,6 @@
 // ==========================================================================
 
 let coversData = [];
-let presetsData = [];
-let activeRiffTab = 'covers'; // 'covers' | 'presets'
 let riffSearchQuery = '';
 let songsterrSearchTimer = null;
 
@@ -59,45 +57,6 @@ const DEFAULT_COVERS = [
     }
 ];
 
-const DEFAULT_PRESETS = [
-    {
-        id: 'pre_1',
-        name: 'Gojira Modern Heavy Rhythm',
-        plugin: 'Archetype: Gojira X',
-        amp: 'Amp 3 (High Gain)',
-        cab: 'Cab 1 (SM57 + R121)',
-        drive: 'OD-1 (Drive 0, Level 10, Tone 6)',
-        notes: 'Graves ajustados, realce en 2.5kHz para corte en mezcla de metal moderno. Noise gate en -52dB.'
-    },
-    {
-        id: 'pre_2',
-        name: 'Petrucci Ethereal Shimmer Lead',
-        plugin: 'Archetype: Petrucci',
-        amp: 'Amp 4 (Lead Piezo Blend)',
-        cab: 'Stereo Cab 4x12',
-        drive: 'Compressor + TS9 Drive 3',
-        notes: 'Delay dotted 8th a 450ms, Shimmer reverb al 30%. Fluido para solos melódicos.'
-    },
-    {
-        id: 'pre_3',
-        name: 'Nolly Djent Chug Punch',
-        plugin: 'Archetype: Nolly',
-        amp: 'Amp 3 (5150 Style)',
-        cab: 'Nolly Custom 4x12',
-        drive: 'Precision Drive (Attack 3, Bright 6)',
-        notes: 'EQ con corte de graves antes del amp. Ideal para afinaciones bajas como Drop C o Drop A.'
-    },
-    {
-        id: 'pre_4',
-        name: 'Fortin Nameless Raw Metal',
-        plugin: 'Fortin Nameless Suite',
-        amp: 'Nameless High Gain',
-        cab: 'Fortin Zilla Cab IRs',
-        drive: 'Grind Pedal (Boost On)',
-        notes: 'Agresividad pura de tubo británico modificado. Respuesta instantánea al palm mute.'
-    }
-];
-
 function initRiffLab() {
     try {
         const storedCovers = localStorage.getItem('riff_covers');
@@ -120,15 +79,7 @@ function saveCovers() {
 }
 
 function savePresets() {
-    localStorage.setItem('riff_presets', JSON.stringify(presetsData));
-}
 
-function switchRiffView(view) {
-    activeRiffTab = view;
-    document.getElementById('btn-view-covers').classList.toggle('active', view === 'covers');
-    document.getElementById('btn-view-presets').classList.toggle('active', view === 'presets');
-    document.getElementById('riff-covers-container').style.display = view === 'covers' ? 'block' : 'none';
-    document.getElementById('riff-presets-container').style.display = view === 'presets' ? 'block' : 'none';
 }
 
 function renderRiffLab() {
@@ -188,15 +139,13 @@ function focusNextCover() {
 function renderRiffMetrics() {
     const totalCoversEl = document.getElementById('riff-metric-covers');
     const masteredEl = document.getElementById('riff-metric-mastered');
-    const presetsEl = document.getElementById('riff-metric-presets');
-
+    
     if (totalCoversEl) totalCoversEl.innerText = coversData.length;
     if (masteredEl) {
         const mastered = coversData.filter(c => c.status === 'mastered').length;
         masteredEl.innerText = `${mastered}/${coversData.length}`;
     }
-    if (presetsEl) presetsEl.innerText = presetsData.length;
-}
+    }
 
 function renderCoversList() {
     const container = document.getElementById('riff-covers-grid');
@@ -390,14 +339,6 @@ function eliminarCover(id) {
     });
 }
 
-function eliminarPreset(id) {
-    confirmarWeb('¿Quieres quitar este preset de Neural DSP?', () => {
-        presetsData = presetsData.filter(p => p.id !== id);
-        savePresets();
-        renderRiffLab();
-    });
-}
-
 function agregarNuevoCover() {
     abrirModalNuevoCover();
 }
@@ -435,7 +376,7 @@ function abrirModalNuevoCover() {
                 <label>Afinación<input name="tuning" value="E Standard"></label>
                 <label>BPM objetivo<input name="targetBpm" type="number" min="1" value="120"></label>
             </div>
-            <label>Preset o plugin<input name="presetUsed" placeholder="Ej. Archetype Gojira - Rhythm"></label>
+            
             <label>Notas<textarea name="notes" rows="3" placeholder="Qué quieres trabajar..."></textarea></label>
             <div class="riff-modal-actions"><button type="button" class="riff-modal-secondary" onclick="cerrarRiffModal()">Cancelar</button><button class="riff-modal-primary" type="submit">Guardar cover</button></div>
         </form>
@@ -452,7 +393,7 @@ function guardarCoverDesdeModal(event) {
         id: 'cov_' + Date.now(), title: data.get('title').trim(),
         artist: data.get('artist').trim() || 'Desconocido', tuning: data.get('tuning').trim() || 'E Standard',
         status: 'learning', currentBpm: Math.round(targetBpm * 0.7), targetBpm,
-        presetUsed: data.get('presetUsed').trim(), tabUrl: '', notes: data.get('notes').trim()
+        tabUrl: '', notes: data.get('notes').trim()
     });
     saveCovers();
     cerrarRiffModal();
@@ -488,22 +429,6 @@ function seleccionarSugerenciaSongsterr(title, artist) {
     document.getElementById('riff-cover-title').value = title;
     document.getElementById('riff-cover-artist').value = artist;
     document.getElementById('riff-song-suggestions').innerHTML = '';
-}
-
-function abrirModalNuevoPreset() {
-    const modal = getRiffModal();
-    modal.style.display = 'flex';
-    modal.innerHTML = `
-        <form class="riff-modal-card" onsubmit="guardarPresetDesdeModal(event)">
-            <div class="riff-modal-header"><div><span class="section-kicker">Neural DSP</span><h2>Nuevo preset</h2></div><button type="button" class="riff-modal-close" onclick="cerrarRiffModal()">×</button></div>
-            <label>Nombre<input name="name" required placeholder="Ej. Fortin High Gain Lead"></label>
-            <label>Plugin<input name="plugin" value="Neural DSP"></label>
-            <div class="riff-form-grid"><label>Amp<input name="amp"></label><label>Boost / OD<input name="drive"></label></div>
-            <label>Notas<textarea name="notes" rows="3" placeholder="Ecualización, mezcla o contexto..."></textarea></label>
-            <div class="riff-modal-actions"><button type="button" class="riff-modal-secondary" onclick="cerrarRiffModal()">Cancelar</button><button class="riff-modal-primary" type="submit">Guardar preset</button></div>
-        </form>
-    `;
-    modal.querySelector('input[name="name"]').focus();
 }
 
 function guardarPresetDesdeModal(event) {

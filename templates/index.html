@@ -1486,17 +1486,12 @@
                     <div class="riff-hero">
                         <div class="riff-hero-copy">
                             <div class="section-kicker">Practice system · Guitar workspace</div>
-                            <div class="filter-header-title">Riff Lab & Neural DSP Hub</div>
-                            <p>Organiza tu repertorio, registra tus metas de velocidad y conserva tus cadenas de sonido en un solo lugar.</p>
+                            <div class="filter-header-title">Riff Lab</div>
+                            <p>Organiza tu repertorio, registra tus metas de velocidad y domina las canciones.</p>
                         </div>
                         <div class="riff-hero-actions">
-                            <button class="btn-bloque-actual" onclick="agregarNuevoCover()" style="width: auto; padding: 8px 14px; font-size: 12.5px;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                                Nuevo Cover
-                            </button>
-                            <button class="btn-bloque-actual riff-preset-btn" onclick="agregarNuevoPreset()" style="width: auto; padding: 8px 14px; font-size: 12.5px;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="4" y1="6" x2="20" y2="6"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="18" x2="20" y2="18"></line><circle cx="9" cy="6" r="2"></circle><circle cx="15" cy="12" r="2"></circle><circle cx="10" cy="18" r="2"></circle></svg><span>Nuevo Preset</span>
-                            </button>
+                            
+                            
                         </div>
                     </div>
 
@@ -1510,61 +1505,46 @@
                     </div>
 
                     <!-- Métricas de Guitarra -->
-                    <div class="riff-stats-grid">
-                        <div class="riff-stat-card">
-                            <div class="habit-stat-icon" style="background: rgba(139, 92, 246, 0.15); color: #a78bfa;">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+                    <div class="riff-metrics-container" style="display: flex; gap: 16px; margin-bottom: 24px;">
+                        <div style="flex: 1; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 18px 24px; display: flex; align-items: center; gap: 16px; backdrop-filter: blur(10px);">
+                            <div style="background: rgba(168, 85, 247, 0.15); color: #a855f7; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
                             </div>
                             <div>
-                                <div class="habit-stat-val" id="riff-metric-covers">0</div>
-                                <div class="habit-stat-label">Covers en Lista</div>
+                                <div style="font-size: 24px; font-weight: 700; color: #f8fafc;" id="riff-metric-covers">0</div>
+                                <div style="font-size: 13px; color: #94a3b8; font-weight: 500;">Covers Totales</div>
                             </div>
                         </div>
 
-                        <div class="riff-stat-card">
-                            <div class="habit-stat-icon" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 10"></polyline></svg>
+                        <div style="flex: 1; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 18px 24px; display: flex; align-items: center; gap: 16px; backdrop-filter: blur(10px);">
+                            <div style="background: rgba(34, 197, 94, 0.15); color: #4ade80; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                             </div>
                             <div>
-                                <div class="habit-stat-val" id="riff-metric-mastered">0/0</div>
-                                <div class="habit-stat-label">Dominados al 100%</div>
-                            </div>
-                        </div>
-
-                        <div class="riff-stat-card">
-                            <div class="habit-stat-icon" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                            </div>
-                            <div>
-                                <div class="habit-stat-val" id="riff-metric-presets">0</div>
-                                <div class="habit-stat-label">Presets Neural DSP</div>
+                                <div style="font-size: 24px; font-weight: 700; color: #f8fafc;" id="riff-metric-mastered">0/0</div>
+                                <div style="font-size: 13px; color: #94a3b8; font-weight: 500;">Dominados al 100%</div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Pestañas de Vista Interna -->
-                    <div class="riff-nav-switch">
-                        <button class="riff-switch-btn active" id="btn-view-covers" onclick="switchRiffView('covers')">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
-                            Repertorio de Metal / Covers
-                        </button>
-                        <button class="riff-switch-btn" id="btn-view-presets" onclick="switchRiffView('presets')">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                            Presets & Cadenas Neural DSP
-                        </button>
-                    </div>
+                    
 
-                    <div class="riff-library-toolbar">
-                        <div class="riff-search-wrap">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
-                            <input id="riff-search-input" type="search" placeholder="Buscar por canción, artista o plugin..." oninput="filtrarRiffLab(this.value)" autocomplete="off">
+                    <div class="riff-library-toolbar" style="display: flex; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 24px; padding: 16px; background: rgba(15, 23, 42, 0.4); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.05);">
+                        <div class="riff-search-wrap" style="flex: 1; max-width: 400px; display: flex; align-items: center; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 12px; padding: 0 14px;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
+                            <input id="riff-search-input" type="search" placeholder="Buscar canción, banda o afinación..." oninput="filtrarRiffLab(this.value)" autocomplete="off" style="width: 100%; background: transparent; border: none; color: #f8fafc; padding: 12px; outline: none; font-size: 14px;">
                         </div>
-                        <select id="riff-status-filter" class="riff-status-filter" onchange="filtrarRiffLab(document.getElementById('riff-search-input').value)">
-                            <option value="all">Todos los estados</option>
-                            <option value="learning">Aprendiendo</option>
-                            <option value="polishing">Puliendo</option>
-                            <option value="mastered">Dominado</option>
-                        </select>
+                        <div style="display: flex; gap: 12px;">
+                            <select id="riff-status-filter" class="riff-status-filter" onchange="filtrarRiffLab(document.getElementById('riff-search-input').value)" style="background: rgba(15, 23, 42, 0.8); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 0 16px; font-size: 14px; outline: none;">
+                                <option value="all">Repertorio completo</option>
+                                <option value="learning">Aprendiendo</option>
+                                <option value="polishing">Puliendo</option>
+                                <option value="mastered">Dominados</option>
+                            </select>
+                            <button onclick="abrirModalNuevoCover()" title="Agregar nuevo cover" style="background: linear-gradient(135deg, #38bdf8, #2563eb); color: white; border: none; border-radius: 12px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3); transition: transform 0.2s;">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Vista 1: Covers Grid -->
@@ -1574,24 +1554,16 @@
                         </div>
 
                         <div id="riff-kanban-container" class="riff-kanban-container">
-                            <div class="riff-kanban-intro">
-                                <div>
-                                    <div class="section-kicker">Mapa de dominio</div>
-                                    <strong>Progreso de tus covers</strong>
-                                    <span>Aprendiendo, puliendo o dominado. El estado también actualiza tu repertorio.</span>
-                                </div>
-                                <button class="riff-focus-button" onclick="abrirModalNuevoCover()">Nuevo cover <span>+</span></button>
+                            <div class="riff-kanban-intro" style="display: flex; flex-direction: column; align-items: center; text-align: center; margin: 40px 0 24px;">
+                                <div class="section-kicker">Mapa de dominio</div>
+                                <h2 style="font-size: 20px; font-weight: 700; color: #f8fafc; margin: 4px 0 6px;">Progreso de tus covers</h2>
+                                <p style="color: #94a3b8; font-size: 14px;">Mueve tus canciones entre los estados para actualizar el repertorio automáticamente.</p>
                             </div>
                             <div class="riff-kanban-grid" id="riff-kanban-grid"></div>
                         </div>
                     </div>
 
-                    <!-- Vista 2: Presets Grid -->
-                    <div id="riff-presets-container" style="display: none;">
-                        <div class="riff-grid" id="riff-presets-grid">
-                            <!-- Injected by riff_lab.js -->
-                        </div>
-                    </div>
+                    
                 </div>
             </div>
         </section>
