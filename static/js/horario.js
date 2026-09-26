@@ -229,10 +229,10 @@ function actualizarHeroMiHorario() {
             const tipoAyu = isAsistente ? ' (Como Ayudante)' : '';
             const tipoHtml = `<span style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px; display: inline-flex; align-items: center; gap: 4px; color: #f1f5f9;">${siguienteClaseFinde.tipo}${tipoAyu}</span>`;
             const salaPill = siguienteClaseFinde.sala ? `<span style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px; display: inline-flex; align-items: center; gap: 4px; color: #f1f5f9;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${siguienteClaseFinde.sala}</span></span>` : '';
-            const horaPill = `<span style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px; display: inline-flex; align-items: center; gap: 4px; color: #f1f5f9;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>${siguienteClaseFinde.horaInicio}</span></span>`;
+            const horaPill = `<span style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px; display: inline-flex; align-items: center; gap: 4px; color: #f1f5f9;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>${siguienteClaseFinde.diaNombre} ${siguienteClaseFinde.horaInicio}</span></span>`;
             
             msgFinde = `<div style="display: flex; align-items: center; flex-wrap: wrap; line-height: 1.8;">
-                            <span style="margin-right: 6px;">Tu próxima clase es <strong>${siguienteClaseFinde.curso}</strong> el ${siguienteClaseFinde.diaNombre}</span>
+                            <span style="margin-right: 6px;">Tu próxima clase es <strong>${siguienteClaseFinde.curso}</strong></span>
                             ${horaPill}
                             ${tipoHtml}
                             ${salaPill}
@@ -374,10 +374,10 @@ function actualizarHeroMiHorario() {
             const tipoAyu = isAsistente ? ' (Como Ayudante)' : '';
             const tipoHtml = `<span style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px; display: inline-flex; align-items: center; gap: 4px; color: #f1f5f9;">${siguienteClase.tipo}${tipoAyu}</span>`;
             const salaPill = siguienteClase.sala ? `<span style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px; display: inline-flex; align-items: center; gap: 4px; color: #f1f5f9;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${siguienteClase.sala}</span></span>` : '';
-            const horaPill = `<span style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px; display: inline-flex; align-items: center; gap: 4px; color: #f1f5f9;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>${siguienteClase.horaInicio}</span></span>`;
+            const horaPill = `<span style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px; display: inline-flex; align-items: center; gap: 4px; color: #f1f5f9;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>${siguienteClase.diaNombre} ${siguienteClase.horaInicio}</span></span>`;
             
             msgSiguiente = `<div style="display: flex; align-items: center; flex-wrap: wrap; line-height: 1.8;">
-                                <span style="margin-right: 6px;">Tu próxima clase es <strong>${siguienteClase.curso}</strong> el ${siguienteClase.diaNombre}</span>
+                                <span style="margin-right: 6px;">Tu próxima clase es <strong>${siguienteClase.curso}</strong></span>
                                 ${horaPill}
                                 ${tipoHtml}
                                 ${salaPill}
