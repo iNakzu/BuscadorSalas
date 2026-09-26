@@ -202,34 +202,32 @@ function _renderLineaCapsule(l, alertasLinea, metroAbierto) {
 
     if (tieneAlerta) {
         expandHtml += `
-            <div style="margin-bottom:10px;">
-                <div style="font-size:10.5px;font-weight:800;color:#f87171;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;display:flex;align-items:center;gap:5px;">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <div>
+                <div style="font-size:10.5px;font-weight:800;color:#f87171;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:5px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                     Incidentes activos
                 </div>
                 ${alertasLinea.map(a => `
-                    <div style="background:rgba(153,27,27,0.2);border:1px solid rgba(248,113,113,0.25);border-radius:8px;padding:8px 10px;margin-bottom:5px;">
-                        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:3px;min-width:0;">
-                            <div style="color:#fca5a5;font-weight:700;font-size:12px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtmlTrans(a.target)}</div>
-                            <span style="color:#64748b;font-size:10px;font-weight:600;white-space:nowrap;flex-shrink:0;">${escapeHtmlTrans(formatearFechaAlerta(a.ts))}</span>
-                        </div>
-                        <div style="color:#94a3b8;font-size:11px;line-height:1.4;">${escapeHtmlTrans(formatearMensajeAlerta(a.mensaje.substring(0,200)))}${a.mensaje.length>200?'…':''}</div>
+                    <div style="background:rgba(153,27,27,0.15);border:1px solid rgba(248,113,113,0.25);border-radius:10px;padding:12px;margin-bottom:8px;text-align:center;">
+                        <div style="color:#fca5a5;font-weight:700;font-size:13px;margin-bottom:6px;">${escapeHtmlTrans(a.target)}</div>
+                        <div style="color:#cbd5e1;font-size:11.5px;line-height:1.5;">${escapeHtmlTrans(formatearMensajeAlerta(a.mensaje.substring(0,200)))}${a.mensaje.length>200?'…':''}</div>
+                        <div style="color:#64748b;font-size:10px;font-weight:600;margin-top:8px;">${escapeHtmlTrans(formatearFechaAlerta(a.ts))}</div>
                     </div>
                 `).join('')}
             </div>
         `;
     } else if (servicioActivo) {
         expandHtml += `
-            <div style="display:flex;align-items:center;gap:7px;background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2);border-radius:8px;padding:9px 12px;margin-bottom:10px;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <span style="color:#86efac;font-size:12px;font-weight:600;">Sin interrupciones reportadas.</span>
+            <div style="display:flex;align-items:center;justify-content:center;gap:7px;background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:12px;margin:0 auto;max-width:300px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span style="color:#86efac;font-size:12.5px;font-weight:600;">Sin interrupciones reportadas</span>
             </div>
         `;
     } else {
         expandHtml += `
-            <div style="display:flex;align-items:center;gap:7px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:8px;padding:9px 12px;margin-bottom:10px;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
-                <span style="color:#fcd34d;font-size:12px;font-weight:600;">Servicio fuera de horario. Revisa el horario de apertura en el encabezado.</span>
+            <div style="display:flex;align-items:center;justify-content:center;gap:7px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:12px;margin:0 auto;max-width:340px;text-align:center;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.5" style="flex-shrink:0;"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+                <span style="color:#fcd34d;font-size:12px;font-weight:600;">Servicio fuera de horario de operación.</span>
             </div>
         `;
     }
@@ -245,6 +243,8 @@ function _renderLineaCapsule(l, alertasLinea, metroAbierto) {
             <!-- Header de la cápsula -->
             <div class="metro-linea-header"
                 onclick="toggleLineaDetalle('${l.linea}')"
+                onmouseover="this.style.background='rgba(255,255,255,0.03)'"
+                onmouseout="this.style.background='transparent'"
                 style="
                     padding:13px 15px;
                     display:flex;
@@ -253,7 +253,8 @@ function _renderLineaCapsule(l, alertasLinea, metroAbierto) {
                     cursor:pointer;
                     user-select:none;
                     gap:10px;
-                    background:${tieneAlerta ? 'rgba(153,27,27,0.08)' : 'rgba(30,41,59,0.30)'};
+                    background:transparent;
+                    transition: background 0.2s;
                 "
             >
                 <!-- Izq: badge de color + nombre corto -->
@@ -287,7 +288,7 @@ function _renderLineaCapsule(l, alertasLinea, metroAbierto) {
             </div>
 
             <!-- Detalle expandible -->
-            <div id="detalle-linea-${l.linea}" class="metro-linea-detail" style="display:none;padding:12px 15px;border-top:1px solid rgba(255,255,255,0.08);background:rgba(15,23,42,0.60);">
+            <div id="detalle-linea-${l.linea}" class="metro-linea-detail" style="display:none;padding:12px 15px;border-top:1px solid rgba(255,255,255,0.08);background:transparent;">
                 ${expandHtml}
             </div>
         </div>
