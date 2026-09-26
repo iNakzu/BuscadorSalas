@@ -234,10 +234,10 @@ function actualizarHeroMiHorario() {
                     <div class="my-hero-title">Descanso de fin de semana!</div>
                     <div class="my-hero-subtitle">
                         <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-top: 4px;">
-                            <span style="flex-basis: 100%; margin-bottom: 4px;">Tu próxima clase es <strong>${mockFinde.curso}</strong></span>
+                            <span>Tu próxima clase es <strong>${mockFinde.curso}</strong></span>
                             <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>${mockFinde.diaNombre} ${mockFinde.horaInicio}</span></span>
                             <span style="${pill_style}">${mockFinde.tipo}</span>
-                            ${mockFinde.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockFinde.sala}</span></span>` : \'\'}
+                            ${mockFinde.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockFinde.sala}</span></span>` : ''}
                         </div>
                     </div>
                 </div>
@@ -366,10 +366,10 @@ function actualizarHeroMiHorario() {
                     <div class="my-hero-title">Próxima clase en 10m</div>
                     <div class="my-hero-subtitle">
                         <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-top: 4px;">
-                            <span style="flex-basis: 100%; margin-bottom: 4px;">Tu próxima clase es <strong>${escapeHtml(mockProxima.curso)}</strong></span>
+                            <span>Tu próxima clase es <strong>${escapeHtml(mockProxima.curso)}</strong></span>
                             <span style="${pill_style}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg>${mockProxima.bloqueLabel}</span>
                             ${mockProxima.rol !== 'assistant' ? `<span style="${pill_style}">${mockProxima.tipo}</span>` : ''}
-                            ${mockProxima.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockProxima.sala}</span></span>` : \'\'}
+                            ${mockProxima.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockProxima.sala}</span></span>` : ''}
                         </div>
                     </div>
                 </div>
@@ -390,7 +390,7 @@ function actualizarHeroMiHorario() {
                 <div class="my-hero-title">No tienes más clases hoy</div>
                 <div class="my-hero-subtitle">
                     <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-top: 4px;">
-                        <span style="flex-basis: 100%; margin-bottom: 4px;">Tu próxima clase es <strong>${mockSiguiente.curso}</strong></span>
+                        <span>Tu próxima clase es <strong>${mockSiguiente.curso}</strong></span>
                         <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>${mockSiguiente.diaNombre} ${mockSiguiente.horaInicio}</span></span>
                         <span style="${pill_style}">${mockSiguiente.tipo}</span>
                         ${mockSiguiente.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockSiguiente.sala}</span></span>` : ''}
