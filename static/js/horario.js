@@ -192,12 +192,21 @@ function actualizarHeroMiHorario() {
     const heroEl = document.getElementById('my-schedule-hero');
     if (!heroEl) return;
     
-    // TEMPORARY PREVIEW GENERATION FOR ALL 4 STATES
+    // TEMPORARY PREVIEW GENERATION WITH REAL DATA
     
     const pill_style = 'background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; color: #f1f5f9;';
     
-    // 1. FINDE STATE
-    const mockFinde = { curso: 'Tecnologías Inalámbricas', diaNombre: 'Lunes', horaInicio: '11:30', tipo: 'Cátedra', sala: 'V432.3.S312', rol: 'student' };
+    const misClases = getHorarioActivo();
+    if (!misClases || misClases.length === 0) return;
+    
+    const findCatedra = misClases.find(c => c.tipo && c.tipo.toLowerCase().includes('cátedra')) || misClases[0];
+    const findAyuAsist = misClases.find(c => c.rol === 'assistant') || misClases[0];
+    const findLab = misClases.find(c => c.tipo && c.tipo.toLowerCase().includes('laboratorio')) || misClases[0];
+    const findAyuEst = misClases.find(c => c.rol === 'student' && c.tipo && c.tipo.toLowerCase().includes('ayudantía')) || misClases[0];
+    const firstClass = misClases[0];
+    const lastClass = misClases[misClases.length - 1];
+
+    const mockFinde = firstClass;
     const htmlFinde = `
             <div class="my-hero-top">
                 <div class="my-hero-status-pill done">
@@ -211,16 +220,15 @@ function actualizarHeroMiHorario() {
                         <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-top: 4px;">
                             <span>Tu próxima clase es <strong>${mockFinde.curso}</strong></span>
                             <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>${mockFinde.diaNombre} ${mockFinde.horaInicio}</span></span>
-                            <span style="${pill_style}">${mockFinde.tipo}</span>
-                            <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockFinde.sala}</span></span>
+                            <span style="${pill_style}">${mockFinde.tipo}${mockFinde.rol === 'assistant' ? ' (Como Ayudante)' : ''}</span>
+                            ${mockFinde.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockFinde.sala}</span></span>` : ''}
                         </div>
                     </div>
                 </div>
             </div>
     `;
 
-    // 2. EN CLASE STATE
-    const mockActual = { curso: 'Álgebra Lineal', tipo: 'Ayudantía', sala: 'E306.1.S107', rol: 'assistant', bloqueNum: 3, bloqueLabel: '11:30 - 12:50', profesor: 'Matías Robotham' };
+    const mockActual = findAyuAsist;
     const htmlActual = `
             <div class="my-hero-top">
                 <div class="my-hero-status-pill now">
@@ -233,11 +241,11 @@ function actualizarHeroMiHorario() {
                     <div class="my-hero-title" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
                         <span>${mockActual.curso}</span>
                         <span style="${pill_style}">${mockActual.tipo} (Como Ayudante)</span>
-                        <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockActual.sala}</span></span>
+                        ${mockActual.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockActual.sala}</span></span>` : ''}
                     </div>
                     <div class="my-hero-subtitle">
                         <span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;">Bloque ${mockActual.bloqueNum} (${mockActual.bloqueLabel})</span>
-                        <span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px; margin-top: -2px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>${mockActual.profesor}</span>
+                        ${mockActual.profesor ? `<span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px; margin-top: -2px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>${mockActual.profesor}</span>` : ''}
                         <span style="background: rgba(14,165,233,0.1); color:#38bdf8; padding: 2px 8px; border-radius: 4px;">Quedan <strong>35 min</strong></span>
                     </div>
                 </div>
@@ -247,8 +255,53 @@ function actualizarHeroMiHorario() {
             </div>
     `;
 
-    // 3. EN VENTANA (PRÓXIMA HOY)
-    const mockProxima = { curso: 'Introducción a la Economía', tipo: 'Cátedra', sala: 'E441.4.S402', rol: 'student', horaInicio: '13:00', bloqueNum: 4 };
+    const mockLab = findLab;
+    const htmlLab = `
+            <div class="my-hero-top">
+                <div class="my-hero-status-pill now">
+                    <span class="pulse-dot"></span>
+                    <span>En laboratorio</span>
+                </div>
+            </div>
+            <div class="my-hero-body">
+                <div class="my-hero-class-info">
+                    <div class="my-hero-title" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
+                        <span>${mockLab.curso}</span>
+                        <span style="${pill_style}">${mockLab.tipo}</span>
+                        ${mockLab.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockLab.sala}</span></span>` : ''}
+                    </div>
+                    <div class="my-hero-subtitle">
+                        <span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;">Bloque ${mockLab.bloqueNum} (${mockLab.bloqueLabel})</span>
+                        ${mockLab.profesor ? `<span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px; margin-top: -2px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>${mockLab.profesor}</span>` : ''}
+                    </div>
+                </div>
+            </div>
+    `;
+
+    const mockAyuEst = findAyuEst;
+    const htmlAyuEst = `
+            <div class="my-hero-top">
+                <div class="my-hero-status-pill now">
+                    <span class="pulse-dot"></span>
+                    <span>En ayudantía</span>
+                </div>
+            </div>
+            <div class="my-hero-body">
+                <div class="my-hero-class-info">
+                    <div class="my-hero-title" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
+                        <span>${mockAyuEst.curso}</span>
+                        <span style="${pill_style}">${mockAyuEst.tipo}</span>
+                        ${mockAyuEst.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockAyuEst.sala}</span></span>` : ''}
+                    </div>
+                    <div class="my-hero-subtitle">
+                        <span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;">Bloque ${mockAyuEst.bloqueNum} (${mockAyuEst.bloqueLabel})</span>
+                        ${mockAyuEst.profesor ? `<span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px; margin-top: -2px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>${mockAyuEst.profesor}</span>` : ''}
+                    </div>
+                </div>
+            </div>
+    `;
+
+    const mockProxima = findCatedra;
     const htmlProxima = `
             <div class="my-hero-top">
                 <div class="my-hero-status-pill next">
@@ -261,10 +314,10 @@ function actualizarHeroMiHorario() {
                     <div class="my-hero-title" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
                         <div>
                             <span class="my-hero-next-label">Próxima</span>
-                            <span>${mockProxima.curso}</span>
+                            <span>${escapeHtml(mockProxima.curso)}</span>
                         </div>
                         <span style="${pill_style}">${mockProxima.tipo}</span>
-                        <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockProxima.sala}</span></span>
+                        ${mockProxima.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockProxima.sala}</span></span>` : ''}
                     </div>
                     <div class="my-hero-subtitle">
                         <span class="my-hero-next-time">
@@ -281,8 +334,7 @@ function actualizarHeroMiHorario() {
             </div>
     `;
 
-    // 4. FIN DE JORNADA (SIGUIENTE CLASE)
-    const mockSiguiente = { curso: 'Inteligencia Artificial', tipo: 'Ayudantía', sala: 'V432.3.S315', rol: 'student', diaNombre: 'Miércoles', horaInicio: '08:30' };
+    const mockSiguiente = lastClass;
     const htmlSiguiente = `
         <div class="my-hero-top">
             <div class="my-hero-status-pill done">
@@ -296,62 +348,14 @@ function actualizarHeroMiHorario() {
                     <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-top: 4px;">
                         <span>Tu próxima clase es <strong>${mockSiguiente.curso}</strong></span>
                         <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>${mockSiguiente.diaNombre} ${mockSiguiente.horaInicio}</span></span>
-                        <span style="${pill_style}">${mockSiguiente.tipo}</span>
-                        <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockSiguiente.sala}</span></span>
+                        <span style="${pill_style}">${mockSiguiente.tipo}${mockSiguiente.rol === 'assistant' ? ' (Como Ayudante)' : ''}</span>
+                        ${mockSiguiente.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockSiguiente.sala}</span></span>` : ''}
                     </div>
                 </div>
             </div>
         </div>
     `;
 
-    // 5. EN CLASE (LABORATORIO)
-    const mockLab = { curso: 'Física Moderna', tipo: 'Laboratorio', sala: 'L12.Lab1', rol: 'student', bloqueNum: 2, bloqueLabel: '10:00 - 11:20', profesor: 'Nicanor Parra' };
-    const htmlLab = `
-            <div class="my-hero-top">
-                <div class="my-hero-status-pill now">
-                    <span class="pulse-dot"></span>
-                    <span>En laboratorio</span>
-                </div>
-            </div>
-            <div class="my-hero-body">
-                <div class="my-hero-class-info">
-                    <div class="my-hero-title" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
-                        <span>${mockLab.curso}</span>
-                        <span style="${pill_style}">${mockLab.tipo}</span>
-                        <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockLab.sala}</span></span>
-                    </div>
-                    <div class="my-hero-subtitle">
-                        <span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;">Bloque ${mockLab.bloqueNum} (${mockLab.bloqueLabel})</span>
-                        <span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px; margin-top: -2px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>${mockLab.profesor}</span>
-                    </div>
-                </div>
-            </div>
-    `;
-
-    // 6. EN CLASE (AYUDANTÍA ESTUDIANTE)
-    const mockAyuEst = { curso: 'Cálculo Avanzado', tipo: 'Ayudantía', sala: 'A101', rol: 'student', bloqueNum: 5, bloqueLabel: '14:30 - 15:50', profesor: 'Juan Pérez' };
-    const htmlAyuEst = `
-            <div class="my-hero-top">
-                <div class="my-hero-status-pill now">
-                    <span class="pulse-dot"></span>
-                    <span>En ayudantía</span>
-                </div>
-            </div>
-            <div class="my-hero-body">
-                <div class="my-hero-class-info">
-                    <div class="my-hero-title" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
-                        <span>${mockAyuEst.curso}</span>
-                        <span style="${pill_style}">${mockAyuEst.tipo}</span>
-                        <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockAyuEst.sala}</span></span>
-                    </div>
-                    <div class="my-hero-subtitle">
-                        <span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;">Bloque ${mockAyuEst.bloqueNum} (${mockAyuEst.bloqueLabel})</span>
-                    </div>
-                </div>
-            </div>
-    `;
-
-    // INYECTAR TODOS
     const parent = heroEl.parentNode;
     parent.innerHTML = `
         <div style="display: flex; flex-direction: column; gap: 16px;">
