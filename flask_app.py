@@ -1048,6 +1048,15 @@ def add_no_cache_headers(response):
         response.headers["Expires"] = "0"
     return response
 
+
+@app.route('/sw.js')
+def serve_sw():
+    return app.send_static_file('sw.js')
+
+@app.route('/manifest.json')
+def serve_manifest():
+    return app.send_static_file('manifest.json')
+
 @app.route("/", methods=["GET", "POST"])
 def inicio():
     vacias = []

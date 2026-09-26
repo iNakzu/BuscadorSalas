@@ -13,6 +13,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    <!-- PWA Settings -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="apple-touch-icon" href="/static/icon-192.png">
+    
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=45">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}?v=12">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ai.css') }}?v=14">
@@ -1887,5 +1892,16 @@
         });
     </script>
 
+
+    <!-- PWA Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').then(() => {
+            console.log('PWA Service Worker registered');
+          });
+        });
+      }
+    </script>
 </body>
 </html>
