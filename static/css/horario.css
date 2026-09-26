@@ -1690,3 +1690,10 @@
     background: linear-gradient(90deg, #0284c7 0%, #38bdf8 100%) !important;
     box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
 }
+
+/* OCULTAR ELEMENTOS EN MÓVIL PARA AHORRAR ESPACIO */
+@media (max-width: 640px) {
+    .hide-on-mobile {
+        display: none !important;
+    }
+}
