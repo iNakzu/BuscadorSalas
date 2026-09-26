@@ -64,14 +64,14 @@
                         <path d="M3 3v5h5"></path>
                     </svg>
                 </button>
-                <button id="pwa-install-btn" type="button" class="btn-clear-cache" style="display: none; margin-left: 6px; color: #38bdf8; border-color: rgba(56, 189, 248, 0.25);" onclick="instalarPWA()" title="Instalar App Nativa">
+                <button id="pwa-install-btn" type="button" class="btn-clear-cache" style="display: inline-flex; margin-left: 6px; color: #38bdf8; border-color: rgba(56, 189, 248, 0.25);" onclick="instalarPWA()" title="Instalar App Nativa">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                         <polyline points="7 10 12 15 17 10"></polyline>
                         <line x1="12" y1="15" x2="12" y2="3"></line>
                     </svg>
                 </button>
-                <span>Plataforma estudiantil</span>
+                <span>Panel de Control</span>
             </p>
         </div>
         <nav class="tabs" aria-label="Navegación principal">
@@ -1917,12 +1917,25 @@
         }
       });
 
+      
+      // Check si estamos en iOS y no estamos en modo standalone
+      window.addEventListener('DOMContentLoaded', () => {
+          const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+          if (isStandalone && installBtn) {
+              installBtn.style.display = 'none';
+          }
+      });
+
       function instalarPWA() {
         if (!deferredPrompt) {
-            // Check if iOS
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
             if (isIOS) {
-                alert("Para instalar en iPhone:\n1. Toca el botón 'Compartir' (el cuadrado con la flecha) abajo en Safari.\n2. Toca 'Agregar a inicio'.");
+                alert(`🍎 Para instalar en iPhone:
+1. Toca el botón 'Compartir' (el cuadrado con la flecha) abajo en Safari.
+2. Toca 'Agregar a inicio'.`);
+            } else {
+                alert(`💻 Para instalar la App:
+Haz clic en el ícono de instalación en la barra de búsqueda de tu navegador (arriba a la derecha), o en el menú de opciones (3 puntos) selecciona 'Instalar aplicación'.`);
             }
             return;
         }
@@ -1935,15 +1948,6 @@
           installBtn.style.display = 'none';
         });
       }
-
-      // Check si estamos en iOS y no estamos en modo standalone
-      window.addEventListener('DOMContentLoaded', () => {
-          const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-          const isStandalone = window.navigator.standalone === true;
-          if (isIOS && !isStandalone && installBtn) {
-              installBtn.style.display = 'inline-flex';
-          }
-      });
 
       if ('serviceWorker' in navigator) {
 
