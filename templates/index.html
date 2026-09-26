@@ -1150,12 +1150,16 @@
         </section>
         
         <!-- TAB KANBAN -->
-        <section id="tab-kanban" class="panel" >
-            <div class="control-card" style="margin-bottom: 20px;">
-                <div class="filter-header-row" style="margin-bottom: 16px;">
-                    <div class="filter-header-title">Tablero Kanban</div>
-                    <button class="btn-bloque-actual" onclick="abrirModalNuevaTarea()" title="Nueva Tarea">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        <section id="tab-kanban" class="panel">
+            <div class="gastos-shell">
+                <div class="gastos-hero" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; padding: 24px;">
+                    <div class="gastos-hero-copy">
+                        <span class="gastos-kicker">Organización visual</span>
+                        <h1>Tablero Kanban</h1>
+                        <p>Mueve tus trabajos y evaluaciones entre columnas para gestionar tu tiempo.</p>
+                    </div>
+                    <button onclick="abrirModalNuevaTarea()" title="Nueva Tarea" style="background: linear-gradient(135deg, #38bdf8, #2563eb); color: white; border: none; border-radius: 12px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3); transition: transform 0.2s;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                     </button>
                 </div>
                 <div class="kanban-board" id="kanban-board">
