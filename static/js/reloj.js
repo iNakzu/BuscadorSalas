@@ -490,7 +490,14 @@ function updateStopwatchUI() {
         lapButton.style = stopwatchRunning ? '' : 'opacity: 0.5; cursor: not-allowed;';
     }
     const laps = document.getElementById('stopwatch-laps');
-    if (laps) laps.innerHTML = stopwatchLaps.map((lap, index) => `<div><span>Vuelta ${stopwatchLaps.length - index}</span><strong>${lap}</strong></div>`).join('');
+    if (laps) laps.innerHTML = stopwatchLaps.map((lap, index) => {
+        const num = stopwatchLaps.length - index;
+        const isLast = index === 0;
+        return `<div class="lap-row${isLast ? ' lap-row--latest' : ''}">
+            <span class="lap-num">${num}</span>
+            <span class="lap-time">${lap}</span>
+        </div>`;
+    }).join('');
 }
 
 document.addEventListener('DOMContentLoaded', initReloj);
