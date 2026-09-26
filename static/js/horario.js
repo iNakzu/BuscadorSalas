@@ -230,8 +230,12 @@ function actualizarHeroMiHorario() {
             const tipoHtml = `<span style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">${siguienteClaseFinde.tipo}${tipoAyu}</span>`;
             const salaPill = siguienteClaseFinde.sala ? `<span class="my-room-pill" style="margin-left: 8px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg> <span>${siguienteClaseFinde.sala}</span></span>` : '';
             
-            msgFinde = `Próximo <strong>${siguienteClaseFinde.diaNombre} a las ${siguienteClaseFinde.horaInicio}</strong>`;
-            titleFinde = `<div style="display: flex; align-items: center; flex-wrap: wrap;"><span>${siguienteClaseFinde.curso}</span>${tipoHtml}${salaPill}</div>`;
+            msgFinde = `<div style="display: flex; align-items: center; flex-wrap: wrap;">
+                            <span style="margin-right: 6px;">Tu próxima clase es <strong>${siguienteClaseFinde.curso}</strong> el ${siguienteClaseFinde.diaNombre} a las ${siguienteClaseFinde.horaInicio}</span>
+                            ${tipoHtml}
+                            ${salaPill}
+                        </div>`;
+            titleFinde = "Descanso de fin de semana!";
         }
 
         heroEl.innerHTML = `
@@ -244,7 +248,7 @@ function actualizarHeroMiHorario() {
                 <div class="my-hero-class-info">
                     <div class="my-hero-title" style="display: flex; align-items: center; flex-wrap: wrap;">${titleFinde}</div>
                     <div class="my-hero-subtitle">
-                        <span>${msgFinde}</span>
+                        ${msgFinde}
                     </div>
                 </div>
             </div>
@@ -369,8 +373,12 @@ function actualizarHeroMiHorario() {
             const tipoHtml = `<span style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">${siguienteClase.tipo}${tipoAyu}</span>`;
             const salaPill = siguienteClase.sala ? `<span class="my-room-pill" style="margin-left: 8px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg> <span>${siguienteClase.sala}</span></span>` : '';
             
-            msgSiguiente = `Próximo <strong>${siguienteClase.diaNombre} a las ${siguienteClase.horaInicio}</strong>`;
-            titleSiguiente = `<div style="display: flex; align-items: center; flex-wrap: wrap;"><span>${siguienteClase.curso}</span>${tipoHtml}${salaPill}</div>`;
+            msgSiguiente = `<div style="display: flex; align-items: center; flex-wrap: wrap;">
+                                <span style="margin-right: 6px;">Tu próxima clase es <strong>${siguienteClase.curso}</strong> el ${siguienteClase.diaNombre} a las ${siguienteClase.horaInicio}</span>
+                                ${tipoHtml}
+                                ${salaPill}
+                            </div>`;
+            titleSiguiente = 'No tienes más clases hoy';
         }
     }
 
@@ -384,7 +392,7 @@ function actualizarHeroMiHorario() {
             <div class="my-hero-class-info">
                 <div class="my-hero-title" style="display: flex; align-items: center; flex-wrap: wrap;">${titleSiguiente}</div>
                 <div class="my-hero-subtitle">
-                    <span>${msgSiguiente}</span>
+                    ${msgSiguiente}
                 </div>
             </div>
         </div>
