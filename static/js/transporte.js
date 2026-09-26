@@ -183,7 +183,7 @@ function _renderLineaCapsule(l, alertasLinea, metroAbierto) {
                             </div>
                             <span style="color:#64748b;font-size:10px;font-weight:600;white-space:nowrap;flex-shrink:0;">${escapeHtmlTrans(formatearFechaAlerta(a.ts))}</span>
                         </div>
-                        <div style="color:#94a3b8;font-size:11px;line-height:1.4;">${escapeHtmlTrans(formatearMensajeAlerta(a.mensaje.substring(0,160)))}${a.mensaje.length>160?'…':''}</div>
+                        <div style="color:#94a3b8;font-size:11px;line-height:1.4;">${escapeHtmlTrans(formatearMensajeAlerta(a.mensaje))}</div>
                     </div>
                 `).join('')}
                 </div>
