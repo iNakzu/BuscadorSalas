@@ -198,7 +198,7 @@ function actualizarHeroMiHorario() {
             </div>
             <div class="my-hero-body" >
                 <div class="my-hero-class-info">
-                    <div class="my-hero-title">Enfoque Profundo</div>
+                    <div class="my-hero-title" style="display: flex; align-items: center; flex-wrap: wrap;">Enfoque Profundo</div>
                     <div class="my-hero-subtitle" >
                         <span>Silencia las distracciones. Cronómetro en marcha.</span>
                     </div>
@@ -222,8 +222,16 @@ function actualizarHeroMiHorario() {
         }
         
         let msgFinde = "No tienes clases programadas en la semana.";
+        let titleFinde = "Descanso de fin de semana!";
+        
         if (siguienteClaseFinde) {
-            msgFinde = `Tu próxima clase es el <strong>${siguienteClaseFinde.diaNombre} a las ${siguienteClaseFinde.horaInicio}</strong>${siguienteClaseFinde.sala ? ` en <strong>${siguienteClaseFinde.sala}</strong>` : ''}.`;
+            const isAsistente = siguienteClaseFinde.rol === 'assistant';
+            const tipoAyu = isAsistente ? ' (Como Ayudante)' : '';
+            const tipoHtml = `<span style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">${siguienteClaseFinde.tipo}${tipoAyu}</span>`;
+            const salaPill = siguienteClaseFinde.sala ? `<span class="my-room-pill" style="margin-left: 8px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg> <span>${siguienteClaseFinde.sala}</span></span>` : '';
+            
+            msgFinde = `Próximo <strong>${siguienteClaseFinde.diaNombre} a las ${siguienteClaseFinde.horaInicio}</strong>`;
+            titleFinde = `<div style="display: flex; align-items: center; flex-wrap: wrap;"><span>${siguienteClaseFinde.curso}</span>${tipoHtml}${salaPill}</div>`;
         }
 
         heroEl.innerHTML = `
@@ -234,7 +242,7 @@ function actualizarHeroMiHorario() {
             </div>
             <div class="my-hero-body">
                 <div class="my-hero-class-info">
-                    <div class="my-hero-title">Descanso de fin de semana!</div>
+                    <div class="my-hero-title" style="display: flex; align-items: center; flex-wrap: wrap;">${titleFinde}</div>
                     <div class="my-hero-subtitle">
                         <span>${msgFinde}</span>
                     </div>
@@ -273,12 +281,13 @@ function actualizarHeroMiHorario() {
             </div>
             <div class="my-hero-body">
                 <div class="my-hero-class-info">
-                    <div class="my-hero-title">
+                    <div class="my-hero-title" style="display: flex; align-items: center; flex-wrap: wrap;">
                         <span>${claseActual.curso}</span>
+                        <span style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">${claseActual.tipo}${claseActual.rol === 'assistant' ? ' (Como Ayudante)' : ''}</span>
+                        ${claseActual.sala ? `<span class="my-room-pill" style="margin-left: 8px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg> <span>${claseActual.sala}</span></span>` : ''}
                     </div>
                     <div class="my-hero-subtitle">
                         <span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;">Bloque ${claseActual.bloqueNum} (${claseActual.bloqueLabel})</span>
-                        ${claseActual.sala ? `<span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px; margin-top: -2px;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>${claseActual.sala}</span>` : ''}
                         ${claseActual.profesor ? `<span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px; margin-top: -2px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>${claseActual.profesor}</span>` : ''}
                         <span style="background: rgba(14,165,233,0.1); color:#38bdf8; padding: 2px 8px; border-radius: 4px;">Quedan <strong>${minRestantes} min</strong></span>
                     </div>
@@ -310,11 +319,13 @@ function actualizarHeroMiHorario() {
             </div>
             <div class="my-hero-body">
                 <div class="my-hero-class-info">
-                    <div class="my-hero-title">
+                    <div class="my-hero-title" style="display: flex; align-items: center; flex-wrap: wrap;">
                         <div>
-                            <span class="my-hero-next-label">Próxima clase</span>
+                            <span class="my-hero-next-label">Próxima</span>
                             <span>${escapeHtml(proximaHoy.curso)}</span>
                         </div>
+                        <span style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">${proximaHoy.tipo}${proximaHoy.rol === 'assistant' ? ' (Como Ayudante)' : ''}</span>
+                        ${proximaHoy.sala ? `<span class="my-room-pill" style="margin-left: 8px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg> <span>${proximaHoy.sala}</span></span>` : ''}
                     </div>
                     <div class="my-hero-subtitle">
                         <span class="my-hero-next-time">
@@ -326,7 +337,6 @@ function actualizarHeroMiHorario() {
                             <span style="color: #64748b;">·</span>
                             <span>Bloque ${proximaHoy.bloqueNum}</span>
                         </span>
-                        ${proximaHoy.sala ? `<span class="my-hero-next-time"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg><span>${proximaHoy.sala}</span></span>` : ''}
                     </div>
                 </div>
             </div>
@@ -347,13 +357,22 @@ function actualizarHeroMiHorario() {
         }
     }
 
-    const msgSiguiente = siguienteClase
-        ? (vistaHorarioActual === 'cruce' 
-            ? `Próximo tope libre el <strong>${siguienteClase.diaNombre} a las ${siguienteClase.horaInicio}</strong>.`
-            : (siguienteClase.rol === 'assistant' 
-                ? `Tu próxima ayudantía es el <strong>${siguienteClase.diaNombre} a las ${siguienteClase.horaInicio}</strong>${siguienteClase.sala ? ` en la sala <strong>${siguienteClase.sala}</strong>` : ''}.` 
-                : `Tu próxima clase es el <strong>${siguienteClase.diaNombre} a las ${siguienteClase.horaInicio}</strong>${siguienteClase.sala ? ` en la sala <strong>${siguienteClase.sala}</strong>` : ''}.`))
-        : (vistaHorarioActual === 'cruce' ? 'No hay topes libres programados.' : 'No tienes más clases programadas.');
+    let msgSiguiente = vistaHorarioActual === 'cruce' ? 'No hay topes libres programados.' : 'No tienes más clases programadas.';
+    let titleSiguiente = vistaHorarioActual === 'cruce' ? 'No hay más topes hoy' : 'No tienes más clases hoy';
+    
+    if (siguienteClase) {
+        if (vistaHorarioActual === 'cruce') {
+            msgSiguiente = `Próximo tope libre el <strong>${siguienteClase.diaNombre} a las ${siguienteClase.horaInicio}</strong>.`;
+        } else {
+            const isAsistente = siguienteClase.rol === 'assistant';
+            const tipoAyu = isAsistente ? ' (Como Ayudante)' : '';
+            const tipoHtml = `<span style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">${siguienteClase.tipo}${tipoAyu}</span>`;
+            const salaPill = siguienteClase.sala ? `<span class="my-room-pill" style="margin-left: 8px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg> <span>${siguienteClase.sala}</span></span>` : '';
+            
+            msgSiguiente = `Próximo <strong>${siguienteClase.diaNombre} a las ${siguienteClase.horaInicio}</strong>`;
+            titleSiguiente = `<div style="display: flex; align-items: center; flex-wrap: wrap;"><span>${siguienteClase.curso}</span>${tipoHtml}${salaPill}</div>`;
+        }
+    }
 
     heroEl.innerHTML = `
         <div class="my-hero-top">
@@ -361,10 +380,10 @@ function actualizarHeroMiHorario() {
                 <span>${vistaHorarioActual === 'cruce' ? 'Sin topes libres' : 'Fuera de jornada'}</span>
             </div>
         </div>
-        <div class="my-hero-body" >
+        <div class="my-hero-body">
             <div class="my-hero-class-info">
-                <div class="my-hero-title">${vistaHorarioActual === 'cruce' ? 'Ya no quedan topes libres hoy' : 'No tienes más clases por hoy!'}</div>
-                <div class="my-hero-subtitle" >
+                <div class="my-hero-title" style="display: flex; align-items: center; flex-wrap: wrap;">${titleSiguiente}</div>
+                <div class="my-hero-subtitle">
                     <span>${msgSiguiente}</span>
                 </div>
             </div>
