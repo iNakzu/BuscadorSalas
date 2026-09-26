@@ -326,8 +326,8 @@ html {
     box-shadow: none;
 }
 .btn-bloque-actual svg {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
 }
 .btn-bloque-actual:hover {
     background: rgba(255, 255, 255, 0.1);
