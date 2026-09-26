@@ -294,12 +294,56 @@ function _renderLineaCapsule(l, alertasLinea, metroAbierto) {
     `;
 }
 
+function _renderEstadoMetroCapsule(metroAbierto, alertas) {
+    const servicioActivo = Boolean(metroAbierto);
+    const hayAlertas = Array.isArray(alertas) && alertas.length > 0;
+    const estado = !servicioActivo
+        ? {
+            color: '#fbbf24',
+            bg: 'rgba(245,158,11,0.12)',
+            border: 'rgba(245,158,11,0.35)',
+            title: 'Metro cerrado',
+            detail: 'Fuera del horario de servicio'
+        }
+        : hayAlertas
+            ? {
+                color: '#f87171',
+                bg: 'rgba(248,113,113,0.12)',
+                border: 'rgba(248,113,113,0.35)',
+                title: 'Red afectada',
+                detail: `${alertas.length} alerta${alertas.length === 1 ? '' : 's'} activa${alertas.length === 1 ? '' : 's'}`
+            }
+            : {
+                color: '#34d399',
+                bg: 'rgba(16,185,129,0.10)',
+                border: 'rgba(16,185,129,0.28)',
+                title: 'Red operativa',
+                detail: 'Sin interrupciones reportadas'
+            };
+
+    return `
+        <div class="metro-status-capsule" style="color:${estado.color};background:${estado.bg};border-color:${estado.border};">
+            <span class="metro-status-icon" style="background:${estado.bg};border-color:${estado.border};">
+                <span class="estado-dot" style="background:${estado.color};box-shadow:0 0 6px ${estado.color};"></span>
+            </span>
+            <span class="metro-status-copy">
+                <strong>${estado.title}</strong>
+                <small>${estado.detail}</small>
+            </span>
+        </div>
+    `;
+}
+
 // ─── Carga principal ──────────────────────────────────────────────────────────
 async function cargarDatosTransporte() {
     const lineasGrid     = document.getElementById('metro-lineas-grid');
+    const horarioBadge   = document.getElementById('metro-horario-badge');
     const tarifasBox     = document.getElementById('tarifas-detalle-box');
     const alertasPanel   = document.getElementById('metro-alertas-panel');
 
+    if (horarioBadge) {
+        horarioBadge.innerHTML = `<span class="pulse-dot"></span><span>Consultando red...</span>`;
+    }
 
     try {
         const stopQuery = activeParaderoCode ? `?stop=${encodeURIComponent(activeParaderoCode)}` : '';
@@ -308,6 +352,9 @@ async function cargarDatosTransporte() {
         datosTransporteCache = data;
 
         // 1. Cápsula de estado general
+        if (horarioBadge) {
+            horarioBadge.innerHTML = _renderEstadoMetroCapsule(data.metro_abierto, filtrarAlertasActivas(data.alertas));
+        }
 
         // 2. Panel global de alertas
         const alertas = filtrarAlertasActivas(data.alertas);
