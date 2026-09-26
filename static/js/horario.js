@@ -257,9 +257,9 @@ function actualizarHeroMiHorario() {
                 <div class="my-hero-class-info">
                     <div class="my-hero-title" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
                         <span>${mockCatedra.curso}</span>
-                        ${mockCatedra.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockCatedra.sala}</span></span>` : ''}
                     </div>
                     <div class="my-hero-subtitle">
+                        ${mockCatedra.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockCatedra.sala}</span></span>` : ''}
                         <span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;">Bloque ${mockCatedra.bloqueNum} (${mockCatedra.bloqueLabel})</span>
                         ${mockCatedra.profesor ? `<span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px; margin-top: -2px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>${mockCatedra.profesor}</span>` : ''}
                         <span style="background: rgba(14,165,233,0.1); color:#38bdf8; padding: 2px 8px; border-radius: 4px;">Quedan <strong>35 min</strong></span>
@@ -284,9 +284,9 @@ function actualizarHeroMiHorario() {
                 <div class="my-hero-class-info">
                     <div class="my-hero-title" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
                         <span>${mockLab.curso}</span>
-                        ${mockLab.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockLab.sala}</span></span>` : ''}
                     </div>
                     <div class="my-hero-subtitle">
+                        ${mockLab.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockLab.sala}</span></span>` : ''}
                         <span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;">Bloque ${mockLab.bloqueNum} (${mockLab.bloqueLabel})</span>
                         ${mockLab.profesor ? `<span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px; margin-top: -2px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>${mockLab.profesor}</span>` : ''}
                         <span style="background: rgba(14,165,233,0.1); color:#38bdf8; padding: 2px 8px; border-radius: 4px;">Quedan <strong>35 min</strong></span>
@@ -311,9 +311,9 @@ function actualizarHeroMiHorario() {
                 <div class="my-hero-class-info">
                     <div class="my-hero-title" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
                         <span>${mockAyuEst.curso}</span>
-                        ${mockAyuEst.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockAyuEst.sala}</span></span>` : ''}
                     </div>
                     <div class="my-hero-subtitle">
+                        ${mockAyuEst.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockAyuEst.sala}</span></span>` : ''}
                         <span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;">Bloque ${mockAyuEst.bloqueNum} (${mockAyuEst.bloqueLabel})</span>
                         ${mockAyuEst.profesor ? `<span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px; margin-top: -2px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>${mockAyuEst.profesor}</span>` : ''}
                         <span style="background: rgba(14,165,233,0.1); color:#38bdf8; padding: 2px 8px; border-radius: 4px;">Quedan <strong>35 min</strong></span>
@@ -338,9 +338,9 @@ function actualizarHeroMiHorario() {
                 <div class="my-hero-class-info">
                     <div class="my-hero-title" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
                         <span>${mockActual.curso}</span>
-                        ${mockActual.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockActual.sala}</span></span>` : ''}
                     </div>
                     <div class="my-hero-subtitle">
+                        ${mockActual.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockActual.sala}</span></span>` : ''}
                         <span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;">Bloque ${mockActual.bloqueNum} (${mockActual.bloqueLabel})</span>
                         ${mockActual.profesor ? `<span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px; margin-top: -2px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>${mockActual.profesor}</span>` : ''}
                         <span style="background: rgba(14,165,233,0.1); color:#38bdf8; padding: 2px 8px; border-radius: 4px;">Quedan <strong>35 min</strong></span>
@@ -366,9 +366,9 @@ function actualizarHeroMiHorario() {
                     <div class="my-hero-title" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
                         <span>${escapeHtml(mockProxima.curso)}</span>
                         ${mockProxima.rol !== 'assistant' ? `<span style="${pill_style}">${mockProxima.tipo}</span>` : ''}
-                        ${mockProxima.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockProxima.sala}</span></span>` : ''}
                     </div>
                     <div class="my-hero-subtitle">
+                        ${mockProxima.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockProxima.sala}</span></span>` : ''}
                         <span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;">Bloque ${mockProxima.bloqueNum} (${mockProxima.bloqueLabel})</span>
                         <span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px; margin-top: -2px;" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg>${mockProxima.horaInicio}</span>
                         ${mockProxima.profesor ? `<span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px; margin-top: -2px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>${mockProxima.profesor}</span>` : ''}
