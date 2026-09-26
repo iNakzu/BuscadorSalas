@@ -318,19 +318,6 @@ function eliminarHabito(id) {
     renderHabitos();
 }
 
-function resetHabitosHoy() {
-    confirmarWeb("¿Deseas reiniciar los estados de todos los hábitos marcados para hoy?", () => {
-        const hoyStr = getHoyDateStr();
-        habitosData.forEach(h => {
-            if (h.history && h.history[hoyStr]) {
-                delete h.history[hoyStr];
-            }
-        });
-        saveHabitos();
-        renderHabitos();
-    }, 'Reiniciar progreso de hoy');
-}
-
 function guardarHabitoDesdeModal(event) {
     event.preventDefault();
     const data = new FormData(event.target);
