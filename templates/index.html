@@ -1534,12 +1534,19 @@
                             <input id="riff-search-input" type="search" placeholder="Buscar canción, banda o afinación..." oninput="filtrarRiffLab(this.value)" autocomplete="off" style="width: 100%; background: transparent; border: none; color: #f8fafc; padding: 12px; outline: none; font-size: 14px;">
                         </div>
                         <div style="display: flex; gap: 12px;">
-                            <select id="riff-status-filter" class="riff-status-filter" onchange="filtrarRiffLab(document.getElementById('riff-search-input').value)" style="background: rgba(15, 23, 42, 0.8); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 0 16px; font-size: 14px; outline: none;">
-                                <option value="all">Repertorio completo</option>
-                                <option value="learning">Aprendiendo</option>
-                                <option value="polishing">Puliendo</option>
-                                <option value="mastered">Dominados</option>
-                            </select>
+                            <div class="custom-dropdown" id="dd-riff-status-filter" style="width: 200px;">
+                                <button type="button" class="dropdown-trigger" onclick="toggleDropdown('dd-riff-status-filter')" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left; height: 44px; border-radius: 12px; background: rgba(15, 23, 42, 0.8); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.1); padding: 0 16px; font-size: 14px; outline: none; width: 100%;">
+                                    <span id="label-riff-status-filter" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Repertorio completo</span>
+                                    <svg class="dropdown-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink: 0; margin-left: 8px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <div class="dropdown-item active" data-val="all" onclick="selectDropdownItem('dd-riff-status-filter', 'all', 'Repertorio completo', 'filtrarRiffLabFromDropdown')">Repertorio completo</div>
+                                    <div class="dropdown-item" data-val="learning" onclick="selectDropdownItem('dd-riff-status-filter', 'learning', 'Aprendiendo', 'filtrarRiffLabFromDropdown')">Aprendiendo</div>
+                                    <div class="dropdown-item" data-val="polishing" onclick="selectDropdownItem('dd-riff-status-filter', 'polishing', 'Puliendo', 'filtrarRiffLabFromDropdown')">Puliendo</div>
+                                    <div class="dropdown-item" data-val="mastered" onclick="selectDropdownItem('dd-riff-status-filter', 'mastered', 'Dominados', 'filtrarRiffLabFromDropdown')">Dominados</div>
+                                </div>
+                                <input type="hidden" id="riff-status-filter" value="all">
+                            </div>
                             <button onclick="abrirModalNuevoCover()" title="Agregar nuevo cover" style="background: linear-gradient(135deg, #38bdf8, #2563eb); color: white; border: none; border-radius: 12px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3); transition: transform 0.2s;">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
                             </button>

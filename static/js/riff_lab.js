@@ -85,7 +85,6 @@ function savePresets() {
 function renderRiffLab() {
     renderRiffMetrics();
     renderCoversList();
-    renderPresetsList();
     renderRiffKanban();
     updateRiffFocus();
 }
@@ -112,7 +111,6 @@ function getFilteredPresets() {
 function filtrarRiffLab(query) {
     riffSearchQuery = query || '';
     renderCoversList();
-    renderPresetsList();
 }
 
 function updateRiffFocus() {
@@ -132,7 +130,14 @@ function focusNextCover() {
     const search = document.getElementById('riff-search-input');
     const status = document.getElementById('riff-status-filter');
     if (search) search.value = next.title;
-    if (status) status.value = 'all';
+    if (status) {
+        status.value = 'all';
+        const label = document.getElementById('label-riff-status-filter');
+        if(label) label.textContent = 'Repertorio completo';
+        document.querySelectorAll('#dd-riff-status-filter .dropdown-item').forEach(item => {
+            item.classList.toggle('active', item.dataset.val === 'all');
+        });
+    }
     filtrarRiffLab(next.title);
 }
 
@@ -557,3 +562,8 @@ async function buscarTabSongsterr(artist, title) {
 }
 
 document.addEventListener('DOMContentLoaded', initRiffLab);
+
+window.filtrarRiffLabFromDropdown = function() {
+    const input = document.getElementById('riff-search-input');
+    filtrarRiffLab(input ? input.value : '');
+};
