@@ -408,23 +408,6 @@ function actualizarContadoresFiltrosMiHorario() {
     if (bViernes) bViernes.textContent = `Viernes (${viernes})`;
 }
 
-function restablecerHorarioDefault() {
-    if (vistaHorarioActual !== 'nakzu') { mostrarToast('Solo puedes restablecer tu propio horario'); return; }
-    confirmarWeb('¿Deseas restablecer tu horario al original de 20 clases predeterminadas? Se revertirán las asignaturas agregadas o eliminadas.', () => {
-        try {
-            if (typeof localStorage !== 'undefined') {
-                localStorage.removeItem('mi_horario_custom_v1');
-            }
-        } catch (e) {}
-
-        MI_HORARIO_DATA = JSON.parse(JSON.stringify(MI_HORARIO_DEFAULT_DATA));
-        guardarMiHorarioEnStorage();
-        renderMiHorario();
-        actualizarHeroMiHorario();
-        mostrarToast('Horario restablecido a la versión inicial');
-    }, 'Restablecer horario');
-}
-
 function eliminarClaseMiHorario(id, ev) {
     if (vistaHorarioActual !== 'nakzu') return;
     if (ev) ev.stopPropagation();
