@@ -56,7 +56,11 @@ async function cargarClimaGlobal() {
     const grid = document.getElementById('clima-cards-grid');
     if (!grid) return;
 
-    grid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 30px; color: #94a3b8;"><span class="status-dot"></span> Obteniendo datos satelitales en tiempo real...</div>';
+    grid.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 30px 0; color: #94a3b8; font-size: 13px;">
+            <svg class="spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right: 6px;"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> Obteniendo datos satelitales en tiempo real...
+        </div>
+    `;
 
     try {
         const promises = CIUDADES_CLIMA.map(c => fetch(`/api/clima?ciudad=${c}`).then(r => r.json()));
