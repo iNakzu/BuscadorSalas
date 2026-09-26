@@ -304,13 +304,61 @@ function actualizarHeroMiHorario() {
         </div>
     `;
 
+    // 5. EN CLASE (LABORATORIO)
+    const mockLab = { curso: 'Física Moderna', tipo: 'Laboratorio', sala: 'L12.Lab1', rol: 'student', bloqueNum: 2, bloqueLabel: '10:00 - 11:20', profesor: 'Nicanor Parra' };
+    const htmlLab = `
+            <div class="my-hero-top">
+                <div class="my-hero-status-pill now">
+                    <span class="pulse-dot"></span>
+                    <span>En laboratorio</span>
+                </div>
+            </div>
+            <div class="my-hero-body">
+                <div class="my-hero-class-info">
+                    <div class="my-hero-title" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
+                        <span>${mockLab.curso}</span>
+                        <span style="${pill_style}">${mockLab.tipo}</span>
+                        <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockLab.sala}</span></span>
+                    </div>
+                    <div class="my-hero-subtitle">
+                        <span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;">Bloque ${mockLab.bloqueNum} (${mockLab.bloqueLabel})</span>
+                        <span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px; margin-top: -2px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>${mockLab.profesor}</span>
+                    </div>
+                </div>
+            </div>
+    `;
+
+    // 6. EN CLASE (AYUDANTÍA ESTUDIANTE)
+    const mockAyuEst = { curso: 'Cálculo Avanzado', tipo: 'Ayudantía', sala: 'A101', rol: 'student', bloqueNum: 5, bloqueLabel: '14:30 - 15:50', profesor: 'Juan Pérez' };
+    const htmlAyuEst = `
+            <div class="my-hero-top">
+                <div class="my-hero-status-pill now">
+                    <span class="pulse-dot"></span>
+                    <span>En ayudantía</span>
+                </div>
+            </div>
+            <div class="my-hero-body">
+                <div class="my-hero-class-info">
+                    <div class="my-hero-title" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
+                        <span>${mockAyuEst.curso}</span>
+                        <span style="${pill_style}">${mockAyuEst.tipo}</span>
+                        <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockAyuEst.sala}</span></span>
+                    </div>
+                    <div class="my-hero-subtitle">
+                        <span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;">Bloque ${mockAyuEst.bloqueNum} (${mockAyuEst.bloqueLabel})</span>
+                    </div>
+                </div>
+            </div>
+    `;
+
     // INYECTAR TODOS
     const parent = heroEl.parentNode;
-    // Quitamos temporalmente el ID para no afectar a futuros scripts que busquen heroEl si recargan (aunque no debería pasar si reescribimos todo)
     parent.innerHTML = `
         <div style="display: flex; flex-direction: column; gap: 16px;">
             <div class="my-schedule-hero" style="position:relative; overflow:hidden;">${htmlFinde}</div>
             <div class="my-schedule-hero" style="position:relative; overflow:hidden;">${htmlActual}</div>
+            <div class="my-schedule-hero" style="position:relative; overflow:hidden;">${htmlLab}</div>
+            <div class="my-schedule-hero" style="position:relative; overflow:hidden;">${htmlAyuEst}</div>
             <div class="my-schedule-hero" style="position:relative; overflow:hidden;">${htmlProxima}</div>
             <div class="my-schedule-hero" style="position:relative; overflow:hidden;">${htmlSiguiente}</div>
         </div>
