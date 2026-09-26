@@ -1,6 +1,6 @@
 {
-  "name": "Buscador de Salas",
-  "short_name": "Salas UDP",
+  "name": "MiCampus - Buscador de Salas",
+  "short_name": "MiCampus",
   "description": "Tu herramienta universitaria para buscar salas libres, organizar tu horario y gestionar tu tiempo.",
   "start_url": "/",
   "display": "standalone",
