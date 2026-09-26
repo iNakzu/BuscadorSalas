@@ -247,7 +247,7 @@
 
     <!-- TAB 1: SALAS DISPONIBLES Y OCUPADAS -->
     <section id="tab-salas" class="panel active">
-        <div class="control-card" style="position: relative;">
+        <div class="control-card">
             <!-- Cabecera de filtros con botón Bloque Actual en posición destacada -->
 <!-- Banner de alerta si está fuera de ventana académica -->
             <div class="window-alert-banner" id="banner-alerta-horario">
@@ -256,8 +256,8 @@
 
             <!-- Buscador de Edificio o Sala con Lupa -->
             <div class="control-group">
-                <button type="button" class="btn-bloque-actual" onclick="irABloqueActual()" title="Ir al bloque actual" style="position: absolute; top: 20px; right: 20px; z-index: 10;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg></button>
-            <div class="search-field" style="margin-right: 44px;">
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+    <div class="search-field" style="flex: 1; margin-bottom: 0;">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -265,6 +265,8 @@
                     <input type="text" id="input-campus-search" placeholder="Escribe el edificio o código de sala (ej. E441, V432, E278, M253, S401)..." oninput="filtrarPorCampusTexto(this.value)" autocomplete="off">
                     <button type="button" class="clear-btn" id="clear-campus-btn" onclick="limpiarCampusTexto()">&times;</button>
     </div>
+    <button type="button" class="btn-bloque-actual" onclick="irABloqueActual()" title="Ir al bloque actual" style="flex-shrink: 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="2" x2="14" y2="2"></line><line x1="12" y1="14" x2="15" y2="11"></line><circle cx="12" cy="14" r="8"></circle></svg></button>
+</div>
     
 
             <!-- Selector de Día -->
@@ -346,15 +348,15 @@
 
     <!-- TAB 2: BUSCAR PROFESOR CON FILTRO DE DÍA -->
     <section id="tab-profes" class="panel">
-        <div class="control-card" style="position: relative;">
+        <div class="control-card">
             <!-- Banner de alerta si está fuera de ventana académica -->
             <div class="window-alert-banner" id="banner-alerta-prof">
                                 <div id="texto-alerta-prof"></div>
             </div>
 
-            <button type="button" class="btn-bloque-actual" onclick="irABloqueActual('profes')" title="Ir al bloque actual" style="position: absolute; top: 20px; right: 20px; z-index: 10;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg></button>
-            <!-- Barra de búsqueda con lupa -->
-            <div class="search-field" style="margin-right: 44px;">
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+    <!-- Barra de búsqueda con lupa -->
+    <div class="search-field" style="flex: 1; margin-bottom: 0;">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -362,6 +364,8 @@
                 <input type="text" id="input-prof-search" placeholder="Busca por profesor, asignatura o código..." oninput="ejecutarBusquedaDocente()" autocomplete="off">
                 <button type="button" class="clear-btn" id="clear-prof-btn" onclick="limpiarDocente()">&times;</button>
     </div>
+    <button type="button" class="btn-bloque-actual" onclick="irABloqueActual('profes')" title="Ir al bloque actual" style="flex-shrink: 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="2" x2="14" y2="2"></line><line x1="12" y1="14" x2="15" y2="11"></line><circle cx="12" cy="14" r="8"></circle></svg></button>
+</div>
     
 
             <!-- Selector de Día -->
@@ -404,15 +408,15 @@
 
     <!-- TAB: BUSCAR RAMO / ASIGNATURA CON FILTRO DE DÍA -->
     <section id="tab-ramos" class="panel">
-        <div class="control-card" style="position: relative;">
+        <div class="control-card">
             <!-- Banner de alerta si está fuera de ventana académica -->
             <div class="window-alert-banner" id="banner-alerta-ramo">
                                 <div id="texto-alerta-ramo"></div>
             </div>
 
-            <button type="button" class="btn-bloque-actual" onclick="irABloqueActual('ramos')" title="Ir al bloque actual" style="position: absolute; top: 20px; right: 20px; z-index: 10;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg></button>
-            <!-- Barra de búsqueda con lupa para ramo -->
-            <div class="search-field" style="margin-right: 44px;">
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+    <!-- Barra de búsqueda con lupa para ramo -->
+    <div class="search-field" style="flex: 1; margin-bottom: 0;">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -420,6 +424,8 @@
                 <input type="text" id="input-ramo-search" placeholder="Escribe el nombre del ramo (ej. Cálculo, Física, Redes) o código (ej. CIT2010)..." oninput="ejecutarBusquedaRamo()" autocomplete="off">
                 <button type="button" class="clear-btn" id="clear-ramo-btn" onclick="limpiarRamo()">&times;</button>
     </div>
+    <button type="button" class="btn-bloque-actual" onclick="irABloqueActual('ramos')" title="Ir al bloque actual" style="flex-shrink: 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="2" x2="14" y2="2"></line><line x1="12" y1="14" x2="15" y2="11"></line><circle cx="12" cy="14" r="8"></circle></svg></button>
+</div>
     
 
             <!-- Selector de Día para el ramo -->
@@ -462,7 +468,7 @@
 
     <!-- TAB 4: RAMOS POR SEMESTRE (MALLA CURRICULAR ICIT) -->
     <section id="tab-malla" class="panel">
-        <div class="control-card" style="position: relative;">
+        <div class="control-card">
 <!-- Banner de alerta si está fuera de ventana académica -->
             <div class="window-alert-banner" id="banner-alerta-malla">
                                 <div id="texto-alerta-malla"></div>
@@ -470,8 +476,8 @@
 
             <!-- Selector de Semestre Personalizado Ultra Moderno -->
             <div class="control-group">
-                <button type="button" class="btn-bloque-actual" onclick="irABloqueActual('malla')" title="Ir al bloque actual" style="position: absolute; top: 20px; right: 20px; z-index: 10;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg></button>
-            <div class="custom-dropdown" id="dropdown-semestre" style="margin-right: 44px;">
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+    <div class="custom-dropdown" id="dropdown-semestre" style="flex: 1; margin-bottom: 0;">
                     <button type="button" class="dropdown-trigger" id="dropdown-semestre-btn" onclick="toggleSemestreDropdown(event)">
                         <span id="dropdown-semestre-label">Semestre VIII (Actual)</span>
                         <svg class="dropdown-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -496,7 +502,8 @@
                     </div>
                 </div>
                 </div>
-    
+    <button type="button" class="btn-bloque-actual" onclick="irABloqueActual('malla')" title="Ir al bloque actual" style="flex-shrink: 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="2" x2="14" y2="2"></line><line x1="12" y1="14" x2="15" y2="11"></line><circle cx="12" cy="14" r="8"></circle></svg></button>
+</div>
 
             <!-- Selector de Día -->
             <div class="control-group">
@@ -546,7 +553,7 @@
 
     <!-- TAB 5: HORARIO POR SALA (BUSCADOR MANUAL) -->
     <section id="tab-horario" class="panel">
-        <div class="control-card" style="position: relative;">
+        <div class="control-card">
             <!-- Buscador manual de sala -->
             <div class="search-field">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -771,7 +778,7 @@
 
     <!-- PESTAÑA: SOLEMNES -->
     <section id="tab-solemnes" class="panel" >
-        <div class="control-card" style="position: relative;">
+        <div class="control-card">
                 <div class="search-field" style="max-width: 800px; margin-bottom: 12px;">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8"></circle>
@@ -1625,7 +1632,7 @@
 
                         <!-- Buscador de Paraderos -->
                         <div style="display: flex; align-items: center; margin-bottom: 16px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; transition: border-color 0.2s;" onfocusin="this.style.borderColor='rgba(56, 189, 248, 0.5)'" onfocusout="this.style.borderColor='rgba(255,255,255,0.12)'">
-                            <input type="text" id="transporte-codigo-input" placeholder="Ej: PA215" onkeydown="if(event.key === \'Enter\') consultarParaderoManual()" autocomplete="off" spellcheck="false" style="flex: 1; min-width: 0; background: transparent; border: none; padding: 0 16px; height: 44px; color: #fff; font-size: 13px; outline: none; text-transform: uppercase;">
+                            <input type="text" id="transporte-codigo-input" placeholder="Ej: PA215" onkeydown="if(event.key === 'Enter') consultarParaderoManual()" autocomplete="off" spellcheck="false" style="flex: 1; min-width: 0; background: transparent; border: none; padding: 0 16px; height: 44px; color: #fff; font-size: 13px; outline: none; text-transform: uppercase;">
                             <button onclick="consultarParaderoManual()" title="Buscar paradero" style="background: transparent; color: #94a3b8; border: none; width: 44px; height: 44px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='#94a3b8'">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                             </button>
