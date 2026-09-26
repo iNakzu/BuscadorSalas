@@ -363,7 +363,7 @@ function actualizarHeroMiHorario() {
             </div>
             <div class="my-hero-body">
                 <div class="my-hero-class-info">
-                    <div class="my-hero-title">Próxima clase en 10m</div>
+                    <div class="my-hero-title" style="display: flex; align-items: center;">Próxima clase en <span style="background: rgba(16, 185, 129, 0.15); color: #34d399; padding: 2px 8px; border-radius: 6px; margin-left: 8px; font-size: 0.85em; border: 1px solid rgba(16, 185, 129, 0.3); letter-spacing: 0.5px;">10m</span></div>
                     <div class="my-hero-subtitle">
                         <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-top: 4px;">
                             <span>Tu próxima clase es <strong>${escapeHtml(mockProxima.curso)}</strong></span>
