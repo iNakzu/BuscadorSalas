@@ -1661,3 +1661,11 @@
     background-color: #94a3b8 !important;
     box-shadow: 0 0 8px #64748b !important;
 }
+
+/* TIPO VENTANA (Naranja/Coral) */
+.my-hero-status-pill.next-ventana {
+    background: rgba(249, 115, 22, 0.18) !important;
+    color: #fb923c !important;
+    border: 1px solid rgba(249, 115, 22, 0.4) !important;
+    box-shadow: 0 0 14px rgba(249, 115, 22, 0.25) !important;
+}
