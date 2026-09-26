@@ -496,7 +496,7 @@ async function buscarTabSongsterr(artist, title) {
             <div style="font-size: 13px; color: #94a3b8;">Buscando tablaturas interactivas para: <strong style="color: #38bdf8;">${escapeHtmlRiff(query)}</strong>...</div>
             <div id="songsterr-results-box" style="display: flex; flex-direction: column; gap: 8px; min-height: 80px; justify-content: center; align-items: center;">
                 <span class="status-dot"></span>
-                <span style="font-size: 12px; color: #64748b; margin-top: 6px;">Consultando catálogo oficial de Songsterr...</span>
+                <span style="font-size: 12px; color: #64748b; margin-top: 6px;"><svg class="spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right: 6px;"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> Obteniendo catálogo...</span>
             </div>
         </div>
     `;

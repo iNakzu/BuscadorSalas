@@ -369,7 +369,7 @@ function ejecutarBusquedaDocente() {
             return;
         }
 
-        container.innerHTML = '<div class="empty-state">Buscando clases del docente...</div>';
+        container.innerHTML = '<div class="empty-state"><svg class="spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right: 6px;"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> Buscando docente...</div>';
         try {
             const diaParam = state.profDia ? `&dia=${encodeURIComponent(state.profDia)}` : '';
             const horaParam = state.profHora ? `&hora=${encodeURIComponent(state.profHora)}` : '';
@@ -449,7 +449,7 @@ function ejecutarBusquedaRamo() {
             return;
         }
 
-        container.innerHTML = '<div class="empty-state">Buscando asignaturas...</div>';
+        container.innerHTML = '<div class="empty-state"><svg class="spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right: 6px;"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> Buscando asignaturas...</div>';
         try {
             const diaParam = state.ramoDia ? `&dia=${encodeURIComponent(state.ramoDia)}` : '';
             const horaParam = state.ramoHora ? `&hora=${encodeURIComponent(state.ramoHora)}` : '';
@@ -575,7 +575,7 @@ async function cargarClasesMalla(refrescarChips = false) {
     const container = document.getElementById('malla-results-grid');
     if (!container) return;
     
-    container.innerHTML = '<div class="empty-state">Consultando clases y secciones del semestre...</div>';
+    container.innerHTML = '<div class="empty-state"><svg class="spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right: 6px;"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> Obteniendo secciones...</div>';
 
     try {
         const semParam = `semestre=${encodeURIComponent(state.mallaSemestre)}`;
@@ -720,7 +720,7 @@ function seleccionarSala(sala) {
 
 async function renderizarHorarioSala(sala) {
     const container = document.getElementById('timetable-display');
-    container.innerHTML = '<div class="empty-state">Cargando horario de la sala...</div>';
+    container.innerHTML = '<div class="empty-state"><svg class="spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right: 6px;"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> Obteniendo horario...</div>';
     try {
         const resp = await fetch(`/api/sala/${encodeURIComponent(sala)}`);
         const data = await resp.json();

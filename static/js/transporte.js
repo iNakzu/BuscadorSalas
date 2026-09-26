@@ -340,7 +340,7 @@ async function cargarDatosTransporte() {
     const alertasPanel   = document.getElementById('metro-alertas-panel');
 
     if (horarioBadge) {
-        horarioBadge.innerHTML = `<span>Consultando...</span>`;
+        horarioBadge.innerHTML = `<svg class='spin' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' style='vertical-align: middle; margin-right: 4px;'><path d='M21 12a9 9 0 1 1-6.219-8.56'></path></svg> Actualizando...`;
     }
 
     try {
@@ -421,7 +421,7 @@ async function cargarBusesParadero(code) {
 
     busesList.innerHTML = `
         <div style="text-align:center;padding:24px 0;color:#94a3b8;font-size:13px;">
-            <span class="pulse-dot"></span> Consultando paradero <strong>${escapeHtmlTrans(code)}</strong>...
+            <svg class="spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right: 6px;"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> Conectando con GPS...
         </div>
     `;
 

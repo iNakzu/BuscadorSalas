@@ -96,7 +96,7 @@ function renderReloj() {
                 <p>La precisión de sincronización es de ±0.015 s.<br>Hora en Santiago, Chile ahora:</p>
             </div>
             <div class="reloj-time clickeable-time" id="reloj-time-display" onclick="toggleZenMode()">00:00<span class="reloj-sec">:00</span></div>
-            <div class="reloj-date hide-in-zen" id="reloj-date-display">Cargando fecha...</div>
+            <div class="reloj-date hide-in-zen" id="reloj-date-display"></div>
             <div class="reloj-cities hide-in-zen">
                 <div class="city-box"><div class="city-name">Nueva York</div><div class="city-time" id="time-ny">--:--</div></div>
                 <div class="city-box"><div class="city-name">Wrocław</div><div class="city-time" id="time-wroclaw">--:--</div></div>

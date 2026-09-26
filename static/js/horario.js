@@ -597,7 +597,7 @@ async function cargarClasesRealesBloque(diaNum, horaInicio) {
     listEl.innerHTML = `
         <div style="padding: 16px; text-align: center; color: #94a3b8; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="spin"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
-            <span>Cargando clases UDP del bloque...</span>
+            <span><svg class="spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right: 6px;"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> Obteniendo clases...</span>
         </div>
     `;
 
