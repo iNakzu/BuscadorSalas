@@ -1483,9 +1483,6 @@ html {
     .tiempo-laps {
         width: min(100%, 430px);
         margin: 28px auto 0;
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
     }
 
     .tiempo-laps:empty {
@@ -1496,39 +1493,30 @@ html {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 10px 16px;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.07);
-        border-radius: 10px;
-        transition: background 0.2s;
+        padding: 13px 2px;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.1);
     }
 
     .lap-row--latest {
-        background: rgba(99, 102, 241, 0.12);
-        border-color: rgba(99, 102, 241, 0.3);
+        border-bottom-color: rgba(99, 102, 241, 0.3);
     }
 
     .lap-num {
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: #64748b;
-        background: rgba(255,255,255,0.06);
-        padding: 2px 8px;
-        border-radius: 20px;
+        font-size: 13px;
+        color: #475569;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 0.02em;
     }
 
     .lap-row--latest .lap-num {
-        color: #a5b4fc;
-        background: rgba(99, 102, 241, 0.2);
+        color: #818cf8;
     }
 
     .lap-time {
         font-size: 15px;
         font-variant-numeric: tabular-nums;
         font-weight: 600;
-        color: #f1f5f9;
+        color: #e2e8f0;
         letter-spacing: 0.04em;
     }
 
