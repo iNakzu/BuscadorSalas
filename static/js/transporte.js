@@ -85,9 +85,11 @@ function escapeHtmlTrans(str) {
 // ─── Detecta alertas de una línea concreta ────────────────────────────────────
 function _alertasDeLinea(alertas, lineaCode) {
     if (!alertas || alertas.length === 0) return [];
-    return alertas.filter(a =>
-        a.lineas && a.lineas.includes(lineaCode)
-    );
+    return alertas.filter(a => {
+        const t = (a.target || '').toUpperCase();
+        if (t === 'TODA LA RED') return true;
+        return t.includes(lineaCode.toUpperCase());
+    });
 }
 
 // ─── Toast de nueva alerta ────────────────────────────────────────────────────
@@ -155,21 +157,19 @@ function _renderPanelAlertas(alertas, container) {
             <div style="display:flex;align-items:center;gap:7px;margin-bottom:9px;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                 <span style="font-size:11px;font-weight:800;color:#f87171;text-transform:uppercase;letter-spacing:.07em;">Alertas detectadas vía X</span>
-                <span style="background:rgba(248,113,113,0.2);color:#f87171;font-size:10px;font-weight:800;padding:1px 6px;border-radius:8px;border:1px solid rgba(248,113,113,0.3);">${alertas.length}</span>
+                
             </div>
             <div style="display:flex;flex-direction:column;gap:7px;">
     `;
 
     alertas.forEach(a => {
-        const lineasBadges = (a.lineas || []).map(l =>
-            `<span style="background:rgba(248,113,113,0.15);color:#fca5a5;font-size:9.5px;font-weight:800;padding:1px 5px;border-radius:4px;border:1px solid rgba(248,113,113,0.3);">${escapeHtmlTrans(l)}</span>`
-        ).join('');
+
         html += `
             <div style="background:rgba(0,0,0,0.25);border-radius:8px;padding:9px 11px;border-left:3px solid #f87171;">
                 <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;min-width:0;">
                     <div style="display:flex;align-items:center;gap:5px;min-width:0;flex:1;flex-wrap:wrap;">
                         <span style="color:#fca5a5;font-size:11px;font-weight:700;">${escapeHtmlTrans(a.target)}</span>
-                        ${lineasBadges}
+                        
                     </div>
                     <span style="color:#64748b;font-size:10px;font-weight:600;white-space:nowrap;flex-shrink:0;">${escapeHtmlTrans(formatearFechaAlerta(a.ts))}</span>
                 </div>
