@@ -291,10 +291,10 @@ async function irABloqueActual(tipo = 'salas') {
             state.mallaHora = horaSeleccionada || rawHora;
             cargarClasesMalla(false);
         } else if (tipo === 'mihorario') {
-            const diaNum = parseInt(diaStr, 10);
-            state.miHorarioDia = (diaNum >= 1 && diaNum <= 5) ? diaStr : '1';
-            document.querySelectorAll('#bar-mihorario-dia .pill-btn').forEach(b => {
-                b.classList.toggle('active', b.dataset.dia === state.miHorarioDia);
+//            const diaNum = parseInt(diaStr, 10);
+//            state.miHorarioDia = (diaNum >= 1 && diaNum <= 5) ? diaStr : '1';
+//            document.querySelectorAll('#bar-mihorario-dia .pill-btn').forEach(b => {
+//                b.classList.toggle('active', b.dataset.dia === state.miHorarioDia);
             });
             renderMiHorario();
             setTimeout(() => {

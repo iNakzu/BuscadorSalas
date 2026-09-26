@@ -354,12 +354,6 @@ function actualizarHeroMiHorario() {
     `;
 }
 
-function setMiHorarioDia(diaVal, btn) {
-    document.querySelectorAll('#bar-mihorario-dia .pill-btn').forEach(b => b.classList.remove('active'));
-    if (btn) btn.classList.add('active');
-    state.miHorarioDia = diaVal;
-    renderMiHorario();
-}
 
 function setMiHorarioRol(rolVal, btn) {
     document.querySelectorAll('#bar-mihorario-rol .pill-btn').forEach(b => b.classList.remove('active'));
@@ -873,7 +867,7 @@ function renderMiHorario() {
     });
 
     // Vista de toda la semana (5 Columnas)
-    if (state.miHorarioDia === 'ALL') {
+//    if (state.miHorarioDia === 'ALL') {
         const diasConfig = [
             { num: 1, nombre: 'Lunes' },
             { num: 2, nombre: 'Martes' },
@@ -978,85 +972,7 @@ function renderMiHorario() {
                 ${colsHtml}
             </div>
         `;
-    } else {
-        // Vista de día individual
-        const diaNum = parseInt(state.miHorarioDia, 10);
-        const dayItems = items.filter(c => c.dia === diaNum);
-        const isToday = (dayOfWeek === diaNum);
-        const diaNombre = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'][diaNum - 1] || 'Día';
-
-        let timelineCardsHtml = '';
-        BLOQUES_HORARIOS.forEach(b => {
-            const c = dayItems.find(item => item.bloqueNum === b.num);
-            const startM = timeToMinutes(b.inicio);
-            const endM = timeToMinutes(b.fin);
-            const isCurrent = isToday && (totalMinutes >= startM && totalMinutes < endM);
-
-            if (c) {
-                const tipoCls = 'tipo-' + (c.tipo || 'Cátedra').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
-                let cleanSec = (c.seccion || '').trim();
-                if (cleanSec.toLowerCase().startsWith('sec.')) {
-                    cleanSec = cleanSec.replace(/^sec\.\s*/i, 'Sección ');
-                } else if (cleanSec.toLowerCase().startsWith('sec ')) {
-                    cleanSec = cleanSec.replace(/^sec\s*/i, 'Sección ');
-                }
-                const secText = `<span class="my-type-sec">• ${escapeHtml(cleanSec && !cleanSec.toLowerCase().includes('ayudantía que impartes') ? cleanSec : 'Sección -')}</span>`;
-                const tipoHtml = `<span class="my-type-tag ${tipoCls}"><span>${escapeHtml(c.tipo || 'Cátedra')}</span>${secText}</span>`;
-
-                timelineCardsHtml += `
-                    <div class="my-timeline-card ${tipoCls} ${c.rol === 'assistant' ? 'is-assistant' : (c.rol === 'cruce' ? 'is-cruce' : 'is-student')} ${isCurrent ? 'is-current-class' : ''}" id="card-${c.id}">
-                        <div class="my-time-box">
-                            <div class="my-time-range">${isCurrent ? '<span class="pulse-dot-white"></span>' : ''}${c.bloqueLabel}</div>
-                            <div class="my-bloque-badge">Bloque ${c.bloqueNum} (80 min)</div>
-                        </div>
-                        <div class="my-info-box">
-                            <div class="my-info-title">
-                                <span>${escapeHtml(c.curso)}</span>
-                            </div>
-                            <div class="my-info-meta">
-                                ${tipoHtml}
-                                <span>• Prof: ${escapeHtml(c.profesor || '-')}</span>
-                            </div>
-                        </div>
-                        <div class="my-actions-box">
-                            ${(c.sala || '').split(/[,/]+/).map(s => s.trim()).filter(s => s).map(s => `
-                            <span class="my-room-pill" onclick="verHorarioDirecto('${s}')" title="Ver horario de la sala ${s}" style="font-size: 12px; padding: 6px 11px;">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-                                <span>${s}</span>
-                            </span>
-                            `).join('')}
-                            ${vistaHorarioActual === 'nakzu' ? `<button type="button" class="my-btn-delete-timeline" onclick="eliminarClaseMiHorario('${c.id}', event)" title="Eliminar asignatura de este bloque">` : '<div style="display:none">'}
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                                <span>Eliminar</span>
-                            ${vistaHorarioActual === 'nakzu' ? '</button>' : '</div>'}
-                        </div>
-                    </div>
-                `;
-            } else {
-                timelineCardsHtml += `
-                    <div class="my-timeline-empty-card ${isCurrent ? 'is-current-empty-timeline' : ''}" ${vistaHorarioActual === 'nakzu' ? `onclick="abrirModalAgregarClase(${diaNum}, ${b.num})" title="Haz clic para agregar una asignatura en este bloque (${b.label})"` : `title="Bloque libre"`} style="${vistaHorarioActual !== 'nakzu' ? 'cursor: default;' : ''}">
-                        <div class="my-time-box">
-                            <div class="my-time-range" style="color: #64748b;">${isCurrent ? '<span class="pulse-dot-white"></span>' : ''}${b.label}</div>
-                            <div class="my-bloque-badge">Bloque ${b.num} (80 min)</div>
-                        </div>
-                        <div class="my-empty-body" style="justify-content: space-between; padding-right: 6px;">
-                            <span class="my-empty-text">Sin clases</span>
-                            <span class="my-empty-timeline-btn">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                                Agregar Asignatura
-                            </span>
-                        </div>
-                    </div>
-                `;
-            }
-        });
-
-        container.innerHTML = `
-            <div class="my-timeline-container">
-                ${timelineCardsHtml}
-            </div>
-        `;
-    }
+//    }
 }
 
 
