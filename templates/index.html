@@ -64,13 +64,7 @@
                         <path d="M3 3v5h5"></path>
                     </svg>
                 </button>
-                <button id="pwa-install-btn" type="button" class="btn-clear-cache" style="display: inline-flex;" onclick="instalarPWA()" title="Instalar App Nativa">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="7 10 12 15 17 10"></polyline>
-                        <line x1="12" y1="15" x2="12" y2="3"></line>
-                    </svg>
-                </button>
+                
                 
             </p>
         </div>
@@ -1903,52 +1897,6 @@
 
     <!-- PWA Registration -->
     <script>
-      let deferredPrompt;
-      const installBtn = document.getElementById('pwa-install-btn');
-
-      window.addEventListener('beforeinstallprompt', (e) => {
-        // Prevenir que Chrome muestre el mini-infobar por defecto
-        e.preventDefault();
-        // Guardar el evento para dispararlo luego
-        deferredPrompt = e;
-        // Mostrar nuestro boton de instalacion
-        if(installBtn) {
-            installBtn.style.display = 'inline-flex';
-        }
-      });
-
-      
-      // Check si estamos en iOS y no estamos en modo standalone
-      window.addEventListener('DOMContentLoaded', () => {
-          const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
-          if (isStandalone && installBtn) {
-              installBtn.style.display = 'none';
-          }
-      });
-
-      function instalarPWA() {
-        if (!deferredPrompt) {
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            if (isIOS) {
-                alert(`🍎 Para instalar en iPhone:
-1. Toca el botón 'Compartir' (el cuadrado con la flecha) abajo en Safari.
-2. Toca 'Agregar a inicio'.`);
-            } else {
-                alert(`💻 Para instalar la App:
-Haz clic en el ícono de instalación en la barra de búsqueda de tu navegador (arriba a la derecha), o en el menú de opciones (3 puntos) selecciona 'Instalar aplicación'.`);
-            }
-            return;
-        }
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-          if (choiceResult.outcome === 'accepted') {
-            console.log('El usuario aceptó instalar la PWA');
-          }
-          deferredPrompt = null;
-          installBtn.style.display = 'none';
-        });
-      }
-
       if ('serviceWorker' in navigator) {
 
         window.addEventListener('load', () => {
