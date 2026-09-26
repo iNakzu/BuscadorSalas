@@ -291,6 +291,9 @@ function actualizarHeroMiHorario() {
                     </div>
                 </div>
             </div>
+            <div class="my-hero-progress-container" title="Progreso de la clase: 50%">
+                <div class="my-hero-progress-bar" style="width: 50.0%;"></div>
+            </div>
     `;
 
     // 4. EN AYUDANTÍA (ESTUDIANTE)
@@ -315,6 +318,9 @@ function actualizarHeroMiHorario() {
                     </div>
                 </div>
             </div>
+            <div class="my-hero-progress-container" title="Progreso de la clase: 50%">
+                <div class="my-hero-progress-bar" style="width: 50.0%;"></div>
+            </div>
     `;
 
     // 5. EN AYUDANTÍA (ASISTENTE)
@@ -338,6 +344,9 @@ function actualizarHeroMiHorario() {
                         <span style="background: rgba(14,165,233,0.1); color:#38bdf8; padding: 2px 8px; border-radius: 4px;">Quedan <strong>35 min</strong></span>
                     </div>
                 </div>
+            </div>
+            <div class="my-hero-progress-container" title="Progreso de la clase: 50%">
+                <div class="my-hero-progress-bar" style="width: 50.0%;"></div>
             </div>
     `;
 
