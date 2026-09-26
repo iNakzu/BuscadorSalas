@@ -1,6 +1,6 @@
 {
-  "name": "MiCampus - Buscador de Salas",
-  "short_name": "MiCampus",
+  "name": "Portal Estudiantil",
+  "short_name": "Portal",
   "description": "Tu herramienta universitaria para buscar salas libres, organizar tu horario y gestionar tu tiempo.",
   "start_url": "/",
   "display": "standalone",
