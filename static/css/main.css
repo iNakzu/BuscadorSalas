@@ -318,7 +318,7 @@ html {
     color: #cbd5e1;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: var(--radius-sm);
-    padding: 11px;
+    padding: 6px;
     width: 32px;
     height: 32px;
     cursor: pointer;
@@ -326,8 +326,8 @@ html {
     box-shadow: none;
 }
 .btn-bloque-actual svg {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
 }
 .btn-bloque-actual:hover {
     background: rgba(255, 255, 255, 0.1);
