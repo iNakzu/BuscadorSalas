@@ -1619,3 +1619,40 @@
     background-color: #fbbf24 !important;
     box-shadow: 0 0 8px #f59e0b !important;
 }
+
+/* TIPO LABORATORIO (Morado) */
+.my-hero-status-pill.laboratorio {
+    background: rgba(168, 85, 247, 0.18) !important;
+    color: #c084fc !important;
+    border: 1px solid rgba(168, 85, 247, 0.4) !important;
+    box-shadow: 0 0 14px rgba(168, 85, 247, 0.25) !important;
+}
+.my-hero-status-pill.laboratorio .pulse-dot {
+    background-color: #c084fc !important;
+    box-shadow: 0 0 8px #a855f7 !important;
+}
+
+/* TIPO AYUDANTÍA ESTUDIANTE (Rosa) */
+.my-hero-status-pill.ayudantia-student {
+    background: rgba(236, 72, 153, 0.18) !important;
+    color: #f472b6 !important;
+    border: 1px solid rgba(236, 72, 153, 0.4) !important;
+    box-shadow: 0 0 14px rgba(236, 72, 153, 0.25) !important;
+}
+.my-hero-status-pill.ayudantia-student .pulse-dot {
+    background-color: #f472b6 !important;
+    box-shadow: 0 0 8px #ec4899 !important;
+}
+
+/* TIPO CÁTEDRA (Cyan) */
+.my-hero-status-pill.catedra {
+    background: rgba(56, 189, 248, 0.18) !important;
+    color: #7dd3fc !important;
+    border: 1px solid rgba(56, 189, 248, 0.4) !important;
+    box-shadow: 0 0 14px rgba(56, 189, 248, 0.25) !important;
+}
+.my-hero-status-pill.catedra .pulse-dot {
+    background-color: #7dd3fc !important;
+    box-shadow: 0 0 8px #38bdf8 !important;
+}
+
