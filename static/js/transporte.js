@@ -268,7 +268,6 @@ function _renderLineaCapsule(l, alertasLinea, metroAbierto) {
                             box-shadow:0 2px 10px ${l.color}50;
                             font-size:11px;font-weight:900;color:#fff;
                         ">${escapeHtmlTrans(l.linea)}</div>
-                        ${tieneAlerta ? `<div id="alerta-dot-${l.linea}" style="position:absolute;top:-3px;right:-3px;width:11px;height:11px;background:#f87171;border-radius:50%;border:2px solid rgba(10,15,30,0.9);box-shadow:0 0 5px #f87171;"></div>` : `<div id="alerta-dot-${l.linea}" style="display:none;position:absolute;top:-3px;right:-3px;width:11px;height:11px;background:#f87171;border-radius:50%;border:2px solid rgba(10,15,30,0.9);box-shadow:0 0 5px #f87171;"></div>`}
                     </div>
                     <div style="min-width:0;">
                         <div style="font-size:13px;font-weight:700;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtmlTrans(l.nombre)}</div>
@@ -279,7 +278,6 @@ function _renderLineaCapsule(l, alertasLinea, metroAbierto) {
                 <!-- Der: estado + chevron -->
                 <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
                     <div id="estado-badge-${l.linea}" style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:${estadoColor};background:${estadoBg};padding:4px 9px;border-radius:7px;border:1px solid ${estadoBorder};">
-                        <span class="estado-dot" style="width:6px;height:6px;border-radius:50%;background:${estadoColor};box-shadow:0 0 5px ${estadoColor};flex-shrink:0;"></span>
                         <span class="estado-txt">${estadoTxt}</span>
                     </div>
                     <svg id="chevron-${l.linea}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color:#64748b;transition:transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
