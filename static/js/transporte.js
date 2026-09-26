@@ -339,9 +339,7 @@ async function cargarDatosTransporte() {
     const tarifasBox     = document.getElementById('tarifas-detalle-box');
     const alertasPanel   = document.getElementById('metro-alertas-panel');
 
-    if (horarioBadge) {
-        horarioBadge.innerHTML = `<svg class='spin' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5'><path d='M21 12a9 9 0 1 1-6.219-8.56'></path></svg>`;
-    }
+
 
     try {
         const stopQuery = activeParaderoCode ? `?stop=${encodeURIComponent(activeParaderoCode)}` : '';
