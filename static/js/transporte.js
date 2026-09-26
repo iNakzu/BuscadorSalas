@@ -296,7 +296,6 @@ function _renderEstadoMetroCapsule(metroAbierto, alertas) {
 
     return `
         <div class="metro-status-capsule" style="color:${estado.color};background:${estado.bg};border-color:${estado.border};padding-left:12px;display:flex;align-items:center;gap:10px;">
-            <span class="estado-dot-anim"></span>
             <span class="metro-status-copy">
                 <strong>${estado.title}</strong>
                 <small>${estado.detail}</small>
