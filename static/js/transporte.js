@@ -322,10 +322,7 @@ function _renderEstadoMetroCapsule(metroAbierto, alertas) {
             };
 
     return `
-        <div class="metro-status-capsule" style="color:${estado.color};background:${estado.bg};border-color:${estado.border};">
-            <span class="metro-status-icon" style="background:${estado.bg};border-color:${estado.border};">
-                <span class="estado-dot" style="background:${estado.color};box-shadow:0 0 6px ${estado.color};"></span>
-            </span>
+        <div class="metro-status-capsule" style="color:${estado.color};background:${estado.bg};border-color:${estado.border};padding-left:12px;">
             <span class="metro-status-copy">
                 <strong>${estado.title}</strong>
                 <small>${estado.detail}</small>
@@ -342,7 +339,7 @@ async function cargarDatosTransporte() {
     const alertasPanel   = document.getElementById('metro-alertas-panel');
 
     if (horarioBadge) {
-        horarioBadge.innerHTML = `<span class="pulse-dot"></span><span>Consultando red...</span>`;
+        horarioBadge.innerHTML = `<span>Consultando...</span>`;
     }
 
     try {
