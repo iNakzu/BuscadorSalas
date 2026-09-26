@@ -383,7 +383,7 @@ function ajustarBpmCover(id, delta) {
 }
 
 function eliminarCover(id) {
-    abrirModalConfirmacion('Eliminar cover', '¿Quieres quitar este cover de tu repertorio?', () => {
+    confirmarWeb('¿Quieres quitar este cover de tu repertorio?', () => {
         coversData = coversData.filter(c => c.id !== id);
         saveCovers();
         renderRiffLab();
@@ -391,7 +391,7 @@ function eliminarCover(id) {
 }
 
 function eliminarPreset(id) {
-    abrirModalConfirmacion('Eliminar preset', '¿Quieres quitar este preset de Neural DSP?', () => {
+    confirmarWeb('¿Quieres quitar este preset de Neural DSP?', () => {
         presetsData = presetsData.filter(p => p.id !== id);
         savePresets();
         renderRiffLab();
@@ -515,12 +515,6 @@ function guardarPresetDesdeModal(event) {
     renderRiffLab();
 }
 
-function abrirModalConfirmacion(title, message, onConfirm) {
-    const modal = getRiffModal();
-    modal.style.display = 'flex';
-    modal.innerHTML = `<div class="riff-modal-card riff-confirm-card"><div class="riff-modal-header"><div><span class="section-kicker">Confirmación</span><h2>${escapeHtmlRiff(title)}</h2></div><button type="button" class="riff-modal-close" onclick="cerrarRiffModal()">×</button></div><p>${escapeHtmlRiff(message)}</p><div class="riff-modal-actions"><button class="riff-modal-secondary" onclick="cerrarRiffModal()">Cancelar</button><button class="riff-modal-danger" id="riff-confirm-action">Eliminar</button></div></div>`;
-    document.getElementById('riff-confirm-action').onclick = () => { onConfirm(); cerrarRiffModal(); };
-}
 
 function escapeHtmlRiff(str) {
     if (!str) return '';
