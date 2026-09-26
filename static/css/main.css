@@ -295,13 +295,9 @@ html {
 /* CABECERA CON BOTÓN BLOQUE ACTUAL */
 .filter-header-row {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: 18px;
-    padding-bottom: 14px;
-    border-bottom: 1px solid var(--border);
+    margin-bottom: 10px;
 }
 
 .filter-header-title {
