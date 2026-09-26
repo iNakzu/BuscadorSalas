@@ -313,11 +313,9 @@ function agregarHabitoModal() {
 }
 
 function eliminarHabito(id) {
-    confirmarWeb("¿Estás seguro de que deseas eliminar este hábito?", () => {
-        habitosData = habitosData.filter(h => h.id !== id);
-        saveHabitos();
-        renderHabitos();
-    }, 'Eliminar hábito');
+    habitosData = habitosData.filter(h => h.id !== id);
+    saveHabitos();
+    renderHabitos();
 }
 
 function resetHabitosHoy() {

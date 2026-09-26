@@ -218,11 +218,9 @@ function guardarGastoDesdeModal(event) {
 }
 
 function borrarGasto(id) {
-    confirmarWeb("¿Eliminar este gasto?", () => {
-        misGastos = misGastos.filter(g => g.id !== id);
-        saveGastos();
-        renderGastos();
-    }, 'Eliminar gasto');
+    misGastos = misGastos.filter(g => g.id !== id);
+    saveGastos();
+    renderGastos();
 }
 
 document.addEventListener('DOMContentLoaded', initGastos);
