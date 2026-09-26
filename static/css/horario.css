@@ -1697,3 +1697,13 @@
         display: none !important;
     }
 }
+
+/* MOSTRAR SOLO EN MÓVIL (para abreviaturas) */
+.show-mobile-inline {
+    display: none;
+}
+@media (max-width: 640px) {
+    .show-mobile-inline {
+        display: inline !important;
+    }
+}

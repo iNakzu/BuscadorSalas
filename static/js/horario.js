@@ -204,6 +204,16 @@ function actualizarHeroMiHorario() {
     const firstClass = misClases[0];
     const lastClass = misClases[misClases.length - 1];
 
+    
+    function getShortTipo(tipo) {
+        if (!tipo) return '';
+        const t = tipo.toLowerCase();
+        if (t.includes('cátedra') || t.includes('catedra')) return 'Cát.';
+        if (t.includes('ayudantía') || t.includes('ayudantia')) return 'Ayud.';
+        if (t.includes('laboratorio')) return 'Lab.';
+        return tipo;
+    }
+
     function getColorClass(c) {
         if (!c) return '';
         if (c.rol === 'assistant') return 'assistant';
@@ -236,7 +246,7 @@ function actualizarHeroMiHorario() {
                         <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-top: 4px;">
                             <span>Tu próxima clase es <strong>${mockFinde.curso}</strong></span>
                             <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>${mockFinde.diaNombre} ${mockFinde.horaInicio}</span></span>
-                            <span style="${pill_style}">${mockFinde.tipo}</span>
+                            <span style="${pill_style}"><span class="hide-on-mobile">${mockFinde.tipo}</span><span class="show-mobile-inline">${getShortTipo(mockFinde.tipo)}</span></span>
                             ${mockFinde.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockFinde.sala}</span></span>` : ''}
                         </div>
                     </div>
@@ -368,7 +378,7 @@ function actualizarHeroMiHorario() {
                         <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-top: 4px;">
                             <span>Tu próxima clase es <strong>${escapeHtml(mockProxima.curso)}</strong></span>
                             <span style="${pill_style}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg>${mockProxima.bloqueLabel}</span>
-                            ${mockProxima.rol !== 'assistant' ? `<span style="${pill_style}">${mockProxima.tipo}</span>` : ''}
+                            ${mockProxima.rol !== 'assistant' ? `<span style="${pill_style}"><span class="hide-on-mobile">${mockProxima.tipo}</span><span class="show-mobile-inline">${getShortTipo(mockProxima.tipo)}</span></span>` : ''}
                             ${mockProxima.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockProxima.sala}</span></span>` : ''}
                         </div>
                     </div>
@@ -392,7 +402,7 @@ function actualizarHeroMiHorario() {
                     <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-top: 4px;">
                         <span>Tu próxima clase es <strong>${mockSiguiente.curso}</strong></span>
                         <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>${mockSiguiente.diaNombre} ${mockSiguiente.horaInicio}</span></span>
-                        <span style="${pill_style}">${mockSiguiente.tipo}</span>
+                        <span style="${pill_style}"><span class="hide-on-mobile">${mockSiguiente.tipo}</span><span class="show-mobile-inline">${getShortTipo(mockSiguiente.tipo)}</span></span>
                         ${mockSiguiente.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockSiguiente.sala}</span></span>` : ''}
                     </div>
                 </div>
