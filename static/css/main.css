@@ -1999,15 +1999,19 @@ html {
 }
 .ui-feedback-card {
     position: relative;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 14px;
-    width: min(480px, 100%);
-    padding: 22px;
-    border: 1px solid rgba(56, 189, 248, 0.28);
-    border-radius: 16px;
-    background: rgba(15, 23, 42, 0.97);
-    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.55);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+    width: min(360px, 92%);
+    padding: 28px 22px 22px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
 }
 .ui-feedback-icon {
     display: flex;
@@ -2026,7 +2030,8 @@ html {
 .ui-feedback-content h2 { margin: 3px 0 7px; color: #f8fafc; font-size: 20px; }
 .ui-feedback-content p { margin: 0; color: #cbd5e1; font-size: 13px; line-height: 1.55; }
 .ui-feedback-close { position: absolute; top: 14px; right: 15px; border: 0; background: transparent; color: #94a3b8; cursor: pointer; font-size: 26px; line-height: 1; }
-.ui-feedback-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+.ui-feedback-actions { display: flex; width: 100%; gap: 12px; margin-top: 4px; }
+.ui-feedback-actions button { flex: 1; }
 .ui-feedback-actions button { border-radius: 8px; cursor: pointer; padding: 9px 14px; font-weight: 700; }
 .ui-feedback-primary { border: 1px solid rgba(56, 189, 248, 0.35); background: linear-gradient(135deg, #38bdf8, #2563eb); color: #fff; }
 .ui-feedback-secondary { border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06); color: #cbd5e1; }
