@@ -295,7 +295,7 @@ async function irABloqueActual(tipo = 'salas') {
 //            state.miHorarioDia = (diaNum >= 1 && diaNum <= 5) ? diaStr : '1';
 //            document.querySelectorAll('#bar-mihorario-dia .pill-btn').forEach(b => {
 //                b.classList.toggle('active', b.dataset.dia === state.miHorarioDia);
-            });
+//            });
             renderMiHorario();
             setTimeout(() => {
                 const activeCard = document.querySelector('.my-class-card.is-current-class') || document.querySelector('.my-timeline-card.is-current-class');
