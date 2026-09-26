@@ -312,7 +312,7 @@ function _renderEstadoMetroCapsule(metroAbierto, alertas) {
                 bg: 'rgba(248,113,113,0.12)',
                 border: 'rgba(248,113,113,0.35)',
                 title: 'Red afectada',
-                detail: `${alertas.length} alerta${alertas.length === 1 ? '' : 's'} activa${alertas.length === 1 ? '' : 's'}`
+                detail: alertas.length === 1 ? 'Incidente activo en la red' : 'Múltiples incidentes activos'
             }
             : {
                 color: '#34d399',
