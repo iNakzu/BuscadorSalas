@@ -229,7 +229,7 @@ async function irABloqueActual(tipo = 'salas') {
 
         if (banner && alertaTxt) {
             if (!data.en_horario_valido) {
-                alertaTxt.innerHTML = `<strong>Fuera de horario académico (hora actual: ${horaActual}):</strong> ${data.mensaje_horario} Mostrando de referencia el primer bloque (${data.dia_nombre} ${data.bloque.label}).`;
+                alertaTxt.innerHTML = `<strong>Fuera de horario académico — ${horaActual} hrs.</strong><br>${data.mensaje_horario} Se muestra de referencia el primer bloque del día (${data.dia_nombre} ${data.bloque.label}).`;
                 banner.classList.add('show');
             } else {
                 banner.classList.remove('show');
