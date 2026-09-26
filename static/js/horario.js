@@ -267,7 +267,7 @@ function actualizarHeroMiHorario() {
                 </div>
             </div>
             <div class="my-hero-progress-container" title="Progreso de la clase: 50%">
-                <div class="my-hero-progress-bar" style="width: 50.0%;"></div>
+                <div class="my-hero-progress-bar ${getColorClass(mockCatedra)}" style="width: 50.0%;"></div>
             </div>
     `;
 
@@ -294,7 +294,7 @@ function actualizarHeroMiHorario() {
                 </div>
             </div>
             <div class="my-hero-progress-container" title="Progreso de la clase: 50%">
-                <div class="my-hero-progress-bar" style="width: 50.0%;"></div>
+                <div class="my-hero-progress-bar ${getColorClass(mockLab)}" style="width: 50.0%;"></div>
             </div>
     `;
 
@@ -321,7 +321,7 @@ function actualizarHeroMiHorario() {
                 </div>
             </div>
             <div class="my-hero-progress-container" title="Progreso de la clase: 50%">
-                <div class="my-hero-progress-bar" style="width: 50.0%;"></div>
+                <div class="my-hero-progress-bar ${getColorClass(mockAyuEst)}" style="width: 50.0%;"></div>
             </div>
     `;
 
@@ -348,7 +348,7 @@ function actualizarHeroMiHorario() {
                 </div>
             </div>
             <div class="my-hero-progress-container" title="Progreso de la clase: 50%">
-                <div class="my-hero-progress-bar" style="width: 50.0%;"></div>
+                <div class="my-hero-progress-bar ${getColorClass(mockActual)}" style="width: 50.0%;"></div>
             </div>
     `;
 

@@ -1669,3 +1669,24 @@
     border: 1px solid rgba(59, 130, 246, 0.4) !important;
     box-shadow: 0 0 14px rgba(59, 130, 246, 0.25) !important;
 }
+
+/* VARIANTES DE BARRA DE PROGRESO */
+.my-hero-progress-bar.laboratorio {
+    background: linear-gradient(90deg, #9333ea 0%, #c084fc 100%) !important;
+    box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
+}
+
+.my-hero-progress-bar.ayudantia-student {
+    background: linear-gradient(90deg, #db2777 0%, #f472b6 100%) !important;
+    box-shadow: 0 0 10px rgba(236, 72, 153, 0.4);
+}
+
+.my-hero-progress-bar.assistant {
+    background: linear-gradient(90deg, #d97706 0%, #fbbf24 100%) !important;
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+}
+
+.my-hero-progress-bar.catedra {
+    background: linear-gradient(90deg, #0284c7 0%, #38bdf8 100%) !important;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+}
