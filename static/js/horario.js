@@ -356,8 +356,8 @@ function actualizarHeroMiHorario() {
     const mockProxima = findCatedra;
     const htmlProxima = `
             <div class="my-hero-top">
-                <div class="my-hero-status-pill next-ventana">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                <div class="my-hero-status-pill now">
+                    <span class="pulse-dot"></span>
                     <span>En ventana (10 min)</span>
                 </div>
             </div>
@@ -365,9 +365,9 @@ function actualizarHeroMiHorario() {
                 <div class="my-hero-class-info">
                     <div class="my-hero-title" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
                         <span>${escapeHtml(mockProxima.curso)}</span>
-                        ${mockProxima.rol !== 'assistant' ? `<span style="${pill_style}">${mockProxima.tipo}</span>` : ''}
                     </div>
                     <div class="my-hero-subtitle">
+                        ${mockProxima.rol !== 'assistant' ? `<span style="${pill_style}">${mockProxima.tipo}</span>` : ''}
                         ${mockProxima.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${mockProxima.sala}</span></span>` : ''}
                         <span style="${pill_style}">Bloque ${mockProxima.bloqueNum} (${mockProxima.bloqueLabel})</span>
                         ${mockProxima.profesor ? `<span style="${pill_style}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>${mockProxima.profesor}</span>` : ''}
