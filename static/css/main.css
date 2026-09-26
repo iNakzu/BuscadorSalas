@@ -2536,3 +2536,12 @@ html {
     animation: pulseDotDynamic 2.2s infinite ease-in-out;
     flex-shrink: 0;
 }
+
+/* Fix Chrome Autofill white background breaking glassmorphism */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active{
+    transition: background-color 5000s ease-in-out 0s;
+    -webkit-text-fill-color: #f8fafc !important;
+}
