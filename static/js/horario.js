@@ -196,10 +196,10 @@ function actualizarHeroMiHorario() {
                     <span>Modo Estudio</span>
                 </div>
             </div>
-            <div class="my-hero-body" style="margin-top: -12px;">
+            <div class="my-hero-body" >
                 <div class="my-hero-class-info">
                     <div class="my-hero-title">Enfoque Profundo</div>
-                    <div class="my-hero-subtitle" style="margin-top: -6px;">
+                    <div class="my-hero-subtitle" >
                         <span>Silencia las distracciones. Cronómetro en marcha.</span>
                     </div>
                 </div>
@@ -212,17 +212,31 @@ function actualizarHeroMiHorario() {
 
     // Si es fin de semana
     if (dayOfWeek === 0 || dayOfWeek === 6) {
+        let siguienteClaseFinde = null;
+        for (let d = 1; d <= 5; d++) {
+            const clasesDelDia = getHorarioActivo().filter(c => c.dia === d).sort((a, b) => timeToMinutes(a.horaInicio) - timeToMinutes(b.horaInicio));
+            if (clasesDelDia.length > 0) {
+                siguienteClaseFinde = clasesDelDia[0];
+                break;
+            }
+        }
+        
+        let msgFinde = "No tienes clases programadas en la semana.";
+        if (siguienteClaseFinde) {
+            msgFinde = `Tu próxima clase es el <strong>${siguienteClaseFinde.diaNombre} a las ${siguienteClaseFinde.horaInicio}</strong>${siguienteClaseFinde.sala ? ` en <strong>${siguienteClaseFinde.sala}</strong>` : ''}.`;
+        }
+
         heroEl.innerHTML = `
             <div class="my-hero-top">
                 <div class="my-hero-status-pill done">
                     <span>Fin de semana</span>
                 </div>
             </div>
-            <div class="my-hero-body" style="margin-top: -12px;">
+            <div class="my-hero-body">
                 <div class="my-hero-class-info">
                     <div class="my-hero-title">Descanso de fin de semana!</div>
-                    <div class="my-hero-subtitle" style="margin-top: -6px;">
-                        <span>Tu próxima clase es el <strong>Lunes a las 11:30</strong>.</span>
+                    <div class="my-hero-subtitle">
+                        <span>${msgFinde}</span>
                     </div>
                 </div>
             </div>
@@ -264,6 +278,7 @@ function actualizarHeroMiHorario() {
                     </div>
                     <div class="my-hero-subtitle">
                         <span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;">Bloque ${claseActual.bloqueNum} (${claseActual.bloqueLabel})</span>
+                        ${claseActual.sala ? `<span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px; margin-top: -2px;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>${claseActual.sala}</span>` : ''}
                         ${claseActual.profesor ? `<span style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px; margin-top: -2px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>${claseActual.profesor}</span>` : ''}
                         <span style="background: rgba(14,165,233,0.1); color:#38bdf8; padding: 2px 8px; border-radius: 4px;">Quedan <strong>${minRestantes} min</strong></span>
                     </div>
@@ -311,6 +326,7 @@ function actualizarHeroMiHorario() {
                             <span style="color: #64748b;">·</span>
                             <span>Bloque ${proximaHoy.bloqueNum}</span>
                         </span>
+                        ${proximaHoy.sala ? `<span class="my-hero-next-time"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg><span>${proximaHoy.sala}</span></span>` : ''}
                     </div>
                 </div>
             </div>
@@ -334,7 +350,9 @@ function actualizarHeroMiHorario() {
     const msgSiguiente = siguienteClase
         ? (vistaHorarioActual === 'cruce' 
             ? `Próximo tope libre el <strong>${siguienteClase.diaNombre} a las ${siguienteClase.horaInicio}</strong>.`
-            : (siguienteClase.rol === 'assistant' ? `Tu próxima ayudantía es el <strong>${siguienteClase.diaNombre} a las ${siguienteClase.horaInicio}</strong>.` : `Tu próxima clase es el <strong>${siguienteClase.diaNombre} a las ${siguienteClase.horaInicio}</strong>.`))
+            : (siguienteClase.rol === 'assistant' 
+                ? `Tu próxima ayudantía es el <strong>${siguienteClase.diaNombre} a las ${siguienteClase.horaInicio}</strong>${siguienteClase.sala ? ` en la sala <strong>${siguienteClase.sala}</strong>` : ''}.` 
+                : `Tu próxima clase es el <strong>${siguienteClase.diaNombre} a las ${siguienteClase.horaInicio}</strong>${siguienteClase.sala ? ` en la sala <strong>${siguienteClase.sala}</strong>` : ''}.`))
         : (vistaHorarioActual === 'cruce' ? 'No hay topes libres programados.' : 'No tienes más clases programadas.');
 
     heroEl.innerHTML = `
@@ -343,10 +361,10 @@ function actualizarHeroMiHorario() {
                 <span>${vistaHorarioActual === 'cruce' ? 'Sin topes libres' : 'Fuera de jornada'}</span>
             </div>
         </div>
-        <div class="my-hero-body" style="margin-top: -12px;">
+        <div class="my-hero-body" >
             <div class="my-hero-class-info">
                 <div class="my-hero-title">${vistaHorarioActual === 'cruce' ? 'Ya no quedan topes libres hoy' : 'No tienes más clases por hoy!'}</div>
-                <div class="my-hero-subtitle" style="margin-top: -6px;">
+                <div class="my-hero-subtitle" >
                     <span>${msgSiguiente}</span>
                 </div>
             </div>
