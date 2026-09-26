@@ -547,7 +547,6 @@ function setMallaHora(horaVal, btn) {
 
 function setMallaRamo(ramoVal, btn) {
     if (ramoVal && btn && btn.classList.contains('active')) {
-        // Si ya está seleccionado, lo deseleccionamos y volvemos a "Todos los ramos"
         state.mallaRamo = '';
         document.querySelectorAll('#bar-malla-ramos .pill-btn').forEach(b => b.classList.remove('active'));
         const todosBtn = document.querySelector('#bar-malla-ramos .pill-btn[data-ramo=""]');
@@ -557,6 +556,12 @@ function setMallaRamo(ramoVal, btn) {
         if (btn) btn.classList.add('active');
         state.mallaRamo = ramoVal;
     }
+    
+    const input = document.getElementById('input-malla-search');
+    const clearBtn = document.getElementById('clear-malla-btn');
+    if (input) input.value = state.mallaRamo || '';
+    if (clearBtn) clearBtn.style.display = state.mallaRamo ? 'block' : 'none';
+    
     cargarClasesMalla(false);
 }
 
@@ -565,6 +570,12 @@ function filtrarSoloEsteRamo(ramoNombre) {
     document.querySelectorAll('#bar-malla-ramos .pill-btn').forEach(b => {
         b.classList.toggle('active', b.dataset.ramo === ramoNombre);
     });
+    
+    const input = document.getElementById('input-malla-search');
+    const clearBtn = document.getElementById('clear-malla-btn');
+    if (input) input.value = state.mallaRamo || '';
+    if (clearBtn) clearBtn.style.display = state.mallaRamo ? 'block' : 'none';
+    
     cargarClasesMalla(false);
     const topEl = document.getElementById('bar-malla-ramos');
     if (topEl) topEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1577,3 +1588,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabsWrapper = document.querySelector('.tabs-wrapper');
     if (!tabsWrapper) return;
 });
+
+function filtrarMallaTexto(val) {
+    if (!val) {
+        state.mallaRamo = '';
+        document.querySelectorAll('#bar-malla-ramos .pill-btn').forEach(b => b.classList.remove('active'));
+        const allBtn = document.querySelector('#bar-malla-ramos .pill-btn[data-ramo=""]');
+        if (allBtn) allBtn.classList.add('active');
+        const clearBtn = document.getElementById('clear-malla-btn');
+        if (clearBtn) clearBtn.style.display = 'none';
+        cargarClasesMalla(false);
+        return;
+    }
+    
+    const cleanVal = val.trim();
+    state.mallaRamo = cleanVal;
+    
+    // UI Updates
+    document.querySelectorAll('#bar-malla-ramos .pill-btn').forEach(b => b.classList.remove('active'));
+    
+    const clearBtn = document.getElementById('clear-malla-btn');
+    if (clearBtn) clearBtn.style.display = 'block';
+    
+    cargarClasesMalla(false);
+}
+
+function limpiarMallaTexto() {
+    const input = document.getElementById('input-malla-search');
+    if (input) {
+        input.value = '';
+        filtrarMallaTexto('');
+        input.focus();
+    }
+}
