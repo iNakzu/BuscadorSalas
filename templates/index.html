@@ -1893,9 +1893,53 @@
     </script>
 
 
+
     <!-- PWA Registration -->
     <script>
+      let deferredPrompt;
+      const installBtn = document.getElementById('pwa-install-btn');
+
+      window.addEventListener('beforeinstallprompt', (e) => {
+        // Prevenir que Chrome muestre el mini-infobar por defecto
+        e.preventDefault();
+        // Guardar el evento para dispararlo luego
+        deferredPrompt = e;
+        // Mostrar nuestro boton de instalacion
+        if(installBtn) {
+            installBtn.style.display = 'flex';
+        }
+      });
+
+      function instalarPWA() {
+        if (!deferredPrompt) {
+            // Check if iOS
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            if (isIOS) {
+                alert("Para instalar en iPhone:\n1. Toca el botón 'Compartir' (el cuadrado con la flecha) abajo en Safari.\n2. Toca 'Agregar a inicio'.");
+            }
+            return;
+        }
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('El usuario aceptó instalar la PWA');
+          }
+          deferredPrompt = null;
+          installBtn.style.display = 'none';
+        });
+      }
+
+      // Check si estamos en iOS y no estamos en modo standalone
+      window.addEventListener('DOMContentLoaded', () => {
+          const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+          const isStandalone = window.navigator.standalone === true;
+          if (isIOS && !isStandalone && installBtn) {
+              installBtn.style.display = 'flex';
+          }
+      });
+
       if ('serviceWorker' in navigator) {
+
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/sw.js').then(() => {
             console.log('PWA Service Worker registered');
