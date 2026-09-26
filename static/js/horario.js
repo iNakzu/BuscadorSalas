@@ -301,7 +301,7 @@ function actualizarHeroMiHorario() {
     } else if (proximaHoy) {
         const c = proximaHoy;
         const minsParaEmpezar = timeToMinutes(c.horaInicio) - nowMins;
-        const label = minsParaEmpezar < 60 ? `en ${minsParaEmpezar}m` : `a las ${c.horaInicio}`;
+        const label = `en ${minsParaEmpezar}m`;
 
         html = `
             <div class="my-hero-top">
