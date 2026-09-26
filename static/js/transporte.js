@@ -297,11 +297,6 @@ function _renderLineaCapsule(l, alertasLinea, metroAbierto) {
 function _renderEstadoMetroCapsule(metroAbierto, alertas) {
     const servicioActivo = Boolean(metroAbierto);
     const hayAlertas = Array.isArray(alertas) && alertas.length > 0;
-    
-    if (servicioActivo && !hayAlertas) {
-        return "";
-    }
-    
     const estado = !servicioActivo
         ? {
             color: '#fbbf24',
@@ -346,6 +341,9 @@ async function cargarDatosTransporte() {
     const tarifasBox     = document.getElementById('tarifas-detalle-box');
     const alertasPanel   = document.getElementById('metro-alertas-panel');
 
+    if (horarioBadge) {
+        horarioBadge.innerHTML = `<span class="pulse-dot"></span><span>Consultando red...</span>`;
+    }
 
     try {
         const stopQuery = activeParaderoCode ? `?stop=${encodeURIComponent(activeParaderoCode)}` : '';
