@@ -99,6 +99,11 @@ function getChileTime() {
         }
     });
 
+    // DEBUG OVERRIDE FOR PREVIEW (Monday 11:45 AM)
+    dayOfWeek = 1;
+    hours = 11;
+    minutes = 45;
+    seconds = 0;
     const totalMinutes = hours * 60 + minutes;
     const totalSeconds = totalMinutes * 60 + seconds;
     return { dayOfWeek, hours, minutes, seconds, totalMinutes, totalSeconds };
