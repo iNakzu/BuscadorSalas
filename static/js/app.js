@@ -522,6 +522,17 @@ document.addEventListener('keydown', function(e) {
 function setMallaSemestre(sem) {
     state.mallaSemestre = String(sem);
     state.mallaRamo = '';
+    
+    // UI Updates
+    document.querySelectorAll('#bar-malla-semestre .pill-btn').forEach(b => b.classList.remove('active'));
+    const btn = document.querySelector(`#bar-malla-semestre .pill-btn[data-sem="${sem}"]`);
+    if (btn) btn.classList.add('active');
+    
+    const input = document.getElementById('input-malla-search');
+    const clearBtn = document.getElementById('clear-malla-btn');
+    if (input) input.value = '';
+    if (clearBtn) clearBtn.style.display = 'none';
+
     cargarClasesMalla(true);
 }
 

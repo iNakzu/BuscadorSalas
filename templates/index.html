@@ -487,32 +487,21 @@
                 </button>
                 <button type="button" class="clear-btn" id="clear-malla-btn" onclick="limpiarMallaTexto()">&times;</button>
             </div>
-                <div style="display: flex; gap: 8px; margin-bottom: 15px;">
-    <div class="custom-dropdown" id="dropdown-semestre" style="flex: 1; margin-bottom: 0;">
-                    <button type="button" class="dropdown-trigger" id="dropdown-semestre-btn" onclick="toggleSemestreDropdown(event)">
-                        <span id="dropdown-semestre-label">Semestre VIII (Actual)</span>
-                        <svg class="dropdown-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
-                    </button>
-                    <div class="dropdown-menu" id="dropdown-semestre-menu">
-                        <div class="dropdown-item" data-sem="1" onclick="selectSemestreItem('1', 'Semestre I')">Semestre I</div>
-                        <div class="dropdown-item" data-sem="2" onclick="selectSemestreItem('2', 'Semestre II')">Semestre II</div>
-                        <div class="dropdown-item" data-sem="3" onclick="selectSemestreItem('3', 'Semestre III')">Semestre III</div>
-                        <div class="dropdown-item" data-sem="4" onclick="selectSemestreItem('4', 'Semestre IV')">Semestre IV</div>
-                        <div class="dropdown-item" data-sem="5" onclick="selectSemestreItem('5', 'Semestre V')">Semestre V</div>
-                        <div class="dropdown-item" data-sem="6" onclick="selectSemestreItem('6', 'Semestre VI')">Semestre VI</div>
-                        <div class="dropdown-item" data-sem="7" onclick="selectSemestreItem('7', 'Semestre VII')">Semestre VII</div>
-                        <div class="dropdown-item active" data-sem="8" onclick="selectSemestreItem('8', 'Semestre VIII (Actual)')">
-                            <span>Semestre VIII (Actual)</span>
-                            <span class="active-badge">Actual</span>
-                        </div>
-                        <div class="dropdown-item" data-sem="9" onclick="selectSemestreItem('9', 'Semestre IX')">Semestre IX</div>
-                        <div class="dropdown-item" data-sem="10" onclick="selectSemestreItem('10', 'Semestre X')">Semestre X</div>
-                        <div class="dropdown-item" data-sem="11" onclick="selectSemestreItem('11', 'Semestre XI')">Semestre XI</div>
-                    </div>
+                <div class="section-label">Filtrar por Semestre</div>
+                <div class="pill-bar" id="bar-malla-semestre">
+                    <button type="button" class="pill-btn" data-sem="1" onclick="setMallaSemestre('1')">I</button>
+                    <button type="button" class="pill-btn" data-sem="2" onclick="setMallaSemestre('2')">II</button>
+                    <button type="button" class="pill-btn" data-sem="3" onclick="setMallaSemestre('3')">III</button>
+                    <button type="button" class="pill-btn" data-sem="4" onclick="setMallaSemestre('4')">IV</button>
+                    <button type="button" class="pill-btn" data-sem="5" onclick="setMallaSemestre('5')">V</button>
+                    <button type="button" class="pill-btn" data-sem="6" onclick="setMallaSemestre('6')">VI</button>
+                    <button type="button" class="pill-btn" data-sem="7" onclick="setMallaSemestre('7')">VII</button>
+                    <button type="button" class="pill-btn active" data-sem="8" onclick="setMallaSemestre('8')">VIII (Actual)</button>
+                    <button type="button" class="pill-btn" data-sem="9" onclick="setMallaSemestre('9')">IX</button>
+                    <button type="button" class="pill-btn" data-sem="10" onclick="setMallaSemestre('10')">X</button>
+                    <button type="button" class="pill-btn" data-sem="11" onclick="setMallaSemestre('11')">XI</button>
                 </div>
-                </div>
+            </div>
 
             <!-- Selector de Día -->
             <div class="control-group">
