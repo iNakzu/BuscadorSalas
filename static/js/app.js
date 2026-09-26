@@ -159,7 +159,7 @@ async function cargarSalas() {
                     <div class="item-card free" onclick="verHorarioDirecto('${s}')" title="Ver horario semanal de ${s}">
                         <div class="item-top">
                             <span class="room-pill free">
-                                <span class="status-dot"></span>
+                                <span class="pulse-dot"></span>
                                 <span>${s}</span>
                             </span>
                             <span class="time-pill free">
@@ -832,7 +832,7 @@ async function renderizarHorarioSala(sala) {
                             </div>
                             <div class="slot-details">
                                 <div class="slot-free-row">
-                                    <span class="status-dot"></span>
+                                    <span class="pulse-dot"></span>
                                     <span class="slot-free-title">Sala Vacía</span>
                                     <span class="slot-free-tag">Disponible</span>
                                 </div>
@@ -888,7 +888,7 @@ async function renderizarHorarioSala(sala) {
                                 </svg>
                                 ${clasesDia.length} ${clasesDia.length === 1 ? 'clase' : 'clases'}
                             ` : `
-                                <span class="status-dot"></span>
+                                <span class="pulse-dot"></span>
                                 Libre (Sin clases)
                             `}
                         </span>
@@ -1030,11 +1030,11 @@ function simpleMarkdown(text) {
             continue;
         }
         if (l.startsWith('### ')) {
-            htmlLines.push('<div class="ai-section-title"><span class="status-dot"></span> ' + l.substring(4) + '</div>');
+            htmlLines.push('<div class="ai-section-title"><span class="pulse-dot"></span> ' + l.substring(4) + '</div>');
             continue;
         }
         if (l.startsWith('## ')) {
-            htmlLines.push('<div class="ai-section-title"><span class="status-dot"></span> ' + l.substring(3) + '</div>');
+            htmlLines.push('<div class="ai-section-title"><span class="pulse-dot"></span> ' + l.substring(3) + '</div>');
             continue;
         }
 
@@ -1056,13 +1056,13 @@ function simpleMarkdown(text) {
                 }
                 let escCmd = cleanCmd.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
                 let escLabel = cleanLabel.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
-                buttons.push(`<button type="button" class="ai-quick-btn" onclick="sendQuickPrompt('${escCmd}', '${escLabel}')"><span class="status-dot"></span><span>${cleanLabel}</span></button>`);
+                buttons.push(`<button type="button" class="ai-quick-btn" onclick="sendQuickPrompt('${escCmd}', '${escLabel}')"><span class="pulse-dot"></span><span>${cleanLabel}</span></button>`);
                 return '';
             }).trim();
 
             if (textWithoutButtons) {
                 if (textWithoutButtons.startsWith('* ') || textWithoutButtons.startsWith('- ')) {
-                    htmlLines.push('<div class="ai-list-item"><span class="status-dot"></span><span>' + textWithoutButtons.substring(2) + '</span></div>');
+                    htmlLines.push('<div class="ai-list-item"><span class="pulse-dot"></span><span>' + textWithoutButtons.substring(2) + '</span></div>');
                 } else {
                     htmlLines.push('<div>' + textWithoutButtons + '</div>');
                 }
@@ -1084,7 +1084,7 @@ function simpleMarkdown(text) {
 
             htmlLines.push(`
                 <div class="ai-class-card">
-                    <span class="status-dot"></span>
+                    <span class="pulse-dot"></span>
                     <div class="ai-class-body">
                         <div class="ai-course-row">
                             <span class="ai-course-title">${course}</span>
@@ -1139,7 +1139,7 @@ function simpleMarkdown(text) {
         // Viñeta estándar con punto intermitente animado
         if (l.startsWith('* ') || l.startsWith('- ')) {
             let content = l.substring(2);
-            htmlLines.push('<div class="ai-list-item"><span class="status-dot"></span><span>' + content + '</span></div>');
+            htmlLines.push('<div class="ai-list-item"><span class="pulse-dot"></span><span>' + content + '</span></div>');
             continue;
         }
 
