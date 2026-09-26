@@ -1608,3 +1608,14 @@
         flex-shrink: 0;
     }
 }
+
+.my-hero-status-pill.assistant {
+    background: rgba(245, 158, 11, 0.18) !important;
+    color: #fbbf24 !important;
+    border: 1px solid rgba(245, 158, 11, 0.4) !important;
+    box-shadow: 0 0 14px rgba(245, 158, 11, 0.25) !important;
+}
+.my-hero-status-pill.assistant .pulse-dot {
+    background-color: #fbbf24 !important;
+    box-shadow: 0 0 8px #f59e0b !important;
+}
