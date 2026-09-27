@@ -1,8 +1,9 @@
-const CACHE_NAME = 'salas-udp-v1';
+const CACHE_NAME = 'portal-estudiantil-v2';
 const urlsToCache = [
   '/',
   '/static/css/main.css',
-  '/static/js/app.js',
+  '/static/js/app.js?v=8',
+  '/static/css/ai.css?v=15',
   '/static/manifest.json',
   '/static/icon-192.png',
   '/static/icon-512.png'

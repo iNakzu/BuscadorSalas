@@ -1919,7 +1919,7 @@ def generar_respuesta_curso(c_name, dia_id=None):
 def responder_con_ia(mensaje_usuario, historial=None, imagen=None, contexto_local=None):
     api_key = get_api_key()
     if not api_key:
-        return "Para activar el asistente inteligente de Disponibilidad de Salas, necesitas configurar tu API Key gratuita de Google AI Studio."
+        return "Para activar el asistente inteligente, necesitas configurar la API Key de Google AI Studio."
 
     # Si hay una imagen adjunta, pasar de inmediato al análisis multimodal de Gemini
     if imagen:
@@ -1936,15 +1936,10 @@ def responder_con_ia(mensaje_usuario, historial=None, imagen=None, contexto_loca
     ]) and len(sig_tokens) <= 2
     if es_saludo_ayuda:
         return (
-            "¡Hola! Soy el asistente inteligente de **Disponibilidad de Salas**.\n\n"
-            "Puedo ayudarte a encontrar salas libres en tiempo real, consultar los horarios y salas de tus asignaturas, "
-            "revisar las clases de tus docentes y verificar el estado de cualquier espacio del campus.\n\n"
-            "¿Qué te gustaría consultar?\n\n"
-            "[ACCION:salas libres ahora|Salas libres ahora] "
-            "[ACCION:salas libres|Salas por día/hora] "
-            "[ACCION:todas las salas|Ver todas las salas] "
-            "[ACCION:Rivero Rosa Elvira|Docente: Rosa Rivero] "
-            "[ACCION:Calculo Diferencial e Integral|Ramo: Cálculo]"
+            "Soy el **Asistente Inteligente** del Portal Estudiantil.\n\n"
+            "Puedo ayudarte con tu horario, ayudantías, ramos, malla curricular, notas, agenda, solemnes y salas. "
+            "También puedo analizar imágenes y responder preguntas sobre cualquier otro tema.\n\n"
+            "¿En qué te ayudo?"
         )
 
     # 2. ¿Pide listar todas las salas?
@@ -2022,8 +2017,16 @@ def responder_con_ia(mensaje_usuario, historial=None, imagen=None, contexto_loca
         'recuerdas', 'te acuerdas', 'quien soy', 'como me llamo', 'que te dije', 'de que hablamos',
         'que hablamos', 'mi nombre', 'mi carrera', 'mi fruta', 'favorita', 'preferida', 'olvides'
     ]
+    palabras_contexto_portal = [
+        'mis notas', 'mi nota', 'mi promedio', 'promedio final', 'mi malla', 'malla curricular',
+        'ramos aprobados', 'ramos cursando', 'mis ramos', 'mi horario', 'mis clases',
+        'mis ayudantias', 'mis ayudantías', 'soy ayudante', 'mi agenda', 'mis solemnes',
+        'mis evaluaciones', 'mis certamenes', 'mis certámenes', 'mis controles', 'mis tareas',
+        'que tengo hoy', 'qué tengo hoy', 'que tengo manana', 'qué tengo mañana'
+    ]
     es_pregunta_general = (
         any(p in norm_msg for p in palabras_pregunta_general) or
+        any(p in norm_msg for p in palabras_contexto_portal) or
         norm_msg.startswith(('como ', 'cual ', 'cuales ', 'por que ', 'porque ', 'cuando ', 'cuanto ', 'explica ', 'explicame ', 'recuerdas ', 'sabes ')) or
         any(w in norm_msg for w in ['recuerdas', 'acuerdas', 'mencione', 'dije', 'hablamos', 'anterior'])
     )
@@ -2103,10 +2106,15 @@ def responder_con_ia(mensaje_usuario, historial=None, imagen=None, contexto_loca
             if intencion_curso and best_match_cr[0] >= 1:
                 es_match_curso_valido = True
             elif not es_pregunta_general and not intencion_profesor:
-                if best_match_cr[0] >= 2:
-                    es_match_curso_valido = True
-                    if any(m in sig_tokens for m in best_match_cr[3]):
-                        es_match_curso_valido = True
+                # Aceptar el nombre de un ramo escrito de forma aislada, pero no
+                # secuestrar una pregunta general que solo comparta esas palabras.
+                tokens_ramo = cursos_map.get(best_match_cr[2], [])
+                es_nombre_aislado = (
+                    best_match_cr[1] >= 0.7 and
+                    len(sig_tokens) <= len(tokens_ramo) and
+                    best_match_cr[0] >= min(2, len(tokens_ramo))
+                )
+                es_match_curso_valido = es_nombre_aislado
 
             if es_match_curso_valido:
                 return generar_respuesta_curso(best_match_cr[2], dia_id=dia_detectado)
@@ -2116,7 +2124,7 @@ def responder_con_ia(mensaje_usuario, historial=None, imagen=None, contexto_loca
 def generar_respuesta_gemini(mensaje_usuario, historial=None, imagen=None, dia_detectado=None, contexto_local=None):
     api_key = get_api_key()
     if not api_key:
-        return "Para activar el asistente inteligente de Disponibilidad de Salas, necesitas configurar tu API Key gratuita de Google AI Studio."
+        return "Para activar el asistente inteligente, necesitas configurar la API Key de Google AI Studio."
 
     # 8. Fallback general a la API de Gemini para consultas abiertas, hora en vivo, conocimiento general y visión multimodal
     now_chile = get_chile_now()
@@ -2158,22 +2166,23 @@ def generar_respuesta_gemini(mensaje_usuario, historial=None, imagen=None, dia_d
         f"{contexto_sala_real}\n"
         f"DATOS LOCALES DE LA APLICACIÓN DEL USUARIO (MEMORIA DEL NAVEGADOR):\n"
         f"{json.dumps(contexto_local, indent=2, ensure_ascii=False) if contexto_local else 'No hay contexto local disponible.'}\n"
-        f"INFORMACIÓN: El json de arriba contiene el estado de la app del usuario. 'mi_horario' contiene sus clases y roles ('student' o 'assistant'). 'amigos_perfiles' contiene los horarios de sus amigos guardados (Nico, Cata, etc). 'malla_progreso' indica el estado de sus ramos en la malla interactiva. 'agenda_eventos' contiene las fechas de sus certámenes, controles, y tareas agendadas. 'habitos_diarios' contiene su registro de hábitos y rachas de estudio, salud, etc. 'guitarra_covers' contiene su repertorio de metal/covers de guitarra con afinaciones y BPMs. 'presets_neural_dsp' contiene sus cadenas de audio y presets de plugins de Neural DSP (Gojira, Petrucci, Nolly, Fortin).\n"
+        f"INFORMACIÓN: El JSON anterior reúne el estado de las secciones del Portal Estudiantil: horario y ayudantías, perfiles, malla curricular y su progreso, notas, agenda, solemnes, tareas, gastos, compras, apuntes, hábitos, guitarra, modo estudio, reloj, transporte, clima, sección visible y filtros actuales. En el horario, el rol 'assistant' significa que el usuario imparte una ayudantía y 'student' que asiste como estudiante. Los estados de progreso de la malla son 1 para cursando y 2 para aprobado. Usa los datos reales presentes y reconoce con claridad cuando algún dato no esté registrado.\n"
     )
 
     prompt_sistema = (
-        "Eres el asistente inteligente de 'Disponibilidad de Salas', y además un asistente general versátil, amable y culto.\n"
+        "Eres el asistente inteligente del Portal Estudiantil. Eres un asistente general versátil, preciso y amable, con acceso contextual a todas las secciones de esta web.\n"
         "Directrices de respuesta:\n"
-        "1. VERSATILIDAD Y AMPLITUD: Si el usuario te pregunta por la hora, fecha, dudas de asignaturas, programación, ciencias, matemáticas, cultura general, o cualquier tema no relacionado a las salas, RESPONDE DE FORMA DIRECTA, EXACTA Y ÚTIL a lo que preguntó. No restrinjas tu respuesta ni intentes forzar temas de salas si la pregunta no viene al caso.\n"
+        "1. VERSATILIDAD Y AMPLITUD: Responde preguntas de cualquier tema de forma directa, exacta y útil. No limites la conversación a asuntos académicos ni intentes llevar una consulta general hacia las salas.\n"
         "2. ANÁLISIS DE IMÁGENES: Si el usuario adjunta una imagen (foto de ejercicio, pizarra, apunte, horario, diagrama, código o captura), analízala con máxima atención y responde resolviendo o explicando lo que solicita de forma clara y detallada.\n"
         "3. HORA Y FECHA EXACTA: Tienes la hora y fecha actual exacta de Santiago de Chile en el contexto ('HORA Y FECHA EN TIEMPO REAL'). Si el usuario te pregunta qué hora es, qué día es hoy o la fecha, responde con esa información exacta con total seguridad.\n"
-        "4. DATOS REALES OBLIGATORIOS Y CERO ALUCINACIONES: NUNCA INVENTES clases, horarios, profesores ni salas que no existan en el sistema oficial. Si el usuario te pregunta por las clases de una sala, guíate EXCLUSIVAMENTE por los datos del contexto ('PROGRAMACIÓN OFICIAL VERIFICADA'). Si no tienes la programación exacta en tus datos, indícale amablemente que use el buscador de salas de la plataforma en vez de inventar asignaturas ficticias (como 'Cálculo', 'Álgebra', etc.). NUNCA menciones la sigla 'UDP' ni 'Universidad Diego Portales'; refiérete únicamente como 'Disponibilidad de Salas'.\n"
-        "5. DIRECTO AL GRANO: Responde de forma clara y concisa, sin saludos largos ni introducciones innecesarias.\n"
-        "6. FORMATO DE CLASES Y RAMOS: Cuando listes clases o asignaturas, usa SIEMPRE este formato:\n"
+        "4. CONTEXTO COMPLETO DEL PORTAL: Para preguntas sobre el usuario o la web, revisa primero todo el JSON local. Puedes relacionar datos entre secciones; por ejemplo, horario con notas, malla con ramos aprobados, ayudantías con agenda o evaluaciones. Distingue siempre entre clases donde el usuario es estudiante y ayudantías donde tiene rol 'assistant'.\n"
+        "5. DATOS REALES Y CERO ALUCINACIONES: Nunca inventes notas, clases, eventos, horarios, profesores, roles ni salas. Para salas específicas usa exclusivamente la programación oficial verificada. Si falta un dato personal, dilo claramente y explica en qué sección puede registrarse o consultarse.\n"
+        "6. DIRECTO AL GRANO: Responde de forma clara y concisa, sin saludos largos ni introducciones innecesarias.\n"
+        "7. FORMATO DE CLASES Y RAMOS: Cuando listes clases o asignaturas, usa SIEMPRE este formato:\n"
         "* [CLASE] HH:MM - HH:MM | `CODIGO_SALA` | Nombre del Curso | Sección X\n"
-        "7. LENGUAJE NATURAL: NUNCA inventes comandos internos, ni uses la palabra 'ACCION:' ni 'consulta a enviar'. Responde en lenguaje natural fluido.\n"
-        "8. FÓRMULAS MATEMÁTICAS Y CIENCIAS: La interfaz cuenta con renderizador KaTeX (LaTeX). Para fórmulas matemáticas, usa SIEMPRE notación LaTeX estándar con $$...$$ para fórmulas en bloque y $...$ para variables o expresiones en línea (por ejemplo: $x$, $f(x)$, $$\\int_{a}^{b} f(x)\\,dx$$, $$\\frac{df}{dx}$$).\n"
-        "9. Proporciona EXCLUSIVAMENTE la respuesta final redactada para el usuario, sin notas de verificación interna ni etiquetas como <thought>."
+        "8. LENGUAJE NATURAL: Nunca inventes comandos internos ni uses la palabra 'ACCION:' o 'consulta a enviar'. No uses emojis. Responde en lenguaje natural fluido.\n"
+        "9. FÓRMULAS MATEMÁTICAS Y CIENCIAS: La interfaz cuenta con renderizador KaTeX (LaTeX). Para fórmulas matemáticas, usa SIEMPRE notación LaTeX estándar con $$...$$ para fórmulas en bloque y $...$ para variables o expresiones en línea (por ejemplo: $x$, $f(x)$, $$\\int_{a}^{b} f(x)\\,dx$$, $$\\frac{df}{dx}$$).\n"
+        "10. Proporciona exclusivamente la respuesta final redactada para el usuario, sin notas de verificación interna ni etiquetas como <thought>."
     )
 
     contents = []
@@ -2327,7 +2336,14 @@ def api_chat():
     if not mensaje and not imagen:
         return jsonify({"respuesta": "Por favor escribe una consulta o adjunta una imagen."})
 
-    respuesta = responder_con_ia(mensaje, historial=historial, imagen=imagen, contexto_local=contexto_local)
+    # Mantener respuestas deterministas para datos oficiales de salas y delegar
+    # cualquier otro tema al modelo general con el contexto íntegro del portal.
+    respuesta = responder_con_ia(
+        mensaje,
+        historial=historial,
+        imagen=imagen,
+        contexto_local=contexto_local
+    )
     return jsonify({"respuesta": respuesta})
 
 # ==============================================================================

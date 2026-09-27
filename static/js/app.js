@@ -937,6 +937,9 @@ function toggleAIChat() {
     const win = document.getElementById('ai-chat-window');
     if (!win) return;
     const isOpen = win.classList.toggle('open');
+    win.setAttribute('aria-hidden', String(!isOpen));
+    const trigger = document.querySelector('.ai-fab-btn');
+    if (trigger) trigger.setAttribute('aria-expanded', String(isOpen));
     if (isOpen) {
         const input = document.getElementById('ai-chat-input');
         if (input) setTimeout(() => input.focus(), 150);
@@ -954,6 +957,12 @@ function handleChatKey(e) {
         e.preventDefault();
         enviarMensajeIA();
     }
+}
+
+function ajustarAlturaInputIA(input) {
+    if (!input) return;
+    input.style.height = 'auto';
+    input.style.height = `${Math.min(input.scrollHeight, 120)}px`;
 }
 
 function sendQuickPrompt(queryText, labelText) {
@@ -1050,11 +1059,11 @@ function simpleMarkdown(text) {
             continue;
         }
         if (l.startsWith('### ')) {
-            htmlLines.push('<div class="ai-section-title"><span class="pulse-dot"></span> ' + l.substring(4) + '</div>');
+            htmlLines.push('<div class="ai-section-title">' + l.substring(4) + '</div>');
             continue;
         }
         if (l.startsWith('## ')) {
-            htmlLines.push('<div class="ai-section-title"><span class="pulse-dot"></span> ' + l.substring(3) + '</div>');
+            htmlLines.push('<div class="ai-section-title">' + l.substring(3) + '</div>');
             continue;
         }
 
@@ -1076,13 +1085,13 @@ function simpleMarkdown(text) {
                 }
                 let escCmd = cleanCmd.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
                 let escLabel = cleanLabel.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
-                buttons.push(`<button type="button" class="ai-quick-btn" onclick="sendQuickPrompt('${escCmd}', '${escLabel}')"><span class="pulse-dot"></span><span>${cleanLabel}</span></button>`);
+                buttons.push(`<button type="button" class="ai-quick-btn" onclick="sendQuickPrompt('${escCmd}', '${escLabel}')"><span>${cleanLabel}</span></button>`);
                 return '';
             }).trim();
 
             if (textWithoutButtons) {
                 if (textWithoutButtons.startsWith('* ') || textWithoutButtons.startsWith('- ')) {
-                    htmlLines.push('<div class="ai-list-item"><span class="pulse-dot"></span><span>' + textWithoutButtons.substring(2) + '</span></div>');
+                    htmlLines.push('<div class="ai-list-item"><span class="ai-list-marker">•</span><span>' + textWithoutButtons.substring(2) + '</span></div>');
                 } else {
                     htmlLines.push('<div>' + textWithoutButtons + '</div>');
                 }
@@ -1104,7 +1113,6 @@ function simpleMarkdown(text) {
 
             htmlLines.push(`
                 <div class="ai-class-card">
-                    <span class="pulse-dot"></span>
                     <div class="ai-class-body">
                         <div class="ai-course-row">
                             <span class="ai-course-title">${course}</span>
@@ -1135,7 +1143,6 @@ function simpleMarkdown(text) {
 
             htmlLines.push(`
                 <div class="ai-class-card ai-free-card" style="border-color: rgba(16, 185, 129, 0.25); background: rgba(16, 185, 129, 0.05);">
-                    <span class="ai-list-dot" style="background: #10b981; box-shadow: 0 0 8px #10b981;"></span>
                     <div class="ai-class-body">
                         <div class="ai-course-row">
                             <span class="ai-course-title" style="color: #34d399; font-weight: 600;">${label}</span>
@@ -1156,10 +1163,10 @@ function simpleMarkdown(text) {
             continue;
         }
 
-        // Viñeta estándar con punto intermitente animado
+        // Viñeta estándar estática, sin indicadores intermitentes
         if (l.startsWith('* ') || l.startsWith('- ')) {
             let content = l.substring(2);
-            htmlLines.push('<div class="ai-list-item"><span class="pulse-dot"></span><span>' + content + '</span></div>');
+            htmlLines.push('<div class="ai-list-item"><span class="ai-list-marker">•</span><span>' + content + '</span></div>');
             continue;
         }
 
@@ -1210,10 +1217,95 @@ function limpiarChatIA() {
     if (area) {
         area.innerHTML = `
             <div class="ai-msg bot">
-                ¡Conversación reiniciada! 🔄 La memoria del chat está limpia. ¿En qué te ayudo ahora? Puedes hacerme cualquier consulta o adjuntarme una imagen.
+                <strong>Nueva conversación</strong><br>
+                ¿En qué te ayudo? Puedes preguntarme sobre el portal, cualquier otro tema o adjuntar una imagen.
             </div>
         `;
     }
+}
+
+function leerDatoLocalIA(key, fallback = null) {
+    try {
+        const raw = localStorage.getItem(key);
+        if (raw === null) return fallback;
+        try { return JSON.parse(raw); } catch (_) { return raw; }
+    } catch (_) {
+        return fallback;
+    }
+}
+
+function textoElementoIA(selector, maxLength = 2500) {
+    try {
+        const element = document.querySelector(selector);
+        return element ? element.textContent.replace(/\s+/g, ' ').trim().slice(0, maxLength) : '';
+    } catch (_) {
+        return '';
+    }
+}
+
+function obtenerContextoCompletoIA() {
+    const horario = typeof MI_HORARIO_DATA !== 'undefined'
+        ? MI_HORARIO_DATA
+        : leerDatoLocalIA('mi_horario_custom_v1', {});
+    const perfiles = typeof HORARIOS_GUARDADOS !== 'undefined' ? HORARIOS_GUARDADOS : {};
+    const progreso = typeof progresoState !== 'undefined'
+        ? progresoState
+        : leerDatoLocalIA('mi_progreso_v1', {});
+    const malla = typeof MALLA_MOCK !== 'undefined' ? MALLA_MOCK : [];
+    const notas = typeof NOTAS_DATA !== 'undefined'
+        ? NOTAS_DATA
+        : leerDatoLocalIA('mi_notas_v1', {});
+    const agenda = typeof AGENDA_DATA !== 'undefined'
+        ? AGENDA_DATA
+        : leerDatoLocalIA('mi_agenda_v1', []);
+    const solemnes = typeof SOLEMNES_DATA !== 'undefined' ? SOLEMNES_DATA : [];
+
+    return {
+        descripcion: 'Estado actual de todas las secciones del Portal Estudiantil. Usa estos datos cuando la consulta sea sobre el usuario o la web.',
+        horario_y_ayudantias: horario,
+        horarios_de_perfiles: perfiles,
+        malla_curricular: malla,
+        progreso_malla: progreso,
+        notas: notas,
+        agenda_y_evaluaciones: agenda,
+        calendario_solemnes: solemnes,
+        tareas: typeof kanbanTasks !== 'undefined' ? kanbanTasks : leerDatoLocalIA('kanban_tasks', []),
+        gastos: typeof misGastos !== 'undefined' ? misGastos : leerDatoLocalIA('mis_gastos', []),
+        compras: typeof compras !== 'undefined' ? compras : leerDatoLocalIA('lista_compras', []),
+        apuntes_de_voz: typeof misApuntes !== 'undefined' ? misApuntes : leerDatoLocalIA('mis_apuntes', []),
+        habitos: typeof habitosData !== 'undefined' ? habitosData : leerDatoLocalIA('mis_habitos', []),
+        guitarra_covers: typeof coversData !== 'undefined' ? coversData : leerDatoLocalIA('riff_covers', []),
+        presets_guitarra: typeof presetsData !== 'undefined' ? presetsData : leerDatoLocalIA('riff_presets', []),
+        modo_estudio: {
+            activo: typeof isRunning !== 'undefined' ? isRunning : leerDatoLocalIA('isStudying', false),
+            modo: typeof currentMode !== 'undefined' ? currentMode : 'estudio',
+            segundos_restantes: typeof timeLeft !== 'undefined' ? timeLeft : null,
+            radio_activa: typeof isRadioPlaying !== 'undefined' ? isRadioPlaying : false
+        },
+        reloj_y_temporizadores: {
+            temporizador_activo: typeof timerRunning !== 'undefined' ? timerRunning : false,
+            segundos_temporizador: typeof timerRemaining !== 'undefined' ? timerRemaining : null,
+            cronometro_activo: typeof stopwatchRunning !== 'undefined' ? stopwatchRunning : false,
+            centesimas_cronometro: typeof stopwatchCentiseconds !== 'undefined' ? stopwatchCentiseconds : null,
+            vueltas: typeof stopwatchLaps !== 'undefined' ? stopwatchLaps : []
+        },
+        transporte: typeof datosTransporteCache !== 'undefined' ? datosTransporteCache : null,
+        clima_visible: textoElementoIA('#clima-cards-grid'),
+        estado_salas_en_solemnes: typeof window !== 'undefined' ? (window.statusSolemnes || {}) : {},
+        seccion_activa: {
+            id: typeof document !== 'undefined' && document.querySelector('.panel.active')
+                ? document.querySelector('.panel.active').id
+                : '',
+            contenido_visible: textoElementoIA('.panel.active', 3500)
+        },
+        secciones_disponibles: [
+            'Salas disponibles', 'Profesores', 'Ramos', 'Malla por semestre', 'Horario por sala',
+            'Mi horario y ayudantías', 'Solemnes', 'Notas', 'Agenda', 'Progreso curricular',
+            'Modo estudio', 'Reloj', 'Temporizador', 'Cronómetro', 'Tareas', 'Gastos', 'Compras',
+            'Apuntes de voz', 'Hábitos', 'Guitarra', 'Transporte', 'Clima global', 'Corrector'
+        ],
+        filtros_actuales: typeof state !== 'undefined' ? state : {}
+    };
 }
 
 function removerImagenAdjunta() {
@@ -1346,14 +1438,13 @@ async function enviarMensajeIA(displayMsg = null, queryMsg = null) {
     // No enviar si no hay ni texto ni imagen
     if (!msgToSend && !imageToSend) return;
 
-    // Añadir mensaje del usuario a la vista
-    const userDiv = document.createElement('div');
-
+    // Cada turno agrupa sus partes, pero la imagen queda visualmente separada
+    // y siempre arriba de la burbuja de texto.
+    const userTurn = document.createElement('div');
+    userTurn.className = 'ai-user-turn';
     if (imageToSend) {
-        userDiv.className = 'ai-msg user has-image';
-
         const imgContainer = document.createElement('div');
-        imgContainer.className = 'ai-msg-img-container';
+        imgContainer.className = 'ai-user-image';
         imgContainer.title = 'Haz clic para ampliar la imagen';
         imgContainer.onclick = function() { abrirLightboxIA(imageToSend.dataUrl); };
 
@@ -1362,48 +1453,42 @@ async function enviarMensajeIA(displayMsg = null, queryMsg = null) {
         imgEl.className = 'ai-msg-img';
         imgEl.alt = 'Imagen adjunta';
         imgContainer.appendChild(imgEl);
-        userDiv.appendChild(imgContainer);
-
-        if (msgToShow) {
-            const capSpan = document.createElement('div');
-            capSpan.className = 'ai-msg-caption';
-            capSpan.textContent = msgToShow;
-            userDiv.appendChild(capSpan);
-        }
-    } else {
-        userDiv.className = 'ai-msg user';
-        userDiv.textContent = msgToShow;
+        userTurn.appendChild(imgContainer);
     }
 
-    area.appendChild(userDiv);
-    if (input) input.value = '';
+    if (msgToShow) {
+        const userDiv = document.createElement('div');
+        userDiv.className = 'ai-msg user';
+        userDiv.textContent = msgToShow;
+        userTurn.appendChild(userDiv);
+    }
+
+    area.appendChild(userTurn);
+    if (input) {
+        input.value = '';
+        ajustarAlturaInputIA(input);
+    }
 
     // Limpiar imagen seleccionada del input inmediatamente
     removerImagenAdjunta();
     area.scrollTop = area.scrollHeight;
 
-    // Mostrar indicador de escritura
+    // Indicador sobrio, sin puntos verdes intermitentes
     const typingDiv = document.createElement('div');
     typingDiv.className = 'ai-msg bot ai-typing-indicator';
     typingDiv.id = 'ai-typing-temp';
-    typingDiv.innerHTML = '<span class="ai-typing-dot"></span><span class="ai-typing-dot"></span><span class="ai-typing-dot"></span>';
+    typingDiv.innerHTML = '<span class="ai-thinking-ring" aria-hidden="true"></span><span>Pensando</span>';
     area.appendChild(typingDiv);
     area.scrollTop = area.scrollHeight;
 
     if (sendBtn) sendBtn.disabled = true;
 
     try {
-        // Recopilar contexto global de la app para que la IA entienda todo
-        const contextoLocal = {
-            mi_horario: window.MI_HORARIO_DATA || {},
-            amigos_perfiles: window.HORARIOS_GUARDADOS || {},
-            malla_progreso: window.progresoState || {},
-            agenda_eventos: window.AGENDA_DATA || []
-        };
+        const contextoLocal = obtenerContextoCompletoIA();
 
         const payload = {
             mensaje: msgToSend,
-            historial: chatHistory.slice(-8), // Últimos 8 turnos de contexto
+            historial: chatHistory.slice(-12),
             contexto_local: contextoLocal,
             imagen: imageToSend ? {
                 data: imageToSend.data,
@@ -1447,7 +1532,7 @@ async function enviarMensajeIA(displayMsg = null, queryMsg = null) {
 
         const botDiv = document.createElement('div');
         botDiv.className = 'ai-msg bot';
-        botDiv.innerHTML = '⚠️ Error al comunicarse con el servidor.';
+        botDiv.textContent = 'No pude comunicarme con el servidor. Inténtalo nuevamente.';
         area.appendChild(botDiv);
         area.scrollTop = area.scrollHeight;
     } finally {
