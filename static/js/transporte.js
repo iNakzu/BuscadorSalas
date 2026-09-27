@@ -158,7 +158,7 @@ function _renderLineaCapsule(l, alertasLinea, metroAbierto) {
     const estadoColor = tieneAlerta ? '#f87171' : (servicioActivo ? '#34d399' : '#fbbf24');
     const estadoBg    = tieneAlerta ? 'rgba(248,113,113,0.12)' : (servicioActivo ? 'rgba(16,185,129,0.10)' : 'rgba(245,158,11,0.12)');
     const estadoBorder= tieneAlerta ? 'rgba(248,113,113,0.35)' : (servicioActivo ? 'rgba(16,185,129,0.25)' : 'rgba(245,158,11,0.3)');
-    const estadoTxt   = tieneAlerta ? 'Afectada' : (servicioActivo ? 'Operativa' : 'Metro cerrado');
+    const estadoTxt   = tieneAlerta ? 'Afectada' : (servicioActivo ? 'Operativa' : 'Línea cerrada');
 
     // Construir el contenido del panel expandible — solo info útil:
     // 1. Alertas activas (si hay)
@@ -191,11 +191,11 @@ function _renderLineaCapsule(l, alertasLinea, metroAbierto) {
         `;
     } else if (servicioActivo) {
         expandHtml += `
-            <div class="metro-line-service-card">
-                <span class="metro-line-service-icon">
+            <div class="metro-line-status-card is-operational">
+                <span class="metro-line-status-icon">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                 </span>
-                <span class="metro-line-service-copy">
+                <span class="metro-line-status-copy">
                     <strong>Servicio disponible</strong>
                     <span>Sin interrupciones reportadas en esta línea.</span>
                 </span>
@@ -203,9 +203,14 @@ function _renderLineaCapsule(l, alertasLinea, metroAbierto) {
         `;
     } else {
         expandHtml += `
-            <div style="display:flex;align-items:center;gap:7px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:10px 12px;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.5" style="flex-shrink:0;"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
-                <span style="color:#fcd34d;font-size:12px;font-weight:600;">Servicio fuera de horario de operación.</span>
+            <div class="metro-line-status-card is-closed">
+                <span class="metro-line-status-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+                </span>
+                <span class="metro-line-status-copy">
+                    <strong>Servicio fuera de horario</strong>
+                    <span>Esta línea no opera en este momento.</span>
+                </span>
             </div>
         `;
     }
@@ -495,8 +500,9 @@ async function _pollAlertas() {
         // Actualizar panel global
         _renderPanelAlertas(alertas, document.getElementById('metro-alertas-panel'));
 
-        // Actualizar badge de estado de cada línea (rojo/verde) sin rerenderizar todo
+        // Actualizar badges sin convertir una línea cerrada en "Operativa".
         if (datosTransporteCache && Array.isArray(datosTransporteCache.lineas_metro)) {
+            const metroAbierto = Boolean(datosTransporteCache.metro_abierto);
             datosTransporteCache.lineas_metro.forEach(l => {
                 const alertasLinea = _alertasDeLinea(alertas, l.linea);
                 const tieneAlerta  = alertasLinea.length > 0;
@@ -504,15 +510,22 @@ async function _pollAlertas() {
                 // Badge de estado dentro del header de la cápsula
                 const badgeEl = document.getElementById(`estado-badge-${l.linea}`);
                 if (badgeEl) {
-                    const col = tieneAlerta ? '#f87171' : '#34d399';
-                    const bg  = tieneAlerta ? 'rgba(248,113,113,0.12)' : 'rgba(16,185,129,0.10)';
-                    const brd = tieneAlerta ? 'rgba(248,113,113,0.35)' : 'rgba(16,185,129,0.25)';
-                    badgeEl.style.color        = col;
-                    badgeEl.style.background   = bg;
-                    badgeEl.style.borderColor  = brd;
-                    badgeEl.querySelector('.estado-dot').style.background   = col;
-                    badgeEl.querySelector('.estado-dot').style.boxShadow    = `0 0 5px ${col}`;
-                    badgeEl.querySelector('.estado-txt').textContent        = tieneAlerta ? 'Afectada' : 'Operativa';
+                    const estado = tieneAlerta
+                        ? { color: '#f87171', bg: 'rgba(248,113,113,0.12)', border: 'rgba(248,113,113,0.35)', text: 'Afectada' }
+                        : metroAbierto
+                            ? { color: '#34d399', bg: 'rgba(16,185,129,0.10)', border: 'rgba(16,185,129,0.25)', text: 'Operativa' }
+                            : { color: '#fbbf24', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.30)', text: 'Línea cerrada' };
+
+                    const dot = badgeEl.querySelector('.estado-dot-anim');
+                    const text = badgeEl.querySelector('.estado-txt');
+                    badgeEl.style.color        = estado.color;
+                    badgeEl.style.background   = estado.bg;
+                    badgeEl.style.borderColor  = estado.border;
+                    if (dot) {
+                        dot.style.background = estado.color;
+                        dot.style.boxShadow = `0 0 5px ${estado.color}`;
+                    }
+                    if (text) text.textContent = estado.text;
                 }
 
                 // Punto rojo encima del badge de color de la línea

@@ -2578,9 +2578,13 @@ html {
     transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
-.metro-linea-capsule:hover,
+.metro-linea-capsule:hover {
+    border-color: rgba(125, 211, 252, 0.24) !important;
+    box-shadow: 0 10px 26px rgba(2, 6, 23, 0.34) !important;
+}
+
 .metro-linea-capsule.is-open {
-    border-color: rgba(226, 232, 240, 0.28) !important;
+    border-color: rgba(148, 163, 184, 0.16) !important;
     box-shadow: 0 10px 26px rgba(2, 6, 23, 0.34) !important;
 }
 
@@ -2625,17 +2629,25 @@ html {
     background: rgba(2, 6, 23, 0.25) !important;
 }
 
-.metro-line-service-card {
+.metro-line-status-card {
     display: flex;
     align-items: center;
     gap: 11px;
     padding: 12px;
-    background: linear-gradient(105deg, rgba(6, 78, 59, 0.5), rgba(6, 95, 70, 0.18));
-    border: 1px solid rgba(52, 211, 153, 0.28);
     border-radius: 8px;
 }
 
-.metro-line-service-icon {
+.metro-line-status-card.is-operational {
+    background: linear-gradient(105deg, rgba(6, 78, 59, 0.5), rgba(6, 95, 70, 0.18));
+    border: 1px solid rgba(52, 211, 153, 0.28);
+}
+
+.metro-line-status-card.is-closed {
+    background: linear-gradient(105deg, rgba(120, 53, 15, 0.42), rgba(120, 53, 15, 0.16));
+    border: 1px solid rgba(251, 191, 36, 0.28);
+}
+
+.metro-line-status-icon {
     display: grid;
     place-items: center;
     width: 32px;
@@ -2647,7 +2659,13 @@ html {
     border-radius: 50%;
 }
 
-.metro-line-service-copy {
+.metro-line-status-card.is-closed .metro-line-status-icon {
+    color: #fcd34d;
+    background: rgba(245, 158, 11, 0.16);
+    border-color: rgba(251, 191, 36, 0.28);
+}
+
+.metro-line-status-copy {
     display: grid;
     gap: 2px;
     min-width: 0;
@@ -2656,9 +2674,41 @@ html {
     line-height: 1.35;
 }
 
-.metro-line-service-copy strong {
+.metro-line-status-copy strong {
     color: #ecfdf5;
     font-size: 12.5px;
+}
+
+.metro-line-status-card.is-closed .metro-line-status-copy {
+    color: #fde68a;
+}
+
+.metro-line-status-card.is-closed .metro-line-status-copy strong {
+    color: #fffbeb;
+}
+
+.clima-refresh-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    color: #94a3b8;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    transition: color 160ms ease, transform 160ms ease;
+}
+
+.clima-refresh-button:hover,
+.clima-refresh-button:focus-visible {
+    color: #7dd3fc;
+    outline: none;
+}
+
+.clima-refresh-button:active {
+    transform: rotate(45deg);
 }
 
 /* Fix Chrome Autofill white background breaking glassmorphism */

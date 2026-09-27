@@ -1485,19 +1485,20 @@
     height: 30px;
     padding: 0;
     color: #94a3b8;
-    background: rgba(15, 23, 42, 0.44);
-    border: 1px solid rgba(148, 163, 184, 0.16);
-    border-radius: 7px;
+    background: transparent;
+    border: 0;
     cursor: pointer;
-    transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
+    transition: color 160ms ease, transform 160ms ease;
 }
 
 .cruce-trigger:hover,
 .cruce-trigger:focus-visible {
     color: #7dd3fc;
-    background: rgba(14, 116, 144, 0.18);
-    border-color: rgba(56, 189, 248, 0.42);
-    outline: none;
+}
+
+.cruce-trigger:focus-visible {
+    outline: 2px solid rgba(125, 211, 252, 0.72);
+    outline-offset: 2px;
 }
 
 .cruce-menu-overlay {
