@@ -5,6 +5,24 @@
 
 let datosTransporteCache = null;
 let activeParaderoCode = null;
+const SIMULAR_ALERTA_METRO = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
+function alertasParaVista(alertas) {
+    if (!SIMULAR_ALERTA_METRO) return alertas;
+    return [{
+        id: 'simulacion-l1-x',
+        tipo: 'estacion',
+        target: 'L1 · La Moneda',
+        mensaje: '09:01 hrs. Estación La Moneda #L1 se encuentra cerrada y sin detención de trenes, preventivamente por solicitud de Carabineros.',
+        ts: new Date().toISOString()
+    }, {
+        id: 'simulacion-l1-x-2',
+        tipo: 'tramo',
+        target: 'L1 · Universidad de Chile',
+        mensaje: '09:12 hrs. Servicio disponible solo entre San Pablo y Los Héroes, y entre Baquedano y Los Dominicos. Seguiremos informando.',
+        ts: new Date().toISOString()
+    }, ...alertas];
+}
 
 async function initTransporte() {
     await cargarDatosTransporte();
@@ -15,7 +33,7 @@ function consultarParaderoManual() {
     if (!input) return;
     const val = input.value.trim().toUpperCase();
     if (!val) {
-        mostrarAlertaWeb('Ingresa un código de paradero válido.', 'Código inválido', 'error');
+        input.focus();
         return;
     }
     activeParaderoCode = val;
@@ -149,130 +167,116 @@ function _renderPanelAlertas(alertas, container) {
     }
 }
 
-// ─── Cápsula de línea rediseñada — útil e informativa ────────────────────────
-function _renderLineaCapsule(l, alertasLinea, metroAbierto) {
+// ─── Lista de líneas Metro ───────────────────────────────────────────────────
+
+function _estadoLineaMetro(alertasLinea, metroAbierto) {
     const tieneAlerta = alertasLinea.length > 0;
     const servicioActivo = Boolean(metroAbierto);
+    if (tieneAlerta) return { key: 'alert', color: '#f87171', bg: 'rgba(248,113,113,0.12)', border: 'rgba(248,113,113,0.35)', label: 'Con problemas' };
+    if (servicioActivo) return { key: 'operational', color: '#34d399', bg: 'rgba(16,185,129,0.10)', border: 'rgba(16,185,129,0.25)', label: 'Operativa' };
+    return { key: 'closed', color: '#fbbf24', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.30)', label: 'Cerrada' };
+}
 
-    // Estado del badge
-    const estadoColor = tieneAlerta ? '#f87171' : (servicioActivo ? '#34d399' : '#fbbf24');
-    const estadoBg    = tieneAlerta ? 'rgba(248,113,113,0.12)' : (servicioActivo ? 'rgba(16,185,129,0.10)' : 'rgba(245,158,11,0.12)');
-    const estadoBorder= tieneAlerta ? 'rgba(248,113,113,0.35)' : (servicioActivo ? 'rgba(16,185,129,0.25)' : 'rgba(245,158,11,0.3)');
-    const estadoTxt   = tieneAlerta ? 'Afectada' : (servicioActivo ? 'Operativa' : 'Línea cerrada');
+function _renderMetroRoute(terminales) {
+    const partes = String(terminales || '').split(/\s*⇄\s*/);
+    if (partes.length !== 2) return `<span class="metro-route-single">${escapeHtmlTrans(terminales)}</span>`;
 
-    // Construir el contenido del panel expandible — solo info útil:
-    // 1. Alertas activas (si hay)
-    // 2. Estado del servicio
-    // 3. Terminales (para saber de dónde a dónde va)
-    // 4. Horario de operación del día actual
-    let expandHtml = '';
+    return `
+        <div class="metro-route">
+            <span>${escapeHtmlTrans(partes[0])}</span>
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m15 7 5 5-5 5"></path></svg>
+            <span>${escapeHtmlTrans(partes[1])}</span>
+        </div>
+    `;
+}
 
-    if (tieneAlerta) {
-        expandHtml += `
-            <div class="metro-alertas-scroll" style="background:rgba(153,27,27,0.12);border:1px solid rgba(248,113,113,0.35);border-radius:12px;padding:12px 14px;margin-bottom:12px;">
-                <div style="display:flex;align-items:center;gap:7px;margin-bottom:9px;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                    <span style="font-size:11px;font-weight:800;color:#f87171;text-transform:uppercase;letter-spacing:.07em;">Alertas activas en la línea</span>
-                </div>
-                <div style="display:flex;flex-direction:column;gap:7px;">
+function _renderDetalleLineaMetro(l, alertasLinea, metroAbierto) {
+    const estado = _estadoLineaMetro(alertasLinea, metroAbierto);
+    let messageHtml = '';
+
+    if (estado.key === 'alert') {
+        messageHtml = `
+            <div class="metro-tab-alerts">
+                <div class="metro-tab-alerts-list">
                 ${alertasLinea.map(a => `
-                    <div style="background:rgba(0,0,0,0.25);border-radius:8px;padding:9px 11px;border-left:3px solid #f87171;">
-                        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;min-width:0;">
-                            <div style="display:flex;align-items:center;gap:5px;min-width:0;flex:1;flex-wrap:wrap;">
-                                <span style="color:#fca5a5;font-size:11px;font-weight:700;">${escapeHtmlTrans(a.target)}</span>
-                            </div>
-                            <span style="color:#64748b;font-size:10px;font-weight:600;white-space:nowrap;flex-shrink:0;">${escapeHtmlTrans(formatearFechaAlerta(a.ts))}</span>
+                    <div class="metro-tab-alert-item">
+                        <div class="metro-tab-alert-meta">
+                            <strong>${escapeHtmlTrans(a.target)}</strong>
+                            <span>${escapeHtmlTrans(formatearFechaAlerta(a.ts))}</span>
                         </div>
-                        <div style="color:#94a3b8;font-size:11px;line-height:1.4;">${escapeHtmlTrans(formatearMensajeAlerta(a.mensaje))}</div>
+                        <div>${escapeHtmlTrans(formatearMensajeAlerta(a.mensaje))}</div>
                     </div>
                 `).join('')}
                 </div>
             </div>
         `;
-    } else if (servicioActivo) {
-        expandHtml += `
+    } else if (estado.key === 'operational') {
+        messageHtml = `
             <div class="metro-line-status-card is-operational">
-                <span class="metro-line-status-icon">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                </span>
                 <span class="metro-line-status-copy">
+                    <span class="metro-line-status-kicker">Estado del servicio</span>
                     <strong>Servicio disponible</strong>
                     <span>Sin interrupciones reportadas en esta línea.</span>
                 </span>
             </div>
         `;
     } else {
-        expandHtml += `
+        messageHtml = `
             <div class="metro-line-status-card is-closed">
-                <span class="metro-line-status-icon">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
-                </span>
                 <span class="metro-line-status-copy">
+                    <span class="metro-line-status-kicker">Estado del servicio</span>
                     <strong>Servicio fuera de horario</strong>
-                    <span>Esta línea no opera en este momento.</span>
+                    <span>La línea no opera en este momento.</span>
                 </span>
             </div>
         `;
     }
 
     return `
-        <div class="metro-linea-capsule" style="--metro-line-color:${l.color};
-            background:rgba(15,23,42,0.60);
-            border:1px solid ${tieneAlerta ? 'rgba(248,113,113,0.45)' : 'rgba(255,255,255,0.08)'};
-            border-radius:14px;
-            overflow:hidden;
-            ${tieneAlerta ? 'box-shadow:0 0 0 1px rgba(248,113,113,0.12),0 4px 20px rgba(153,27,27,0.1);' : ''}
-        ">
-            <!-- Header de la cápsula -->
-            <div class="metro-linea-header"
-                onclick="toggleLineaDetalle('${l.linea}')"
-                onmouseover="this.style.background='rgba(255,255,255,0.03)'"
-                onmouseout="this.style.background='transparent'"
-                style="
-                    padding:13px 15px;
-                    display:flex;
-                    align-items:center;
-                    justify-content:space-between;
-                    cursor:pointer;
-                    user-select:none;
-                    gap:10px;
-                    background:transparent;
-                    transition: background 0.2s;
-                "
-            >
-                <!-- Izq: badge de color + nombre corto -->
-                <div style="display:flex;align-items:center;gap:11px;min-width:0;">
-                    <div style="position:relative;flex-shrink:0;">
-                        <div style="
-                            width:40px;height:40px;
-                            background:${l.color};
-                            border-radius:11px;
-                            display:flex;align-items:center;justify-content:center;
-                            box-shadow:0 2px 10px ${l.color}50;
-                            font-size:11px;font-weight:900;color:#fff;
-                        ">${escapeHtmlTrans(l.linea)}</div>
-                    </div>
-                    <div style="min-width:0;">
-                        <div style="font-size:13px;font-weight:700;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtmlTrans(l.nombre)}</div>
-                        <div style="font-size:10.5px;color:#64748b;margin-top:1px;">${l.estaciones_total} estaciones &nbsp;·&nbsp; ${escapeHtmlTrans(l.longitud_km)}</div>
-                    </div>
+        <div class="metro-tab-detail" id="metro-line-card-${l.linea}" role="button" tabindex="0" aria-expanded="false" aria-controls="metro-service-${l.linea}" onclick="toggleEstadoLineaMetro('${l.linea}')" onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleEstadoLineaMetro('${l.linea}'); }" style="--metro-line-color:${l.color};">
+            <div class="metro-tab-detail-head">
+                <div class="metro-tab-line-mark" style="background:${l.color};">${escapeHtmlTrans(l.linea)}</div>
+                <div class="metro-tab-detail-title">
+                    <small>${escapeHtmlTrans(l.nombre)}</small>
+                    ${_renderMetroRoute(l.terminales)}
                 </div>
-
-                <!-- Der: estado + chevron -->
-                <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-                    <div id="estado-badge-${l.linea}" style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:${estadoColor};background:${estadoBg};padding:4px 9px;border-radius:7px;border:1px solid ${estadoBorder};">
-                        <span class="estado-dot-anim"></span>
-                        <span class="estado-txt">${estadoTxt}</span>
-                    </div>
-                    <svg id="chevron-${l.linea}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color:#64748b;transition:transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
+                <div class="metro-tab-metrics" aria-label="Datos de la línea">
+                    <span>${l.estaciones_total} estaciones</span>
+                    <span>${escapeHtmlTrans(l.longitud_km)}</span>
                 </div>
-
+                <div class="metro-line-state-control">
+                    <span class="metro-line-state" style="color:${estado.color}; background:${estado.bg}; border-color:${estado.border};">
+                        <span class="metro-line-status-dot estado-dot-anim" aria-hidden="true"></span>
+                        ${escapeHtmlTrans(estado.label)}
+                    </span>
+                    <svg class="metro-state-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
             </div>
-
-            <!-- Detalle expandible -->
-            <div id="detalle-linea-${l.linea}" class="metro-linea-detail" style="display:none;padding:12px 15px;border-top:1px solid rgba(255,255,255,0.08);background:transparent;">
-                ${expandHtml}
+            <div class="metro-line-service-detail" id="metro-service-${l.linea}" style="display:none;">
+                ${messageHtml}
             </div>
+        </div>
+    `;
+}
+
+function toggleEstadoLineaMetro(lineaCode) {
+    const detail = document.getElementById(`metro-service-${lineaCode}`);
+    const card = document.getElementById(`metro-line-card-${lineaCode}`);
+    if (!detail || !card) return;
+
+    const abierto = detail.style.display === 'block';
+    detail.style.display = abierto ? 'none' : 'block';
+    card.setAttribute('aria-expanded', String(!abierto));
+    card.classList.toggle('is-open', !abierto);
+}
+
+function renderMetroTabs(lineas, alertas, metroAbierto) {
+    const lineasGrid = document.getElementById('metro-lineas-grid');
+    if (!lineasGrid || !Array.isArray(lineas) || !lineas.length) return;
+
+    lineasGrid.innerHTML = `
+        <div class="metro-line-list" aria-label="Estado de las líneas de Metro">
+            ${lineas.map(l => _renderDetalleLineaMetro(l, _alertasDeLinea(alertas, l.linea), metroAbierto)).join('')}
         </div>
     `;
 }
@@ -329,20 +333,19 @@ async function cargarDatosTransporte() {
         const data = await res.json();
         datosTransporteCache = data;
 
+        const alertas = alertasParaVista(filtrarAlertasActivas(data.alertas));
+
         // 1. Cápsula de estado general
         if (horarioBadge) {
-            horarioBadge.innerHTML = _renderEstadoMetroCapsule(data.metro_abierto, filtrarAlertasActivas(data.alertas));
+            horarioBadge.innerHTML = _renderEstadoMetroCapsule(data.metro_abierto, alertas);
         }
 
         // 2. Panel global de alertas
-        const alertas = filtrarAlertasActivas(data.alertas);
         _renderPanelAlertas(alertas, alertasPanel);
 
-        // 3. Cápsulas de líneas
+        // 3. Tabs y detalle de líneas
         if (lineasGrid && Array.isArray(data.lineas_metro)) {
-            lineasGrid.innerHTML = data.lineas_metro
-                .map(l => _renderLineaCapsule(l, _alertasDeLinea(alertas, l.linea), data.metro_abierto))
-                .join('');
+            renderMetroTabs(data.lineas_metro, alertas, data.metro_abierto);
         }
 
         // 4. Tarifas
@@ -382,17 +385,6 @@ async function cargarDatosTransporte() {
         }
         console.error('[Transporte]', e);
     }
-}
-
-// ─── Acordeón ─────────────────────────────────────────────────────────────────
-function toggleLineaDetalle(lineaCode) {
-    const el   = document.getElementById(`detalle-linea-${lineaCode}`);
-    const chev = document.getElementById(`chevron-${lineaCode}`);
-    if (!el) return;
-    const abierto = el.style.display !== 'none' && el.style.display !== '';
-    el.style.display   = abierto ? 'none' : 'block';
-    if (chev) chev.style.transform = abierto ? 'rotate(0deg)' : 'rotate(180deg)';
-    el.closest('.metro-linea-capsule')?.classList.toggle('is-open', !abierto);
 }
 
 // ─── Buses del paradero ───────────────────────────────────────────────────────
@@ -495,43 +487,15 @@ async function _pollAlertas() {
     try {
         const res  = await fetch('/api/metro-alertas', { cache: 'no-store' });
         const data = await res.json();
-        const alertas = filtrarAlertasActivas(data.alertas);
+        const alertas = alertasParaVista(filtrarAlertasActivas(data.alertas));
 
         // Actualizar panel global
         _renderPanelAlertas(alertas, document.getElementById('metro-alertas-panel'));
 
-        // Actualizar badges sin convertir una línea cerrada en "Operativa".
+        // Re-renderizar tabs para reflejar alertas sin desincronizar su estado.
         if (datosTransporteCache && Array.isArray(datosTransporteCache.lineas_metro)) {
-            const metroAbierto = Boolean(datosTransporteCache.metro_abierto);
-            datosTransporteCache.lineas_metro.forEach(l => {
-                const alertasLinea = _alertasDeLinea(alertas, l.linea);
-                const tieneAlerta  = alertasLinea.length > 0;
-
-                // Badge de estado dentro del header de la cápsula
-                const badgeEl = document.getElementById(`estado-badge-${l.linea}`);
-                if (badgeEl) {
-                    const estado = tieneAlerta
-                        ? { color: '#f87171', bg: 'rgba(248,113,113,0.12)', border: 'rgba(248,113,113,0.35)', text: 'Afectada' }
-                        : metroAbierto
-                            ? { color: '#34d399', bg: 'rgba(16,185,129,0.10)', border: 'rgba(16,185,129,0.25)', text: 'Operativa' }
-                            : { color: '#fbbf24', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.30)', text: 'Línea cerrada' };
-
-                    const dot = badgeEl.querySelector('.estado-dot-anim');
-                    const text = badgeEl.querySelector('.estado-txt');
-                    badgeEl.style.color        = estado.color;
-                    badgeEl.style.background   = estado.bg;
-                    badgeEl.style.borderColor  = estado.border;
-                    if (dot) {
-                        dot.style.background = estado.color;
-                        dot.style.boxShadow = `0 0 5px ${estado.color}`;
-                    }
-                    if (text) text.textContent = estado.text;
-                }
-
-                // Punto rojo encima del badge de color de la línea
-                const dotEl = document.getElementById(`alerta-dot-${l.linea}`);
-                if (dotEl) dotEl.style.display = tieneAlerta ? 'block' : 'none';
-            });
+            datosTransporteCache.alertas = alertas;
+            renderMetroTabs(datosTransporteCache.lineas_metro, alertas, datosTransporteCache.metro_abierto);
         }
 
     } catch (e) {
