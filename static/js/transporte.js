@@ -5,24 +5,6 @@
 
 let datosTransporteCache = null;
 let activeParaderoCode = null;
-const SIMULAR_ALERTA_METRO = ['localhost', '127.0.0.1'].includes(window.location.hostname);
-
-function alertasParaVista(alertas) {
-    if (!SIMULAR_ALERTA_METRO) return alertas;
-    return [{
-        id: 'simulacion-l1-x',
-        tipo: 'estacion',
-        target: 'L1 · La Moneda',
-        mensaje: '09:01 hrs. Estación La Moneda #L1 se encuentra cerrada y sin detención de trenes, preventivamente por solicitud de Carabineros.',
-        ts: new Date().toISOString()
-    }, {
-        id: 'simulacion-l1-x-2',
-        tipo: 'tramo',
-        target: 'L1 · Universidad de Chile',
-        mensaje: '09:12 hrs. Servicio disponible solo entre San Pablo y Los Héroes, y entre Baquedano y Los Dominicos. Seguiremos informando.',
-        ts: new Date().toISOString()
-    }, ...alertas];
-}
 
 async function initTransporte() {
     await cargarDatosTransporte();
@@ -104,9 +86,11 @@ function escapeHtmlTrans(str) {
 function _alertasDeLinea(alertas, lineaCode) {
     if (!alertas || alertas.length === 0) return [];
     return alertas.filter(a => {
+        const lineas = Array.isArray(a.lineas) ? a.lineas.map(l => String(l).toUpperCase()) : [];
+        if (lineas.length) return lineas.includes(lineaCode.toUpperCase());
         const t = (a.target || '').toUpperCase();
-        if (t === 'TODA LA RED') return true;
-        return t.includes(lineaCode.toUpperCase());
+        if (t === 'TODA LA RED' || t === 'RED GENERAL') return true;
+        return (t.match(/\bL(?:4A|[1-6])\b/g) || []).includes(lineaCode.toUpperCase());
     });
 }
 
@@ -273,12 +257,24 @@ function toggleEstadoLineaMetro(lineaCode) {
 function renderMetroTabs(lineas, alertas, metroAbierto) {
     const lineasGrid = document.getElementById('metro-lineas-grid');
     if (!lineasGrid || !Array.isArray(lineas) || !lineas.length) return;
+    const expandidas = new Set(
+        [...lineasGrid.querySelectorAll('.metro-tab-detail[aria-expanded="true"]')]
+            .map(card => card.id.slice('metro-line-card-'.length))
+    );
 
     lineasGrid.innerHTML = `
         <div class="metro-line-list" aria-label="Estado de las líneas de Metro">
             ${lineas.map(l => _renderDetalleLineaMetro(l, _alertasDeLinea(alertas, l.linea), metroAbierto)).join('')}
         </div>
     `;
+    expandidas.forEach(lineaCode => {
+        const card = document.getElementById(`metro-line-card-${lineaCode}`);
+        const detail = document.getElementById(`metro-service-${lineaCode}`);
+        if (!card || !detail) return;
+        detail.style.display = 'block';
+        card.setAttribute('aria-expanded', 'true');
+        card.classList.add('is-open');
+    });
 }
 
 function _renderEstadoMetroCapsule(metroAbierto, alertas) {
@@ -330,10 +326,12 @@ async function cargarDatosTransporte() {
     try {
         const stopQuery = activeParaderoCode ? `?stop=${encodeURIComponent(activeParaderoCode)}` : '';
         const res  = await fetch(`/api/transporte${stopQuery}`);
+        if (!res.ok) throw new Error(`Transporte HTTP ${res.status}`);
         const data = await res.json();
+        if (!Array.isArray(data.alertas)) throw new Error('Respuesta de transporte sin alertas');
         datosTransporteCache = data;
 
-        const alertas = alertasParaVista(filtrarAlertasActivas(data.alertas));
+        const alertas = filtrarAlertasActivas(data.alertas);
 
         // 1. Cápsula de estado general
         if (horarioBadge) {
@@ -486,11 +484,17 @@ function renderBusesList(paraderoData, code) {
 async function _pollAlertas() {
     try {
         const res  = await fetch('/api/metro-alertas', { cache: 'no-store' });
+        if (!res.ok) throw new Error(`Metro alertas HTTP ${res.status}`);
         const data = await res.json();
-        const alertas = alertasParaVista(filtrarAlertasActivas(data.alertas));
+        if (!Array.isArray(data.alertas)) throw new Error('Respuesta de metro sin alertas');
+        const alertas = filtrarAlertasActivas(data.alertas);
 
-        // Actualizar panel global
+        // Actualizar estado general y líneas con las alertas de la API.
         _renderPanelAlertas(alertas, document.getElementById('metro-alertas-panel'));
+        const horarioBadge = document.getElementById('metro-horario-badge');
+        if (horarioBadge && datosTransporteCache) {
+            horarioBadge.innerHTML = _renderEstadoMetroCapsule(datosTransporteCache.metro_abierto, alertas);
+        }
 
         // Re-renderizar tabs para reflejar alertas sin desincronizar su estado.
         if (datosTransporteCache && Array.isArray(datosTransporteCache.lineas_metro)) {
