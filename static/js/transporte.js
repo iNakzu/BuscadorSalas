@@ -191,9 +191,14 @@ function _renderLineaCapsule(l, alertasLinea, metroAbierto) {
         `;
     } else if (servicioActivo) {
         expandHtml += `
-            <div style="display:flex;align-items:center;gap:7px;background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:10px 12px;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <span style="color:#86efac;font-size:12.5px;font-weight:600;">Sin interrupciones reportadas</span>
+            <div class="metro-line-service-card">
+                <span class="metro-line-service-icon">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                </span>
+                <span class="metro-line-service-copy">
+                    <strong>Servicio disponible</strong>
+                    <span>Sin interrupciones reportadas en esta línea.</span>
+                </span>
             </div>
         `;
     } else {
@@ -206,7 +211,7 @@ function _renderLineaCapsule(l, alertasLinea, metroAbierto) {
     }
 
     return `
-        <div class="metro-linea-capsule" style="
+        <div class="metro-linea-capsule" style="--metro-line-color:${l.color};
             background:rgba(15,23,42,0.60);
             border:1px solid ${tieneAlerta ? 'rgba(248,113,113,0.45)' : 'rgba(255,255,255,0.08)'};
             border-radius:14px;
@@ -382,6 +387,7 @@ function toggleLineaDetalle(lineaCode) {
     const abierto = el.style.display !== 'none' && el.style.display !== '';
     el.style.display   = abierto ? 'none' : 'block';
     if (chev) chev.style.transform = abierto ? 'rotate(0deg)' : 'rotate(180deg)';
+    el.closest('.metro-linea-capsule')?.classList.toggle('is-open', !abierto);
 }
 
 // ─── Buses del paradero ───────────────────────────────────────────────────────

@@ -99,11 +99,6 @@ function getChileTime() {
         }
     });
 
-    // DEBUG OVERRIDE FOR PREVIEW (Tuesday 2:30 PM)
-    dayOfWeek = 2;
-    hours = 14;
-    minutes = 30;
-    seconds = 0;
     const totalMinutes = hours * 60 + minutes;
     const totalSeconds = totalMinutes * 60 + seconds;
     return { dayOfWeek, hours, minutes, seconds, totalMinutes, totalSeconds };
@@ -1022,7 +1017,7 @@ function abrirModalCruce() {
         html += `
             <label class="cruce-option">
                 <div class="cruce-info">
-                    <div class="cruce-avatar" style="${opt.id === 'nakzu' ? 'background: linear-gradient(135deg, #3b82f6, #06b6d4);' : ''}">${opt.name.charAt(0)}</div>
+                    <div class="cruce-avatar ${opt.id === 'nakzu' ? 'is-me' : ''}">${opt.name.charAt(0)}</div>
                     <span>${escapeHtml(opt.name)}</span>
                 </div>
                 <input type="checkbox" value="${opt.id}" ${isChecked ? 'checked' : ''} class="cruce-checkbox">

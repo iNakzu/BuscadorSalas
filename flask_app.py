@@ -527,6 +527,20 @@ def coincide_facultad(nombre_sala, filtro_facultad):
     # Si es texto libre, aceptamos cualquier sala para evaluarla despues
     return True
 
+def asignaciones_sala_seccion(nodo):
+    """Separa salas y secciones, emparejandolas cuando la API las agrupa."""
+    import re as re_local
+
+    raw_places = str(nodo.get('place') or '')
+    raw_sections = str(nodo.get('section') or '-').strip() or '-'
+    places = [p.strip() for p in re_local.split(r'[,/]', raw_places) if p.strip()]
+    sections = [s.strip() for s in re_local.split(r'[,/]', raw_sections) if s.strip()]
+
+    if len(places) > 1 and len(places) == len(sections):
+        return list(zip(places, sections))
+
+    return [(place, raw_sections) for place in places]
+
 def obtener_bloque_info(hora_id):
     for b in STANDARD_BLOCKS:
         if b["id"] == hora_id:
@@ -555,12 +569,11 @@ def obtener_salas(dia_numero, hora_exacta, filtro_facultad):
 
     for clase in clases:
         nodo = clase.get('node', {})
-        raw_place = nodo.get('place')
-        if not raw_place:
+        asignaciones = asignaciones_sala_seccion(nodo)
+        if not asignaciones:
             continue
 
-        import re as re_local
-        for nombre_sala in [s.strip() for s in re_local.split(r'[,/]', raw_place) if s.strip()]:
+        for nombre_sala, seccion in asignaciones:
             if not coincide_facultad(nombre_sala, filtro_facultad):
                 continue
 
@@ -585,7 +598,7 @@ def obtener_salas(dia_numero, hora_exacta, filtro_facultad):
                     'finish': format_time(finish_str),
                     'course': nodo.get('course', 'Sin curso'),
                     'teacher': nodo.get('teacher', 'No informado'),
-                    'section': nodo.get('section', '-'),
+                    'section': seccion,
                     'code': nodo.get('code', '-')
                 })
 
@@ -767,15 +780,12 @@ def buscar_curso(query, dia_filtro=None, hora_filtro=None):
             if not (h_q.startswith(c_start) or c_start.startswith(h_q.replace(":00", "")) or h_q in nodo.get('start', '')):
                 continue
 
-        raw_place = nodo.get('place', '-')
-        import re as re_local
-        places = [p.strip() for p in re_local.split(r'[,/]', raw_place)] if raw_place and raw_place != '-' else ['-']
-        for p in places:
+        for p, seccion in asignaciones_sala_seccion(nodo) or [('-', nodo.get('section', '-'))]:
             resultados.append({
                 'sala': p,
                 'curso': curso,
                 'codigo': codigo,
-                'seccion': nodo.get('section', '-'),
+                'seccion': seccion,
                 'profe': nodo.get('teacher', 'No informado'),
                 'dia': nombre_dia(nodo.get('day')),
                 'dia_numero': nodo.get('day'),
@@ -946,16 +956,12 @@ def obtener_clases_malla(semestre=8, dia_filtro=None, ramo_filtro=None, hora_fil
             if not (h_q.startswith(c_start) or c_start.startswith(h_q.replace(":00", "")) or h_q in n.get('start', '')):
                 continue
 
-        raw_place = n.get('place', '-')
-        import re as re_local
-        places = [p.strip() for p in re_local.split(r'[,/]', raw_place)] if raw_place and raw_place != '-' else ['-']
-        
-        for p in places:
+        for p, seccion in asignaciones_sala_seccion(n) or [('-', n.get('section', '-'))]:
             if not p: continue
             resultados.append({
                 'ramo_malla': matched_ramo,
                 'curso_oficial': curso_oficial,
-                'seccion': n.get('section', '-'),
+                'seccion': seccion,
                 'codigo': n.get('code', '-'),
                 'dia': nombre_dia(n.get('day')),
                 'dia_numero': n.get('day'),
@@ -983,18 +989,18 @@ def horario_de_sala(nombre_sala):
 
     for clase in clases:
         nodo = clase.get('node', {})
-        raw_place = nodo.get('place', '')
-        if not raw_place:
-            continue
-        import re as re_local
-        salas_nodo = [s.strip().upper() for s in re_local.split(r'[,/]', raw_place) if s.strip()]
-        if nombre_clean in salas_nodo:
+        asignacion = next(
+            ((sala, seccion) for sala, seccion in asignaciones_sala_seccion(nodo) if sala.upper() == nombre_clean),
+            None
+        )
+        if asignacion:
+            _, seccion = asignacion
             dia = nodo.get('day')
             if dia in horario_semanal:
                 horario_semanal[dia].append({
                     'curso': nodo.get('course', '-'),
                     'codigo': nodo.get('code', '-'),
-                    'seccion': nodo.get('section', '-'),
+                    'seccion': seccion,
                     'profe': nodo.get('teacher', 'No informado'),
                     'start': format_time(nodo.get('start', '')),
                     'finish': format_time(nodo.get('finish', ''))
@@ -1061,14 +1067,12 @@ def serve_manifest():
 def inicio():
     vacias = []
     ocupadas = {}
+    vacias_info = {}
     resultados_profe = []
     busqueda_realizada = False
     modo = "salas"
 
-    now = get_chile_now()
-    hoy_dia = now.weekday() + 1
-    if hoy_dia > 5:
-        hoy_dia = 1
+    hoy_dia = 1
         
     is_solemne = False
     if hasattr(dm, 'solemne_days') and dm.solemne_days.get(hoy_dia):
@@ -1091,13 +1095,12 @@ def inicio():
             modo = "profesor"
             # Usa buscar_curso para buscar profes, ramos y codigos en toda la semana
             resultados_profe = buscar_curso(seleccion['profe'])
-        else:
+        elif seleccion['hora']:
             modo = "salas"
             vacias, ocupadas, vacias_info = obtener_salas(seleccion['dia'], seleccion['hora'], seleccion['facultad'])
 
-        busqueda_realizada = True
+        busqueda_realizada = bool(seleccion['hora'] or seleccion['profe'])
     else:
-        # Consulta por defecto: Lunes a las 08:30
         vacias, ocupadas, vacias_info = obtener_salas(seleccion['dia'], seleccion['hora'], seleccion['facultad'])
         busqueda_realizada = True
 
@@ -1112,6 +1115,7 @@ def inicio():
         modo=modo,
         bloques=STANDARD_BLOCKS,
         status=dm.get_status(),
+        solemne_status=dm.solemne_days if hasattr(dm, 'solemne_days') else {},
         todas_las_salas=dm.all_rooms
     )
 
@@ -2548,9 +2552,10 @@ def api_metro_alertas():
     })
 
 
-if __name__ == "__main__":
-
-    app.run(debug=True, host="127.0.0.1", port=5000)
 @app.route("/api/solemnes_status", methods=["GET"])
 def api_solemnes_status():
     return jsonify(dm.solemne_days if hasattr(dm, 'solemne_days') else {})
+
+
+if __name__ == "__main__":
+    app.run(debug=True, host="127.0.0.1", port=5000)

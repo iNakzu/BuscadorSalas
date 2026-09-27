@@ -446,6 +446,14 @@ html {
     box-shadow: 0 0 12px rgba(59, 130, 246, 0.2);
 }
 
+.solemne-mode .normal-block {
+    display: none !important;
+}
+
+.solemne-mode .solemne-block {
+    display: inline-flex !important;
+}
+
 /* ALERTA DE HORARIO NO LECTIVO */
 .window-alert-banner {
     display: none;
@@ -2555,6 +2563,102 @@ html {
     background-color: currentColor;
     animation: pulseDotDynamic 2.2s infinite ease-in-out;
     flex-shrink: 0;
+}
+
+/* Estado de lineas Metro */
+#metro-lineas-grid {
+    gap: 8px !important;
+}
+
+.metro-linea-capsule {
+    background: linear-gradient(110deg, rgba(15, 23, 42, 0.94), rgba(20, 29, 48, 0.8)) !important;
+    border: 1px solid rgba(148, 163, 184, 0.16) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 8px 20px rgba(2, 6, 23, 0.2) !important;
+    transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.metro-linea-capsule:hover,
+.metro-linea-capsule.is-open {
+    border-color: rgba(226, 232, 240, 0.28) !important;
+    box-shadow: 0 10px 26px rgba(2, 6, 23, 0.34) !important;
+}
+
+.metro-linea-header {
+    min-height: 66px;
+    padding: 12px 14px !important;
+    gap: 14px !important;
+}
+
+.metro-linea-header > div:first-child {
+    gap: 12px !important;
+}
+
+.metro-linea-header > div:first-child > div:first-child > div {
+    border-radius: 7px !important;
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--metro-line-color) 42%, transparent) !important;
+}
+
+.metro-linea-header > div:first-child > div:last-child > div:first-child {
+    font-size: 13.5px !important;
+    letter-spacing: 0 !important;
+}
+
+.metro-linea-header > div:first-child > div:last-child > div:last-child {
+    margin-top: 3px !important;
+    color: #94a3b8 !important;
+}
+
+.metro-linea-header > div:last-child {
+    gap: 10px !important;
+}
+
+.metro-linea-header [id^="estado-badge-"] {
+    border-radius: 999px !important;
+    padding: 5px 9px !important;
+    letter-spacing: 0 !important;
+}
+
+.metro-linea-detail {
+    padding: 14px !important;
+    border-top: 1px solid rgba(148, 163, 184, 0.14) !important;
+    background: rgba(2, 6, 23, 0.25) !important;
+}
+
+.metro-line-service-card {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 12px;
+    background: linear-gradient(105deg, rgba(6, 78, 59, 0.5), rgba(6, 95, 70, 0.18));
+    border: 1px solid rgba(52, 211, 153, 0.28);
+    border-radius: 8px;
+}
+
+.metro-line-service-icon {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    flex: 0 0 auto;
+    color: #6ee7b7;
+    background: rgba(16, 185, 129, 0.16);
+    border: 1px solid rgba(110, 231, 183, 0.26);
+    border-radius: 50%;
+}
+
+.metro-line-service-copy {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+    color: #bbf7d0;
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+.metro-line-service-copy strong {
+    color: #ecfdf5;
+    font-size: 12.5px;
 }
 
 /* Fix Chrome Autofill white background breaking glassmorphism */

@@ -1,15 +1,12 @@
 
-window.statusSolemnes = {};
+window.statusSolemnes = window.statusSolemnes || {};
 
 async function fetchSolemnesStatus() {
     try {
         const resp = await fetch('/api/solemnes_status');
         window.statusSolemnes = await resp.json();
         
-        // Auto-detect for today (dia 1-5, sab=6, dom=7)
-        let day = new Date().getDay();
-        if (day === 0) day = 7;
-        checkSolemneAutoSwitch(day);
+        checkSolemneAutoSwitch(state.dia);
     } catch(e) {}
 }
 
@@ -26,24 +23,21 @@ function checkSolemneAutoSwitch(diaStr) {
     }
 }
 
-const __hoy_num = obtenerDiaActualNumero();
-const __hoy_str = __hoy_num.toString();
-// Inicializar hora default dependiendo si se cargaron statusSolemnes antes (poco probable en este punto)
-const __hora_default = (window.statusSolemnes && window.statusSolemnes[__hoy_num]) ? '08:30:00_S' : '08:30:00';
-
+const __dia_inicial = '1';
+const __hora_inicial = window.statusSolemnes[__dia_inicial] ? '08:30:00_S' : '08:30:00';
 let state = {
     facultad: 'INGENIERIA',
-    dia: __hoy_str,
-    hora: __hora_default,
-    profDia: __hoy_str,
+    dia: __dia_inicial,
+    hora: __hora_inicial,
+    profDia: __dia_inicial,
     profHora: '',
-    ramoDia: __hoy_str,
+    ramoDia: __dia_inicial,
     ramoHora: '',
     mallaSemestre: '8',
-    mallaDia: __hoy_str,
+    mallaDia: __dia_inicial,
     mallaHora: '',
     mallaRamo: '',
-    salaDia: __hoy_str,
+    salaDia: __dia_inicial,
     salaActiva: '',
     miHorarioDia: 'ALL',
     miHorarioRol: 'ALL',
@@ -95,7 +89,7 @@ function setFacultadPill(val, btn) {
     const clearBtn = document.getElementById('clear-campus-btn');
     if (clearBtn) clearBtn.style.display = 'none';
     state.facultad = val;
-    cargarSalas();
+    if (state.hora) cargarSalas();
 }
 
 let debounceCampus = null;
@@ -136,6 +130,10 @@ function setHora(val, btn) {
 }
 
 async function cargarSalas() {
+    if (!state.hora) {
+        return;
+    }
+
     try {
         const resp = await fetch(`/api/salas?dia=${state.dia}&hora=${encodeURIComponent(state.hora)}&facultad=${encodeURIComponent(state.facultad)}`);
         const data = await resp.json();
@@ -1538,40 +1536,28 @@ window.borrarCacheApp = function() {
 window.SOLEMNES_MODE = false;
 function toggleSolemnesMode(isSolemne) {
     window.SOLEMNES_MODE = isSolemne;
+    document.body.classList.toggle('solemne-mode', isSolemne);
     const normalBlocks = document.querySelectorAll('.normal-block');
     const solemneBlocks = document.querySelectorAll('.solemne-block');
-    
-    // Convert current hour
-    let currentHora = typeof state !== 'undefined' ? state.hora : '8:30:00';
-    let newHora = '';
     
     if (isSolemne) {
         normalBlocks.forEach(b => { b.style.display = 'none'; b.classList.remove('active'); });
         solemneBlocks.forEach(b => {
             b.style.display = 'inline-flex';
-            if (b.dataset.val === '08:30:00_S') b.classList.add('active'); // Default active for Tab 1
+            if (b.dataset.val === '08:30:00_S') b.classList.add('active');
         });
-        newHora = '08:30:00_S';
     } else {
         solemneBlocks.forEach(b => { b.style.display = 'none'; b.classList.remove('active'); });
-        normalBlocks.forEach(b => {
-            b.style.display = 'inline-flex';
-            if (b.dataset.val === '08:30:00' || b.dataset.hora === '08:30:00') {
-                 // Only add active to the one in bar-hora (Tab 1), wait actually setHora handles this.
-                 // It's safer to just let the logic below handle it.
-            }
-        });
-        newHora = '08:30:00';
+        normalBlocks.forEach(b => { b.style.display = 'inline-flex'; });
     }
     
-    // Fix Tab 1 active pill
     if (typeof state !== 'undefined') {
-        state.hora = newHora;
+        state.hora = isSolemne ? '08:30:00_S' : '08:30:00';
         const barHora = document.getElementById('bar-hora');
         if (barHora) {
             const btns = barHora.querySelectorAll('.pill-btn');
             btns.forEach(btn => btn.classList.remove('active'));
-            const activeBtn = barHora.querySelector(`[data-val="${newHora}"]`);
+            const activeBtn = barHora.querySelector(`[data-val="${state.hora}"]`);
             if (activeBtn) activeBtn.classList.add('active');
         }
     }

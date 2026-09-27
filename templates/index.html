@@ -20,17 +20,17 @@
     <link rel="apple-touch-icon" href="/static/icon.svg">
     <link rel="apple-touch-icon" href="/static/icon.svg">
     
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=45">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=50">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}?v=12">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ai.css') }}?v=14">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/notas.css') }}?v=11">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/agenda.css') }}?v=10">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/horario.css') }}?v=15">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/horario.css') }}?v=16">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/habitos_guitarra.css') }}?v=6">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/gastos.css') }}?v=4">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/compras.css') }}?v=2">
 </head>
-<body>
+<body class="{% if solemne_status.get(sel.dia|int, False) %}solemne-mode{% endif %}">
 
 <div class="container">
     <!-- HEADER -->
@@ -299,6 +299,9 @@
         <!-- Salas Libres (Verde - Mismo tamaño y estructura que las salas ocupadas) -->
         <div class="group-title" style="color: #34d399;">Salas Disponibles (Libres)</div>
         <div class="cards-grid" id="grid-vacias">
+            {% if not sel.hora %}
+            <div class="empty-state">Selecciona un bloque horario para ver las salas disponibles.</div>
+            {% else %}
             {% for s in vacias %}
             {% set vinfo = vacias_info.get(s) if vacias_info else None %}
             <div class="item-card free" onclick="verHorarioDirecto('{{ s }}')" title="Ver horario semanal de {{ s }}">
@@ -320,11 +323,15 @@
             {% else %}
             <div class="empty-state">No se registraron salas libres para el criterio seleccionado.</div>
             {% endfor %}
+            {% endif %}
         </div>
 
         <!-- Salas Ocupadas (Rojo/Coral) -->
         <div class="group-title" style="color: #fb7185;">Salas Ocupadas (En Clase)</div>
         <div class="cards-grid" id="grid-ocupadas">
+            {% if not sel.hora %}
+            <div class="empty-state">Selecciona un bloque horario para ver las salas ocupadas.</div>
+            {% else %}
             {% for s, info in ocupadas.items() %}
             <div class="item-card">
                 <div class="item-top">
@@ -343,6 +350,7 @@
             {% else %}
             <div class="empty-state">No hay clases registradas en este bloque.</div>
             {% endfor %}
+            {% endif %}
         </div>
     </section>
 
@@ -617,7 +625,7 @@
                 </svg>
                 <input type="text" id="input-mihorario-search" placeholder="Buscar ramo o sala..." oninput="filtrarMiHorarioTexto(this.value)" autocomplete="off">
                 
-                <button type="button" onclick="abrirModalCruce()" title="Cruzar Horarios (Topes Libres)" style="background: transparent; border: none; color: #94a3b8; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px; border-radius: 6px; transition: color 0.2s;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='#94a3b8'">
+                <button type="button" class="cruce-trigger" onclick="abrirModalCruce()" title="Cruzar horarios" aria-label="Cruzar horarios">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5.5"></path><polyline points="8 11 4 15 8 19"></polyline><polyline points="19 11 23 7 19 3"></polyline><path d="M23 7h-6.5a4 4 0 0 0-4 4v2"></path></svg>
                 </button>
         <button type="button" class="clear-btn" id="clear-mihorario-btn" onclick="limpiarMiHorarioTexto()">&times;</button>
@@ -747,8 +755,8 @@
 
 
         <!-- MODAL SELECCIÓN DE CRUCE -->
-        <div class="my-modal-overlay" id="modal-cruce" style="display: none;" onclick="if(event.target === this) cerrarModalCruce()">
-            <div class="my-modal-dialog" role="dialog" aria-modal="true" style="max-width: 400px;">
+        <div class="my-modal-overlay cruce-menu-overlay" id="modal-cruce" style="display: none;" onclick="if(event.target === this) cerrarModalCruce()">
+            <div class="my-modal-dialog cruce-menu-dialog" role="dialog" aria-modal="true" style="max-width: 400px;">
                 <div class="my-modal-header">
                     <div>
                         <div class="my-modal-title">Comparar Horarios</div>
@@ -1668,7 +1676,7 @@
                     <div class="filter-header-row" style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;">
                         <div>
                             <div class="filter-header-title">Clima en Tiempo Real</div>
-                            <div style="font-size: 12px; color: #94a3b8; margin-top: 2px;">Open-Meteo API en vivo</div>
+                            <div style="font-size: 12px; color: #94a3b8; margin-top: 2px;">Estado en vivo</div>
                         </div>
                         <button onclick="cargarClimaGlobal()" class="btn-bloque-actual" style="width: 36px; height: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 9px;" title="Actualizar pronóstico" aria-label="Actualizar">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
@@ -1749,13 +1757,14 @@
 <!-- Variables inyectadas por Flask -->
 <script>
     const TODAS_LAS_SALAS = {{ todas_las_salas | tojson }};
+    window.statusSolemnes = {{ solemne_status | tojson }};
 </script>
 
 
 <script src="{{ url_for('static', filename='js/ui_feedback.js') }}" defer></script>
-<script src="{{ url_for('static', filename='js/app.js') }}?v=2" defer></script>
+<script src="{{ url_for('static', filename='js/app.js') }}?v=7" defer></script>
 <script src="{{ url_for('static', filename='js/datos_prueba_amigos.js') }}?v=2" defer></script>
-<script src="{{ url_for('static', filename='js/horario.js') }}?v=8" defer></script>
+<script src="{{ url_for('static', filename='js/horario.js') }}?v=9" defer></script>
 
 
 <script src="{{ url_for('static', filename='js/progreso.js') }}?v=2" defer></script>
@@ -1767,7 +1776,7 @@
 <script src="{{ url_for('static', filename='js/notasvoz.js') }}?v=8" defer></script>
 <script src="{{ url_for('static', filename='js/habitos.js') }}?v=3" defer></script>
 <script src="{{ url_for('static', filename='js/riff_lab.js') }}?v=4" defer></script>
-<script src="{{ url_for('static', filename='js/transporte.js') }}?v=5" defer></script>
+<script src="{{ url_for('static', filename='js/transporte.js') }}?v=7" defer></script>
 <script src="{{ url_for('static', filename='js/clima.js') }}?v=3" defer></script>
 <script src="{{ url_for('static', filename='js/ia_tools.js') }}?v=15" defer></script>
 
