@@ -5,10 +5,6 @@
 
     const api = window.PortalAuth = { client, user: null, available };
 
-    function allowed(email) {
-        return /@mail\.udp\.cl$/i.test(email || '');
-    }
-
     function render() {
         const status = document.getElementById('auth-status');
         const login = document.getElementById('auth-login');
@@ -38,7 +34,7 @@
         if (!client) return;
         await client.auth.signInWithOAuth({
             provider: 'google',
-            options: { redirectTo: `${location.origin}/`, queryParams: { hd: 'mail.udp.cl' } }
+            options: { redirectTo: `${location.origin}/` }
         });
     };
 
@@ -51,11 +47,6 @@
         render();
         if (!client) return;
         const { data } = await client.auth.getSession();
-        if (data.session && !allowed(data.session.user.email)) {
-            await client.auth.signOut();
-            publish(null);
-            return;
-        }
         publish(data.session);
         client.auth.onAuthStateChange((_event, session) => publish(session));
     });
