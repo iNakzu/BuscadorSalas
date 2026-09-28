@@ -241,12 +241,6 @@
     <!-- TAB 1: SALAS DISPONIBLES Y OCUPADAS -->
     <section id="tab-salas" class="panel active">
         <div class="control-card">
-            <!-- Cabecera de filtros con botón Bloque Actual en posición destacada -->
-<!-- Banner de alerta si está fuera de ventana académica -->
-            <div class="window-alert-banner" id="banner-alerta-horario">
-                                <div id="texto-alerta-horario"></div>
-            </div>
-
             <!-- Buscador de Edificio o Sala con Lupa -->
             <div class="control-group">
                 <div class="search-field">
@@ -260,7 +254,11 @@
         </button>
         <button type="button" class="clear-btn" id="clear-campus-btn" onclick="limpiarCampusTexto()">&times;</button>
     </div>
-    
+
+                <!-- Información del bloque actual, debajo del buscador -->
+                <div class="window-alert-banner" id="banner-alerta-horario">
+                    <div id="texto-alerta-horario"></div>
+                </div>
 
             <!-- Selector de Día -->
             <div class="control-group">
@@ -350,11 +348,6 @@
     <!-- TAB 2: BUSCAR PROFESOR CON FILTRO DE DÍA -->
     <section id="tab-profes" class="panel">
         <div class="control-card">
-            <!-- Banner de alerta si está fuera de ventana académica -->
-            <div class="window-alert-banner" id="banner-alerta-prof">
-                                <div id="texto-alerta-prof"></div>
-            </div>
-
             <!-- Barra de búsqueda con lupa -->
             <div class="search-field">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -367,7 +360,11 @@
         </button>
         <button type="button" class="clear-btn" id="clear-prof-btn" onclick="limpiarDocente()">&times;</button>
     </div>
-    
+
+            <!-- Información del bloque actual, debajo del buscador -->
+            <div class="window-alert-banner" id="banner-alerta-prof">
+                <div id="texto-alerta-prof"></div>
+            </div>
 
             <!-- Selector de Día -->
             <div class="control-group">
@@ -410,11 +407,6 @@
     <!-- TAB: BUSCAR RAMO / ASIGNATURA CON FILTRO DE DÍA -->
     <section id="tab-ramos" class="panel">
         <div class="control-card">
-            <!-- Banner de alerta si está fuera de ventana académica -->
-            <div class="window-alert-banner" id="banner-alerta-ramo">
-                                <div id="texto-alerta-ramo"></div>
-            </div>
-
             <!-- Barra de búsqueda con lupa para ramo -->
             <div class="search-field">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -427,7 +419,11 @@
         </button>
         <button type="button" class="clear-btn" id="clear-ramo-btn" onclick="limpiarRamo()">&times;</button>
     </div>
-    
+
+            <!-- Información del bloque actual, debajo del buscador -->
+            <div class="window-alert-banner" id="banner-alerta-ramo">
+                <div id="texto-alerta-ramo"></div>
+            </div>
 
             <!-- Selector de Día para el ramo -->
             <div class="control-group">
@@ -470,11 +466,6 @@
     <!-- TAB 4: RAMOS POR SEMESTRE (MALLA CURRICULAR ICIT) -->
     <section id="tab-malla" class="panel">
         <div class="control-card">
-<!-- Banner de alerta si está fuera de ventana académica -->
-            <div class="window-alert-banner" id="banner-alerta-malla">
-                                <div id="texto-alerta-malla"></div>
-            </div>
-
             <!-- Selector de Semestre Personalizado Ultra Moderno -->
             <div class="control-group">
                 <div class="search-field" style="margin-bottom: 14px; ">
@@ -488,6 +479,10 @@
                 </button>
                 <button type="button" class="clear-btn" id="clear-malla-btn" onclick="limpiarMallaTexto()">&times;</button>
             </div>
+                <!-- Información del bloque actual, debajo del buscador -->
+                <div class="window-alert-banner" id="banner-alerta-malla">
+                    <div id="texto-alerta-malla"></div>
+                </div>
                 <div class="section-label">Filtrar por Semestre</div>
                 <div class="pill-bar" id="bar-malla-semestre">
                     <button type="button" class="pill-btn" data-sem="1" onclick="setMallaSemestre('1')">I</button>
