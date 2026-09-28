@@ -76,7 +76,7 @@ declare
   candidate_email text := lower(event -> 'user' ->> 'email');
   allowed boolean;
 begin
-  select candidate_email like '%@mail.udp.cl'
+  select split_part(candidate_email, '@', 2) = 'mail.udp.cl'
     or exists (select 1 from public.email_allowlist where email = candidate_email)
   into allowed;
 
