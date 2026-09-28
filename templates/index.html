@@ -235,6 +235,14 @@
                 <span>Corrector</span>
             </button>
         </nav>
+        <button type="button" class="pwa-install-btn" id="pwa-install-btn" onclick="instalarPortalPwa()" hidden>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 3v12"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <path d="M5 21h14"></path>
+            </svg>
+            <span id="pwa-install-label">Instalar aplicación</span>
+        </button>
     </div>
 
     <!-- TAB 1: SALAS DISPONIBLES Y OCUPADAS -->
@@ -1729,6 +1737,53 @@
 
     <!-- PWA Registration -->
     <script>
+      let deferredPwaInstallPrompt = null;
+
+      function pwaEstaInstalada() {
+        return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+      }
+
+      function mostrarBotonInstalacionPwa() {
+        const button = document.getElementById('pwa-install-btn');
+        if (button && !pwaEstaInstalada()) button.hidden = false;
+      }
+
+      window.addEventListener('beforeinstallprompt', (event) => {
+        event.preventDefault();
+        deferredPwaInstallPrompt = event;
+        const label = document.getElementById('pwa-install-label');
+        if (label) label.textContent = 'Instalar aplicación';
+        mostrarBotonInstalacionPwa();
+      });
+
+      async function instalarPortalPwa() {
+        if (pwaEstaInstalada()) return;
+
+        if (location.hostname === '144.22.33.41') {
+          location.href = 'https://portal.144-22-33-41.sslip.io/?instalar=1';
+          return;
+        }
+
+        if (deferredPwaInstallPrompt) {
+          deferredPwaInstallPrompt.prompt();
+          await deferredPwaInstallPrompt.userChoice;
+          deferredPwaInstallPrompt = null;
+          return;
+        }
+
+        mostrarAlertaWeb(
+          'Abre esta página directamente en Chrome, permanece aquí unos segundos y vuelve a pulsar Instalar aplicación. Si Chrome no ofrece la instalación, usa el menú ⋮ y selecciona Añadir a pantalla principal.',
+          'Instalación en Android',
+          'info'
+        );
+      }
+
+      window.addEventListener('appinstalled', () => {
+        deferredPwaInstallPrompt = null;
+        const button = document.getElementById('pwa-install-btn');
+        if (button) button.hidden = true;
+      });
+
       if ('serviceWorker' in navigator) {
 
         window.addEventListener('load', () => {
@@ -1737,6 +1792,12 @@
           });
         });
       }
+
+      window.addEventListener('load', () => {
+        if (!pwaEstaInstalada()) {
+          window.setTimeout(mostrarBotonInstalacionPwa, 1500);
+        }
+      });
     </script>
 </body>
 </html>

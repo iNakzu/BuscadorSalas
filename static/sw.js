@@ -1,4 +1,4 @@
-const CACHE_NAME = 'portal-estudiantil-v4';
+const CACHE_NAME = 'portal-estudiantil-v5';
 const urlsToCache = [
   '/',
   '/static/css/main.css',
