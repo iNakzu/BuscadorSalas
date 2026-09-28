@@ -19,7 +19,7 @@
     <link rel="icon" href="/static/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/static/icon-192.png">
     
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=72">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=73">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}?v=12">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ai.css') }}?v=15">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/notas.css') }}?v=11">
@@ -54,7 +54,7 @@
 
                 
             <h1>Portal Estudiantil</h1>
-            <p>
+            <p class="brand-status-row">
                 <span class="status-pill">
                     <span class="pulse-dot"></span>
                     <span id="label-sync-count">1.316 Clases</span>
@@ -65,8 +65,13 @@
                         <path d="M3 3v5h5"></path>
                     </svg>
                 </button>
-                
-                
+                <button type="button" class="pwa-install-btn" id="pwa-install-btn" onclick="instalarPortalPwa()" title="Instalar aplicación" aria-label="Instalar aplicación" hidden>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 3v12"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <path d="M5 21h14"></path>
+                    </svg>
+                </button>
             </p>
         </div>
         <nav class="tabs" aria-label="Navegación principal">
@@ -235,14 +240,6 @@
                 <span>Corrector</span>
             </button>
         </nav>
-        <button type="button" class="pwa-install-btn" id="pwa-install-btn" onclick="instalarPortalPwa()" hidden>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M12 3v12"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <path d="M5 21h14"></path>
-            </svg>
-            <span id="pwa-install-label">Instalar aplicación</span>
-        </button>
     </div>
 
     <!-- TAB 1: SALAS DISPONIBLES Y OCUPADAS -->
@@ -1751,8 +1748,6 @@
       window.addEventListener('beforeinstallprompt', (event) => {
         event.preventDefault();
         deferredPwaInstallPrompt = event;
-        const label = document.getElementById('pwa-install-label');
-        if (label) label.textContent = 'Instalar aplicación';
         mostrarBotonInstalacionPwa();
       });
 

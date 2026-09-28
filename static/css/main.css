@@ -1855,7 +1855,7 @@ html {
     cursor: pointer;
     transition: all 0.2s ease;
     vertical-align: middle;
-    margin: 0 4px;
+    margin: 0;
 }
 .btn-clear-cache:hover {
     background: rgba(148, 163, 184, 0.25);
@@ -2521,30 +2521,31 @@ html {
 }
 
 .pwa-install-btn {
-    background: linear-gradient(135deg, #0ea5e9, #6366f1);
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    padding: 10px 14px;
-    margin: 0 20px 16px 20px;
-    font-size: 13px;
-    font-weight: 700;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.28);
+    color: #38bdf8;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    margin: 0;
+    flex: 0 0 22px;
     cursor: pointer;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
     transition: all 0.2s ease;
+    vertical-align: middle;
 }
 .pwa-install-btn[hidden] {
     display: none;
 }
 .pwa-install-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
+    background: rgba(56, 189, 248, 0.24);
+    border-color: rgba(56, 189, 248, 0.5);
 }
 .pwa-install-btn:active {
-    transform: scale(0.97);
+    transform: scale(0.9);
 }
 
 @keyframes spin {
