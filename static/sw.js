@@ -1,10 +1,10 @@
-const CACHE_NAME = 'portal-estudiantil-v2';
+const CACHE_NAME = 'portal-estudiantil-v3';
 const urlsToCache = [
   '/',
   '/static/css/main.css',
   '/static/js/app.js?v=8',
   '/static/css/ai.css?v=15',
-  '/static/manifest.json',
+  '/manifest.json',
   '/static/icon-192.png',
   '/static/icon-512.png'
 ];
