@@ -65,7 +65,7 @@
                         <path d="M3 3v5h5"></path>
                     </svg>
                 </button>
-                <button type="button" class="pwa-install-btn" id="pwa-install-btn" onclick="instalarPortalPwa()" title="Instalar aplicación" aria-label="Instalar aplicación" hidden>
+                <button type="button" class="pwa-install-btn" id="pwa-install-btn" onclick="instalarPortalPwa()" title="Instalar aplicación" aria-label="Instalar aplicación">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <path d="M12 3v12"></path>
                         <polyline points="7 10 12 15 17 10"></polyline>
@@ -1788,11 +1788,9 @@
         });
       }
 
-      window.addEventListener('load', () => {
-        if (!pwaEstaInstalada()) {
-          window.setTimeout(mostrarBotonInstalacionPwa, 1500);
-        }
-      });
+      if (pwaEstaInstalada()) {
+        document.getElementById('pwa-install-btn').hidden = true;
+      }
     </script>
 </body>
 </html>
