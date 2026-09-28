@@ -1,68 +1,26 @@
-const CACHE_NAME = 'portal-estudiantil-v7';
-const urlsToCache = [
-  '/',
-  '/static/css/main.css',
-  '/static/js/app.js?v=8',
-  '/static/css/ai.css?v=15',
-  '/manifest.json',
-  '/static/icon-192.png',
-  '/static/icon-512.png'
+const CACHE_NAME = 'portal-estudiantil-v1-core-1';
+const SHELL = [
+  '/', '/manifest.json', '/static/css/main.css', '/static/css/components.css',
+  '/static/css/notas.css', '/static/css/agenda.css', '/static/css/horario.css',
+  '/static/css/v1.css', '/static/icon-192.png', '/static/icon-512.png'
 ];
 
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        return cache.addAll(urlsToCache);
-      })
-  );
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL)));
   self.skipWaiting();
 });
-
 self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
-  );
+  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))));
   self.clients.claim();
 });
-
 self.addEventListener('fetch', event => {
-  // Solo interceptamos peticiones GET
   if (event.request.method !== 'GET') return;
-  
-  // Para la API (data.json), network first
-  if (event.request.url.includes('data.json')) {
-      event.respondWith(
-          fetch(event.request).catch(() => caches.match(event.request))
-      );
-      return;
-  }
-
-  // Network first, falling back to cache
-  event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        // Clonamos la respuesta porque es un stream y solo se puede consumir una vez
-        if(!response || response.status !== 200 || response.type !== 'basic') {
-          return response;
-        }
-        var responseToCache = response.clone();
-        caches.open(CACHE_NAME)
-          .then(cache => {
-            cache.put(event.request, responseToCache);
-          });
-        return response;
-      })
-      .catch(() => {
-        return caches.match(event.request);
-      })
-  );
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin || url.pathname.startsWith('/api/') || url.pathname.includes('/auth/')) return;
+  event.respondWith(fetch(event.request).then(response => {
+    if (response.ok && ['document','script','style','image'].includes(event.request.destination)) {
+      caches.open(CACHE_NAME).then(cache => cache.put(event.request, response.clone()));
+    }
+    return response;
+  }).catch(() => caches.match(event.request).then(hit => hit || caches.match('/'))));
 });

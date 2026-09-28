@@ -641,6 +641,7 @@ function toggleRamoEstado(id) {
     }
     
     localStorage.setItem('mi_progreso_v1', JSON.stringify(progresoState));
+    if (window.PortalStore) window.PortalStore.save('curriculum', progresoState);
     renderProgreso();
 }
 
@@ -740,4 +741,12 @@ function renderProgreso() {
 }
 
 // Inicializar al cargar
-document.addEventListener('DOMContentLoaded', initProgreso);
+document.addEventListener('DOMContentLoaded', () => {
+    initProgreso();
+    if (window.PortalStore) window.PortalStore.register('curriculum', 'mi_progreso_v1', {});
+});
+document.addEventListener('portal:remote-state', event => {
+    if (event.detail.module !== 'curriculum') return;
+    progresoState = event.detail.payload || {};
+    renderProgreso();
+});

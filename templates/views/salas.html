@@ -1,0 +1,100 @@
+<section class="panel active" id="tab-salas">
+<div class="control-card">
+<!-- Buscador de Edificio o Sala con Lupa -->
+<div class="control-group">
+<div class="search-field">
+<svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="16">
+<circle cx="11" cy="11" r="8"></circle>
+<line x1="21" x2="16.65" y1="21" y2="16.65"></line>
+</svg>
+<input autocomplete="off" id="input-campus-search" oninput="filtrarPorCampusTexto(this.value)" placeholder="Buscar sala o edificio..." type="text"/>
+<button onclick="irABloqueActual()" onmouseout="this.style.color='#94a3b8'" onmouseover="this.style.color='#38bdf8'" style="background: transparent; border: none; color: #94a3b8; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px; border-radius: 6px; transition: color 0.2s;" title="Ir al horario actual" type="button">
+<svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18"><line x1="10" x2="14" y1="2" y2="2"></line><line x1="12" x2="15" y1="14" y2="11"></line><circle cx="12" cy="14" r="8"></circle></svg>
+</button>
+<button class="clear-btn" id="clear-campus-btn" onclick="limpiarCampusTexto()" type="button">×</button>
+</div>
+<!-- Información del bloque actual, debajo del buscador -->
+<div class="window-alert-banner" id="banner-alerta-horario">
+<div id="texto-alerta-horario"></div>
+</div>
+<!-- Selector de Día -->
+<div class="control-group">
+<div class="section-label">Día de la semana</div>
+<div class="pill-bar" id="bar-dia">
+<button class="pill-btn {% if sel.dia == '1' %}active{% endif %}" data-val="1" onclick="setDia('1', this)" type="button">Lunes</button>
+<button class="pill-btn {% if sel.dia == '2' %}active{% endif %}" data-val="2" onclick="setDia('2', this)" type="button">Martes</button>
+<button class="pill-btn {% if sel.dia == '3' %}active{% endif %}" data-val="3" onclick="setDia('3', this)" type="button">Miércoles</button>
+<button class="pill-btn {% if sel.dia == '4' %}active{% endif %}" data-val="4" onclick="setDia('4', this)" type="button">Jueves</button>
+<button class="pill-btn {% if sel.dia == '5' %}active{% endif %}" data-val="5" onclick="setDia('5', this)" type="button">Viernes</button>
+</div>
+</div>
+<!-- Selector de Bloque -->
+<div class="control-group">
+<div class="section-label">Bloque Horario</div>
+<div class="pill-bar" id="bar-hora">
+                    {% for b in bloques %}
+                        {% if '_S' in b.id %}
+                        <button class="pill-btn solemne-block" data-val="{{ b.id }}" onclick="setHora('{{ b.id }}', this)" style="display:none;" type="button">{{ b.label }}</button>
+                        {% else %}
+                        <button class="pill-btn normal-block {% if sel.hora == b.id %}active{% endif %}" data-val="{{ b.id }}" onclick="setHora('{{ b.id }}', this)" type="button">{{ b.label }}</button>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+</div>
+</div>
+<!-- Salas Libres (Verde - Mismo tamaño y estructura que las salas ocupadas) -->
+<div class="group-title" style="color: #34d399;">Salas Disponibles (Libres)</div>
+<div class="cards-grid" id="grid-vacias">
+            {% if not sel.hora %}
+            <div class="empty-state">Selecciona un bloque horario para ver las salas disponibles.</div>
+            {% else %}
+            {% for s in vacias %}
+            {% set vinfo = vacias_info.get(s) if vacias_info else None %}
+            <div class="item-card free" onclick="verHorarioDirecto('{{ s }}')" title="Ver horario semanal de {{ s }}">
+<div class="item-top">
+<span class="room-pill free">
+<span class="pulse-dot"></span>
+<span>{{ s }}</span>
+</span>
+<span class="time-pill free">
+<svg fill="none" height="11" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24" width="11"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+<span>{{ vinfo.texto if (vinfo and vinfo.texto) else 'Libre' }}</span>
+</span>
+</div>
+<div class="course-name" style="color: #34d399;">SALA DISPONIBLE</div>
+<div class="item-meta">
+<div>{% if vinfo and vinfo.proximo_curso %}Próxima clase: <strong>{{ vinfo.proximo_curso }}</strong>{% else %}Sin más clases programadas hoy{% endif %}</div>
+</div>
+</div>
+            {% else %}
+            <div class="empty-state">No se registraron salas libres para el criterio seleccionado.</div>
+            {% endfor %}
+            {% endif %}
+        </div>
+<!-- Salas Ocupadas (Rojo/Coral) -->
+<div class="group-title" style="color: #fb7185;">Salas Ocupadas (En Clase)</div>
+<div class="cards-grid" id="grid-ocupadas">
+            {% if not sel.hora %}
+            <div class="empty-state">Selecciona un bloque horario para ver las salas ocupadas.</div>
+            {% else %}
+            {% for s, info in ocupadas.items() %}
+            <div class="item-card">
+<div class="item-top">
+<span class="room-pill" onclick="verHorarioDirecto('{{ s }}')" title="Ver horario de esta sala">
+<span class="status-dot occ"></span>
+<span>{{ s }}</span>
+</span>
+<span class="time-pill">{{ info.horario }}</span>
+</div>
+<div class="course-name">{{ info.curso }}</div>
+<div class="item-meta">
+<div>Profesor: <strong>{{ info.profe }}</strong></div>
+<span>Sección {{ info.seccion }} • Cód: {{ info.codigo }}</span>
+</div>
+</div>
+            {% else %}
+            <div class="empty-state">No hay clases registradas en este bloque.</div>
+            {% endfor %}
+            {% endif %}
+        </div>
+</div></section>

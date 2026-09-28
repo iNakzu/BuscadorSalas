@@ -1,0 +1,38 @@
+<section class="panel" id="tab-horario">
+<div class="control-card">
+<!-- Buscador manual de sala -->
+<div class="search-field">
+<svg fill="none" height="17" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="17">
+<circle cx="11" cy="11" r="8"></circle>
+<line x1="21" x2="16.65" y1="21" y2="16.65"></line>
+</svg>
+<input autocomplete="off" id="input-sala-search" oninput="filtrarSalasLista(this.value)" placeholder="Buscar código de sala..." type="text"/>
+<button class="clear-btn" id="clear-sala-btn" onclick="limpiarSalaInput()" type="button">×</button>
+</div>
+<!-- Filtro de Día para la sala -->
+<div class="control-group">
+<div class="section-label">Filtrar Día en Sala</div>
+<div class="pill-bar" id="bar-sala-dia">
+<button class="pill-btn {% if sel.dia == '1' %}active{% endif %}" data-dia="1" onclick="setSalaDia('1', this)" type="button">Lunes</button>
+<button class="pill-btn {% if sel.dia == '2' %}active{% endif %}" data-dia="2" onclick="setSalaDia('2', this)" type="button">Martes</button>
+<button class="pill-btn {% if sel.dia == '3' %}active{% endif %}" data-dia="3" onclick="setSalaDia('3', this)" type="button">Miércoles</button>
+<button class="pill-btn {% if sel.dia == '4' %}active{% endif %}" data-dia="4" onclick="setSalaDia('4', this)" type="button">Jueves</button>
+<button class="pill-btn {% if sel.dia == '5' %}active{% endif %}" data-dia="5" onclick="setSalaDia('5', this)" type="button">Viernes</button>
+</div>
+</div>
+<!-- Sugerencias de salas abiertas (Sin estar dentro de otra casilla) -->
+<div class="suggested-rooms-block">
+<div class="suggested-header">
+<div class="group-title" style="color: #93c5fd; margin: 0;">Salas de Ingeniería (Ejército y Vergara)</div>
+<div class="building-switch">
+<button class="switch-chip active" data-sub="TODAS" onclick="cambiarFiltroSugeridas('TODAS', this)" type="button">Todas (39)</button>
+<button class="switch-chip" data-sub="E441" onclick="cambiarFiltroSugeridas('E441', this)" type="button">Ejército 441 (23)</button>
+<button class="switch-chip" data-sub="V432" onclick="cambiarFiltroSugeridas('V432', this)" type="button">Vergara 432 (16)</button>
+</div>
+</div>
+<div class="room-chips-cloud" id="chips-salas"></div>
+</div>
+<div id="timetable-display">
+<div class="empty-state">Escribe o selecciona una sala del listado superior para consultar su calendario de clases.</div>
+</div>
+</div></section>

@@ -305,7 +305,7 @@ function renderSolemnes() {
     let friendEscuela = "";
     if (friendId) {
         let scheduleObj = null;
-        if (friendId === 'nakzu' && typeof MI_HORARIO_DATA !== 'undefined') {
+        if (friendId === 'me' && typeof MI_HORARIO_DATA !== 'undefined') {
             scheduleObj = MI_HORARIO_DATA;
         } else if (typeof HORARIOS_GUARDADOS !== 'undefined' && HORARIOS_GUARDADOS[friendId]) {
             scheduleObj = HORARIOS_GUARDADOS[friendId];
@@ -553,7 +553,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 const SOLEMNES_PROFILES = [
     { val: '', label: 'Todos' },
-    { val: 'nakzu', label: 'Nakzu' },
+    { val: 'me', label: 'Tú' },
     { val: 'alexis', label: 'Aleex1s' },
     { val: 'felipe', label: 'Felipe' }
 ];

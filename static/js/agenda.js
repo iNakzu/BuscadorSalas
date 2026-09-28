@@ -1,5 +1,5 @@
 let AGENDA_DATA = [];
-let currentAgendaProfile = 'nakzu';
+let currentAgendaProfile = 'me';
 let currentAgendaSearch = '';
 
 window.triggerAgendaProfileChange = function() {
@@ -31,7 +31,7 @@ window.limpiarAgendaSearch = function() {
 
 function getFilteredAgenda() {
     return AGENDA_DATA.filter(ev => {
-        const evProfile = ev.perfil || 'nakzu';
+        const evProfile = ev.perfil || 'me';
         if (evProfile !== currentAgendaProfile) return false;
         
         if (currentAgendaSearch) {
@@ -47,10 +47,10 @@ function getFilteredAgenda() {
 const AGENDA_STORAGE_KEY = 'mi_agenda_v1';
 
 const ICONS = {
-    'Solemne': '<span style="color:#ef4444;">🔴</span>',
-    'Control': '<span style="color:#f59e0b;">🟡</span>',
-    'Trabajo': '<span style="color:#8b5cf6;">🟣</span>',
-    'Presentacion': '<span style="color:#3b82f6;">🔵</span>'
+    'Solemne': '<span class="agenda-type-dot" style="background:#ef4444"></span>',
+    'Control': '<span class="agenda-type-dot" style="background:#f59e0b"></span>',
+    'Trabajo': '<span class="agenda-type-dot" style="background:#8b5cf6"></span>',
+    'Presentacion': '<span class="agenda-type-dot" style="background:#3b82f6"></span>'
 };
 
 let currentCalYear = new Date().getFullYear();
@@ -71,6 +71,7 @@ function initAgenda() {
 function saveAgenda() {
     try {
         localStorage.setItem(AGENDA_STORAGE_KEY, JSON.stringify(AGENDA_DATA));
+        if (window.PortalStore) window.PortalStore.save('agenda', AGENDA_DATA);
     } catch(e) { console.error(e); }
 }
 
@@ -537,6 +538,14 @@ function renderAgenda() {
 // Inicializar al cargar
 document.addEventListener('DOMContentLoaded', () => {
     initAgenda();
+    if (window.PortalStore) window.PortalStore.register('agenda', AGENDA_STORAGE_KEY, []);
+});
+
+document.addEventListener('portal:remote-state', event => {
+    if (event.detail.module !== 'agenda') return;
+    AGENDA_DATA = event.detail.payload || [];
+    renderCalendar();
+    renderAgenda();
 });
 // Para casos donde ya se cargó la página
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
@@ -545,7 +554,7 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 
 
 const AGENDA_PROFILES = [
-    { val: 'nakzu', label: 'Nakzu' },
+    { val: 'me', label: 'Tú' },
     { val: 'alexis', label: 'Aleex1s' },
     { val: 'felipe', label: 'Felipe' }
 ];

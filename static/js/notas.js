@@ -7,7 +7,7 @@ function initNotas() {
             const parsed = JSON.parse(stored);
             for (const k of Object.keys(parsed)) {
                 if (!k.includes('|')) {
-                    NOTAS_DATA['nakzu|' + k] = parsed[k];
+                    NOTAS_DATA['me|' + k] = parsed[k];
                 } else {
                     NOTAS_DATA[k] = parsed[k];
                 }
@@ -21,6 +21,7 @@ function initNotas() {
 function saveNotas() {
     try {
         localStorage.setItem('mi_notas_v1', JSON.stringify(NOTAS_DATA));
+        if (window.PortalStore) window.PortalStore.save('grades', NOTAS_DATA);
     } catch(e) { console.error(e); }
 }
 
@@ -29,10 +30,10 @@ function updateNotasDropdown() {
     const friendSelect = document.getElementById('notas-friend-select');
     if (!select) return;
     
-    let friendId = friendSelect ? friendSelect.value : 'nakzu';
+    let friendId = friendSelect ? friendSelect.value : 'me';
     
     let scheduleObj = null;
-    if (friendId === 'nakzu' && typeof MI_HORARIO_DATA !== 'undefined') {
+    if (friendId === 'me' && typeof MI_HORARIO_DATA !== 'undefined') {
         scheduleObj = MI_HORARIO_DATA;
     } else if (typeof HORARIOS_GUARDADOS !== 'undefined' && HORARIOS_GUARDADOS[friendId]) {
         scheduleObj = HORARIOS_GUARDADOS[friendId];
@@ -115,7 +116,7 @@ function renderNotasBuilder() {
     if (!select || !container) return;
     
     const curso = select.value;
-    const friendId = friendSelect ? friendSelect.value : 'nakzu';
+    const friendId = friendSelect ? friendSelect.value : 'me';
     
     if (!curso) {
         container.innerHTML = `<div style="text-align: center; color: #64748b; padding: 40px; font-size: 14px;">Selecciona una asignatura arriba para configurar o ver tus notas.</div>`;
@@ -473,6 +474,7 @@ function deleteNotaItem(dbKey, index) {
 
 document.addEventListener('DOMContentLoaded', () => {
     initNotas();
+    if (window.PortalStore) window.PortalStore.register('grades', 'mi_notas_v1', {});
     const oldCambiarTab = window.cambiarTab;
     if (typeof oldCambiarTab === 'function') {
         window.cambiarTab = function(tabId, btnContext) {
@@ -485,11 +487,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+document.addEventListener('portal:remote-state', event => {
+    if (event.detail.module !== 'grades') return;
+    NOTAS_DATA = event.detail.payload || {};
+    updateNotasDropdown();
+});
+
 
 
 
 const NOTAS_PROFILES = [
-    { val: 'nakzu', label: 'Nakzu' },
+    { val: 'me', label: 'Tú' },
     { val: 'alexis', label: 'Aleex1s' },
     { val: 'felipe', label: 'Felipe' }
 ];

@@ -1,0 +1,75 @@
+<section class="panel" id="tab-malla">
+<div class="control-card">
+<!-- Selector de Semestre Personalizado Ultra Moderno -->
+<div class="control-group">
+<div class="search-field" style="margin-bottom: 14px; ">
+<svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="16">
+<circle cx="11" cy="11" r="8"></circle>
+<line x1="21" x2="16.65" y1="21" y2="16.65"></line>
+</svg>
+<input autocomplete="off" id="input-malla-search" oninput="filtrarMallaTexto(this.value)" placeholder="Buscar asignatura..." type="text"/>
+<button onclick="irABloqueActual('malla')" onmouseout="this.style.color='#94a3b8'" onmouseover="this.style.color='#38bdf8'" style="background: transparent; border: none; color: #94a3b8; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px; border-radius: 6px; transition: color 0.2s;" title="Ir al horario actual" type="button">
+<svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18"><line x1="10" x2="14" y1="2" y2="2"></line><line x1="12" x2="15" y1="14" y2="11"></line><circle cx="12" cy="14" r="8"></circle></svg>
+</button>
+<button class="clear-btn" id="clear-malla-btn" onclick="limpiarMallaTexto()" type="button">×</button>
+</div>
+<!-- Información del bloque actual, debajo del buscador -->
+<div class="window-alert-banner" id="banner-alerta-malla">
+<div id="texto-alerta-malla"></div>
+</div>
+<div class="section-label">Filtrar por Semestre</div>
+<div class="pill-bar" id="bar-malla-semestre">
+<button class="pill-btn" data-sem="1" onclick="setMallaSemestre('1')" type="button">I</button>
+<button class="pill-btn" data-sem="2" onclick="setMallaSemestre('2')" type="button">II</button>
+<button class="pill-btn" data-sem="3" onclick="setMallaSemestre('3')" type="button">III</button>
+<button class="pill-btn" data-sem="4" onclick="setMallaSemestre('4')" type="button">IV</button>
+<button class="pill-btn" data-sem="5" onclick="setMallaSemestre('5')" type="button">V</button>
+<button class="pill-btn" data-sem="6" onclick="setMallaSemestre('6')" type="button">VI</button>
+<button class="pill-btn" data-sem="7" onclick="setMallaSemestre('7')" type="button">VII</button>
+<button class="pill-btn active" data-sem="8" onclick="setMallaSemestre('8')" type="button">VIII</button>
+<button class="pill-btn" data-sem="9" onclick="setMallaSemestre('9')" type="button">IX</button>
+<button class="pill-btn" data-sem="10" onclick="setMallaSemestre('10')" type="button">X</button>
+<button class="pill-btn" data-sem="11" onclick="setMallaSemestre('11')" type="button">XI</button>
+</div>
+</div>
+<!-- Selector de Día -->
+<div class="control-group">
+<div class="section-label">Filtrar por Día</div>
+<div class="pill-bar" id="bar-malla-dia">
+<button class="pill-btn {% if sel.dia == '1' %}active{% endif %}" data-dia="1" onclick="setMallaDia('1', this)" type="button">Lunes</button>
+<button class="pill-btn {% if sel.dia == '2' %}active{% endif %}" data-dia="2" onclick="setMallaDia('2', this)" type="button">Martes</button>
+<button class="pill-btn {% if sel.dia == '3' %}active{% endif %}" data-dia="3" onclick="setMallaDia('3', this)" type="button">Miércoles</button>
+<button class="pill-btn {% if sel.dia == '4' %}active{% endif %}" data-dia="4" onclick="setMallaDia('4', this)" type="button">Jueves</button>
+<button class="pill-btn {% if sel.dia == '5' %}active{% endif %}" data-dia="5" onclick="setMallaDia('5', this)" type="button">Viernes</button>
+</div>
+</div>
+<!-- Selector de Horario Opcional (ninguno marcado por defecto) -->
+<div class="control-group">
+<div class="section-label">Filtrar por Bloque Horario (Opcional - Haz clic para activar o desactivar)</div>
+<div class="pill-bar" id="bar-malla-hora">
+<button class="pill-btn normal-block" data-hora="08:30:00" onclick="setMallaHora('08:30:00', this)" type="button">08:30 - 09:50</button>
+<button class="pill-btn normal-block" data-hora="10:00:00" onclick="setMallaHora('10:00:00', this)" type="button">10:00 - 11:20</button>
+<button class="pill-btn normal-block" data-hora="11:30:00" onclick="setMallaHora('11:30:00', this)" type="button">11:30 - 12:50</button>
+<button class="pill-btn normal-block" data-hora="13:00:00" onclick="setMallaHora('13:00:00', this)" type="button">13:00 - 14:20</button>
+<button class="pill-btn normal-block" data-hora="14:30:00" onclick="setMallaHora('14:30:00', this)" type="button">14:30 - 15:50</button>
+<button class="pill-btn normal-block" data-hora="16:00:00" onclick="setMallaHora('16:00:00', this)" type="button">16:00 - 17:20</button>
+<button class="pill-btn normal-block" data-hora="17:25:00" onclick="setMallaHora('17:25:00', this)" type="button">17:25 - 18:45</button>
+<button class="pill-btn solemne-block" data-hora="08:30:00_S" onclick="setMallaHora('08:30:00_S', this)" style="display:none;" type="button">08:30 - 10:30</button>
+<button class="pill-btn solemne-block" data-hora="10:45:00_S" onclick="setMallaHora('10:45:00_S', this)" style="display:none;" type="button">10:45 - 12:45</button>
+<button class="pill-btn solemne-block" data-hora="13:00:00_S" onclick="setMallaHora('13:00:00_S', this)" style="display:none;" type="button">13:00 - 15:00</button>
+<button class="pill-btn solemne-block" data-hora="15:15:00_S" onclick="setMallaHora('15:15:00_S', this)" style="display:none;" type="button">15:15 - 17:15</button>
+<button class="pill-btn solemne-block" data-hora="17:30:00_S" onclick="setMallaHora('17:30:00_S', this)" style="display:none;" type="button">17:30 - 19:30</button>
+</div>
+</div>
+<!-- Filtro dinámico de Ramos del Semestre -->
+<div class="control-group" style="margin-bottom: 0;">
+<div class="section-label">Filtrar por Asignatura del Semestre</div>
+<div class="pill-bar" id="bar-malla-ramos">
+<button class="pill-btn active" onclick="setMallaRamo('', this)" type="button">Todos los ramos</button>
+</div>
+</div>
+</div>
+<div class="cards-grid" id="malla-results-grid">
+<div class="empty-state"><svg class="spin" fill="none" height="16" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right: 6px;" viewbox="0 0 24 24" width="16"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> Obteniendo datos...</div>
+</div>
+</section>
