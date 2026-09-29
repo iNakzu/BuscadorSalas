@@ -12,6 +12,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validar V1
+        env:
+          SCHEDULE_DATA_URL: http://127.0.0.1:9/unavailable
+          SCHEDULE_CACHE_FILE: /tmp/buscadorsalas-tests.json
+        run: |
+          pip install -r requirements.txt
+          python -m unittest discover -s tests -v
+          node tests/personal-store.test.cjs
+
       - name: Ejecutar despliegue vía SSH en la VM
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -20,9 +35,14 @@ jobs:
           key: ${{ secrets.VM_SSH_KEY }}
           script: |
             cd /home/ubuntu/BuscadorSalas
-            git pull
+            git pull --ff-only
             source venv/bin/activate
             pip install -r requirements.txt
+            sudo install -d -o ubuntu -g ubuntu /var/lib/buscadorsalas
+            sudo cp buscadorsalas.service /etc/systemd/system/buscadorsalas.service
+            sudo systemctl daemon-reload
             sudo cp nginx_buscadorsalas.conf /etc/nginx/sites-available/buscadorsalas
             sudo nginx -t && sudo systemctl reload nginx
-            sudo systemctl restart buscadorsalas
+            sudo systemctl reload buscadorsalas
+            sleep 2
+            curl --fail --silent --show-error http://127.0.0.1:5000/api/status >/dev/null
