@@ -45,6 +45,12 @@ class PortalV1Test(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get_json()["cursos"], [])
 
+    def test_service_worker_excludes_private_network_data(self):
+        worker = self.client.get("/sw.js").get_data(as_text=True)
+        self.assertIn("url.pathname.startsWith('/api/')", worker)
+        self.assertIn("url.pathname.includes('/auth/')", worker)
+        self.assertLess(worker.index("response.clone()"), worker.index("caches.open(CACHE_NAME).then(cache => cache.put"))
+
 
 if __name__ == "__main__":
     unittest.main()

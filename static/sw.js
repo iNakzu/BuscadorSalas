@@ -1,4 +1,4 @@
-const CACHE_NAME = 'portal-estudiantil-v1-core-1';
+const CACHE_NAME = 'portal-estudiantil-v1-core-2';
 const SHELL = [
   '/', '/manifest.json', '/static/css/main.css', '/static/css/components.css',
   '/static/css/notas.css', '/static/css/agenda.css', '/static/css/horario.css',
@@ -19,7 +19,8 @@ self.addEventListener('fetch', event => {
   if (url.origin !== self.location.origin || url.pathname.startsWith('/api/') || url.pathname.includes('/auth/')) return;
   event.respondWith(fetch(event.request).then(response => {
     if (response.ok && ['document','script','style','image'].includes(event.request.destination)) {
-      caches.open(CACHE_NAME).then(cache => cache.put(event.request, response.clone()));
+      const responseToCache = response.clone();
+      caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseToCache));
     }
     return response;
   }).catch(() => caches.match(event.request).then(hit => hit || caches.match('/'))));
