@@ -2,7 +2,6 @@
     const days = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
     let loadInProgress = false;
     let reloadPending = false;
-    let loadedUsers = [];
 
     function escapeHtml(value) {
         return String(value == null ? '' : value).replace(/[&<>"']/g, char => ({
@@ -30,49 +29,9 @@
         return Array.isArray(classes) ? classes.filter(item => item && Number(item.dia) >= 1 && Number(item.dia) <= 5) : [];
     }
 
-    function chileNow() {
-        const parts = new Intl.DateTimeFormat('en-GB', {
-            timeZone: 'America/Santiago', weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
-        }).formatToParts(new Date());
-        const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
-        const day = { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5 }[values.weekday] || 0;
-        return { day, minutes: Number(values.hour) * 60 + Number(values.minute) };
-    }
-
-    function currentScheduleStatus(classes) {
-        const now = chileNow();
-        if (!now.day) return 'Sin clases programadas hoy';
-        const today = classes.filter(item => Number(item.dia) === now.day)
-            .slice().sort((a, b) => (toMinutes(a.horaInicio) || 0) - (toMinutes(b.horaInicio) || 0));
-        if (!today.length) return 'Sin clases programadas hoy';
-        for (let i = 0; i < today.length; i += 1) {
-            const start = toMinutes(today[i].horaInicio);
-            const end = toMinutes(today[i].horaFin);
-            if (start === null || end === null) continue;
-            if (now.minutes < start) {
-                if (i > 0) {
-                    const previousEnd = toMinutes(today[i - 1].horaFin);
-                    if (previousEnd !== null && now.minutes >= previousEnd) return `En ventana hasta ${formatTime(start)}`;
-                }
-                return `Próxima clase ${formatTime(start)} · ${today[i].curso || 'Clase'}`;
-            }
-            if (now.minutes < end) {
-                const room = today[i].sala ? ` · sala ${today[i].sala}` : '';
-                return `En clase${room} (hasta ${formatTime(end)})`;
-            }
-        }
-        return 'Sin más clases hoy';
-    }
-
-    function updateCurrentStatuses() {
-        document.querySelectorAll('.community-current-status').forEach(element => {
-            const user = loadedUsers.find(item => item.user_id === element.dataset.userId);
-            if (user) element.textContent = `Según el horario de hoy: ${currentScheduleStatus(cleanClasses(user.payload))}`;
-        });
-    }
-
     function renderUser(user) {
         const name = user.display_name || 'Estudiante';
+        const firstName = String(name).trim().split(/\s+/)[0] || 'Estudiante';
         const classes = cleanClasses(user.payload).slice().sort((a, b) =>
             Number(a.dia) - Number(b.dia) || (toMinutes(a.horaInicio) || 0) - (toMinutes(b.horaInicio) || 0)
         );
@@ -103,8 +62,7 @@
         const scheduleHtml = dayHtml || '<p class="community-empty-schedule">Todavía no ha agregado clases a su horario.</p>';
         const searchText = `${name} ${classes.map(item => `${item.curso || ''} ${item.sala || ''}`).join(' ')}`.toLocaleLowerCase('es');
         return `<article class="community-user-card" data-search="${escapeHtml(searchText)}">
-          <header class="community-user-header"><div class="community-user-identity"><span class="community-avatar" aria-hidden="true">${escapeHtml(initials(name))}</span><h3 title="${escapeHtml(name)}">${escapeHtml(name)}</h3></div><button class="community-view-schedule" type="button" aria-expanded="false" onclick="verHorarioAmigo(this)">Ver horario</button></header>
-          <p class="community-current-status" data-user-id="${escapeHtml(user.user_id)}">Según el horario de hoy: ${escapeHtml(currentScheduleStatus(classes))}</p>
+          <header class="community-user-header"><div class="community-user-identity"><span class="community-avatar" aria-hidden="true">${escapeHtml(initials(name))}</span><h3><span class="community-name-full">${escapeHtml(name)}</span><span class="community-name-first">${escapeHtml(firstName)}</span></h3></div><button class="community-view-schedule" type="button" aria-label="Ver horario de ${escapeHtml(name)}" aria-expanded="false" onclick="verHorarioAmigo(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg><span class="community-view-label">Ver horario</span></button></header>
           <div class="community-week" hidden>${scheduleHtml}</div>
         </article>`;
     }
@@ -115,7 +73,9 @@
         if (!schedule) return;
         schedule.hidden = !schedule.hidden;
         button.setAttribute('aria-expanded', String(!schedule.hidden));
-        button.textContent = schedule.hidden ? 'Ver horario' : 'Ocultar horario';
+        button.setAttribute('aria-label', `${schedule.hidden ? 'Ver' : 'Ocultar'} horario de ${card.querySelector('.community-name-full').textContent}`);
+        const label = button.querySelector('.community-view-label');
+        if (label) label.textContent = schedule.hidden ? 'Ver horario' : 'Ocultar horario';
     };
 
     function filterSchedules(value) {
@@ -139,8 +99,7 @@
         try {
             const { data: users, error } = await auth.client.rpc('get_shared_schedules');
             if (error) throw error;
-            loadedUsers = users || [];
-            list.innerHTML = loadedUsers.map(renderUser).join('');
+            list.innerHTML = (users || []).map(renderUser).join('');
             const search = document.getElementById('community-schedules-search');
             filterSchedules(search ? search.value : '');
             status.textContent = (users || []).length
@@ -162,7 +121,6 @@
     window.cargarHorariosComunidad = loadSharedSchedules;
     document.addEventListener('portal:auth-changed', loadSharedSchedules);
     document.addEventListener('portal:personal-store-ready', loadSharedSchedules);
-    if (typeof window.setInterval === 'function') window.setInterval(updateCurrentStatuses, 60000);
     document.addEventListener('DOMContentLoaded', () => {
         if (window.PortalAuth && window.PortalAuth.user) loadSharedSchedules();
     });
