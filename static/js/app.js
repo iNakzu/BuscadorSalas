@@ -780,7 +780,7 @@ async function renderizarHorarioSala(sala) {
                                         <circle cx="12" cy="12" r="10"></circle>
                                         <polyline points="12 6 12 12 16 14"></polyline>
                                     </svg>
-                                    <span>${c.start} - ${c.finish}</span>
+                                    <span class="slot-time-range"><span>${c.start}</span><span class="slot-time-separator">-</span><span>${c.finish}</span></span>
                                 </div>
                                 <div class="slot-details">
                                     <div class="slot-course-row">
@@ -806,7 +806,7 @@ async function renderizarHorarioSala(sala) {
                                     <circle cx="12" cy="12" r="10"></circle>
                                     <polyline points="12 6 12 12 16 14"></polyline>
                                 </svg>
-                                <span>${b.start} - ${b.finish}</span>
+                                <span class="slot-time-range"><span>${b.start}</span><span class="slot-time-separator">-</span><span>${b.finish}</span></span>
                             </div>
                             <div class="slot-details">
                                 <div class="slot-free-row">
@@ -831,7 +831,7 @@ async function renderizarHorarioSala(sala) {
                                     <circle cx="12" cy="12" r="10"></circle>
                                     <polyline points="12 6 12 12 16 14"></polyline>
                                 </svg>
-                                <span>${c.start} - ${c.finish}</span>
+                                <span class="slot-time-range"><span>${c.start}</span><span class="slot-time-separator">-</span><span>${c.finish}</span></span>
                             </div>
                             <div class="slot-details">
                                 <div class="slot-course-row">

@@ -761,6 +761,32 @@
     transition: all 0.18s ease;
 }
 
+.slot-time-range {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+@media (max-width: 560px) {
+    .slot-time {
+        min-width: 78px;
+        width: 78px;
+        padding: 6px 7px;
+        gap: 5px;
+        font-size: 11px;
+    }
+
+    .slot-time-range {
+        flex-direction: column;
+        gap: 0;
+        line-height: 1.15;
+    }
+
+    .slot-time-separator {
+        display: none;
+    }
+}
+
 .timetable-slot:hover .slot-time {
     background: rgba(56, 189, 248, 0.16);
     border-color: rgba(56, 189, 248, 0.45);
