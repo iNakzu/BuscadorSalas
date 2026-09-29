@@ -17,10 +17,12 @@ Funciones públicas, sin inicio de sesión:
 
 Funciones personales, con Google OAuth:
 
-- Horario personal.
+- Horario personal, compartido por defecto con las cuentas autenticadas que pueden registrarse.
 - Notas.
 - Agenda.
 - Malla interactiva y progreso.
+
+El horario compartido sólo expone nombre visible, asignatura, día, hora y sala mediante `public.get_shared_schedules()`; no expone correo, notas, agenda, progreso, profesor, sección ni rol. `profiles.share_schedule` controla la visibilidad y se crea en `true`. No hay un control de visibilidad en la interfaz; se puede ocultar manualmente desde SQL con `UPDATE public.profiles SET share_schedule = false WHERE id = '<auth-user-uuid>';`. La tabla base conserva RLS sólo para el dueño y la función filtra cuentas ocultas, valida que quien consulta y el dueño sean miembros UDP/autorizados, y devuelve sólo los campos permitidos. El hook Before User Created debe quedar habilitado para limitar el registro a cuentas UDP y correos autorizados.
 
 Quedan fuera de V1: chat o tutor de IA, perfiles de amigos, mensajería, reloj mundial, cronómetro, Kanban, gastos, compras, notas de voz, hábitos, guitarra, transporte, clima y corrector.
 

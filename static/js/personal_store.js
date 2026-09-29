@@ -84,6 +84,7 @@
             console.error('No se pudo sincronizar el espacio personal', error);
         } finally {
             syncing = false;
+            document.dispatchEvent(new CustomEvent('portal:personal-store-ready'));
             if (pendingSync) { pendingSync = false; syncAll(); }
         }
     }

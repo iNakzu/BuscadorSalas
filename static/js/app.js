@@ -72,6 +72,9 @@ function cambiarTab(panelId, btn) {
     if (panelId === 'tab-mihorario' && typeof inicializarMiHorario === 'function') {
         inicializarMiHorario();
     }
+    if (panelId === 'tab-mihorario' && typeof cargarHorariosComunidad === 'function') {
+        cargarHorariosComunidad();
+    }
     
     // Sincronizar el modo solemne con el dia activo de la nueva pestaña
     let activeDay = null;

@@ -30,7 +30,7 @@ function environment({ initial = {}, user = null, remote = null }) {
       addEventListener(name, callback) { listeners[name] = callback; },
       dispatchEvent(event) { events.push(event); }
     },
-    CustomEvent: class { constructor(type, options) { this.type = type; this.detail = options.detail; } },
+    CustomEvent: class { constructor(type, options = {}) { this.type = type; this.detail = options.detail; } },
     console,
     Date,
     JSON,

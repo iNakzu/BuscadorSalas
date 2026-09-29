@@ -64,6 +64,24 @@ class PortalV1Test(unittest.TestCase):
         self.assertIn("create policy \"auth hook reads signup allowlist\"", sql)
         self.assertNotIn("grant select, insert, update, delete on table public.user_module_state to anon", sql)
         self.assertNotIn("avatar_url", sql)
+        self.assertIn("share_schedule boolean not null default true", sql)
+        self.assertIn("create or replace function public.get_shared_schedules()", sql)
+        self.assertIn("create or replace function public.is_community_member(account_id uuid)", sql)
+        self.assertIn("s.module_key = 'schedule'", sql)
+        self.assertIn("'sala', item.class_data -> 'sala'", sql)
+        self.assertIn("revoke all on function public.get_shared_schedules() from public, anon", sql)
+        self.assertIn("and public.is_community_member(p.id)", sql)
+        self.assertIn("grant select (id, display_name, share_schedule) on table public.profiles to authenticated", sql)
+
+    def test_shared_schedule_directory_requires_auth_and_has_no_visibility_toggle(self):
+        html = self.client.get("/").get_data(as_text=True)
+        self.assertIn('id="community-schedules-list"', html)
+        self.assertIn('data-tab="tab-mihorario" data-private="true"', html)
+        self.assertNotIn('id="share-schedule-toggle"', html)
+        schedule_defaults = Path(__file__).parents[1] / "static/js/user_schedule_data.js"
+        self.assertIn("clases: []", schedule_defaults.read_text())
+        horario_js = Path(__file__).parents[1] / "static/js/horario.js"
+        self.assertNotIn("mar-1", horario_js.read_text())
 
     def test_signed_in_profile_uses_initials_instead_of_a_photo(self):
         html = self.client.get("/").get_data(as_text=True)

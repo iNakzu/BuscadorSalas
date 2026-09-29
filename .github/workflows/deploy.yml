@@ -27,6 +27,7 @@ jobs:
           python -m unittest discover -s tests -v
           node tests/personal-store.test.cjs
           node tests/auth-ui.test.cjs
+          node tests/community-schedules.test.cjs
 
       - name: Ejecutar despliegue vía SSH en la VM
         uses: appleboy/ssh-action@v1.0.3
