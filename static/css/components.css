@@ -874,6 +874,15 @@
     letter-spacing: 0.01em;
 }
 
+/* Cápsulas de horario ocupado: mismo rojo coral en salas, ramos y semestre. */
+#grid-ocupadas .time-pill:not(.free),
+#ramo-results-grid .time-pill.ramo-time,
+#malla-results-grid .time-pill {
+    color: #fb7185;
+    background: rgba(244, 63, 94, 0.12);
+    border-color: rgba(251, 113, 133, 0.24);
+}
+
 .day-free-body {
     padding: 16px 18px;
     display: flex;
