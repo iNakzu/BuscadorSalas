@@ -635,16 +635,6 @@ async function cargarClasesMalla(refrescarChips = false) {
     }
 }
 
-let subFiltroSugeridas = 'TODAS';
-
-function cambiarFiltroSugeridas(sub, btn) {
-    subFiltroSugeridas = sub;
-    document.querySelectorAll('.building-switch .switch-chip').forEach(b => b.classList.remove('active'));
-    if (btn) btn.classList.add('active');
-    const input = document.getElementById('input-sala-search');
-    filtrarSalasLista(input ? input.value : '');
-}
-
 function filtrarSalasLista(val) {
     const input = document.getElementById('input-sala-search');
     const q = (val || '').trim().toLowerCase();
@@ -659,11 +649,6 @@ function filtrarSalasLista(val) {
     } else {
         // Por defecto: Sugerencias exclusivas de Facultad de Ingeniería (Ejército E441 y Vergara V432)
         listaBase = TODAS_LAS_SALAS.filter(s => s.startsWith('E441') || s.startsWith('V432'));
-        if (subFiltroSugeridas === 'E441') {
-            listaBase = listaBase.filter(s => s.startsWith('E441'));
-        } else if (subFiltroSugeridas === 'V432') {
-            listaBase = listaBase.filter(s => s.startsWith('V432'));
-        }
     }
 
     if (listaBase.length === 0) {

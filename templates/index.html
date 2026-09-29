@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}?v=20260929-2">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}?v=20260929-3">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/notas.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/agenda.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/horario.css') }}">
@@ -44,7 +44,7 @@
 <script>window.PORTAL_CONFIG={{ client_config|tojson }}; const TODAS_LAS_SALAS={{ todas_las_salas|tojson }}; window.statusSolemnes={{ solemne_status|tojson }};</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <script src="{{ url_for('static', filename='js/ui_feedback.js') }}" defer></script>
-<script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/app.js') }}?v=20260929-1" defer></script>
 <script src="{{ url_for('static', filename='js/auth.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/community_schedules.js') }}?v=20260929-5" defer></script>
 <script src="{{ url_for('static', filename='js/personal_store.js') }}" defer></script>
