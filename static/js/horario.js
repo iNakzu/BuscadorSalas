@@ -36,7 +36,7 @@ function cargarMiHorarioDesdeStorage() {
 }
 
 let MI_HORARIO_DATA = cargarMiHorarioDesdeStorage();
-let horarioAmigoComparacion = null;
+let horarioPerfilSeleccionado = null;
 
 function etiquetaBloqueHorario(clase) {
     const block = BLOQUES_HORARIOS && BLOQUES_HORARIOS.find(item => item.num === Number(clase.bloqueNum));
@@ -124,14 +124,9 @@ function actualizarHeroMiHorario() {
     const heroEl = document.getElementById('my-schedule-hero');
     if (!heroEl) return;
 
-    if (horarioAmigoComparacion) {
-        actualizarHeroHorarioComparado(heroEl, horarioAmigoComparacion);
-        return;
-    }
-    
     const pill_style = 'background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; color: #f1f5f9;';
     
-    const misClases = getHorarioActivo();
+    const misClases = horarioPerfilSeleccionado || getHorarioActivo();
     if (!misClases || misClases.length === 0) {
         heroEl.innerHTML = `
             <div class="my-hero-top">
@@ -314,72 +309,6 @@ function actualizarHeroMiHorario() {
 
     heroEl.innerHTML = html;
 }
-
-function actualizarHeroHorarioComparado(heroEl, comparison) {
-    const classes = comparison.clases.slice().sort((a, b) =>
-        Number(a.dia) - Number(b.dia) || timeToMinutes(a.horaInicio) - timeToMinutes(b.horaInicio)
-    );
-    const dayNames = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
-    const now = getChileTime();
-    const today = classes.filter(item => Number(item.dia) === now.dayOfWeek);
-    const active = today.find(item => now.totalMinutes >= timeToMinutes(item.horaInicio) && now.totalMinutes < timeToMinutes(item.horaFin));
-    const nextToday = today.find(item => timeToMinutes(item.horaInicio) > now.totalMinutes);
-    const previousToday = today.filter(item => timeToMinutes(item.horaFin) <= now.totalMinutes)
-        .sort((a, b) => timeToMinutes(b.horaFin) - timeToMinutes(a.horaFin))[0];
-    const nextClass = nextToday || classes.find(item => Number(item.dia) > now.dayOfWeek) || classes[0];
-    const pillStyle = 'background:rgba(255,255,255,.08);padding:4px 9px;border-radius:8px;font-size:12px;color:#cbd5e1;';
-    const formatDuration = totalMinutes => {
-        const minutes = Math.max(0, totalMinutes);
-        const hours = Math.floor(minutes / 60);
-        const remainder = minutes % 60;
-        return hours ? `${hours} h${remainder ? ` ${remainder} min` : ''}` : `${minutes} min`;
-    };
-    const durationLabel = item => formatDuration(timeToMinutes(item.horaFin) - timeToMinutes(item.horaInicio));
-    const classDetails = item => `
-        <span class="friend-hero-detail">${escapeHtml(item.curso || 'Clase')}</span>
-        <span class="friend-hero-meta">${escapeHtml(item.horaInicio)}–${escapeHtml(item.horaFin)}${item.sala ? ` · ${escapeHtml(item.sala)}` : ''}</span>
-        <span style="${pillStyle}">Duración ${durationLabel(item)}</span>`;
-
-    if (!classes.length) {
-        heroEl.innerHTML = '<div class="my-hero-top"><div class="my-hero-status-pill done"><span>Sin clases</span></div></div><div class="my-hero-title">Esta persona todavía no tiene clases en su horario.</div>';
-        return;
-    }
-
-    let status;
-    let details;
-    if (active) {
-        const minutesLeft = timeToMinutes(active.horaFin) - now.totalMinutes;
-        status = `En clase · quedan ${formatDuration(minutesLeft)}`;
-        details = classDetails(active);
-    } else if (nextToday) {
-        const minutesToNext = timeToMinutes(nextToday.horaInicio) - now.totalMinutes;
-        const countdown = minutesToNext >= 60
-            ? `${Math.floor(minutesToNext / 60)} h${minutesToNext % 60 ? ` ${minutesToNext % 60} min` : ''}`
-            : `${minutesToNext} min`;
-        if (previousToday) {
-            const windowMinutes = timeToMinutes(nextToday.horaInicio) - timeToMinutes(previousToday.horaFin);
-            const windowHours = Math.floor(windowMinutes / 60);
-            const windowRemainder = windowMinutes % 60;
-            const windowLabel = windowHours ? `${windowHours} h${windowRemainder ? ` ${windowRemainder} min` : ''}` : `${windowMinutes} min`;
-            status = `En ventana · ${windowLabel}`;
-        } else {
-            status = `Primera clase en ${countdown}`;
-        }
-        details = `<span>Próxima clase de ${escapeHtml(comparison.nombre)} en ${countdown}</span>${classDetails(nextToday)}`;
-    } else if (today.length) {
-        status = 'Terminó sus clases por hoy';
-        details = nextClass ? `<span>Próxima clase · ${escapeHtml(dayNames[nextClass.dia] || '')} ${classDetails(nextClass)}</span>` : '';
-    } else {
-        status = 'Sin clases hoy';
-        details = nextClass ? `<span>Próxima clase · ${escapeHtml(dayNames[nextClass.dia] || '')} ${classDetails(nextClass)}</span>` : '';
-    }
-
-    heroEl.innerHTML = `
-        <div class="my-hero-top"><div class="my-hero-status-pill ${status.startsWith('En clase') || status.startsWith('En ventana') ? 'now' : status.startsWith('Primera clase') ? 'next' : 'done'}">${escapeHtml(status)}</div></div>
-        <div class="my-hero-body"><div class="my-hero-class-info"><div class="my-hero-title">Horario de ${escapeHtml(comparison.nombre)}</div>
-        <div class="my-hero-subtitle friend-hero-details">${details}</div></div></div>`;
-}
-
 
 function setMiHorarioRol(rolVal, btn) {
     document.querySelectorAll('#bar-mihorario-rol .pill-btn').forEach(b => b.classList.remove('active'));
@@ -845,7 +774,7 @@ const BLOQUES_SOLEMNES = [
 
 const BLOQUES_HORARIOS = BLOQUES_NORMALES;
 
-function normalizarClasesAmigo(clases) {
+function normalizarClasesPerfil(clases) {
     const days = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
     return clases.map(item => {
         const start = String(item.horaInicio || '').slice(0, 5);
@@ -869,12 +798,10 @@ function renderMiHorario() {
 
     const { dayOfWeek, totalMinutes } = getChileTime();
 
-    const comparison = horarioAmigoComparacion;
-    // En el modo de otra persona, la grilla contiene exclusivamente sus clases.
-    let items = comparison ? [] : getHorarioActivo().filter(c =>
+    const sharedProfileView = Array.isArray(horarioPerfilSeleccionado);
+    const items = sharedProfileView ? normalizarClasesPerfil(horarioPerfilSeleccionado).map((item, index) => ({ ...item, isSharedProfile: true, id: `shared-${index}` })) : getHorarioActivo().filter(c =>
         state.miHorarioRol === 'ALL' || c.rol === state.miHorarioRol
     );
-    const friendItems = comparison ? normalizarClasesAmigo(comparison.clases).map((item, index) => ({ ...item, isFriend: true, id: `friend-${index}` })) : [];
 
     // Vista de toda la semana (5 Columnas)
         const diasConfig = [
@@ -888,15 +815,11 @@ function renderMiHorario() {
         let colsHtml = '';
         diasConfig.forEach(d => {
             const dayItems = items.filter(c => c.dia === d.num);
-            const friendDayItems = friendItems.filter(c => c.dia === d.num);
             const isToday = (dayOfWeek === d.num);
 
             let cardsHtml = '';
             BLOQUES_HORARIOS.forEach(b => {
-                const slotItems = [
-                    ...dayItems.filter(item => Number(item.bloqueNum) === b.num),
-                    ...friendDayItems.filter(item => item.bloqueNum === b.num)
-                ];
+                const slotItems = dayItems.filter(item => Number(item.bloqueNum) === b.num);
                 const startM = timeToMinutes(b.inicio);
                 const endM = timeToMinutes(b.fin);
                 const isCurrent = isToday && (totalMinutes >= startM && totalMinutes < endM);
@@ -914,13 +837,13 @@ function renderMiHorario() {
                     const tipoHtml = `<span class="my-type-tag ${tipoCls}"><span>${escapeHtml(c.tipo || 'Cátedra')}</span>${secText}</span>`;
 
                     cardsHtml += `
-                        <div class="my-class-card ${tipoCls} ${c.isFriend ? 'is-friend-overlay' : (c.rol === 'assistant' ? 'is-assistant' : 'is-student')} ${isCurrent ? 'is-current-class' : ''}" ${c.isFriend ? '' : `id="card-${c.id}"`}>
+                        <div class="my-class-card ${tipoCls} ${c.rol === 'assistant' ? 'is-assistant' : 'is-student'} ${isCurrent ? 'is-current-class' : ''}" id="card-${c.id}">
                             <div class="my-card-header">
                                 <span class="my-card-time">
                                     ${isCurrent ? '<span class="pulse-dot-white"></span>' : '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>'}
-                                    <span>${c.isFriend ? c.bloqueLabel : etiquetaBloqueHorario(c)}</span>
+                                    <span>${etiquetaBloqueHorario(c)}</span>
                                 </span>
-                                ${c.isFriend ? `<span class="my-card-origin-tag">${escapeHtml(comparison.nombre)}</span>` : comparison ? '<span class="my-card-origin-tag">Tu clase</span>' : `<button type="button" class="my-btn-delete" onclick="eliminarClaseMiHorario('${c.id}', event)" title="Eliminar asignatura de este bloque">
+                                ${c.isSharedProfile ? '' : `<button type="button" class="my-btn-delete" onclick="eliminarClaseMiHorario('${c.id}', event)" title="Eliminar asignatura de este bloque">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M3 6h18"></path>
                                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -934,7 +857,7 @@ function renderMiHorario() {
                             </div>
                             <div class="my-card-footer">
                                 ${(c.sala || '').split(/[,/]+/).map(s => s.trim()).filter(s => s).map(s => `
-                                <span class="my-room-pill" ${c.isFriend ? '' : `onclick="verHorarioDirecto('${s}')"`} title="Sala ${s}">
+                                <span class="my-room-pill" onclick="verHorarioDirecto('${s}')" title="Sala ${s}">
                                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
                                     <span>${escapeHtml(s)}</span>
                                 </span>
@@ -945,8 +868,8 @@ function renderMiHorario() {
                     `;
                     });
                 } else {
-                    cardsHtml += comparison ? `
-                        <div class="my-empty-slot is-comparison-empty">
+                    cardsHtml += sharedProfileView ? `
+                        <div class="my-empty-slot">
                             <div class="my-empty-header"><span class="my-empty-time"><span>${b.label}</span></span><span class="my-card-bloque-num">Bloque ${b.num}</span></div>
                             <div class="my-empty-body"><span class="my-empty-text">Sin clases</span></div>
                         </div>
@@ -978,7 +901,7 @@ function renderMiHorario() {
                             <span class="my-day-title">${d.nombre}</span>
                             ${isToday ? '<span class="my-today-chip">Hoy</span>' : ''}
                         </div>
-                        <span class="my-day-count">${comparison ? friendDayItems.length : dayItems.length}</span>
+                        <span class="my-day-count">${dayItems.length}</span>
                     </div>
                     <div class="my-day-cards">
                         ${cardsHtml}
@@ -988,30 +911,24 @@ function renderMiHorario() {
         });
 
         container.innerHTML = `
-            ${comparison ? `<div class="schedule-comparison-banner"><div><strong>Horario de ${escapeHtml(comparison.nombre)}</strong><span>Vista de solo lectura</span></div><button type="button" onclick="cerrarComparacionHorario()">Volver a mi horario</button></div>` : ''}
-            <div class="my-week-grid ${comparison ? 'is-comparison-view' : ''}">
+            <div class="my-week-grid">
                 ${colsHtml}
             </div>
         `;
 //    }
 }
 
-window.mostrarHorarioAmigoEnMiHorario = function (schedule) {
-    if (!schedule || !Array.isArray(schedule.clases)) return;
-    horarioAmigoComparacion = { nombre: String(schedule.nombre || 'tu amigo'), clases: normalizarClasesAmigo(schedule.clases) };
+window.mostrarHorarioPerfilEnMiHorario = function (clases) {
+    if (!Array.isArray(clases)) return;
+    horarioPerfilSeleccionado = normalizarClasesPerfil(clases);
     renderMiHorario();
     actualizarHeroMiHorario();
-    const container = document.getElementById('mihorario-display-container');
-    if (container && container.scrollIntoView) container.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
-window.cerrarComparacionHorario = function () {
-    horarioAmigoComparacion = null;
+window.cerrarHorarioPerfilEnMiHorario = function () {
+    horarioPerfilSeleccionado = null;
     renderMiHorario();
     actualizarHeroMiHorario();
-    if (document.dispatchEvent && typeof CustomEvent !== 'undefined') {
-        document.dispatchEvent(new CustomEvent('portal:community-schedule-closed'));
-    }
 };
 
 

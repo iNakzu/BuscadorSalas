@@ -3,7 +3,6 @@
     let reloadPending = false;
     let loadedUsers = [];
     let selectedUserId = '';
-    let applyingSelection = false;
 
     const sections = [
         { id: 'tab-mihorario', module: 'schedule', label: 'Horario', native: true },
@@ -41,11 +40,6 @@
         return loadedUsers.find(item => String(item.user_id || '') === selectedUserId) || null;
     }
 
-    function shortName(name) {
-        const words = String(name || 'Estudiante').trim().split(/\s+/).filter(Boolean);
-        return words.length > 1 ? `${words[0]} ${words[words.length - 1]}` : (words[0] || 'Estudiante');
-    }
-
     function ownDisplayName() {
         const user = window.PortalAuth && window.PortalAuth.user;
         const metadata = user && user.user_metadata || {};
@@ -53,18 +47,6 @@
             || String(metadata.full_name || metadata.name || '').trim()
             || (user && user.email ? user.email.split('@')[0] : 'Mi información');
         return name;
-    }
-
-    function renderUser(user) {
-        const name = user.display_name || 'Estudiante';
-        const modules = modulesFor(user);
-        const classes = cleanClasses(modules.schedule);
-        const agenda = Array.isArray(modules.agenda) ? modules.agenda : [];
-        const searchText = `${name} ${classes.map(item => `${item.curso || ''} ${item.sala || ''}`).join(' ')} ${agenda.map(item => item.ramo || '').join(' ')}`.toLocaleLowerCase('es');
-        const selected = String(user.user_id || '') === selectedUserId;
-        return `<article class="community-user-card" data-user-id="${escapeHtml(user.user_id || '')}" data-search="${escapeHtml(searchText)}">
-          <div class="community-user-header"><div class="community-user-identity"><span class="community-avatar" aria-hidden="true">${escapeHtml(initials(name))}</span><h3><span class="community-name-full">${escapeHtml(name)}</span><span class="community-name-first">${escapeHtml(shortName(name))}</span></h3></div><button class="community-view-schedule" type="button" aria-label="Ver información de ${escapeHtml(name)}" aria-expanded="${selected}" onclick="verInformacionPublica(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg><span class="community-view-label">${selected ? 'Viendo información' : 'Ver información'}</span></button></div>
-        </article>`;
     }
 
     function selectorOptions() {
@@ -226,7 +208,6 @@
     }
 
     function applySelection(userId) {
-        const previous = selectedUserId;
         selectedUserId = loadedUsers.some(user => String(user.user_id || '') === String(userId || '')) ? String(userId) : '';
         const profile = selectedProfile();
         syncSelectors();
@@ -236,62 +217,24 @@
         });
         renderGenericViews(profile);
 
-        applyingSelection = true;
-        try {
-            if (profile && typeof window.mostrarHorarioAmigoEnMiHorario === 'function') {
-                window.mostrarHorarioAmigoEnMiHorario({ nombre: profile.display_name || 'Estudiante', clases: cleanClasses(modulesFor(profile).schedule) });
-            } else if (previous && typeof window.cerrarComparacionHorario === 'function') {
-                window.cerrarComparacionHorario();
+        if (typeof window.mostrarHorarioPerfilEnMiHorario === 'function') {
+            if (profile) {
+                window.mostrarHorarioPerfilEnMiHorario(cleanClasses(modulesFor(profile).schedule));
+            } else if (typeof window.cerrarHorarioPerfilEnMiHorario === 'function') {
+                window.cerrarHorarioPerfilEnMiHorario();
             }
-            if (typeof window.renderSolemnes === 'function') window.renderSolemnes();
-        } finally {
-            applyingSelection = false;
         }
-
-        document.querySelectorAll('.community-view-schedule').forEach(button => {
-            const card = button.closest('.community-user-card');
-            const active = Boolean(card && card.dataset.userId === selectedUserId);
-            button.setAttribute('aria-expanded', String(active));
-            const label = button.querySelector('.community-view-label');
-            if (label) label.textContent = active ? 'Viendo información' : 'Ver información';
-        });
+        if (typeof window.renderSolemnes === 'function') window.renderSolemnes();
         if (document.dispatchEvent && typeof CustomEvent !== 'undefined') {
             document.dispatchEvent(new CustomEvent('portal:public-profile-changed', { detail: { profile } }));
         }
     }
 
-    window.verInformacionPublica = function (button) {
-        const card = button && button.closest('.community-user-card');
-        if (card) applySelection(card.dataset.userId);
-    };
-    window.verHorarioAmigo = window.verInformacionPublica;
-
-    function filterSchedules(value) {
-        const query = String(value || '').trim().toLocaleLowerCase('es');
-        document.querySelectorAll('.community-user-card').forEach(card => {
-            card.hidden = Boolean(query) && !card.dataset.search.includes(query);
-        });
-    }
-    window.filtrarHorariosComunidad = filterSchedules;
-
-    function renderDirectory() {
-        const list = document.getElementById('community-schedules-list');
-        if (!list) return;
-        list.innerHTML = loadedUsers.map(renderUser).join('');
-        const search = document.getElementById('community-schedules-search');
-        filterSchedules(search ? search.value : '');
-        syncSelectors();
-    }
-
     async function loadSharedInformation() {
         const auth = window.PortalAuth;
-        const status = document.getElementById('community-schedules-status');
-        const list = document.getElementById('community-schedules-list');
-        if (!status || !list || !auth || !auth.user || !auth.client) return;
+        if (!auth || !auth.user || !auth.client) return;
         if (loadInProgress) { reloadPending = true; return; }
         loadInProgress = true;
-        status.hidden = false;
-        status.textContent = 'Cargando información compartida...';
         try {
             let response = await auth.client.rpc('get_shared_information');
             let legacyMode = false;
@@ -306,18 +249,12 @@
                 : user
             );
             if (selectedUserId && !loadedUsers.some(user => String(user.user_id) === selectedUserId)) applySelection('');
-            renderDirectory();
-            status.textContent = legacyMode
-                ? 'Aplica la nueva migración de Supabase para compartir notas, agenda y malla.'
-                : loadedUsers.length
-                ? `${loadedUsers.length} usuario${loadedUsers.length === 1 ? '' : 's'} comparte${loadedUsers.length === 1 ? '' : 'n'} su información.`
-                : 'Todavía no hay información compartida por otros usuarios.';
+            syncSelectors();
         } catch (error) {
             console.error('No se pudo cargar la información compartida', error);
             loadedUsers = [];
-            list.innerHTML = '';
-            syncSelectors();
-            status.textContent = 'La información compartida estará disponible al aplicar la migración de Supabase.';
+            if (selectedUserId) applySelection('');
+            else syncSelectors();
         } finally {
             loadInProgress = false;
             if (reloadPending) { reloadPending = false; loadSharedInformation(); }
@@ -330,9 +267,6 @@
         getUsers: () => loadedUsers.slice()
     };
     window.cargarHorariosComunidad = loadSharedInformation;
-    document.addEventListener('portal:community-schedule-closed', () => {
-        if (!applyingSelection && selectedUserId) applySelection('');
-    });
     document.addEventListener('portal:auth-changed', loadSharedInformation);
     document.addEventListener('portal:personal-store-ready', loadSharedInformation);
     document.addEventListener('DOMContentLoaded', () => {

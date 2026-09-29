@@ -24,29 +24,27 @@ vm.runInContext(`
   renderMiHorario();
 `, context);
 const originalSchedule = vm.runInContext('JSON.stringify(MI_HORARIO_DATA.clases)', context);
-context.window.mostrarHorarioAmigoEnMiHorario({ nombre: 'Ana García', clases: [
+context.window.mostrarHorarioPerfilEnMiHorario([
   { dia: 1, horaInicio: '08:30', horaFin: '09:50', curso: 'Clase amiga', tipo: 'Laboratorio', sala: 'E202', profesor: 'Ana' },
   { dia: 1, horaInicio: '11:30', horaFin: '12:50', curso: 'Segunda clase', tipo: 'Cátedra', sala: 'E203', profesor: 'Ana' },
   { dia: 1, horaInicio: '17:30', horaFin: '18:50', curso: 'Tercera clase', tipo: 'Taller', sala: 'E204', profesor: 'Ana' }
-] });
-assert.match(container.innerHTML, /Horario de Ana García/);
+]);
+assert.doesNotMatch(container.innerHTML, /Horario de Ana García|Ana García/);
 assert.match(container.innerHTML, /17:30 - 18:50/);
 assert.doesNotMatch(container.innerHTML, /Mi clase/);
 assert.match(container.innerHTML, /Clase amiga/);
-assert.match(container.innerHTML, /Ana García/);
 assert.doesNotMatch(container.innerHTML, /my-btn-delete|abrirModalAgregarClase|Agregar ramo/);
 assert.strictEqual((container.innerHTML.match(/class="my-class-card/g) || []).length, 3);
-assert.strictEqual((container.innerHTML.match(/class="my-empty-slot is-comparison-empty/g) || []).length, 32);
-assert.match(hero.innerHTML, /En clase/);
-assert.match(hero.innerHTML, /Duración 1 h 20 min/);
+assert.strictEqual((container.innerHTML.match(/class="my-empty-slot"/g) || []).length, 32);
+assert.match(hero.innerHTML, /En laboratorio/);
+assert.doesNotMatch(hero.innerHTML, /Ana García|Horario de/);
 vm.runInContext(`getChileTime = () => ({ dayOfWeek: 1, hours: 10, minutes: 30, totalMinutes: 630 }); actualizarHeroMiHorario();`, context);
-assert.match(hero.innerHTML, /En ventana · 1 h 40 min/);
-assert.match(hero.innerHTML, /Próxima clase de Ana García en 1 h/);
+assert.match(hero.innerHTML, /Próxima clase/);
+assert.doesNotMatch(hero.innerHTML, /Ana García/);
 assert.strictEqual(vm.runInContext('JSON.stringify(MI_HORARIO_DATA.clases)', context), originalSchedule);
-context.window.cerrarComparacionHorario();
-assert.doesNotMatch(container.innerHTML, /Clase amiga|Horario de Ana García/);
+context.window.cerrarHorarioPerfilEnMiHorario();
 assert.match(container.innerHTML, /my-btn-delete/);
 assert.match(container.innerHTML, /17:30 - 18:50/);
 assert.match(hero.innerHTML, /Mi clase/);
 assert.strictEqual(vm.runInContext('JSON.stringify(MI_HORARIO_DATA.clases)', context), originalSchedule);
-console.log('community_schedule_overlay: comparison is read-only and preserves the personal schedule');
+console.log('community_schedule_overlay: selected schedule uses the personal view and remains read-only');
