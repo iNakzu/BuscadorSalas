@@ -10,7 +10,6 @@ create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   email text not null,
   display_name text,
-  avatar_url text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -55,12 +54,18 @@ for each row execute function public.set_updated_at();
 create or replace function public.create_profile_for_new_user()
 returns trigger language plpgsql security definer set search_path = '' as $$
 begin
-  insert into public.profiles (id, email, display_name, avatar_url)
+  insert into public.profiles (id, email, display_name)
   values (
     new.id,
     lower(new.email),
-    coalesce(new.raw_user_meta_data ->> 'full_name', new.raw_user_meta_data ->> 'name'),
-    new.raw_user_meta_data ->> 'avatar_url'
+    coalesce(
+      nullif(trim(concat_ws(' ',
+        nullif(new.raw_user_meta_data ->> 'given_name', ''),
+        nullif(new.raw_user_meta_data ->> 'family_name', '')
+      )), ''),
+      nullif(new.raw_user_meta_data ->> 'full_name', ''),
+      nullif(new.raw_user_meta_data ->> 'name', '')
+    )
   );
   return new;
 end;

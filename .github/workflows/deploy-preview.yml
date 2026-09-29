@@ -23,6 +23,7 @@ jobs:
           pip install -r requirements.txt
           python -m unittest discover -s tests -v
           node tests/personal-store.test.cjs
+          node tests/auth-ui.test.cjs
 
       - name: Actualizar preview en la VM
         uses: appleboy/ssh-action@v1.0.3
