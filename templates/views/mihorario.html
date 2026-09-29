@@ -1,4 +1,18 @@
 <section class="panel" id="tab-mihorario">
+<section class="community-schedules-card" aria-labelledby="community-schedules-title">
+  <div class="community-schedules-heading">
+    <div>
+      <h2 id="community-schedules-title">Horarios de la comunidad</h2>
+      <p>Tu horario se comparte automáticamente con cuentas UDP autorizadas. Verás sus salas, ventanas y un estado estimado según el horario de hoy.</p>
+    </div>
+  </div>
+  <div class="search-field community-schedules-search">
+    <svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="16" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" x2="16.65" y1="21" y2="16.65"></line></svg>
+    <input id="community-schedules-search" type="search" autocomplete="off" placeholder="Buscar persona, ramo o sala..." oninput="filtrarHorariosComunidad(this.value)">
+  </div>
+  <div id="community-schedules-status" class="community-schedules-status" role="status">Cargando horarios compartidos...</div>
+  <div id="community-schedules-list" class="community-schedules-list"></div>
+</section>
 <!-- WIDGET HERO EN TIEMPO REAL -->
 <div class="my-schedule-hero" id="my-schedule-hero">
 <!-- Renderizado dinámico desde JS -->
@@ -113,4 +127,3 @@
 <!-- MODAL SELECCIÓN DE CRUCE -->
 
 </section>
-

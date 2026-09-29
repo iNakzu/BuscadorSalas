@@ -23,23 +23,6 @@ function cargarMiHorarioDesdeStorage() {
         if (c.seccion && c.seccion.toLowerCase().includes('ayudantía que impartes')) {
             c.seccion = '';
         }
-        if (c.id === 'mar-1') {
-            c.seccion = 'Sección 19';
-            c.profesor = 'Matías Robotham';
-            c.tipo = 'Ayudantía';
-        } else if (c.id === 'vie-1') {
-            c.seccion = 'Sección 13';
-            c.profesor = 'Karina Arancibia';
-            c.tipo = 'Ayudantía';
-        } else if (c.id === 'vie-3') {
-            c.seccion = 'Sección 3';
-            c.profesor = 'Jaime Contreras';
-            c.tipo = 'Ayudantía';
-        } else if (c.id === 'vie-4') {
-            c.seccion = 'Sección 11';
-            c.profesor = 'Rosa Rivero';
-            c.tipo = 'Ayudantía';
-        }
         // Normalizar formato Sec. o Sec a Sección
         if (c.seccion) {
             if (c.seccion.toLowerCase().startsWith('sec.')) {

@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/agenda.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/horario.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/v1.css') }}?v=20260929-2">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/community.css') }}">
 </head>
 <body class="{% if solemne_status.get(sel.dia|int, False) %}solemne-mode{% endif %}">
 <div class="container">
@@ -45,6 +46,7 @@
 <script src="{{ url_for('static', filename='js/ui_feedback.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/auth.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/community_schedules.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/personal_store.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/user_schedule_data.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/horario.js') }}" defer></script>

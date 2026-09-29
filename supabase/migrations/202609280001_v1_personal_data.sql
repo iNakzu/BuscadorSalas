@@ -10,9 +10,13 @@ create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   email text not null,
   display_name text,
+  share_schedule boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+comment on column public.profiles.share_schedule is
+  'When true, the signed-in community can read this user schedule. Defaults to true; false hides it.';
 
 create table if not exists public.user_module_state (
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -51,6 +55,54 @@ drop trigger if exists user_module_state_set_updated_at on public.user_module_st
 create trigger user_module_state_set_updated_at before update on public.user_module_state
 for each row execute function public.set_updated_at();
 
+-- Share only the fields needed to coordinate schedules. The SECURITY DEFINER
+-- function deliberately bypasses table RLS, then enforces authentication,
+-- opt-out state, module scope and a strict list of returned class fields.
+create or replace function public.is_community_member(account_id uuid)
+returns boolean
+language sql stable security definer set search_path = '' as $$
+  select exists (
+    select 1 from auth.users u
+    where u.id = account_id
+      and u.email is not null
+      and (
+        split_part(lower(u.email), '@', 2) = 'mail.udp.cl'
+        or exists (select 1 from public.email_allowlist a where a.email = lower(u.email))
+      )
+  )
+$$;
+
+create or replace function public.get_shared_schedules()
+returns table (user_id uuid, display_name text, payload jsonb)
+language sql stable security definer set search_path = '' as $$
+  select p.id,
+         coalesce(nullif(p.display_name, ''), 'Estudiante UDP'),
+         jsonb_build_object('clases', coalesce((
+           select jsonb_agg(
+             jsonb_build_object(
+               'dia', item.class_data -> 'dia',
+               'diaNombre', item.class_data -> 'diaNombre',
+               'horaInicio', item.class_data -> 'horaInicio',
+               'horaFin', item.class_data -> 'horaFin',
+               'curso', item.class_data -> 'curso',
+               'sala', item.class_data -> 'sala'
+             ) order by item.class_data ->> 'dia', item.class_data ->> 'horaInicio'
+           )
+           from jsonb_array_elements(
+             case when jsonb_typeof(s.payload -> 'clases') = 'array'
+               then s.payload -> 'clases' else '[]'::jsonb end
+           ) as item(class_data)
+           where jsonb_typeof(item.class_data) = 'object'
+         ), '[]'::jsonb))
+  from public.profiles p
+  join public.user_module_state s on s.user_id = p.id and s.module_key = 'schedule'
+  where auth.uid() is not null
+    and p.id <> auth.uid()
+    and public.is_community_member(auth.uid())
+    and public.is_community_member(p.id)
+    and p.share_schedule
+$$;
+
 create or replace function public.create_profile_for_new_user()
 returns trigger language plpgsql security definer set search_path = '' as $$
 begin
@@ -74,6 +126,22 @@ $$;
 drop trigger if exists create_profile_after_signup on auth.users;
 create trigger create_profile_after_signup
 after insert on auth.users for each row execute function public.create_profile_for_new_user();
+
+-- Include accounts that signed up before this migration was applied.
+insert into public.profiles (id, email, display_name)
+select u.id,
+       lower(u.email),
+       coalesce(
+         nullif(trim(concat_ws(' ',
+           nullif(u.raw_user_meta_data ->> 'given_name', ''),
+           nullif(u.raw_user_meta_data ->> 'family_name', '')
+         )), ''),
+         nullif(u.raw_user_meta_data ->> 'full_name', ''),
+         nullif(u.raw_user_meta_data ->> 'name', '')
+       )
+from auth.users u
+where u.email is not null
+on conflict (id) do nothing;
 
 create or replace function public.hook_restrict_signup(event jsonb)
 returns jsonb language plpgsql set search_path = '' as $$
@@ -104,5 +172,10 @@ revoke all on table public.email_allowlist from authenticated, anon, public;
 
 -- Explicit least-privilege grants keep the app working with automatic table
 -- exposure disabled. RLS policies above still restrict every row by user id.
-grant select, update on table public.profiles to authenticated;
+revoke all on table public.profiles from anon, authenticated, public;
+grant select (id, display_name, share_schedule) on table public.profiles to authenticated;
+grant update (share_schedule) on table public.profiles to authenticated;
 grant select, insert, update, delete on table public.user_module_state to authenticated;
+revoke all on function public.get_shared_schedules() from public, anon;
+grant execute on function public.get_shared_schedules() to authenticated;
+revoke all on function public.is_community_member(uuid) from public, anon, authenticated;
