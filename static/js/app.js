@@ -37,7 +37,7 @@ let state = {
     mallaDia: __dia_inicial,
     mallaHora: '',
     mallaRamo: '',
-    salaDia: __dia_inicial,
+    salaDia: String(obtenerDiaActualNumero()),
     salaActiva: '',
     miHorarioDia: 'ALL',
     miHorarioRol: 'ALL',
