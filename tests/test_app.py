@@ -126,6 +126,20 @@ class PortalV1Test(unittest.TestCase):
         horario_js = Path(__file__).parents[1] / "static/js/horario.js"
         self.assertNotIn("mar-1", horario_js.read_text())
 
+    def test_public_information_migration_shares_all_personal_modules(self):
+        migration = Path(__file__).parents[1] / "supabase/migrations/202609290002_public_information.sql"
+        sql = migration.read_text()
+        self.assertIn("rename column share_schedule to share_information", sql)
+        self.assertIn("create or replace function public.get_shared_information()", sql)
+        self.assertIn("'schedule'", sql)
+        self.assertIn("'grades'", sql)
+        self.assertIn("'agenda'", sql)
+        self.assertIn("'curriculum'", sql)
+        self.assertIn("and p.share_information", sql)
+        self.assertIn("and public.is_community_member(auth.uid())", sql)
+        self.assertIn("grant execute on function public.get_shared_information() to authenticated", sql)
+        self.assertNotIn("to anon", sql.split("grant execute on function public.get_shared_information()", 1)[1])
+
     def test_signed_in_profile_uses_initials_instead_of_a_photo(self):
         html = self.client.get("/").get_data(as_text=True)
         profile = html.split('id="auth-profile"', 1)[1].split("</div>", 1)[0]

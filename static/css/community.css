@@ -26,6 +26,50 @@
 .community-windows,.community-empty-schedule { color: #94a3b8; font-size: 11px; }
 .community-windows span { color: #34d399; font-weight: 700; }
 
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+.public-profile-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; min-width: 0; margin: 0 0 18px; padding: 12px 14px; border: 1px solid rgba(148,163,184,.18); border-radius: 14px; background: rgba(15,23,42,.72); box-sizing: border-box; }
+.public-profile-toolbar-copy { display: grid; gap: 2px; min-width: 0; }
+.public-profile-toolbar-copy span { color: #64748b; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.public-profile-toolbar-copy strong { color: #e2e8f0; font-size: 13px; }
+.public-profile-toolbar label { min-width: 0; }
+.public-profile-select { width: min(260px, 48vw); min-height: 38px; padding: 0 34px 0 12px; border: 1px solid rgba(56,189,248,.28); border-radius: 10px; background: #0f172a; color: #f8fafc; font: inherit; font-size: 12px; font-weight: 650; outline: none; }
+.public-profile-select:focus { border-color: #38bdf8; box-shadow: 0 0 0 3px rgba(56,189,248,.12); }
+.public-profile-content { width: 100%; min-width: 0; }
+.public-profile-content[hidden] { display: none; }
+.public-profile-empty { padding: 34px 20px; border: 1px dashed rgba(148,163,184,.24); border-radius: 14px; color: #94a3b8; text-align: center; }
+.public-info-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,300px),1fr)); gap: 14px; }
+.public-info-card { min-width: 0; padding: 16px; border: 1px solid rgba(148,163,184,.18); border-radius: 14px; background: rgba(15,23,42,.68); }
+.public-info-card h3 { margin: 0 0 12px; color: #f8fafc; font-size: 14px; }
+.public-info-card p { margin: 0; color: #94a3b8; font-size: 12px; }
+.public-grade-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid rgba(148,163,184,.1); color: #94a3b8; font-size: 12px; }
+.public-grade-row strong { color: #f8fafc; font-size: 13px; }
+.public-agenda-list { display: grid; gap: 10px; }
+.public-agenda-item { display: grid; grid-template-columns: minmax(100px,auto) 1fr; gap: 14px; align-items: center; padding: 14px 16px; border: 1px solid rgba(148,163,184,.16); border-radius: 13px; background: rgba(15,23,42,.66); }
+.public-agenda-item time { color: #7dd3fc; font-size: 11px; font-weight: 750; }
+.public-agenda-item div { display: grid; min-width: 0; gap: 3px; }
+.public-agenda-item strong { overflow-wrap: anywhere; color: #f8fafc; font-size: 13px; }
+.public-agenda-item span { overflow-wrap: anywhere; color: #94a3b8; font-size: 11px; }
+.public-curriculum-summary { display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px; color: #94a3b8; font-size: 12px; }
+.public-curriculum-summary strong { color: #34d399; font-size: 18px; }
+.public-curriculum-scroll { width: 100%; max-width: 100%; overflow-x: auto; padding-bottom: 12px; -webkit-overflow-scrolling: touch; }
+.public-curriculum-grid { display: grid; grid-template-columns: repeat(8, minmax(180px,1fr)); gap: 12px; min-width: 1524px; }
+.public-curriculum-grid section { display: grid; align-content: start; gap: 7px; }
+.public-curriculum-grid h3 { margin: 0 0 3px; color: #cbd5e1; font-size: 11px; text-align: center; text-transform: uppercase; }
+.public-course-state { display: grid; gap: 3px; min-height: 54px; padding: 9px; border: 1px solid rgba(148,163,184,.15); border-radius: 9px; background: rgba(30,41,59,.5); }
+.public-course-state span { color: #cbd5e1; font-size: 11px; line-height: 1.3; }
+.public-course-state small { color: #64748b; font-size: 9px; font-weight: 700; text-transform: uppercase; }
+.public-course-state.state-1 { border-color: rgba(251,191,36,.42); background: rgba(245,158,11,.1); }
+.public-course-state.state-1 small { color: #fbbf24; }
+.public-course-state.state-2 { border-color: rgba(52,211,153,.38); background: rgba(16,185,129,.1); }
+.public-course-state.state-2 small { color: #34d399; }
+#tab-notas.public-profile-active > :not(.public-profile-toolbar):not(.public-profile-content),
+#tab-agenda.public-profile-active > :not(.public-profile-toolbar):not(.public-profile-content),
+#tab-progreso.public-profile-active > :not(.public-profile-toolbar):not(.public-profile-content) { display: none !important; }
+#tab-mihorario.public-profile-active .community-schedules-card,
+#tab-mihorario.public-profile-active .schedule-import-control,
+#tab-mihorario.public-profile-active .my-modal-overlay { display: none !important; }
+#tab-solemnes.public-profile-active > .control-card { display: none !important; }
+
 @media (max-width: 600px) {
   .community-schedules-card { padding: 15px 12px; }
   .community-schedules-heading h2 { font-size: 16px; }
@@ -39,4 +83,7 @@
   .community-view-schedule { display: grid; width: 38px; min-height: 38px; padding: 0; place-items: center; border-radius: 11px; }
   .community-view-schedule svg { width: 18px; height: 18px; }
   .community-view-label { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+  .public-profile-toolbar { align-items: stretch; flex-direction: column; gap: 9px; padding: 11px 12px; }
+  .public-profile-select { width: 100%; }
+  .public-agenda-item { grid-template-columns: 1fr; gap: 6px; }
 }
