@@ -43,6 +43,8 @@ vm.runInContext(source, context);
   assert.match(html, /Ver horario/);
   assert.match(html, /class="community-week" hidden/);
   assert.match(html, /community-user-identity/);
+  assert.match(html, /<div class="community-user-header">/);
+  assert.doesNotMatch(html, /<header class="community-user-header">/);
   assert.match(html, /community-name-first">Ana/);
   assert.match(html, /aria-label="Ver horario de Ana García"/);
   assert.doesNotMatch(html, /Según el horario de hoy|community-current-status/);
