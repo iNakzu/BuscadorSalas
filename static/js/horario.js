@@ -961,3 +961,159 @@ document.addEventListener('portal:remote-state', event => {
     MI_HORARIO_DATA = event.detail.payload;
     renderMiHorario();
 });
+
+let horarioImportadoPendiente = [];
+
+function seleccionarFotoHorario() {
+    const input = document.getElementById('schedule-import-file');
+    if (!input) return;
+    if (!window.PortalAuth || !window.PortalAuth.client) {
+        mostrarEstadoImportacionHorario('La importación requiere iniciar sesión.', true);
+        return;
+    }
+    input.click();
+}
+
+function mostrarEstadoImportacionHorario(message, isError = false) {
+    const status = document.getElementById('schedule-import-status');
+    if (!status) return;
+    status.textContent = message || '';
+    status.classList.toggle('is-error', Boolean(isError));
+}
+
+async function importarHorarioDesdeFoto(event) {
+    const input = event && event.target;
+    const file = input && input.files && input.files[0];
+    if (!file) return;
+    const button = document.getElementById('schedule-import-button');
+    const preview = document.getElementById('schedule-import-preview');
+    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
+    if (!allowed.includes((file.type || '').toLowerCase())) {
+        mostrarEstadoImportacionHorario('Elige una foto JPG, PNG, WebP o HEIC.', true);
+        input.value = '';
+        return;
+    }
+    if (file.size > 9 * 1024 * 1024) {
+        mostrarEstadoImportacionHorario('La imagen debe pesar menos de 9 MB.', true);
+        input.value = '';
+        return;
+    }
+    const auth = window.PortalAuth;
+    if (!auth || !auth.client) {
+        mostrarEstadoImportacionHorario('La importación requiere iniciar sesión.', true);
+        input.value = '';
+        return;
+    }
+
+    if (button) {
+        button.disabled = true;
+        button.classList.add('is-loading');
+    }
+    if (preview) preview.hidden = true;
+    mostrarEstadoImportacionHorario('Leyendo la foto con Gemini…');
+    try {
+        const sessionResult = await auth.client.auth.getSession();
+        const session = sessionResult.data && sessionResult.data.session;
+        const token = session && session.access_token;
+        if (sessionResult.error || !token) throw new Error('Tu sesión venció. Inicia sesión otra vez.');
+        const form = new FormData();
+        form.append('image', file, file.name || 'horario');
+        const response = await fetch('/api/import_schedule', {
+            method: 'POST',
+            headers: { Authorization: 'Bearer ' + token },
+            body: form
+        });
+        let result = {};
+        try { result = await response.json(); } catch (_error) {}
+        if (!response.ok) throw new Error(result.error || 'No se pudo leer la foto. Inténtalo de nuevo.');
+        if (!Array.isArray(result.clases) || !result.clases.length) {
+            throw new Error('No se detectaron clases completas en la imagen.');
+        }
+        horarioImportadoPendiente = result.clases;
+        renderVistaPreviaImportacionHorario();
+        mostrarEstadoImportacionHorario('');
+    } catch (error) {
+        mostrarEstadoImportacionHorario(error.message || 'No se pudo importar el horario.', true);
+    } finally {
+        if (button) {
+            button.disabled = false;
+            button.classList.remove('is-loading');
+        }
+        if (input) input.value = '';
+    }
+}
+
+function renderVistaPreviaImportacionHorario() {
+    const preview = document.getElementById('schedule-import-preview');
+    const summary = document.getElementById('schedule-import-summary');
+    const list = document.getElementById('schedule-import-list');
+    const apply = document.getElementById('schedule-import-apply');
+    if (!preview || !summary || !list || !apply) return;
+    const detected = horarioImportadoPendiente;
+    const missing = detected.reduce((count, item) =>
+        count + (!item.sala ? 1 : 0) + (!item.profesor ? 1 : 0) + (!item.seccion ? 1 : 0), 0);
+    summary.textContent = detected.length + ' clases detectadas' +
+        (missing ? ' · ' + missing + ' dato(s) sin identificar' : '') +
+        '. Revisa los datos antes de cargar.';
+    list.innerHTML = detected.map(item => {
+        const confidence = Number(item.confianza);
+        const uncertain = Number.isFinite(confidence) && confidence < 0.65;
+        return '<li class="schedule-import-item' + (uncertain ? ' is-uncertain' : '') + '">' +
+          '<div class="schedule-import-item-main"><strong>' + escapeHtml(item.curso || 'Ramo sin nombre') + '</strong><span>' +
+          escapeHtml(item.diaNombre || '') + ' · ' + escapeHtml(item.horaInicio || '') + '–' + escapeHtml(item.horaFin || '') + '</span></div>' +
+          '<div class="schedule-import-item-meta"><span>Sala: ' + escapeHtml(item.sala || 'sin detectar') + '</span><span>Sección: ' +
+          escapeHtml(item.seccion || 'sin detectar') + '</span><span>Profesor: ' + escapeHtml(item.profesor || 'sin detectar') + '</span>' +
+          (uncertain ? '<b>Revisar lectura</b>' : '') + '</div></li>';
+    }).join('');
+    apply.textContent = MI_HORARIO_DATA.clases.length ? 'Reemplazar mi horario' : 'Cargar mi horario';
+    preview.hidden = false;
+    preview.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function cancelarImportacionHorario() {
+    horarioImportadoPendiente = [];
+    const preview = document.getElementById('schedule-import-preview');
+    const list = document.getElementById('schedule-import-list');
+    if (preview) preview.hidden = true;
+    if (list) list.replaceChildren();
+}
+
+function confirmarImportacionHorario() {
+    if (!horarioImportadoPendiente.length) return;
+    const days = [[], [], [], [], [], []];
+    horarioImportadoPendiente.forEach(item => {
+        const day = Number(item.dia);
+        if (day >= 1 && day <= 5) days[day].push(item);
+    });
+    const imported = [];
+    const types = ['Cátedra', 'Ayudantía', 'Laboratorio', 'Taller', 'Estudio'];
+    days.forEach((items, day) => {
+        items.sort((a, b) => a.horaInicio.localeCompare(b.horaInicio));
+        items.forEach((item, index) => {
+            const sourceType = String(item.tipo || '').toLocaleLowerCase('es');
+            const tipo = types.find(value => sourceType.includes(value.toLocaleLowerCase('es'))) || 'Cátedra';
+            imported.push({
+                id: 'import-' + Date.now() + '-' + day + '-' + index,
+                dia: day,
+                diaNombre: item.diaNombre,
+                bloqueNum: index + 1,
+                bloqueLabel: item.horaInicio + ' - ' + item.horaFin,
+                horaInicio: item.horaInicio,
+                horaFin: item.horaFin,
+                curso: item.curso,
+                tipo: tipo,
+                seccion: item.seccion || '',
+                sala: item.sala || '',
+                profesor: item.profesor || '',
+                rol: 'student'
+            });
+        });
+    });
+    MI_HORARIO_DATA = { ...MI_HORARIO_DATA, clases: imported };
+    guardarMiHorarioEnStorage();
+    renderMiHorario();
+    actualizarHeroMiHorario();
+    cancelarImportacionHorario();
+    mostrarEstadoImportacionHorario('');
+    mostrarToast('Horario cargado: ' + imported.length + ' clases.');
+}

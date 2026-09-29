@@ -1,4 +1,10 @@
-from flask import Blueprint, jsonify, request
+import threading
+import time
+
+import requests
+from flask import Blueprint, current_app, jsonify, request
+
+from app.services.gemini_schedule import GeminiScheduleError, extract_schedule_from_image
 
 from app.services.schedule import (
     DIAS_SEMANA, MESES_ES, MALLA_ICIT, calcular_bloque_actual, dm,
@@ -7,6 +13,39 @@ from app.services.schedule import (
 )
 
 academic_api = Blueprint("academic_api", __name__)
+
+_import_lock = threading.Lock()
+_import_attempts = {}
+_IMPORT_RATE_LIMIT = 4
+_IMPORT_RATE_WINDOW_SECONDS = 60
+
+
+def _valid_image_signature(data, mime_type):
+    if mime_type == "image/jpeg":
+        return data.startswith(b"\xff\xd8\xff")
+    if mime_type == "image/png":
+        return data.startswith(b"\x89PNG\r\n\x1a\n")
+    if mime_type == "image/webp":
+        return len(data) >= 12 and data[:4] == b"RIFF" and data[8:12] == b"WEBP"
+    if mime_type in ("image/heic", "image/heif"):
+        return len(data) >= 12 and data[4:8] == b"ftyp" and data[8:12] in {
+            b"heic", b"heix", b"hevc", b"hevx", b"mif1", b"msf1",
+        }
+    return False
+
+
+def _allow_schedule_import(user_id):
+    now = time.monotonic()
+    with _import_lock:
+        for key in list(_import_attempts):
+            _import_attempts[key] = [stamp for stamp in _import_attempts[key] if now - stamp < _IMPORT_RATE_WINDOW_SECONDS]
+            if not _import_attempts[key]:
+                del _import_attempts[key]
+        attempts = _import_attempts.setdefault(user_id, [])
+        if len(attempts) >= _IMPORT_RATE_LIMIT:
+            return False
+        attempts.append(now)
+        return True
 
 @academic_api.route("/status", methods=["GET"])
 def api_status():
@@ -20,6 +59,68 @@ def api_sync():
         "message": "Datos sincronizados exitosamente desde salas.docencia-eit.cl" if ok else "No se pudo sincronizar; usando respaldo local.",
         "status": dm.get_status()
     })
+
+
+@academic_api.route("/import_schedule", methods=["POST"])
+def api_import_schedule():
+    authorization = request.headers.get("Authorization", "")
+    scheme, _, access_token = authorization.partition(" ")
+    if scheme.lower() != "bearer" or not access_token.strip():
+        return jsonify({"error": "Inicia sesión para importar tu horario."}), 401
+
+    supabase_url = current_app.config.get("SUPABASE_URL", "").rstrip("/")
+    supabase_key = current_app.config.get("SUPABASE_ANON_KEY", "")
+    if not supabase_url or not supabase_key:
+        return jsonify({"error": "El acceso personal no está configurado en el servidor."}), 503
+    try:
+        auth_response = requests.get(
+            f"{supabase_url}/auth/v1/user",
+            headers={"apikey": supabase_key, "Authorization": f"Bearer {access_token.strip()}"},
+            timeout=(4, 8),
+        )
+    except requests.RequestException:
+        return jsonify({"error": "No pude validar tu sesión. Inténtalo de nuevo."}), 503
+    if not auth_response.ok:
+        return jsonify({"error": "Tu sesión venció. Inicia sesión de nuevo."}), 401
+    try:
+        user = auth_response.json()
+    except ValueError:
+        return jsonify({"error": "No pude validar tu sesión. Inicia sesión de nuevo."}), 401
+    user_id = user.get("id") if isinstance(user, dict) else None
+    if not user_id:
+        return jsonify({"error": "No pude validar tu sesión. Inicia sesión de nuevo."}), 401
+    if not _allow_schedule_import(str(user_id)):
+        return jsonify({"error": "Has realizado varias importaciones. Espera un minuto y prueba de nuevo."}), 429
+
+    image = request.files.get("image")
+    if not image or not image.filename:
+        return jsonify({"error": "Selecciona una imagen de tu horario."}), 400
+    mime_type = (image.mimetype or "").lower()
+    if mime_type == "image/jpg":
+        mime_type = "image/jpeg"
+    allowed_types = {"image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"}
+    if mime_type not in allowed_types:
+        return jsonify({"error": "Usa una foto JPG, PNG, WebP o HEIC."}), 415
+    image_bytes = image.stream.read(9 * 1024 * 1024 + 1)
+    if len(image_bytes) > 9 * 1024 * 1024:
+        return jsonify({"error": "La imagen supera el límite de 9 MB."}), 413
+    if not _valid_image_signature(image_bytes, mime_type):
+        return jsonify({"error": "El archivo no parece ser una imagen válida. Vuelve a seleccionarla."}), 415
+    if not current_app.config.get("GEMINI_API_KEY"):
+        return jsonify({"error": "La importación con IA no está configurada en este servidor."}), 503
+
+    try:
+        classes = extract_schedule_from_image(
+            image_bytes,
+            mime_type,
+            current_app.config["GEMINI_API_KEY"],
+            current_app.config.get("GEMINI_MODEL", "gemini-3.5-flash"),
+        )
+    except GeminiScheduleError as error:
+        return jsonify({"error": str(error)}), error.status_code
+
+    # Images are processed in memory and are never persisted by this endpoint.
+    return jsonify({"clases": classes, "total": len(classes)})
 
 @academic_api.route("/salas", methods=["GET"])
 def api_salas():

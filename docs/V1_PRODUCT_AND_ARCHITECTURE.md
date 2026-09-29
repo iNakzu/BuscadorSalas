@@ -63,6 +63,12 @@ values ('persona@example.com', 'Piloto V1');
 6. En Supabase URL Configuration, usar el dominio estable como Site URL y agregar el dominio preview a Redirect URLs.
 7. Copiar `.env.example` a `.env` en cada despliegue y completar `SUPABASE_URL`, `SUPABASE_ANON_KEY` y `SECRET_KEY`. La clave anon/publicable es apta para el navegador porque RLS protege los datos.
 
+## Importación de horario desde una foto
+
+La sección Horarios ofrece un botón de importación para fotos JPG, PNG, WebP y HEIC de hasta 9 MB. El endpoint `POST /api/import_schedule` valida el token de sesión de Supabase, limita intentos por usuario y envía la imagen en memoria a Gemini `gemini-3.5-flash` con una respuesta JSON estructurada. El navegador muestra un resumen para revisar; sólo al confirmar se reemplaza el horario local y sincronizado. El portal no persiste la imagen.
+
+Configurar `GEMINI_API_KEY` en el archivo de entorno del servicio del servidor; nunca incluirla en JavaScript, HTML o Git. `GEMINI_MODEL` permite cambiar el modelo y por defecto usa `gemini-3.5-flash`. La imagen se procesa mediante Google Gemini; en el nivel gratuito Google puede usar solicitudes para mejorar sus productos. El modelo extrae ramo, día, horas, sección, profesor, sala y tipo de clase. La validación conserva datos inciertos para revisión y no inventa campos que no logra leer. Profesor y sección se guardan en el horario propio, pero no se exponen en el directorio comunitario.
+
 ## PWA y HTTPS
 
 La PWA usa un origen estable con certificado Let's Encrypt. El service worker sólo guarda la shell y recursos estáticos; excluye `/api/`, autenticación y datos personales. Cambios publicados se incorporan al abrir de nuevo la app o cuando el navegador actualiza el service worker.
