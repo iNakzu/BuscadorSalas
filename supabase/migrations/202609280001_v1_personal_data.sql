@@ -16,14 +16,13 @@ create table if not exists public.profiles (
 );
 
 create table if not exists public.user_module_state (
-  id bigint generated always as identity primary key,
   user_id uuid not null references auth.users(id) on delete cascade,
   module_key text not null check (module_key in ('schedule','grades','agenda','curriculum')),
   schema_version integer not null default 1 check (schema_version > 0),
   payload jsonb not null default '{}'::jsonb,
   client_updated_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  unique (user_id, module_key)
+  primary key (user_id, module_key)
 );
 
 alter table public.email_allowlist enable row level security;
@@ -32,6 +31,7 @@ alter table public.user_module_state enable row level security;
 
 create policy "users read own profile" on public.profiles for select to authenticated using ((select auth.uid()) = id);
 create policy "users update own profile" on public.profiles for update to authenticated using ((select auth.uid()) = id) with check ((select auth.uid()) = id);
+create policy "auth hook reads signup allowlist" on public.email_allowlist for select to supabase_auth_admin using (true);
 create policy "users read own module state" on public.user_module_state for select to authenticated using ((select auth.uid()) = user_id);
 create policy "users insert own module state" on public.user_module_state for insert to authenticated with check ((select auth.uid()) = user_id);
 create policy "users update own module state" on public.user_module_state for update to authenticated using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
@@ -71,7 +71,7 @@ create trigger create_profile_after_signup
 after insert on auth.users for each row execute function public.create_profile_for_new_user();
 
 create or replace function public.hook_restrict_signup(event jsonb)
-returns jsonb language plpgsql security definer set search_path = '' as $$
+returns jsonb language plpgsql set search_path = '' as $$
 declare
   candidate_email text := lower(event -> 'user' ->> 'email');
   allowed boolean;
@@ -92,6 +92,12 @@ end;
 $$;
 
 grant execute on function public.hook_restrict_signup(jsonb) to supabase_auth_admin;
+grant usage on schema public to supabase_auth_admin;
 grant select on table public.email_allowlist to supabase_auth_admin;
 revoke all on function public.hook_restrict_signup(jsonb) from authenticated, anon, public;
 revoke all on table public.email_allowlist from authenticated, anon, public;
+
+-- Explicit least-privilege grants keep the app working with automatic table
+-- exposure disabled. RLS policies above still restrict every row by user id.
+grant select, update on table public.profiles to authenticated;
+grant select, insert, update, delete on table public.user_module_state to authenticated;

@@ -45,12 +45,13 @@ values ('persona@example.com', 'Piloto V1');
 
 ## Configuración de Supabase y Google
 
-1. Crear un proyecto Supabase y ejecutar `supabase/migrations/202609280001_v1_personal_data.sql` con `supabase db push` o el SQL Editor.
-2. En Authentication > Hooks, seleccionar `public.hook_restrict_signup` como **Before User Created**.
-3. Crear un cliente OAuth web en Google. El origen autorizado es `https://portal.144-22-33-41.sslip.io`; para preview, agregar `https://v1.144-22-33-41.sslip.io`.
-4. Copiar desde Supabase la URL callback exacta `https://<project-ref>.supabase.co/auth/v1/callback` a las redirect URIs de Google y habilitar Google en Authentication > Providers.
-5. En Supabase URL Configuration, usar el dominio estable como Site URL y agregar el dominio preview a Redirect URLs.
-6. Copiar `.env.example` a `.env` en cada despliegue y completar `SUPABASE_URL`, `SUPABASE_ANON_KEY` y `SECRET_KEY`. La clave anon/publicable es apta para el navegador porque RLS protege los datos.
+1. Crear un proyecto con Data API habilitada, exposición automática de tablas nuevas deshabilitada y RLS automático habilitado. La migración concede permisos explícitos sólo a `authenticated` para las tablas personales; RLS limita cada fila al usuario propietario.
+2. Aplicar `supabase/migrations/202609280001_v1_personal_data.sql` con `supabase db push` o el SQL Editor.
+3. En Authentication > Hooks, seleccionar `public.hook_restrict_signup` como **Before User Created**.
+4. Crear un cliente OAuth web en Google. El origen autorizado es `https://portal.144-22-33-41.sslip.io`; para preview, agregar `https://v1.144-22-33-41.sslip.io`.
+5. Copiar desde Supabase la URL callback exacta `https://<project-ref>.supabase.co/auth/v1/callback` a las redirect URIs de Google y habilitar Google en Authentication > Providers.
+6. En Supabase URL Configuration, usar el dominio estable como Site URL y agregar el dominio preview a Redirect URLs.
+7. Copiar `.env.example` a `.env` en cada despliegue y completar `SUPABASE_URL`, `SUPABASE_ANON_KEY` y `SECRET_KEY`. La clave anon/publicable es apta para el navegador porque RLS protege los datos.
 
 ## PWA y HTTPS
 
