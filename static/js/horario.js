@@ -962,8 +962,6 @@ document.addEventListener('portal:remote-state', event => {
     renderMiHorario();
 });
 
-let horarioImportadoPendiente = [];
-
 function seleccionarFotoHorario() {
     const input = document.getElementById('schedule-import-file');
     if (!input) return;
@@ -986,7 +984,6 @@ async function importarHorarioDesdeFoto(event) {
     const file = input && input.files && input.files[0];
     if (!file) return;
     const button = document.getElementById('schedule-import-button');
-    const preview = document.getElementById('schedule-import-preview');
     const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
     if (!allowed.includes((file.type || '').toLowerCase())) {
         mostrarEstadoImportacionHorario('Elige una foto JPG, PNG, WebP o HEIC.', true);
@@ -1009,7 +1006,6 @@ async function importarHorarioDesdeFoto(event) {
         button.disabled = true;
         button.classList.add('is-loading');
     }
-    if (preview) preview.hidden = true;
     mostrarEstadoImportacionHorario('Leyendo la foto con Gemini…');
     try {
         const sessionResult = await auth.client.auth.getSession();
@@ -1029,9 +1025,7 @@ async function importarHorarioDesdeFoto(event) {
         if (!Array.isArray(result.clases) || !result.clases.length) {
             throw new Error('No se detectaron clases completas en la imagen.');
         }
-        horarioImportadoPendiente = result.clases;
-        renderVistaPreviaImportacionHorario();
-        mostrarEstadoImportacionHorario('');
+        cargarHorarioImportado(result.clases);
     } catch (error) {
         mostrarEstadoImportacionHorario(error.message || 'No se pudo importar el horario.', true);
     } finally {
@@ -1043,45 +1037,18 @@ async function importarHorarioDesdeFoto(event) {
     }
 }
 
-function renderVistaPreviaImportacionHorario() {
-    const preview = document.getElementById('schedule-import-preview');
-    const summary = document.getElementById('schedule-import-summary');
-    const list = document.getElementById('schedule-import-list');
-    const apply = document.getElementById('schedule-import-apply');
-    if (!preview || !summary || !list || !apply) return;
-    const detected = horarioImportadoPendiente;
-    const missing = detected.reduce((count, item) =>
-        count + (!item.sala ? 1 : 0) + (!item.profesor ? 1 : 0) + (!item.seccion ? 1 : 0), 0);
-    summary.textContent = detected.length + ' clases detectadas' +
-        (missing ? ' · ' + missing + ' dato(s) sin identificar' : '') +
-        '. Revisa los datos antes de cargar.';
-    list.innerHTML = detected.map(item => {
-        const confidence = Number(item.confianza);
-        const uncertain = Number.isFinite(confidence) && confidence < 0.65;
-        return '<li class="schedule-import-item' + (uncertain ? ' is-uncertain' : '') + '">' +
-          '<div class="schedule-import-item-main"><strong>' + escapeHtml(item.curso || 'Ramo sin nombre') + '</strong><span>' +
-          escapeHtml(item.diaNombre || '') + ' · ' + escapeHtml(item.horaInicio || '') + '–' + escapeHtml(item.horaFin || '') + '</span></div>' +
-          '<div class="schedule-import-item-meta"><span>Sala: ' + escapeHtml(item.sala || 'sin detectar') + '</span><span>Sección: ' +
-          escapeHtml(item.seccion || 'sin detectar') + '</span><span>Profesor: ' + escapeHtml(item.profesor || 'sin detectar') + '</span>' +
-          (uncertain ? '<b>Revisar lectura</b>' : '') + '</div></li>';
-    }).join('');
-    apply.textContent = MI_HORARIO_DATA.clases.length ? 'Reemplazar mi horario' : 'Cargar mi horario';
-    preview.hidden = false;
-    preview.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+function bloqueHorarioMasCercano(hora) {
+    const minutos = timeToMinutes(hora);
+    if (minutos === null) return BLOQUES_HORARIOS[0];
+    return BLOQUES_HORARIOS.reduce((closest, block) =>
+        Math.abs(timeToMinutes(block.inicio) - minutos) < Math.abs(timeToMinutes(closest.inicio) - minutos) ? block : closest
+    , BLOQUES_HORARIOS[0]);
 }
 
-function cancelarImportacionHorario() {
-    horarioImportadoPendiente = [];
-    const preview = document.getElementById('schedule-import-preview');
-    const list = document.getElementById('schedule-import-list');
-    if (preview) preview.hidden = true;
-    if (list) list.replaceChildren();
-}
-
-function confirmarImportacionHorario() {
-    if (!horarioImportadoPendiente.length) return;
+function cargarHorarioImportado(clasesDetectadas) {
+    if (!Array.isArray(clasesDetectadas) || !clasesDetectadas.length) return;
     const days = [[], [], [], [], [], []];
-    horarioImportadoPendiente.forEach(item => {
+    clasesDetectadas.forEach(item => {
         const day = Number(item.dia);
         if (day >= 1 && day <= 5) days[day].push(item);
     });
@@ -1092,14 +1059,15 @@ function confirmarImportacionHorario() {
         items.forEach((item, index) => {
             const sourceType = String(item.tipo || '').toLocaleLowerCase('es');
             const tipo = types.find(value => sourceType.includes(value.toLocaleLowerCase('es'))) || 'Cátedra';
+            const bloque = bloqueHorarioMasCercano(item.horaInicio);
             imported.push({
                 id: 'import-' + Date.now() + '-' + day + '-' + index,
                 dia: day,
                 diaNombre: item.diaNombre,
-                bloqueNum: index + 1,
-                bloqueLabel: item.horaInicio + ' - ' + item.horaFin,
-                horaInicio: item.horaInicio,
-                horaFin: item.horaFin,
+                bloqueNum: bloque.num,
+                bloqueLabel: bloque.label,
+                horaInicio: bloque.inicio,
+                horaFin: bloque.fin,
                 curso: item.curso,
                 tipo: tipo,
                 seccion: item.seccion || '',
@@ -1113,7 +1081,8 @@ function confirmarImportacionHorario() {
     guardarMiHorarioEnStorage();
     renderMiHorario();
     actualizarHeroMiHorario();
-    cancelarImportacionHorario();
+    const scheduleDisplay = document.getElementById('mihorario-display-container');
+    if (scheduleDisplay) scheduleDisplay.scrollIntoView({ behavior: 'smooth', block: 'start' });
     mostrarEstadoImportacionHorario('');
     mostrarToast('Horario cargado: ' + imported.length + ' clases.');
 }

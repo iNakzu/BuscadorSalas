@@ -40,6 +40,23 @@ vm.runInContext(source, context);
   const html = elements.get('community-schedules-list').innerHTML;
   assert.match(html, /Ana García/);
   assert.doesNotMatch(html, /Mi cuenta/);
+  assert.match(html, /Ver horario/);
+  assert.match(html, /class="community-week" hidden/);
+  assert.match(html, /community-user-identity/);
+  const schedule = { hidden: true };
+  const attributes = {};
+  const button = {
+    textContent: 'Ver horario',
+    closest: () => ({ querySelector: () => schedule }),
+    setAttribute: (name, value) => { attributes[name] = value; }
+  };
+  context.window.verHorarioAmigo(button);
+  assert.strictEqual(schedule.hidden, false);
+  assert.strictEqual(attributes['aria-expanded'], 'true');
+  assert.strictEqual(button.textContent, 'Ocultar horario');
+  context.window.verHorarioAmigo(button);
+  assert.strictEqual(schedule.hidden, true);
+  assert.strictEqual(attributes['aria-expanded'], 'false');
   assert.match(html, /08:30–09:50/);
   assert.match(html, /Ventanas:<\/span> 09:50–10:30/);
   assert.match(html, /&lt;img src=x&gt;/);

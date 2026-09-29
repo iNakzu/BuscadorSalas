@@ -82,7 +82,7 @@ class PortalV1Test(unittest.TestCase):
         self.assertIn('id="community-schedules-list"', html)
         self.assertIn('id="schedule-import-button"', html)
         self.assertIn('id="schedule-import-file"', html)
-        self.assertIn('id="schedule-import-preview"', html)
+        self.assertNotIn('id="schedule-import-preview"', html)
         self.assertIn('data-tab="tab-mihorario" data-private="true"', html)
         self.assertNotIn('id="share-schedule-toggle"', html)
         schedule_defaults = Path(__file__).parents[1] / "static/js/user_schedule_data.js"
