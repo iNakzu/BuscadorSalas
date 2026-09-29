@@ -30,6 +30,8 @@ class PortalV1Test(unittest.TestCase):
         html = self.client.get("/").get_data(as_text=True)
         for panel in ("tab-salas", "tab-profes", "tab-ramos", "tab-malla", "tab-horario", "tab-mihorario", "tab-solemnes", "tab-notas", "tab-agenda", "tab-progreso", "tab-estudio", "tab-timer"):
             self.assertIn(f'id="{panel}"', html)
+        self.assertIn('data-tab="tab-solemnes" data-private="true"', html)
+        self.assertIn('id="btn-clear-cache"', html)
         for removed in ("ai-chat-window", "tab-reloj", "tab-cronometro", "tab-kanban", "tab-gastos", "tab-compras", "tab-notasvoz", "tab-habitos", "tab-riff", "tab-transporte", "tab-clima"):
             self.assertNotIn(removed, html)
 
