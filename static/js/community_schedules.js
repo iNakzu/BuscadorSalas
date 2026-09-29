@@ -210,8 +210,14 @@
             const module = content.dataset.module;
             content.hidden = !profile;
             if (!profile) { content.innerHTML = ''; return; }
-            if (module === 'grades') content.innerHTML = renderGrades(modules.grades);
-            if (module === 'agenda') content.innerHTML = renderAgenda(modules.agenda);
+            if (module === 'grades') {
+                if (typeof window.renderNotasPublicas === 'function') window.renderNotasPublicas(content, modules.grades);
+                else content.innerHTML = renderGrades(modules.grades);
+            }
+            if (module === 'agenda') {
+                if (typeof window.renderAgendaPublica === 'function') window.renderAgendaPublica(content, modules.agenda);
+                else content.innerHTML = renderAgenda(modules.agenda);
+            }
             if (module === 'curriculum') {
                 if (typeof window.renderMallaPublica === 'function') window.renderMallaPublica(content, renderCurriculum(modules.curriculum));
                 else content.innerHTML = emptyState('No se pudo cargar la malla curricular.');
