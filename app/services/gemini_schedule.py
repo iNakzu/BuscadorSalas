@@ -2,13 +2,19 @@
 
 import base64
 import json
+import random
 import re
 import time
+from email.utils import parsedate_to_datetime
+from datetime import datetime, timezone
 
 import requests
 
 
 GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+DEFAULT_GEMINI_MODEL = "gemini-3.5-flash-lite"
+FALLBACK_GEMINI_MODEL = "gemini-3.5-flash"
+RETRYABLE_STATUSES = (408, 429, 500, 503, 504)
 
 SCHEDULE_SCHEMA = {
     "type": "object",
@@ -129,7 +135,44 @@ def _confidence(value):
         return 0.0
 
 
-def extract_schedule_from_image(image_bytes, mime_type, api_key, model="gemini-3.5-flash"):
+def _retry_delay(response, attempt):
+    retry_after = response.headers.get("Retry-After") if response is not None else None
+    if retry_after:
+        try:
+            return max(0.0, min(5.0, float(retry_after)))
+        except (TypeError, ValueError):
+            try:
+                retry_at = parsedate_to_datetime(retry_after)
+                if retry_at.tzinfo is None:
+                    retry_at = retry_at.replace(tzinfo=timezone.utc)
+                return max(0.0, min(5.0, (retry_at - datetime.now(timezone.utc)).total_seconds()))
+            except (TypeError, ValueError, OverflowError):
+                pass
+    return min(4.0, 2 ** attempt) + random.uniform(0.0, 0.35)
+
+
+def _request_model(image_body, api_key, model, attempts=3):
+    response = None
+    for attempt in range(attempts):
+        try:
+            response = requests.post(
+                GEMINI_ENDPOINT.format(model=model),
+                headers={"x-goog-api-key": api_key},
+                json=image_body,
+                timeout=(5, 35),
+            )
+        except requests.RequestException as error:
+            if attempt + 1 == attempts:
+                raise GeminiScheduleError("No pude conectar con Gemini. Inténtalo de nuevo en unos minutos.", 502) from error
+            time.sleep(min(4.0, 2 ** attempt) + random.uniform(0.0, 0.35))
+            continue
+        if response.status_code not in RETRYABLE_STATUSES or attempt + 1 == attempts:
+            return response
+        time.sleep(_retry_delay(response, attempt))
+    return response
+
+
+def extract_schedule_from_image(image_bytes, mime_type, api_key, model=DEFAULT_GEMINI_MODEL):
     if not api_key:
         raise GeminiScheduleError("La importación con IA no está configurada en el servidor.", 503)
 
@@ -144,27 +187,19 @@ def extract_schedule_from_image(image_bytes, mime_type, api_key, model="gemini-3
             "responseSchema": SCHEDULE_SCHEMA,
         },
     }
-    response = None
-    for attempt in range(2):
-        try:
-            response = requests.post(
-                GEMINI_ENDPOINT.format(model=model),
-                headers={"x-goog-api-key": api_key},
-                json=body,
-                timeout=(5, 35),
-            )
-        except requests.RequestException as error:
-            raise GeminiScheduleError("No pude conectar con Gemini. Inténtalo de nuevo en unos minutos.", 502) from error
-        if response.status_code not in (500, 503, 504) or attempt == 1:
-            break
-        time.sleep(0.4)
+    response = _request_model(body, api_key, model)
+    # Flash-Lite is preferred for this short extraction. If it remains busy or
+    # rate limited, try the regular Flash model once before returning an error.
+    if response.status_code in RETRYABLE_STATUSES and model != FALLBACK_GEMINI_MODEL:
+        time.sleep(_retry_delay(response, 2))
+        response = _request_model(body, api_key, FALLBACK_GEMINI_MODEL, attempts=1)
 
     if response.status_code == 429:
-        raise GeminiScheduleError("Gemini alcanzó su límite gratuito por ahora. Espera un momento y vuelve a intentar.", 429)
+        raise GeminiScheduleError("Gemini alcanzó su límite temporal de solicitudes. Espera un minuto y vuelve a intentar.", 429)
     if response.status_code in (401, 403):
         raise GeminiScheduleError("La clave de Gemini no pudo autorizar la lectura de la imagen.", 502)
-    if response.status_code in (500, 503, 504):
-        raise GeminiScheduleError("Gemini está temporalmente ocupado. Espera un momento y vuelve a intentar.", 503)
+    if response.status_code in (408, 500, 503, 504):
+        raise GeminiScheduleError("Gemini sigue ocupado después de varios intentos. Espera un minuto y vuelve a probar; tu horario actual no se modificó.", 503)
     if not response.ok:
         raise GeminiScheduleError("Gemini no pudo procesar la imagen. Prueba con una foto más clara.", 502)
 

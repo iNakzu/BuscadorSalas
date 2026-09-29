@@ -114,7 +114,7 @@ def api_import_schedule():
             image_bytes,
             mime_type,
             current_app.config["GEMINI_API_KEY"],
-            current_app.config.get("GEMINI_MODEL", "gemini-3.5-flash"),
+            current_app.config.get("GEMINI_MODEL", "gemini-3.5-flash-lite"),
         )
     except GeminiScheduleError as error:
         return jsonify({"error": str(error)}), error.status_code
