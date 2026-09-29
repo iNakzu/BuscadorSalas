@@ -24,6 +24,7 @@ const context = {
   window: { PortalAuth: { user: { id: 'self' }, client }, mostrarHorarioAmigoEnMiHorario: value => { context.comparison = value; } },
   document: {
     getElementById: id => elements.get(id),
+    querySelector: () => null,
     querySelectorAll: selector => selector === '.community-view-schedule' ? listButtons : selector === '.public-profile-content' ? publicContents : [],
     addEventListener() {}
   }, console
