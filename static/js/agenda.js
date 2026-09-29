@@ -9,16 +9,23 @@ window.triggerAgendaSearch = function() {
     renderAgenda();
 };
 
-function getFilteredAgenda() {
-    return AGENDA_DATA.filter(ev => {
-        if (currentAgendaSearch) {
-            const ramoMatch = (ev.ramo || '').toLowerCase().includes(currentAgendaSearch);
-            const tipoMatch = (ev.tipo || '').toLowerCase().includes(currentAgendaSearch);
-            const notasMatch = (ev.notas || '').toLowerCase().includes(currentAgendaSearch);
+function getFilteredAgenda(events = AGENDA_DATA, query = currentAgendaSearch) {
+    return events.filter(ev => {
+        if (query) {
+            const normalizedQuery = String(query).toLowerCase().trim();
+            const ramoMatch = (ev.ramo || '').toLowerCase().includes(normalizedQuery);
+            const tipoMatch = (ev.tipo || '').toLowerCase().includes(normalizedQuery);
+            const notasMatch = (ev.notas || '').toLowerCase().includes(normalizedQuery);
             if (!ramoMatch && !tipoMatch && !notasMatch) return false;
         }
         return true;
     });
+}
+
+function escapeAgendaHtml(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[char]);
 }
 
 const AGENDA_STORAGE_KEY = 'mi_agenda_v1';
@@ -54,22 +61,26 @@ function saveAgenda() {
     } catch(e) { console.error(e); }
 }
 
-function renderCalendar() {
-    const container = document.getElementById('calendar-days-container');
-    const titleEl = document.getElementById('calendar-month-title');
+function renderCalendar(publicView = null) {
+    const container = publicView ? publicView.daysContainer : document.getElementById('calendar-days-container');
+    const titleEl = publicView ? publicView.titleEl : document.getElementById('calendar-month-title');
     if (!container || !titleEl) return;
+
+    const year = publicView ? publicView.year : currentCalYear;
+    const month = publicView ? publicView.month : currentCalMonth;
+    const events = publicView ? publicView.events : AGENDA_DATA;
+    const query = publicView ? publicView.query : currentAgendaSearch;
+    const readOnly = Boolean(publicView && publicView.readOnly);
     
     const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-    titleEl.textContent = `${monthNames[currentCalMonth]} ${currentCalYear}`;
+    titleEl.textContent = `${monthNames[month]} ${year}`;
     
     // Calcular días
-    const firstDay = new Date(currentCalYear, currentCalMonth, 1);
-    const lastDay = new Date(currentCalYear, currentCalMonth + 1, 0);
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
     
     let startDayOfWeek = firstDay.getDay(); // 0 = Domingo, 1 = Lunes
     if (startDayOfWeek === 0) startDayOfWeek = 7; // Convertir domingo a 7
-    
-    const prevMonthLastDay = new Date(currentCalYear, currentCalMonth, 0).getDate();
     
     let html = '';
     const today = new Date();
@@ -81,26 +92,26 @@ function renderCalendar() {
     
     // Días del mes actual
     for (let i = 1; i <= lastDay.getDate(); i++) {
-        const dateStr = `${currentCalYear}-${String(currentCalMonth+1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+        const dateStr = `${year}-${String(month+1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
         
-        let isToday = (i === today.getDate() && currentCalMonth === today.getMonth() && currentCalYear === today.getFullYear());
+        let isToday = (i === today.getDate() && month === today.getMonth() && year === today.getFullYear());
         
         // Buscar eventos para este día
-        const filteredData = getFilteredAgenda();
+        const filteredData = getFilteredAgenda(events, query);
         const dayEvents = filteredData.filter(ev => ev.fecha.startsWith(dateStr));
         
         let dotsHtml = '';
         if (dayEvents.length > 0) {
             let desktopDots = '';
             if (dayEvents.length <= 5) {
-                desktopDots = dayEvents.map(ev => `<div class="cal-dot ${ev.tipo.toLowerCase()}"></div>`).join('');
+                desktopDots = dayEvents.map(ev => `<div class="cal-dot ${escapeAgendaHtml(String(ev.tipo || '').toLowerCase())}"></div>`).join('');
             } else {
                 desktopDots = `<div class="cal-dot-multi">${dayEvents.length}</div>`;
             }
             
             let mobileDots = '';
             if (dayEvents.length === 1) {
-                mobileDots = `<div class="cal-dot ${dayEvents[0].tipo.toLowerCase()}"></div>`;
+                mobileDots = `<div class="cal-dot ${escapeAgendaHtml(String(dayEvents[0].tipo || '').toLowerCase())}"></div>`;
             } else {
                 mobileDots = `<div class="cal-dot-multi">${dayEvents.length}</div>`;
             }
@@ -112,7 +123,7 @@ function renderCalendar() {
         }
         
         html += `
-            <div class="cal-day ${isToday ? 'today' : ''}" onclick="abrirModalAgenda(null, '${dateStr}')">
+            <div class="cal-day ${isToday ? 'today' : ''}"${readOnly ? '' : ` onclick="abrirModalAgenda(null, '${dateStr}')"`}>
                 ${i}
                 ${dotsHtml}
             </div>
@@ -331,22 +342,27 @@ function formatearFecha(isoStr, hasTime) {
     return dateFormatted;
 }
 
-function renderAgenda() {
-    const container = document.getElementById('agenda-container');
+function renderAgenda(publicView = null) {
+    const container = publicView ? publicView.container : document.getElementById('agenda-container');
     if (!container) return;
+    const events = publicView ? publicView.events : AGENDA_DATA;
+    const query = publicView ? publicView.query : currentAgendaSearch;
+    const readOnly = Boolean(publicView && publicView.readOnly);
+    const filtered = getFilteredAgenda(events, query);
+    const displayText = value => readOnly ? escapeAgendaHtml(value) : value;
     
-    if (getFilteredAgenda().length === 0) {
+    if (filtered.length === 0) {
         container.innerHTML = `
             <div style="text-align: center; padding: 60px 20px; color: #64748b;">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 16px; opacity: 0.5;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                <div style="font-size: 16px; font-weight: 600; color: #94a3b8; margin-bottom: 8px;">No tienes evaluaciones próximas</div>
-                <div style="font-size: 14px;">Toca un día en el calendario de arriba para añadir un evento.</div>
+                <div style="font-size: 16px; font-weight: 600; color: #94a3b8; margin-bottom: 8px;">${readOnly ? 'No hay evaluaciones próximas' : 'No tienes evaluaciones próximas'}</div>
+                <div style="font-size: 14px;">${readOnly ? 'Esta persona todavía no ha agregado eventos a su agenda.' : 'Toca un día en el calendario de arriba para añadir un evento.'}</div>
             </div>
         `;
         return;
     }
     
-    let list = getFilteredAgenda().sort((a, b) => {
+    let list = filtered.sort((a, b) => {
         if (a.completado !== b.completado) return a.completado ? 1 : -1;
         return new Date(a.fecha) - new Date(b.fecha);
     });
@@ -399,7 +415,7 @@ function renderAgenda() {
 
             let extraClass = ev.completado ? 'completed' : 'pulsing';
             
-            timelineHtml += `<div class="h-dot ${extraClass}" style="left: ${positionPercent}%; --dot-rgb: ${rgb};" title="${ev.ramo} (${diffDays} días)"></div>`;
+            timelineHtml += `<div class="h-dot ${extraClass}" style="left: ${positionPercent}%; --dot-rgb: ${rgb};" title="${displayText(ev.ramo)} (${diffDays} días)"></div>`;
         } else {
             // Render multi-badge
             const allCompleted = events.every(e => e.completado);
@@ -460,11 +476,11 @@ function renderAgenda() {
         if (ev.tipo === 'Presentacion') iconHtml = '<div class="cal-dot presentacion"></div>';
         
         html += `
-            <div class="agenda-card ${ev.completado ? 'is-completed' : ''}">
+            <div class="agenda-card ${ev.completado ? 'is-completed' : ''}${readOnly ? ' agenda-card-readonly' : ''}">
                 <div class="agenda-check-wrapper" style="display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 2px;">
-                    <button class="agenda-checkbox-btn" onclick="toggleCompletado('${ev.id}')" title="Marcar como completado" style="margin: 0;">
+                    ${readOnly ? '<span class="agenda-checkbox-btn" aria-hidden="true" style="margin: 0;">' : `<button class="agenda-checkbox-btn" onclick="toggleCompletado('${ev.id}')" title="Marcar como completado" style="margin: 0;">`}
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                    </button>
+                    ${readOnly ? '</span>' : '</button>'}
                     <div class="mobile-agenda-dot">${iconHtml}</div>
                 </div>
                 
@@ -472,8 +488,8 @@ function renderAgenda() {
                     <div class="agenda-title" style="display: flex; align-items: center; gap: 12px; min-width: 0;">
                         
                         <div style="display: flex; flex-direction: column; min-width: 0; width: 100%;">
-                            <div style="font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #f8fafc;">${ev.ramo}</div>
-                            <div style="font-size: 13px; color: #94a3b8; font-weight: 500; margin-top: 2px;">${ev.tipo}</div>
+                            <div style="font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #f8fafc;">${displayText(ev.ramo)}</div>
+                            <div style="font-size: 13px; color: #94a3b8; font-weight: 500; margin-top: 2px;">${displayText(ev.tipo)}</div>
                         </div>
                     </div>
                     <div class="agenda-meta">
@@ -484,7 +500,7 @@ function renderAgenda() {
                         ${ev.notas ? `
                         <span style="width: 100%; min-width: 0; display: flex; align-items: center; overflow: hidden;">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-right: 4px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                            <span style="display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1; max-width: 100%;">${ev.notas}</span>
+                            <span style="display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1; max-width: 100%;">${displayText(ev.notas)}</span>
                         </span>` : ''}
                     </div>
                 </div>
@@ -497,14 +513,14 @@ function renderAgenda() {
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                         ${formatearFecha(ev.fecha, ev.hasTime)}
                     </span>
-                    <div class="agenda-actions">
+                    ${readOnly ? '' : `<div class="agenda-actions">
                         <button class="agenda-btn-icon" onclick="abrirModalAgenda('${ev.id}')" title="Editar">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                         </button>
                         <button class="agenda-btn-icon delete" onclick="eliminarEventoAgenda('${ev.id}')" title="Eliminar">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                         </button>
-                    </div>
+                    </div>`}
                 </div>
             </div>
         `;
@@ -512,6 +528,52 @@ function renderAgenda() {
     
     container.innerHTML = html;
 }
+
+window.renderAgendaPublica = function (container, payload) {
+    if (!container) return;
+    const state = {
+        events: Array.isArray(payload) ? payload : [],
+        year: currentCalYear,
+        month: currentCalMonth,
+        query: ''
+    };
+    container.innerHTML = `<div class="public-agenda-view">
+        <div class="control-card" style="margin-bottom: 24px; padding: 16px; position: relative; z-index: 2;">
+            <div style="position: relative; width: 100%;">
+                <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #64748b;" viewBox="0 0 24 24" width="18"><circle cx="11" cy="11" r="8"></circle><line x1="21" x2="16.65" y1="21" y2="16.65"></line></svg>
+                <input autocomplete="off" class="public-agenda-search" placeholder="Buscar evento..." style="width: 100%; max-width: 800px; background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 12px 32px 12px 42px; color: #f8fafc; font-size: 14px; outline: none; transition: border-color 0.2s;" type="text">
+            </div>
+        </div>
+        <div class="public-agenda-calendar" style="padding: 0 8px 24px; max-width: 760px; margin: 0 auto;">
+            <div class="calendar-header" style="display: flex; justify-content: center; align-items: center; gap: 16px; margin-bottom: 16px;">
+                <button class="cal-nav-btn" data-month-step="-1" type="button" aria-label="Mes anterior"><svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" viewBox="0 0 24 24" width="24"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+                <h3 class="public-agenda-month" style="margin: 0; font-size: 18px; font-weight: 700; color: #f8fafc; text-transform: capitalize;"></h3>
+                <button class="cal-nav-btn" data-month-step="1" type="button" aria-label="Mes siguiente"><svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" viewBox="0 0 24 24" width="24"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+            </div>
+            <div class="calendar-grid"><div class="cal-weekday">L</div><div class="cal-weekday">M</div><div class="cal-weekday">M</div><div class="cal-weekday">J</div><div class="cal-weekday">V</div><div class="cal-weekday">S</div><div class="cal-weekday">D</div><div class="public-agenda-days" style="display: contents;"></div></div>
+        </div>
+        <div class="public-agenda-events" style="padding: 24px;"></div>
+    </div>`;
+
+    const days = container.querySelector('.public-agenda-days');
+    const title = container.querySelector('.public-agenda-month');
+    const events = container.querySelector('.public-agenda-events');
+    const draw = () => {
+        renderCalendar({ daysContainer: days, titleEl: title, events: state.events, year: state.year, month: state.month, query: state.query, readOnly: true });
+        renderAgenda({ container: events, events: state.events, query: state.query, readOnly: true });
+    };
+    container.querySelector('.public-agenda-search').addEventListener('input', event => {
+        state.query = event.target.value;
+        draw();
+    });
+    container.querySelectorAll('[data-month-step]').forEach(button => button.addEventListener('click', () => {
+        state.month += Number(button.dataset.monthStep);
+        if (state.month < 0) { state.month = 11; state.year--; }
+        if (state.month > 11) { state.month = 0; state.year++; }
+        renderCalendar({ daysContainer: days, titleEl: title, events: state.events, year: state.year, month: state.month, query: state.query, readOnly: true });
+    }));
+    draw();
+};
 
 // Inicializar al cargar
 document.addEventListener('DOMContentLoaded', () => {

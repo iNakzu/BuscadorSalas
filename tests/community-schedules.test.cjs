@@ -21,7 +21,12 @@ const publicContents = [
   { dataset: { module: 'agenda' }, hidden: true, innerHTML: '' }
 ];
 const context = {
-  window: { PortalAuth: { user: { id: 'self' }, client }, mostrarHorarioAmigoEnMiHorario: value => { context.comparison = value; } },
+  window: {
+    PortalAuth: { user: { id: 'self' }, client },
+    mostrarHorarioAmigoEnMiHorario: value => { context.comparison = value; },
+    renderNotasPublicas: (container, payload) => { context.publicGrades = payload; container.innerHTML = 'personal notes component'; },
+    renderAgendaPublica: (container, payload) => { context.publicAgenda = payload; container.innerHTML = 'personal agenda component'; }
+  },
   document: {
     getElementById: id => elements.get(id),
     querySelector: () => null,
@@ -56,8 +61,13 @@ vm.runInContext(source, context);
   assert.deepStrictEqual(JSON.parse(JSON.stringify(context.window.PortalCommunity.getSelected().modules.agenda)), [
     { fecha: '2026-10-02', ramo: 'Cálculo', tipo: 'Solemne' }
   ]);
-  assert.match(publicContents[0].innerHTML, /Solemne 1/);
-  assert.match(publicContents[0].innerHTML, /6\.1/);
-  assert.match(publicContents[1].innerHTML, /2026-10-02/);
+  assert.strictEqual(publicContents[0].innerHTML, 'personal notes component');
+  assert.strictEqual(publicContents[1].innerHTML, 'personal agenda component');
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(context.publicGrades['me|Cálculo'].items)), [
+    { name: 'Solemne 1', weight: 30, grade: 6.1 }
+  ]);
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(context.publicAgenda)), [
+    { fecha: '2026-10-02', ramo: 'Cálculo', tipo: 'Solemne' }
+  ]);
   console.log('community_schedules: public information selection includes all shared modules');
 })().catch(error => { console.error(error); process.exit(1); });

@@ -102,13 +102,27 @@ function updateNotasDropdown() {
     renderNotasBuilder();
 }
 
-function renderNotasBuilder() {
-    const select = document.getElementById('notas-curso-select');
-    const container = document.getElementById('notas-builder-container');
+function renderNotasBuilder(options = {}) {
+    const readOnly = Boolean(options.readOnly);
+    const select = readOnly ? { value: options.course || '' } : document.getElementById('notas-curso-select');
+    const container = options.container || (readOnly ? { innerHTML: '' } : document.getElementById('notas-builder-container'));
     if (!select || !container) return;
+
+    if (readOnly && Array.isArray(options.entries)) {
+        const entries = options.entries.filter(([, data]) => data && typeof data === 'object');
+        if (!entries.length) {
+            container.innerHTML = `<div class="notas-public-empty">Esta persona todavía no ha registrado notas.</div>`;
+            return;
+        }
+        container.innerHTML = entries.map(([key, data]) => {
+            const course = String(key).includes('|') ? String(key).split('|').slice(1).join('|') : String(key);
+            return `<section class="notas-public-course"><h3>${escapeHtml(course)}</h3>${renderNotasBuilder({ readOnly: true, course, data })}</section>`;
+        }).join('');
+        return;
+    }
     
     const curso = select.value;
-    const userKey = 'me';
+    const userKey = readOnly ? 'shared' : 'me';
     
     if (!curso) {
         container.innerHTML = `<div style="text-align: center; color: #64748b; padding: 40px; font-size: 14px;">Selecciona una asignatura arriba para configurar o ver tus notas.</div>`;
@@ -118,7 +132,7 @@ function renderNotasBuilder() {
     const dbKey = userKey + '|' + curso;
     
     // Plantilla base simplificada
-    if (!NOTAS_DATA[dbKey]) {
+    if (!readOnly && !NOTAS_DATA[dbKey]) {
         NOTAS_DATA[dbKey] = {
             items: [
                 { id: Date.now(), name: "Solemne 1", weight: 30, grade: null },
@@ -133,7 +147,9 @@ function renderNotasBuilder() {
         saveNotas();
     }
     
-    const data = NOTAS_DATA[dbKey];
+    const data = readOnly
+        ? JSON.parse(JSON.stringify(options.data || {}))
+        : NOTAS_DATA[dbKey];
     const exim = 5.0;
     
     // Sanitizar posibles datos corruptos antiguos
@@ -167,17 +183,17 @@ function renderNotasBuilder() {
         
         itemsHtml += `
             <div class="notas-item-row">
-                <input type="text" class="notas-input-name" value="${escapeHtml(item.name)}" onchange="updateNotaItem('${dbKey}', ${index}, 'name', this.value)" placeholder="Nombre (ej: Controles)">
+                <input type="text" class="notas-input-name" value="${escapeHtml(item.name)}" ${readOnly ? 'disabled' : `onchange="updateNotaItem('${dbKey}', ${index}, 'name', this.value)"`} placeholder="Nombre (ej: Controles)">
                 <div style="display:flex; align-items:center; gap: 6px;">
                     <div class="notas-input-wrapper" style="width: 60px;">
-                        <input type="number" class="notas-input-weight" value="${item.weight}" onchange="updateNotaItem('${dbKey}', ${index}, 'weight', this.value)" placeholder="%">
+                        <input type="number" class="notas-input-weight" value="${item.weight}" ${readOnly ? 'disabled' : `onchange="updateNotaItem('${dbKey}', ${index}, 'weight', this.value)"`} placeholder="%">
                         <span class="notas-percent-symbol">%</span>
                     </div>
-                    <input type="number" step="0.1" min="1.0" max="7.0" class="notas-input-grade" style="width: 80px;" value="${item.grade !== null ? item.grade : ''}" onchange="updateNotaItem('${dbKey}', ${index}, 'grade', this.value)" placeholder="Nota">
+                    <input type="number" step="0.1" min="1.0" max="7.0" class="notas-input-grade" style="width: 80px;" value="${item.grade !== null ? item.grade : ''}" ${readOnly ? 'disabled' : `onchange="updateNotaItem('${dbKey}', ${index}, 'grade', this.value)"`} placeholder="Nota">
                     
-                    <button class="notas-btn-del" onclick="deleteNotaItem('${dbKey}', ${index})" title="Eliminar ítem">
+                    ${readOnly ? '' : `<button class="notas-btn-del" onclick="deleteNotaItem('${dbKey}', ${index})" title="Eliminar ítem">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                    </button>
+                    </button>`}
                 </div>
             </div>
         `;
@@ -292,10 +308,10 @@ function renderNotasBuilder() {
                 <div style="display:flex; align-items:center; gap: 6px;">
 
                     <div class="notas-input-wrapper" style="width: 60px;">
-                        <input type="number" class="notas-input-weight" value="${data.examWeight !== undefined ? data.examWeight : 30}" onchange="updateGlobalNota('${dbKey}', 'examWeight', this.value)" placeholder="%">
+                        <input type="number" class="notas-input-weight" value="${data.examWeight !== undefined ? data.examWeight : 30}" ${readOnly ? 'disabled' : `onchange="updateGlobalNota('${dbKey}', 'examWeight', this.value)"`} placeholder="%">
                         <span class="notas-percent-symbol">%</span>
                     </div>
-                    <input type="number" step="0.1" min="1.0" max="7.0" class="notas-input-grade" style="width: 80px;" value="${data.examGrade !== null ? data.examGrade : ''}" onchange="updateGlobalNota('${dbKey}', 'examGrade', this.value)" placeholder="Nota">
+                    <input type="number" step="0.1" min="1.0" max="7.0" class="notas-input-grade" style="width: 80px;" value="${data.examGrade !== null ? data.examGrade : ''}" ${readOnly ? 'disabled' : `onchange="updateGlobalNota('${dbKey}', 'examGrade', this.value)"`} placeholder="Nota">
                     <div style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; color: #64748b;" title="El examen final no se puede eliminar">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                     </div>
@@ -350,8 +366,8 @@ function renderNotasBuilder() {
 
     let summaryBg = "";
     
-    container.innerHTML = `
-        <div class="notas-card ${statusClass}">
+    const cardHtml = `
+        <div class="notas-card ${statusClass}${readOnly ? ' notas-readonly' : ''}">
             <div class="notas-header-row" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">
                 <div class="notas-summary" style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; width: 100%; padding: 16px 20px; box-sizing: border-box; ${summaryBg} transition: all 0.3s;">
                     <!-- Columna Izquierda (Vacía para balancear) -->
@@ -398,12 +414,12 @@ function renderNotasBuilder() {
             <div class="notas-items-list" style="max-width: 800px; margin: 0 auto;">
                 ${itemsHtml}
                 
-                <div class="notas-add-row" style="display: flex; gap: 12px; justify-content: center; margin-bottom: 16px; margin-top: 8px;">
+                ${readOnly ? '' : `<div class="notas-add-row" style="display: flex; gap: 12px; justify-content: center; margin-bottom: 16px; margin-top: 8px;">
                     <button class="notas-btn-add" onclick="addNotaItem('${dbKey}')">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                         Añadir Evaluación Parcial
                     </button>
-                </div>
+                </div>`}
                 
                 ${examRowHtml}
             </div>
@@ -415,7 +431,17 @@ function renderNotasBuilder() {
 
         </div>
     `;
+    if (readOnly) return cardHtml;
+    container.innerHTML = cardHtml;
 }
+
+window.renderNotasPublicas = function (container, payload) {
+    if (!container) return;
+    const entries = payload && typeof payload === 'object' && !Array.isArray(payload)
+        ? Object.entries(payload)
+        : [];
+    renderNotasBuilder({ readOnly: true, entries, container });
+};
 
 
 
