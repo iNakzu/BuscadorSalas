@@ -8,29 +8,18 @@ const elements = new Map([
   ['community-schedules-list', { hidden: false, innerHTML: '' }],
   ['community-schedules-search', { value: '' }]
 ]);
-const sharedSchedules = [{
-  user_id: 'friend',
-  display_name: 'Ana García',
-  payload: { clases: [
-    { dia: 1, horaInicio: '08:30', horaFin: '09:50', curso: '<img src=x>', sala: 'E101' },
-    { dia: 1, horaInicio: '10:30', horaFin: '11:50', curso: 'Cálculo', sala: 'E202' }
-  ] }
-}];
-const client = {
-  rpc(name) {
-    assert.strictEqual(name, 'get_shared_schedules');
-    return Promise.resolve({ data: sharedSchedules, error: null });
-  }
-};
-const listeners = {};
+const sharedSchedules = [{ user_id: 'friend', display_name: 'Ana García López', payload: { clases: [
+  { dia: 1, horaInicio: '08:30', horaFin: '09:50', curso: 'Cálculo', sala: 'E101' }
+] } }];
+const client = { rpc: async name => ({ data: (assert.strictEqual(name, 'get_shared_schedules'), sharedSchedules), error: null }) };
+const listButtons = [];
 const context = {
-  window: { PortalAuth: { user: { id: 'self' }, client } },
+  window: { PortalAuth: { user: { id: 'self' }, client }, mostrarHorarioAmigoEnMiHorario: value => { context.comparison = value; } },
   document: {
     getElementById: id => elements.get(id),
-    querySelectorAll: () => [],
-    addEventListener: (name, callback) => { listeners[name] = callback; }
-  },
-  console
+    querySelectorAll: selector => selector === '.community-view-schedule' ? listButtons : [],
+    addEventListener() {}
+  }, console
 };
 vm.createContext(context);
 vm.runInContext(source, context);
@@ -38,36 +27,23 @@ vm.runInContext(source, context);
 (async () => {
   await context.window.cargarHorariosComunidad();
   const html = elements.get('community-schedules-list').innerHTML;
-  assert.match(html, /Ana García/);
-  assert.doesNotMatch(html, /Mi cuenta/);
+  assert.match(html, /Ana García López/);
+  assert.match(html, /community-name-first">Ana López/);
   assert.match(html, /Ver horario/);
-  assert.match(html, /class="community-week" hidden/);
-  assert.match(html, /community-user-identity/);
-  assert.match(html, /<div class="community-user-header">/);
-  assert.doesNotMatch(html, /<header class="community-user-header">/);
-  assert.match(html, /community-name-first">Ana/);
-  assert.match(html, /aria-label="Ver horario de Ana García"/);
-  assert.doesNotMatch(html, /Según el horario de hoy|community-current-status/);
-  const schedule = { hidden: true };
+  assert.doesNotMatch(html, /community-week|community-class|Ventanas:/);
+  assert.match(html, /class="community-user-header"/);
   const attributes = {};
   const label = { textContent: 'Ver horario' };
-  const fullName = { textContent: 'Ana García' };
-  const card = { querySelector: selector => selector === '.community-week' ? schedule : fullName };
-  const button = {
-    closest: () => card,
-    querySelector: () => label,
-    setAttribute: (name, value) => { attributes[name] = value; }
-  };
+  const card = { dataset: { userId: 'friend' } };
+  const button = { closest: () => card, querySelector: () => label, setAttribute: (key, value) => { attributes[key] = value; } };
+  listButtons.push(button);
   context.window.verHorarioAmigo(button);
-  assert.strictEqual(schedule.hidden, false);
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(context.comparison)), {
+    nombre: 'Ana García López',
+    clases: [{ dia: 1, horaInicio: '08:30', horaFin: '09:50', curso: 'Cálculo', sala: 'E101' }]
+  });
   assert.strictEqual(attributes['aria-expanded'], 'true');
-  assert.strictEqual(label.textContent, 'Ocultar horario');
-  context.window.verHorarioAmigo(button);
-  assert.strictEqual(schedule.hidden, true);
-  assert.strictEqual(attributes['aria-expanded'], 'false');
-  assert.match(html, /08:30–09:50/);
-  assert.match(html, /Ventanas:<\/span> 09:50–10:30/);
-  assert.match(html, /&lt;img src=x&gt;/);
+  assert.strictEqual(label.textContent, 'Viendo horario');
   assert.match(elements.get('community-schedules-status').textContent, /1 usuario comparte su horario/);
-  console.log('community_schedules: shared profiles, room schedule, windows, and escaping passed');
+  console.log('community_schedules: cards launch read-only timetable comparison and show full mobile name');
 })().catch(error => { console.error(error); process.exit(1); });

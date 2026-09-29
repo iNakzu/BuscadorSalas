@@ -9,6 +9,13 @@
     margin: -2px 0 16px;
 }
 
+.schedule-import-control-top {
+    padding: 13px 15px;
+    border: 1px solid rgba(96, 165, 250, .2);
+    border-radius: 14px;
+    background: linear-gradient(110deg, rgba(30, 64, 175, .12), rgba(15, 23, 42, .36));
+}
+
 .schedule-import-button {
     display: inline-flex;
     align-items: center;
@@ -170,9 +177,36 @@
 
 @media (max-width: 560px) {
     .schedule-import-control { align-items: flex-start; flex-direction: column; }
+    .schedule-import-control-top { padding: 12px; }
     .schedule-import-button { width: 100%; }
     .schedule-import-item { flex-direction: column; }
     .schedule-import-item-meta { align-items: flex-start; text-align: left; }
+}
+
+.schedule-comparison-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 14px;
+    padding: 13px 15px;
+    border: 1px solid rgba(56, 189, 248, .3);
+    border-radius: 13px;
+    background: linear-gradient(110deg, rgba(14, 165, 233, .14), rgba(30, 41, 59, .6));
+}
+.schedule-comparison-banner > div { display: grid; gap: 3px; min-width: 0; }
+.schedule-comparison-banner strong { color: #e0f2fe; font-size: 13px; }
+.schedule-comparison-banner span { color: #a5b4c8; font-size: 11px; }
+.schedule-comparison-banner button { flex: 0 0 auto; padding: 8px 11px; border: 1px solid rgba(125, 211, 252, .35); border-radius: 9px; background: rgba(14, 165, 233, .12); color: #bae6fd; font: inherit; font-size: 11px; font-weight: 700; cursor: pointer; }
+.my-week-grid.is-comparison-view .my-class-card { height: auto; min-height: 158px; max-height: none; }
+.my-week-grid.is-comparison-view .my-day-cards { height: auto; }
+.my-class-card.is-friend-overlay { border-color: rgba(45, 212, 191, .62); background: linear-gradient(160deg, rgba(13, 148, 136, .24), rgba(15, 23, 42, .84)); box-shadow: inset 3px 0 #2dd4bf, 0 5px 14px rgba(13, 148, 136, .12); }
+.my-card-origin-tag { max-width: 56%; overflow: hidden; color: #99f6e4; font-size: 10px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.my-empty-slot.is-comparison-empty { cursor: default; }
+.my-week-grid.is-comparison-view .my-empty-slot.is-comparison-empty .my-empty-body { min-height: 84px; }
+@media (max-width: 560px) {
+    .schedule-comparison-banner { align-items: flex-start; flex-direction: column; }
+    .schedule-comparison-banner button { width: 100%; }
 }
 
 .my-schedule-hero {
