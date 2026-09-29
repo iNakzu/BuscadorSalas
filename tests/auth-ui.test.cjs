@@ -6,7 +6,7 @@ const source = fs.readFileSync('static/js/auth.js', 'utf8');
 
 function boot(session, signInError = null) {
   const elements = new Map();
-  for (const id of ['auth-status', 'auth-profile', 'auth-avatar', 'auth-name', 'auth-email', 'auth-login', 'auth-logout']) {
+  for (const id of ['auth-status', 'auth-profile', 'auth-avatar', 'auth-name', 'auth-email', 'auth-login', 'auth-logout', 'btn-clear-cache']) {
     elements.set(id, { hidden: false, disabled: false, textContent: '' });
   }
   const listeners = {};
@@ -44,9 +44,11 @@ function boot(session, signInError = null) {
   assert.strictEqual(signedIn.elements.get('auth-avatar').textContent, 'AG');
   assert.strictEqual(signedIn.elements.get('auth-profile').hidden, false);
   assert.strictEqual(signedIn.elements.get('auth-status').hidden, true);
+  assert.strictEqual(signedIn.elements.get('btn-clear-cache').hidden, false);
 
   const failedLogin = boot(null, { message: 'provider disabled' });
   await failedLogin.listeners.DOMContentLoaded();
+  assert.strictEqual(failedLogin.elements.get('btn-clear-cache').hidden, true);
   await failedLogin.context.window.PortalAuth.signIn();
   assert.match(failedLogin.elements.get('auth-status').textContent, /No se pudo iniciar sesión con Google/);
   console.log('auth-ui: initials profile and OAuth error scenarios passed');

@@ -1021,11 +1021,13 @@ document.addEventListener('click', function(e) {
 });
 
 window.borrarCacheApp = function() {
-    confirmarWeb("¿Estás seguro de que deseas borrar toda la caché de la aplicación? Esto restablecerá tu horario, progreso de malla y configuraciones locales.", () => {
-        localStorage.clear();
-        sessionStorage.clear();
-        window.location.reload(true);
-    }, 'Borrar caché local');
+    confirmarWeb("Se borrarán los archivos temporales de la aplicación y se recargará. Tu sesión y tus datos personales guardados no se eliminarán.", async () => {
+        if ('caches' in window) {
+            const cacheNames = await caches.keys();
+            await Promise.all(cacheNames.map(name => caches.delete(name)));
+        }
+        window.location.reload();
+    }, 'Reiniciar aplicación');
 };
 
 window.SOLEMNES_MODE = false;

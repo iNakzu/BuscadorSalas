@@ -2,7 +2,15 @@
 <aside class="tabs-wrapper" id="sidebar-menu">
   <div class="brand-meta">
     <h1>Portal Estudiantil</h1>
-    <p class="brand-status-row"><span class="status-pill"><span class="pulse-dot"></span><span id="label-sync-count">{{ status.total_classes }} clases</span></span></p>
+    <p class="brand-status-row">
+      <span class="status-pill"><span class="pulse-dot"></span><span id="label-sync-count">{{ status.total_classes }} clases</span></span>
+      <button type="button" class="btn-clear-cache" id="btn-clear-cache" onclick="borrarCacheApp()" title="Reiniciar caché de la aplicación" aria-label="Reiniciar caché de la aplicación" hidden>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+      </button>
+      <button type="button" class="pwa-install-btn" id="pwa-install-btn" onclick="instalarPortalPwa()" title="Instalar aplicación" aria-label="Instalar aplicación" hidden>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"></path><polyline points="7 10 12 15 17 10"></polyline><path d="M5 21h14"></path></svg>
+      </button>
+    </p>
   </div>
   <div class="auth-card" id="auth-card">
     <p id="auth-status">Inicia sesión para guardar tus datos personales.</p>
@@ -18,19 +26,24 @@
   </div>
   <nav class="tabs" aria-label="Navegación principal">
   {% set tabs = [
-    ('tab-salas','Salas Disponibles',false), ('tab-profes','Buscar por Profesor',false),
-    ('tab-ramos','Buscar por Ramo',false), ('tab-malla','Ramos por Semestre',false),
-    ('tab-horario','Horario por Sala',false), ('tab-solemnes','Solemnes',false),
-    ('tab-mihorario','Horarios',true), ('tab-notas','Notas',true),
-    ('tab-agenda','Agenda',true), ('tab-progreso','Malla',true),
-    ('tab-estudio','Estudio',false), ('tab-timer','Timer',false)
+    ('tab-salas','Salas Disponibles',false,'<rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect>'),
+    ('tab-profes','Buscar por Profesor',false,'<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle>'),
+    ('tab-ramos','Buscar por Ramo',false,'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>'),
+    ('tab-malla','Ramos por Semestre',false,'<path d="m22 10-10 5L2 10l10-5 10 5Z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path>'),
+    ('tab-horario','Horario por Sala',false,'<rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path>'),
+    ('tab-solemnes','Solemnes',true,'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6M8 13h8M8 17h8"></path>'),
+    ('tab-mihorario','Horarios',true,'<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>'),
+    ('tab-notas','Notas',true,'<path d="M8 6h13M8 12h13M8 18h13"></path><path d="M3 6h.01M3 12h.01M3 18h.01"></path>'),
+    ('tab-agenda','Agenda',true,'<rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path>'),
+    ('tab-progreso','Malla',true,'<circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path>'),
+    ('tab-estudio','Estudio',false,'<path d="M12 3v18M5 8h14M7 3h10l2 5-7 13L5 8l2-5z"></path>'),
+    ('tab-timer','Timer',false,'<circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l3 2M9 2h6M12 2v3"></path>')
   ] %}
-  {% for id, label, private in tabs %}
+  {% for id, label, private, icon in tabs %}
     <button type="button" class="tab-btn{% if loop.first %} active{% endif %}" data-tab="{{ id }}"{% if private %} data-private="true"{% endif %} onclick="cambiarTab('{{ id }}', this)">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8 12h8"></path></svg>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{{ icon|safe }}</svg>
       <span>{{ label }}</span>{% if private %}<span class="private-mark" aria-label="Requiere sesión">●</span>{% endif %}
     </button>
   {% endfor %}
   </nav>
-  <button type="button" class="pwa-install-btn" id="pwa-install-btn" onclick="instalarPortalPwa()" hidden>Instalar aplicación</button>
 </aside>

@@ -29,7 +29,9 @@
         const email = document.getElementById('auth-email');
         const login = document.getElementById('auth-login');
         const logout = document.getElementById('auth-logout');
+        const reset = document.getElementById('btn-clear-cache');
         if (!status || !profile || !avatar || !name || !email || !login || !logout) return;
+        if (reset) reset.hidden = !api.user;
         if (!available) {
             status.textContent = 'El acceso personal estará disponible al conectar Supabase.';
             login.disabled = true;
