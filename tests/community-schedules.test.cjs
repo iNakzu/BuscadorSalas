@@ -3,6 +3,8 @@ const fs = require('fs');
 const vm = require('vm');
 
 const source = fs.readFileSync('static/js/community_schedules.js', 'utf8');
+assert.match(source, /config\.module === 'agenda'\)\s*\{\s*toolbar\.innerHTML = `<label>/);
+assert.doesNotMatch(source, /config\.module === 'agenda'\)[\s\S]{0,140}<span>Información de<\/span>/);
 const elements = new Map();
 const sharedSchedules = [{ user_id: 'friend', display_name: 'Ana García López', modules: {
   schedule: { clases: [{ dia: 1, horaInicio: '08:30', horaFin: '09:50', curso: 'Cálculo', sala: 'E101' }] },
