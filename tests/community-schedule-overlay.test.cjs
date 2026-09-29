@@ -18,7 +18,7 @@ const context = {
 vm.createContext(context);
 vm.runInContext(fs.readFileSync('static/js/horario.js', 'utf8'), context);
 vm.runInContext(`
-  MI_HORARIO_DATA = { escuela: 'EIT', clases: [{ id: 'mine', dia: 1, bloqueNum: 7, bloqueLabel: '17:25 - 18:45', curso: 'Mi clase', tipo: 'Cátedra', sala: 'E101', profesor: 'Yo', rol: 'student' }] };
+  MI_HORARIO_DATA = { escuela: 'EIT', clases: [{ id: 'mine', dia: 1, bloqueNum: 7, bloqueLabel: 'Etiqueta anterior', curso: 'Mi clase', tipo: 'Cátedra', sala: 'E101', profesor: 'Yo', rol: 'student' }] };
   renderMiHorario();
 `, context);
 const originalSchedule = vm.runInContext('JSON.stringify(MI_HORARIO_DATA.clases)', context);
