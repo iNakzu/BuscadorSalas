@@ -43,17 +43,23 @@ vm.runInContext(source, context);
   assert.match(html, /Ver horario/);
   assert.match(html, /class="community-week" hidden/);
   assert.match(html, /community-user-identity/);
+  assert.match(html, /community-name-first">Ana/);
+  assert.match(html, /aria-label="Ver horario de Ana García"/);
+  assert.doesNotMatch(html, /Según el horario de hoy|community-current-status/);
   const schedule = { hidden: true };
   const attributes = {};
+  const label = { textContent: 'Ver horario' };
+  const fullName = { textContent: 'Ana García' };
+  const card = { querySelector: selector => selector === '.community-week' ? schedule : fullName };
   const button = {
-    textContent: 'Ver horario',
-    closest: () => ({ querySelector: () => schedule }),
+    closest: () => card,
+    querySelector: () => label,
     setAttribute: (name, value) => { attributes[name] = value; }
   };
   context.window.verHorarioAmigo(button);
   assert.strictEqual(schedule.hidden, false);
   assert.strictEqual(attributes['aria-expanded'], 'true');
-  assert.strictEqual(button.textContent, 'Ocultar horario');
+  assert.strictEqual(label.textContent, 'Ocultar horario');
   context.window.verHorarioAmigo(button);
   assert.strictEqual(schedule.hidden, true);
   assert.strictEqual(attributes['aria-expanded'], 'false');
