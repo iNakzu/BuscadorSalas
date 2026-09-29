@@ -8,6 +8,7 @@ env/
 venv/
 ENV/
 .env
+supabase/.temp/
 
 # IDEs
 .idea/
@@ -20,4 +21,3 @@ Thumbs.db
 
 # Scripts locales de la VM
 start_agy.sh
-
