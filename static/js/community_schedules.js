@@ -107,6 +107,8 @@
                         if (nextOption) nextOption.focus();
                     }
                 });
+            } else if (config.module === 'agenda') {
+                toolbar.innerHTML = `<label><span class="sr-only">Persona</span><select class="public-profile-select" aria-label="Elegir persona" onchange="PortalCommunity.select(this.value)">${selectorOptions()}</select></label>`;
             } else {
                 toolbar.innerHTML = `<div class="public-profile-toolbar-copy"><span>Información de</span><strong>${config.label}</strong></div><label><span class="sr-only">Persona</span><select class="public-profile-select" aria-label="Elegir persona" onchange="PortalCommunity.select(this.value)">${selectorOptions()}</select></label>`;
             }
