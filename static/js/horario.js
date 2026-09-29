@@ -390,15 +390,7 @@ function setMiHorarioRol(rolVal, btn) {
 
 function filtrarMiHorarioTexto(val) {
     state.miHorarioSearch = (val || '').trim().toLowerCase();
-    const clearBtn = document.getElementById('clear-mihorario-btn');
-    if (clearBtn) clearBtn.style.display = state.miHorarioSearch.length > 0 ? 'inline-block' : 'none';
     renderMiHorario();
-}
-
-function limpiarMiHorarioTexto() {
-    const inp = document.getElementById('input-mihorario-search');
-    if (inp) inp.value = '';
-    filtrarMiHorarioTexto('');
 }
 
 function normStr(str) {
@@ -574,7 +566,6 @@ function abrirModalAgregarClase(diaNum, bloqueNum) {
     const inpSec = document.getElementById('modal-add-seccion');
     const inpProf = document.getElementById('modal-add-profesor');
     const inpSearchReal = document.getElementById('modal-input-real-search');
-    const clearBtn = document.getElementById('modal-clear-real-btn');
     const dropdown = document.getElementById('modal-salas-dropdown');
 
     if (inpCurso) inpCurso.value = '';
@@ -582,7 +573,6 @@ function abrirModalAgregarClase(diaNum, bloqueNum) {
     if (inpSec) inpSec.value = ''; // Sin hardcodear Sec. 1
     if (inpProf) inpProf.value = '';
     if (inpSearchReal) inpSearchReal.value = '';
-    if (clearBtn) clearBtn.style.display = 'none';
     if (dropdown) dropdown.style.display = 'none';
 
     setModalTipo('Cátedra');
@@ -676,9 +666,6 @@ function renderListaClasesRealesModal(lista, esBusquedaGlobal) {
 }
 
 function filtrarClasesRealesModal(query) {
-    const clearBtn = document.getElementById('modal-clear-real-btn');
-    if (clearBtn) clearBtn.style.display = query ? 'block' : 'none';
-
     if (modalBusquedaRealTimeout) clearTimeout(modalBusquedaRealTimeout);
 
     const q = (query || '').trim();
@@ -725,13 +712,6 @@ function filtrarClasesRealesModal(query) {
             console.error('Error buscando clases:', err);
         }
     }, 200);
-}
-
-function limpiarBusquedaRealModal() {
-    const inp = document.getElementById('modal-input-real-search');
-    if (inp) inp.value = '';
-    filtrarClasesRealesModal('');
-    if (inp) inp.focus();
 }
 
 function seleccionarClaseRealPorObj(c) {

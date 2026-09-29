@@ -391,19 +391,6 @@ html {
     font-size: 13.5px;
 }
 
-.search-field .clear-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-muted);
-    font-size: 16px;
-    cursor: pointer;
-    padding: 4px;
-    display: none;
-}
-.search-field .clear-btn:hover {
-    color: #ffffff;
-}
-
 /* PASTILLAS SEGMENTADAS */
 .pill-bar {
     display: flex;
