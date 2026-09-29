@@ -216,8 +216,7 @@ async function irABloqueActual(tipo = 'salas') {
         'salas': ['banner-alerta-horario', 'texto-alerta-horario'],
         'profes': ['banner-alerta-prof', 'texto-alerta-prof'],
         'ramos': ['banner-alerta-ramo', 'texto-alerta-ramo'],
-        'malla': ['banner-alerta-malla', 'texto-alerta-malla'],
-        'mihorario': ['banner-alerta-mihorario', 'texto-alerta-mihorario']
+        'malla': ['banner-alerta-malla', 'texto-alerta-malla']
     };
 
     const [bId, tId] = bannerIdMap[tipo] || bannerIdMap['salas'];
