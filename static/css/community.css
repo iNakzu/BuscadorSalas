@@ -88,7 +88,6 @@
 #tab-notas.public-profile-active > :not(.public-profile-toolbar):not(.public-profile-content),
 #tab-agenda.public-profile-active > :not(.public-profile-toolbar):not(.public-profile-content),
 #tab-progreso.public-profile-active > :not(.public-profile-toolbar):not(.public-profile-content) { display: none !important; }
-#tab-mihorario.public-profile-active .community-schedules-card,
 #tab-mihorario.public-profile-active .schedule-import-control,
 #tab-mihorario.public-profile-active .my-modal-overlay { display: none !important; }
 #tab-solemnes.public-profile-active > .control-card { display: none !important; }
