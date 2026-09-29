@@ -1,0 +1,47 @@
+name: Desplegar preview V1
+
+on:
+  push:
+    branches: [release/v1-core]
+  workflow_dispatch:
+
+jobs:
+  deploy-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validar V1
+        env:
+          SCHEDULE_DATA_URL: http://127.0.0.1:9/unavailable
+          SCHEDULE_CACHE_FILE: /tmp/buscadorsalas-tests.json
+        run: |
+          pip install -r requirements.txt
+          python -m unittest discover -s tests -v
+          node tests/personal-store.test.cjs
+
+      - name: Actualizar preview en la VM
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/BuscadorSalas-v1
+            git fetch origin release/v1-core
+            git reset --hard origin/release/v1-core
+            /home/ubuntu/BuscadorSalas/venv/bin/pip install -r requirements.txt
+            sudo install -d -o ubuntu -g ubuntu /var/lib/buscadorsalas-preview
+            sudo cp deploy/buscadorsalas-preview.service /etc/systemd/system/buscadorsalas-preview.service
+            sudo cp deploy/nginx-preview.conf /etc/nginx/sites-available/buscadorsalas-preview
+            sudo ln -sfn /etc/nginx/sites-available/buscadorsalas-preview /etc/nginx/sites-enabled/buscadorsalas-preview
+            sudo systemctl daemon-reload
+            sudo nginx -t
+            sudo systemctl reload nginx
+            sudo systemctl reload-or-restart buscadorsalas-preview
+            sleep 2
+            curl --fail --silent --show-error http://127.0.0.1:5001/api/status >/dev/null
