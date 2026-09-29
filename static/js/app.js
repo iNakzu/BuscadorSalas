@@ -993,7 +993,7 @@ function selectDropdownItem(dropdownId, value, label, callback) {
     const labelEl = document.getElementById('label-' + dropdownId.replace('dd-', ''));
     if (labelEl) labelEl.textContent = label;
     
-    const inputId = dropdownId.replace('dd-', '') + (dropdownId.includes('friend') ? '-select' : (dropdownId.includes('curso') ? '-select' : ''));
+    const inputId = dropdownId.replace('dd-', '') + (dropdownId.includes('curso') ? '-select' : '');
     let inputEl = document.getElementById(inputId);
     if (!inputEl && dropdownId.startsWith('dd-agenda')) inputEl = document.getElementById(dropdownId.replace('dd-', ''));
     

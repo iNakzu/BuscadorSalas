@@ -27,17 +27,10 @@ function saveNotas() {
 
 function updateNotasDropdown() {
     const select = document.getElementById('notas-curso-select');
-    const friendSelect = document.getElementById('notas-friend-select');
     if (!select) return;
     
-    let friendId = friendSelect ? friendSelect.value : 'me';
-    
-    let scheduleObj = null;
-    if (friendId === 'me' && typeof MI_HORARIO_DATA !== 'undefined') {
-        scheduleObj = MI_HORARIO_DATA;
-    } else if (typeof HORARIOS_GUARDADOS !== 'undefined' && HORARIOS_GUARDADOS[friendId]) {
-        scheduleObj = HORARIOS_GUARDADOS[friendId];
-    }
+    const userKey = 'me';
+    const scheduleObj = typeof MI_HORARIO_DATA !== 'undefined' ? MI_HORARIO_DATA : null;
     
     let myRamos = [];
     if (scheduleObj && scheduleObj.clases) {
@@ -59,7 +52,7 @@ function updateNotasDropdown() {
     });
     
     for (const key of Object.keys(NOTAS_DATA)) {
-        if (key.startsWith(friendId + '|')) {
+        if (key.startsWith(userKey + '|')) {
             const r = key.split('|')[1];
             
             // Ocultar si el usuario es ayudante (y no estudiante) de este ramo
@@ -112,18 +105,17 @@ function updateNotasDropdown() {
 function renderNotasBuilder() {
     const select = document.getElementById('notas-curso-select');
     const container = document.getElementById('notas-builder-container');
-    const friendSelect = document.getElementById('notas-friend-select');
     if (!select || !container) return;
     
     const curso = select.value;
-    const friendId = friendSelect ? friendSelect.value : 'me';
+    const userKey = 'me';
     
     if (!curso) {
         container.innerHTML = `<div style="text-align: center; color: #64748b; padding: 40px; font-size: 14px;">Selecciona una asignatura arriba para configurar o ver tus notas.</div>`;
         return;
     }
     
-    const dbKey = friendId + '|' + curso;
+    const dbKey = userKey + '|' + curso;
     
     // Plantilla base simplificada
     if (!NOTAS_DATA[dbKey]) {
@@ -492,47 +484,3 @@ document.addEventListener('portal:remote-state', event => {
     NOTAS_DATA = event.detail.payload || {};
     updateNotasDropdown();
 });
-
-
-
-
-const NOTAS_PROFILES = [
-    { val: 'me', label: 'Tú' },
-    { val: 'alexis', label: 'Aleex1s' },
-    { val: 'felipe', label: 'Felipe' }
-];
-let currentNotasProfileIndex = 0;
-
-window.cycleNotasProfile = function(direction) {
-    const newIndex = (currentNotasProfileIndex + direction + NOTAS_PROFILES.length) % NOTAS_PROFILES.length;
-    const oldProfile = NOTAS_PROFILES[currentNotasProfileIndex];
-    const newProfile = NOTAS_PROFILES[newIndex];
-    currentNotasProfileIndex = newIndex;
-
-    const labelEl = document.getElementById('label-notas-friend-cycler');
-    const inputEl = document.getElementById('notas-friend-select');
-    
-    if (labelEl && inputEl) {
-        const slideOutClass = direction > 0 ? 'slide-out-left' : 'slide-out-right';
-        const slideInClass = direction > 0 ? 'slide-in-right' : 'slide-in-left';
-        
-        labelEl.classList.remove('active');
-        labelEl.classList.add(slideOutClass);
-        
-        setTimeout(() => {
-            labelEl.textContent = newProfile.label;
-            labelEl.classList.remove(slideOutClass);
-            labelEl.classList.add(slideInClass);
-            
-            void labelEl.offsetWidth; // Force reflow
-            
-            labelEl.classList.remove(slideInClass);
-            labelEl.classList.add('active');
-            
-            inputEl.value = newProfile.val;
-            if (typeof updateNotasDropdown === 'function') {
-                updateNotasDropdown();
-            }
-        }, 200);
-    }
-};
