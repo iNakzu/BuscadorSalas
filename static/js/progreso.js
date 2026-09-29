@@ -645,15 +645,7 @@ function toggleRamoEstado(id) {
     renderProgreso();
 }
 
-function renderProgreso() {
-    const container = document.getElementById('progreso-container');
-    if (!container) return;
-
-    // Save scroll position
-    const scrollWrapper = container.querySelector('.malla-scroll-wrapper');
-    const scrollLeft = scrollWrapper ? scrollWrapper.scrollLeft : 0;
-    const scrollTop = scrollWrapper ? scrollWrapper.scrollTop : 0;
-
+function buildProgresoHtml(progress, readOnly = false) {
     let totalRamos = 0;
     let aprobados = 0;
     let cursando = 0;
@@ -667,7 +659,7 @@ function renderProgreso() {
             totalRamos++;
             
             const stateKey = c.id;
-            const est = progresoState[stateKey] || 0;
+            const est = Number(progress[stateKey]) || 0;
             if (est === 2) aprobados++;
             if (est === 1) cursando++;
             
@@ -690,7 +682,7 @@ function renderProgreso() {
             if (!reqStr) reqStr = '-';
 
             gridHtml += `
-                <div class="malla-ramo-card ${statusClass}" onclick="toggleRamoEstado('${stateKey}')" style="--ramo-color: ${rgb};">
+                <div class="malla-ramo-card ${statusClass}${readOnly ? ' malla-ramo-readonly' : ''}"${readOnly ? '' : ` onclick="toggleRamoEstado('${stateKey}')"`} style="--ramo-color: ${rgb};">
                     <div class="ramo-top-right">${c.cred}</div>
                     <span class="malla-ramo-name">${cleanName}</span>
                     <div class="ramo-bottom-left">${c.id}</div>
@@ -705,7 +697,7 @@ function renderProgreso() {
 
     const pAprobado = Math.round((aprobados / totalRamos) * 100) || 0;
 
-    const html = `
+    return `
         <div class="progreso-header">
             
             
@@ -730,6 +722,18 @@ function renderProgreso() {
         </div>
         ${gridHtml}
     `;
+}
+
+function renderProgreso() {
+    const container = document.getElementById('progreso-container');
+    if (!container) return;
+
+    // Save scroll position
+    const scrollWrapper = container.querySelector('.malla-scroll-wrapper');
+    const scrollLeft = scrollWrapper ? scrollWrapper.scrollLeft : 0;
+    const scrollTop = scrollWrapper ? scrollWrapper.scrollTop : 0;
+
+    const html = buildProgresoHtml(progresoState);
     container.innerHTML = html;
 
     // Restore scroll position
@@ -739,6 +743,14 @@ function renderProgreso() {
         newScrollWrapper.scrollTop = scrollTop;
     }
 }
+
+window.renderMallaPublica = function (container, progress) {
+    if (!container) return;
+    container.innerHTML = buildProgresoHtml(
+        progress && typeof progress === 'object' && !Array.isArray(progress) ? progress : {},
+        true
+    );
+};
 
 // Inicializar al cargar
 document.addEventListener('DOMContentLoaded', () => {

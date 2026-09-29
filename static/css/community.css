@@ -49,19 +49,8 @@
 .public-agenda-item div { display: grid; min-width: 0; gap: 3px; }
 .public-agenda-item strong { overflow-wrap: anywhere; color: #f8fafc; font-size: 13px; }
 .public-agenda-item span { overflow-wrap: anywhere; color: #94a3b8; font-size: 11px; }
-.public-curriculum-summary { display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px; color: #94a3b8; font-size: 12px; }
-.public-curriculum-summary strong { color: #34d399; font-size: 18px; }
-.public-curriculum-scroll { width: 100%; max-width: 100%; overflow-x: auto; padding-bottom: 12px; -webkit-overflow-scrolling: touch; }
-.public-curriculum-grid { display: grid; grid-template-columns: repeat(8, minmax(180px,1fr)); gap: 12px; min-width: 1524px; }
-.public-curriculum-grid section { display: grid; align-content: start; gap: 7px; }
-.public-curriculum-grid h3 { margin: 0 0 3px; color: #cbd5e1; font-size: 11px; text-align: center; text-transform: uppercase; }
-.public-course-state { display: grid; gap: 3px; min-height: 54px; padding: 9px; border: 1px solid rgba(148,163,184,.15); border-radius: 9px; background: rgba(30,41,59,.5); }
-.public-course-state span { color: #cbd5e1; font-size: 11px; line-height: 1.3; }
-.public-course-state small { color: #64748b; font-size: 9px; font-weight: 700; text-transform: uppercase; }
-.public-course-state.state-1 { border-color: rgba(251,191,36,.42); background: rgba(245,158,11,.1); }
-.public-course-state.state-1 small { color: #fbbf24; }
-.public-course-state.state-2 { border-color: rgba(52,211,153,.38); background: rgba(16,185,129,.1); }
-.public-course-state.state-2 small { color: #34d399; }
+.malla-ramo-card.malla-ramo-readonly { cursor: default; }
+.malla-ramo-card.malla-ramo-readonly:hover { transform: none; }
 #tab-notas.public-profile-active > :not(.public-profile-toolbar):not(.public-profile-content),
 #tab-agenda.public-profile-active > :not(.public-profile-toolbar):not(.public-profile-content),
 #tab-progreso.public-profile-active > :not(.public-profile-toolbar):not(.public-profile-content) { display: none !important; }
