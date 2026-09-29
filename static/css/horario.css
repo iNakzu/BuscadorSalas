@@ -1,6 +1,180 @@
 /* =========================================================
    TAB 6: MI HORARIO (ESTILO MODERNO GLASSMORPHISM PREMIUM)
    ========================================================= */
+.schedule-import-control {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: -2px 0 16px;
+}
+
+.schedule-import-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 42px;
+    padding: 0 15px;
+    color: #dbeafe;
+    background: rgba(37, 99, 235, 0.14);
+    border: 1px solid rgba(96, 165, 250, 0.38);
+    border-radius: 11px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.schedule-import-button:hover:not(:disabled) {
+    background: rgba(37, 99, 235, 0.24);
+    border-color: rgba(96, 165, 250, 0.65);
+    transform: translateY(-1px);
+}
+
+.schedule-import-button:disabled {
+    cursor: wait;
+    opacity: 0.72;
+}
+
+.schedule-import-button.is-loading svg {
+    animation: schedule-import-pulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes schedule-import-pulse {
+    to { opacity: 0.35; }
+}
+
+.schedule-import-status {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.schedule-import-status.is-error {
+    color: #fca5a5;
+}
+
+.schedule-import-note {
+    flex-basis: 100%;
+    margin: -3px 0 0;
+    color: var(--text-muted);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.schedule-import-preview {
+    margin: 0 0 20px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    box-shadow: var(--shadow-card);
+}
+
+.schedule-import-preview[hidden] {
+    display: none;
+}
+
+.schedule-import-preview-heading,
+.schedule-import-preview-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.schedule-import-preview-heading h3 {
+    margin: 0 0 4px;
+    color: var(--text);
+    font-size: 15px;
+}
+
+.schedule-import-preview-heading p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.schedule-import-dismiss {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 auto;
+    color: var(--text-muted);
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.schedule-import-list {
+    display: grid;
+    gap: 8px;
+    max-height: 360px;
+    overflow: auto;
+    margin: 14px 0;
+    padding: 0;
+    list-style: none;
+}
+
+.schedule-import-item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    background: rgba(15, 23, 42, 0.38);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+.schedule-import-item.is-uncertain {
+    border-color: rgba(251, 191, 36, 0.55);
+}
+
+.schedule-import-item-main,
+.schedule-import-item-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.schedule-import-item-main strong {
+    overflow-wrap: anywhere;
+    color: var(--text);
+    font-size: 13px;
+}
+
+.schedule-import-item-main span,
+.schedule-import-item-meta {
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+.schedule-import-item-meta {
+    align-items: flex-end;
+    flex: 0 0 auto;
+    text-align: right;
+}
+
+.schedule-import-item-meta b {
+    color: #fbbf24;
+}
+
+.schedule-import-preview-actions {
+    justify-content: flex-end;
+}
+
+@media (max-width: 560px) {
+    .schedule-import-control { align-items: flex-start; flex-direction: column; }
+    .schedule-import-button { width: 100%; }
+    .schedule-import-item { flex-direction: column; }
+    .schedule-import-item-meta { align-items: flex-start; text-align: left; }
+}
+
 .my-schedule-hero {
     background: var(--surface);
     border: 1px solid var(--border);
