@@ -59,7 +59,7 @@ class GeminiScheduleServiceTest(unittest.TestCase):
     @patch("app.services.gemini_schedule.time.sleep")
     @patch("app.services.gemini_schedule.requests.post")
     def test_retries_temporary_gemini_unavailability(self, post, _sleep):
-        unavailable = Mock(ok=False, status_code=503)
+        unavailable = Mock(ok=False, status_code=503, headers={})
         success_payload = {"classes": [{
             "day": 1, "start": "08:30", "end": "09:50", "course": "Cálculo",
             "section": "", "professor": "", "room": "", "kind": "Cátedra", "confidence": 0.8,
@@ -67,10 +67,28 @@ class GeminiScheduleServiceTest(unittest.TestCase):
         success = Mock(ok=True, status_code=200, json=lambda: {
             "candidates": [{"content": {"parts": [{"text": json.dumps(success_payload)}]}}]
         })
-        post.side_effect = [unavailable, success]
+        post.side_effect = [unavailable, unavailable, success]
         result = extract_schedule_from_image(b"image-bytes", "image/png", "private-test-key")
         self.assertEqual(len(result), 1)
-        self.assertEqual(post.call_count, 2)
+        self.assertEqual(post.call_count, 3)
+        self.assertIn("gemini-3.5-flash-lite", post.call_args_list[0].args[0])
+
+    @patch("app.services.gemini_schedule.time.sleep")
+    @patch("app.services.gemini_schedule.requests.post")
+    def test_falls_back_to_flash_after_flash_lite_stays_overloaded(self, post, _sleep):
+        unavailable = Mock(ok=False, status_code=503, headers={})
+        success_payload = {"classes": [{
+            "day": 1, "start": "08:30", "end": "09:50", "course": "Cálculo",
+            "section": "", "professor": "", "room": "", "kind": "Cátedra", "confidence": 0.8,
+        }]}
+        success = Mock(ok=True, status_code=200, json=lambda: {
+            "candidates": [{"content": {"parts": [{"text": json.dumps(success_payload)}]}}]
+        })
+        post.side_effect = [unavailable, unavailable, unavailable, success]
+        result = extract_schedule_from_image(b"image-bytes", "image/png", "private-test-key")
+        self.assertEqual(len(result), 1)
+        self.assertIn("gemini-3.5-flash", post.call_args.args[0])
+        self.assertEqual(post.call_count, 4)
 
 
 class ScheduleImportEndpointTest(unittest.TestCase):

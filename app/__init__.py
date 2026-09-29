@@ -20,7 +20,7 @@ def create_app(test_config=None):
         SUPABASE_ANON_KEY=os.getenv("SUPABASE_ANON_KEY", ""),
         PUBLIC_ORIGIN=os.getenv("PUBLIC_ORIGIN", "https://portal.144-22-33-41.sslip.io"),
         GEMINI_API_KEY=os.getenv("GEMINI_API_KEY", ""),
-        GEMINI_MODEL=os.getenv("GEMINI_MODEL", "gemini-3.5-flash"),
+        GEMINI_MODEL=os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite"),
         MAX_CONTENT_LENGTH=12 * 1024 * 1024,
     )
     if test_config:

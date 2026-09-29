@@ -65,9 +65,9 @@ values ('persona@example.com', 'Piloto V1');
 
 ## Importación de horario desde una foto
 
-La sección Horarios ofrece un botón de importación para fotos JPG, PNG, WebP y HEIC de hasta 9 MB. El endpoint `POST /api/import_schedule` valida el token de sesión de Supabase, limita intentos por usuario y envía la imagen en memoria a Gemini `gemini-3.5-flash` con una respuesta JSON estructurada. El navegador muestra un resumen para revisar; sólo al confirmar se reemplaza el horario local y sincronizado. El portal no persiste la imagen.
+La sección Horarios ofrece un botón de importación para fotos JPG, PNG, WebP y HEIC de hasta 9 MB. El endpoint `POST /api/import_schedule` valida el token de sesión de Supabase, limita intentos por usuario y envía la imagen en memoria a Gemini `gemini-3.5-flash-lite` con una respuesta JSON estructurada. Si el modelo está saturado, aplica reintentos con espera creciente y luego prueba `gemini-3.5-flash`. El navegador muestra un resumen para revisar; sólo al confirmar se reemplaza el horario local y sincronizado. El portal no persiste la imagen.
 
-Configurar `GEMINI_API_KEY` en el archivo de entorno del servicio del servidor; nunca incluirla en JavaScript, HTML o Git. `GEMINI_MODEL` permite cambiar el modelo y por defecto usa `gemini-3.5-flash`. La imagen se procesa mediante Google Gemini; en el nivel gratuito Google puede usar solicitudes para mejorar sus productos. El modelo extrae ramo, día, horas, sección, profesor, sala y tipo de clase. La validación conserva datos inciertos para revisión y no inventa campos que no logra leer. Profesor y sección se guardan en el horario propio, pero no se exponen en el directorio comunitario.
+Configurar `GEMINI_API_KEY` en el archivo de entorno del servicio del servidor; nunca incluirla en JavaScript, HTML o Git. `GEMINI_MODEL` permite cambiar el modelo y por defecto usa `gemini-3.5-flash-lite`. La imagen se procesa mediante Google Gemini; en el nivel gratuito Google puede usar solicitudes para mejorar sus productos. El modelo extrae ramo, día, horas, sección, profesor, sala y tipo de clase. La validación conserva datos inciertos para revisión y no inventa campos que no logra leer. Profesor y sección se guardan en el horario propio, pero no se exponen en el directorio comunitario.
 
 ## PWA y HTTPS
 
