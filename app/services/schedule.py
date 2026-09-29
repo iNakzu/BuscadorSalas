@@ -231,6 +231,15 @@ def obtener_bloque_info(hora_id):
     # Default primer bloque
     return STANDARD_BLOCKS[0]
 
+def salas_de_nodo(nodo):
+    """Extrae todas las salas indicadas en la asignación original del feed."""
+    raw_places = nodo.get('place')
+    entries = raw_places if isinstance(raw_places, (list, tuple, set)) else [raw_places]
+    salas = []
+    for entry in entries:
+        salas.extend(s.strip() for s in re.split(r'[,/]', str(entry or '')) if s.strip())
+    return list(dict.fromkeys(salas))
+
 def obtener_salas(dia_numero, hora_exacta, filtro_facultad):
     clases = dm.get_classes()
     bloque_ref = obtener_bloque_info(hora_exacta)
@@ -248,17 +257,23 @@ def obtener_salas(dia_numero, hora_exacta, filtro_facultad):
 
     for clase in clases:
         nodo = clase.get('node', {})
-        asignaciones = asignaciones_sala_seccion(nodo)
-        if not asignaciones:
+        salas = salas_de_nodo(nodo)
+        if not salas:
             continue
 
-        for nombre_sala, seccion in asignaciones:
+        asignaciones_seccion = dict(asignaciones_sala_seccion(nodo))
+        try:
+            dia_clase = int(nodo.get('day'))
+        except (TypeError, ValueError):
+            dia_clase = None
+
+        for nombre_sala in salas:
             if not coincide_facultad(nombre_sala, filtro_facultad):
                 continue
 
             todas_las_salas.add(nombre_sala)
 
-            if nodo.get('day') == dia_int:
+            if dia_clase == dia_int:
                 if nombre_sala not in clases_por_sala:
                     clases_por_sala[nombre_sala] = []
 
@@ -277,7 +292,7 @@ def obtener_salas(dia_numero, hora_exacta, filtro_facultad):
                     'finish': format_time(finish_str),
                     'course': nodo.get('course', 'Sin curso'),
                     'teacher': nodo.get('teacher', 'No informado'),
-                    'section': seccion,
+                    'section': asignaciones_seccion.get(nombre_sala, nodo.get('section') or '-'),
                     'code': nodo.get('code', '-')
                 })
 
