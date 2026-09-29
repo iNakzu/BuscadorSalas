@@ -61,6 +61,15 @@ class PortalV1Test(unittest.TestCase):
         self.assertIn("grant usage on schema public to supabase_auth_admin", sql)
         self.assertIn("create policy \"auth hook reads signup allowlist\"", sql)
         self.assertNotIn("grant select, insert, update, delete on table public.user_module_state to anon", sql)
+        self.assertNotIn("avatar_url", sql)
+
+    def test_signed_in_profile_uses_initials_instead_of_a_photo(self):
+        html = self.client.get("/").get_data(as_text=True)
+        profile = html.split('id="auth-profile"', 1)[1].split("</div>", 1)[0]
+        self.assertIn('id="auth-avatar"', profile)
+        self.assertIn('id="auth-name"', profile)
+        self.assertIn('id="auth-email"', profile)
+        self.assertNotIn("<img", profile)
 
 
 if __name__ == "__main__":

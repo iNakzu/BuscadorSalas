@@ -32,6 +32,14 @@ Las vistas viven en `templates/views/` y los elementos compartidos en `templates
 
 Supabase entrega Google OAuth y persistencia. El navegador sólo recibe la URL y la clave publicable/anon; nunca se expone `service_role`. La tabla `user_module_state` guarda un documento JSON por usuario y módulo. RLS limita cada fila a `auth.uid()`. Los cambios se guardan primero en `localStorage` y luego se sincronizan, así que la interfaz sigue siendo útil durante cortes breves.
 
+### Datos personales guardados
+
+- `profiles`: ID de Supabase Auth, correo, nombre y apellido, y fechas de creación/actualización. La aplicación genera un avatar visual con las iniciales; esta tabla no guarda fotos ni enlaces a avatares.
+- `user_module_state`: horario personal, notas, agenda y progreso de malla en un JSON por módulo, junto con la versión del esquema y las fechas de actualización. Cada persona sólo puede leer y modificar sus propias filas.
+- `email_allowlist`: correo y motivo para autorizar cuentas fuera de `@mail.udp.cl`. Sólo el hook de registro puede leer esta lista.
+
+Los horarios públicos, ramos y salas siguen usando la fuente académica/cache del servidor; no se duplican en estas tablas personales.
+
 ## Acceso
 
 El hook `public.hook_restrict_signup` acepta correos `@mail.udp.cl` y direcciones incluidas manualmente en `public.email_allowlist`. El filtro del navegador mejora la experiencia, pero el hook es la barrera autoritativa.
