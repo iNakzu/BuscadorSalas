@@ -25,6 +25,7 @@ jobs:
           node tests/personal-store.test.cjs
           node tests/auth-ui.test.cjs
           node tests/community-schedules.test.cjs
+          node tests/schedule-import-ui.test.cjs
 
       - name: Actualizar preview en la VM
         uses: appleboy/ssh-action@v1.0.3
