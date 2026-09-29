@@ -3,8 +3,14 @@ const fs = require('fs');
 const vm = require('vm');
 
 const source = fs.readFileSync('static/js/community_schedules.js', 'utf8');
-assert.match(source, /config\.module === 'agenda'\)\s*\{\s*toolbar\.innerHTML = `<label>/);
-assert.doesNotMatch(source, /config\.module === 'agenda'\)[\s\S]{0,140}<span>Información de<\/span>/);
+assert.match(source, /class="public-profile-search-input"/);
+assert.match(source, /matches\.slice\(pageStart, pageStart \+ MAX_VISIBLE_PROFILES\)/);
+assert.match(source, /const MAX_VISIBLE_PROFILES = 40/);
+assert.match(source, /class="public-profile-pagination"/);
+assert.match(source, /search_shared_profiles/);
+assert.match(source, /get_shared_profile_information/);
+assert.doesNotMatch(source, /<select class="public-profile-select"/);
+assert.doesNotMatch(source, /Mi información/);
 const elements = new Map();
 const sharedSchedules = [{ user_id: 'friend', display_name: 'Ana García López', modules: {
   schedule: { clases: [{ dia: 1, horaInicio: '08:30', horaFin: '09:50', curso: 'Cálculo', sala: 'E101' }] },
@@ -12,7 +18,17 @@ const sharedSchedules = [{ user_id: 'friend', display_name: 'Ana García López'
   agenda: [{ fecha: '2026-10-02', ramo: 'Cálculo', tipo: 'Solemne' }],
   curriculum: { 1: 2 }
 } }];
-const client = { rpc: async name => ({ data: (assert.strictEqual(name, 'get_shared_information'), sharedSchedules), error: null }) };
+const client = { rpc: async (name, args) => {
+  if (name === 'search_shared_profiles') {
+    assert.deepStrictEqual(JSON.parse(JSON.stringify(args)), { p_query: '', p_limit: 41, p_offset: 0 });
+    return { data: sharedSchedules.map(({ user_id, display_name }) => ({ user_id, display_name })), error: null };
+  }
+  if (name === 'get_shared_profile_information') {
+    assert.deepStrictEqual(JSON.parse(JSON.stringify(args)), { p_user_id: 'friend' });
+    return { data: sharedSchedules[0].modules, error: null };
+  }
+  throw new Error(`Unexpected RPC ${name}`);
+} };
 const selectors = [];
 const publicContents = [
   { dataset: { module: 'grades' }, hidden: true, innerHTML: '' },
@@ -29,7 +45,7 @@ const context = {
   document: {
     getElementById: id => elements.get(id),
     querySelector: () => null,
-    querySelectorAll: selector => selector === '.public-profile-select' ? selectors : selector === '.public-profile-content' ? publicContents : [],
+    querySelectorAll: selector => selector === '.public-profile-picker' ? selectors : selector === '.public-profile-content' ? publicContents : [],
     addEventListener() {}
   }, console
 };
@@ -38,7 +54,7 @@ vm.runInContext(source, context);
 
 (async () => {
   await context.window.cargarHorariosComunidad();
-  context.window.PortalCommunity.select('friend');
+  await context.window.PortalCommunity.select('friend');
   assert.deepStrictEqual(JSON.parse(JSON.stringify(context.sharedSchedule)), [
     { dia: 1, horaInicio: '08:30', horaFin: '09:50', curso: 'Cálculo', sala: 'E101' }
   ]);
@@ -55,5 +71,15 @@ vm.runInContext(source, context);
   ]);
   context.window.PortalCommunity.select('');
   assert.strictEqual(context.sharedSchedule, null);
-  console.log('community_schedules: common profile selection still loads shared modules without a directory');
+  context.window.PortalAuth.client.rpc = async name => {
+    if (name === 'search_shared_profiles') return { data: null, error: { message: 'Migration not installed' } };
+    if (name === 'get_shared_information') return { data: sharedSchedules, error: null };
+    throw new Error(`Unexpected fallback RPC ${name}`);
+  };
+  await context.window.cargarHorariosComunidad();
+  await context.window.PortalCommunity.select('friend');
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(context.sharedSchedule)), [
+    { dia: 1, horaInicio: '08:30', horaFin: '09:50', curso: 'Cálculo', sala: 'E101' }
+  ]);
+  console.log('community_schedules: searchable directory loads data on demand and supports older RPC deployments');
 })().catch(error => { console.error(error); process.exit(1); });
