@@ -18,7 +18,7 @@ STANDARD_BLOCKS = [
     {"id": "13:00:00", "label": "13:00 - 14:20", "start": "13:00:00", "finish": "14:20:00", "start_min": 13 * 60, "end_min": 14 * 60 + 20},
     {"id": "14:30:00", "label": "14:30 - 15:50", "start": "14:30:00", "finish": "15:50:00", "start_min": 14 * 60 + 30, "end_min": 15 * 60 + 50},
     {"id": "16:00:00", "label": "16:00 - 17:20", "start": "16:00:00", "finish": "17:20:00", "start_min": 16 * 60, "end_min": 17 * 60 + 20},
-    {"id": "17:25:00", "label": "17:25 - 18:45", "start": "17:25:00", "finish": "18:45:00", "start_min": 17 * 60 + 25, "end_min": 18 * 60 + 45},
+    {"id": "17:30:00", "label": "17:30 - 18:50", "start": "17:30:00", "finish": "18:50:00", "start_min": 17 * 60 + 30, "end_min": 18 * 60 + 50},
     {"id": "08:30:00_S", "label": "08:30 - 10:30", "start": "08:30:00", "finish": "10:30:00", "start_min": 8 * 60 + 30, "end_min": 10 * 60 + 30},
     {"id": "10:45:00_S", "label": "10:45 - 12:45", "start": "10:45:00", "finish": "12:45:00", "start_min": 10 * 60 + 45, "end_min": 12 * 60 + 45},
     {"id": "13:00:00_S", "label": "13:00 - 15:00", "start": "13:00:00", "finish": "15:00:00", "start_min": 13 * 60, "end_min": 15 * 60},
@@ -684,7 +684,7 @@ def calcular_bloque_actual(ref_datetime=None):
 
     es_fin_de_semana = dia_real > 5
     primer_bloque_min = STANDARD_BLOCKS[0]["start_min"]  # 08:30 (510 min)
-    ultimo_bloque_min = STANDARD_BLOCKS[-1]["end_min"]   # 18:45 (1125 min)
+    ultimo_bloque_min = max(block["end_min"] for block in STANDARD_BLOCKS if not block["id"].endswith("_S"))  # 18:50
     fuera_de_hora = current_min < primer_bloque_min or current_min > ultimo_bloque_min
 
     en_horario_valido = (not es_fin_de_semana) and (not fuera_de_hora)
@@ -701,10 +701,10 @@ def calcular_bloque_actual(ref_datetime=None):
 
     mensaje_horario = ""
     if es_fin_de_semana:
-        mensaje_horario = "Actualmente es fin de semana. Las clases se dictan de lunes a viernes (08:30 - 18:45)."
+        mensaje_horario = "Actualmente es fin de semana. Las clases se dictan de lunes a viernes (08:30 - 18:50)."
     elif current_min < primer_bloque_min:
         mensaje_horario = "Aún no inicia el horario de clases de hoy (el primer bloque inicia a las 08:30)."
     elif current_min > ultimo_bloque_min:
-        mensaje_horario = "La jornada de clases ya finalizó por hoy (el último bloque finalizó a las 18:45)."
+        mensaje_horario = "La jornada de clases ya finalizó por hoy (el último bloque finalizó a las 18:50)."
 
     return dia_seleccionado, bloque_seleccionado, en_horario_valido, mensaje_horario

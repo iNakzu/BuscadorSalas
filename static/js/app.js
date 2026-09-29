@@ -798,7 +798,7 @@ async function renderizarHorarioSala(sala) {
             { start: "13:00", finish: "14:20" },
             { start: "14:30", finish: "15:50" },
             { start: "16:00", finish: "17:20" },
-            { start: "17:25", finish: "18:45" }
+            { start: "17:30", finish: "18:50" }
         ];
         
         const bloquesSolemnes = [

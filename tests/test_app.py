@@ -47,6 +47,12 @@ class PortalV1Test(unittest.TestCase):
         self.assertIn("ocupadas", body)
         self.assertEqual(body["dia"], 1)
 
+    def test_last_standard_block_uses_fixed_1730_to_1850_window(self):
+        last_normal = next(block for block in schedule.STANDARD_BLOCKS if block["id"] == "17:30:00")
+        self.assertEqual(last_normal["label"], "17:30 - 18:50")
+        self.assertEqual(last_normal["start"], "17:30:00")
+        self.assertEqual(last_normal["finish"], "18:50:00")
+
     def test_search_rejects_empty_query_cleanly(self):
         response = self.client.get("/api/search")
         self.assertEqual(response.status_code, 200)
