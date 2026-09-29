@@ -1,0 +1,710 @@
+import datetime
+import json
+import os
+import re
+import unicodedata
+from pathlib import Path
+from urllib.request import Request, urlopen
+
+REMOTE_URL = os.getenv("SCHEDULE_DATA_URL", "https://salas.docencia-eit.cl/data.json")
+PACKAGE_FALLBACK_FILE = Path(__file__).resolve().parents[2] / "data.json"
+RUNTIME_DATA_FILE = Path(os.getenv("SCHEDULE_CACHE_FILE", "/var/lib/buscadorsalas/data.json"))
+
+# Definición de bloques horarios estándar UDP
+STANDARD_BLOCKS = [
+    {"id": "8:30:00", "label": "08:30 - 09:50", "start": "08:30:00", "finish": "09:50:00", "start_min": 8 * 60 + 30, "end_min": 9 * 60 + 50},
+    {"id": "10:00:00", "label": "10:00 - 11:20", "start": "10:00:00", "finish": "11:20:00", "start_min": 10 * 60, "end_min": 11 * 60 + 20},
+    {"id": "11:30:00", "label": "11:30 - 12:50", "start": "11:30:00", "finish": "12:50:00", "start_min": 11 * 60 + 30, "end_min": 12 * 60 + 50},
+    {"id": "13:00:00", "label": "13:00 - 14:20", "start": "13:00:00", "finish": "14:20:00", "start_min": 13 * 60, "end_min": 14 * 60 + 20},
+    {"id": "14:30:00", "label": "14:30 - 15:50", "start": "14:30:00", "finish": "15:50:00", "start_min": 14 * 60 + 30, "end_min": 15 * 60 + 50},
+    {"id": "16:00:00", "label": "16:00 - 17:20", "start": "16:00:00", "finish": "17:20:00", "start_min": 16 * 60, "end_min": 17 * 60 + 20},
+    {"id": "17:25:00", "label": "17:25 - 18:45", "start": "17:25:00", "finish": "18:45:00", "start_min": 17 * 60 + 25, "end_min": 18 * 60 + 45},
+    {"id": "08:30:00_S", "label": "08:30 - 10:30", "start": "08:30:00", "finish": "10:30:00", "start_min": 8 * 60 + 30, "end_min": 10 * 60 + 30},
+    {"id": "10:45:00_S", "label": "10:45 - 12:45", "start": "10:45:00", "finish": "12:45:00", "start_min": 10 * 60 + 45, "end_min": 12 * 60 + 45},
+    {"id": "13:00:00_S", "label": "13:00 - 15:00", "start": "13:00:00", "finish": "15:00:00", "start_min": 13 * 60, "end_min": 15 * 60},
+    {"id": "15:15:00_S", "label": "15:15 - 17:15", "start": "15:15:00", "finish": "17:15:00", "start_min": 15 * 60 + 15, "end_min": 17 * 60 + 15},
+    {"id": "17:30:00_S", "label": "17:30 - 19:30", "start": "17:30:00", "finish": "19:30:00", "start_min": 17 * 60 + 30, "end_min": 19 * 60 + 30},
+]
+
+DIAS_SEMANA = {
+    1: "Lunes",
+    2: "Martes",
+    3: "Miércoles",
+    4: "Jueves",
+    5: "Viernes",
+    6: "Sábado",
+    7: "Domingo"
+}
+
+MESES_ES = {
+    1: "Enero", 2: "Febrero", 3: "Marzo", 4: "Abril", 5: "Mayo", 6: "Junio",
+    7: "Julio", 8: "Agosto", 9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre"
+}
+
+try:
+    import zoneinfo
+    CHILE_TZ = zoneinfo.ZoneInfo("America/Santiago")
+    _ = datetime.datetime.now(CHILE_TZ)
+except Exception:
+    CHILE_TZ = datetime.timezone(datetime.timedelta(hours=-3))
+
+def get_chile_now():
+    """Retorna la fecha y hora actual garantizada en la zona horaria de Chile (America/Santiago)."""
+    return datetime.datetime.now(CHILE_TZ)
+
+def to_minutes(time_str):
+    if not time_str:
+        return 0
+    try:
+        parts = time_str.split(':')
+        return int(parts[0]) * 60 + int(parts[1])
+    except Exception:
+        return 0
+
+def format_time(time_str):
+    if not time_str:
+        return ""
+    try:
+        parts = time_str.split(':')
+        if len(parts) >= 2:
+            return f"{parts[0].zfill(2)}:{parts[1].zfill(2)}"
+    except Exception:
+        pass
+    return time_str
+
+class DataManager:
+    """Administra la carga, sincronización en vivo y caché de los datos de salas."""
+    def __init__(self, cache_file=None):
+        self.cache_file = Path(cache_file or RUNTIME_DATA_FILE)
+        self.cache = None
+        self.last_synced = None
+        self.source = "none"
+        self.ttl_seconds = 1800  # 30 minutos de caché en memoria
+        self.total_classes = 0
+        self.total_rooms = 0
+        self.all_rooms = []
+        self._init_data()
+
+    def _init_data(self):
+        # Intenta primero sincronizar con la web oficial; si falla, usa el archivo local
+        if not self.sync_from_remote():
+            self._load_from_local()
+
+    def _load_from_local(self):
+        source_file = self.cache_file if self.cache_file.exists() else PACKAGE_FALLBACK_FILE
+        if source_file.exists():
+            try:
+                with source_file.open('r', encoding='utf-8') as f:
+                    data = json.load(f)
+                self.cache = data
+                self.last_synced = datetime.datetime.fromtimestamp(source_file.stat().st_mtime, tz=CHILE_TZ).strftime("%d/%m/%Y %H:%M:%S")
+                self.source = "local_cache"
+                self._update_stats()
+                print(f"[DataManager] Cargado desde local_cache ({self.total_classes} clases, {self.total_rooms} salas)")
+                return True
+            except Exception as e:
+                print(f"[DataManager] Error al leer data.json local: {e}")
+        return False
+
+    def sync_from_remote(self):
+        try:
+            print(f"[DataManager] Sincronizando datos desde {REMOTE_URL} ...")
+            req = Request(
+                REMOTE_URL,
+                headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) BuscadorSalasUDP/2.0"}
+            )
+            with urlopen(req, timeout=8) as response:
+                content = response.read().decode('utf-8')
+                data = json.loads(content)
+            
+            # Validamos que tenga la estructura requerida
+            if 'data' in data and 'allSalasUdps' in data['data']:
+                self.cache = data
+                self.last_synced = get_chile_now().strftime("%d/%m/%Y %H:%M:%S")
+                self.source = "online_web"
+                self._update_stats()
+
+                # Guardamos como copia de respaldo local
+                try:
+                    self.cache_file.parent.mkdir(parents=True, exist_ok=True)
+                    self.cache_file.write_text(content, encoding='utf-8')
+                except Exception as save_err:
+                    print(f"[DataManager] Advertencia al guardar localmente: {save_err}")
+
+                print(f"[DataManager] Sincronización exitosa desde la web ({self.total_classes} clases, {self.total_rooms} salas)")
+                return True
+            else:
+                print("[DataManager] Estructura de JSON remoto no coincide con lo esperado.")
+                return False
+        except Exception as e:
+            print(f"[DataManager] Error al sincronizar desde la web: {e}")
+            return False
+
+    def _update_stats(self):
+        if not self.cache:
+            return
+        edges = self.cache.get('data', {}).get('allSalasUdps', {}).get('edges', [])
+        self.total_classes = len(edges)
+        rooms_set = set()
+        self.solemne_days = {d: False for d in range(1, 8)}
+        for e in edges:
+            node = e.get('node', {})
+            p = node.get('place')
+            d = node.get('day')
+            s_time = node.get('start')
+            
+            if p:
+                import re as re_local
+                for sala in [s.strip() for s in re_local.split(r'[,/]', p) if s.strip()]:
+                    rooms_set.add(sala)
+            
+            if d and s_time:
+                c_start = to_minutes(s_time)
+                # 645 = 10:45, 915 = 15:15, 1050 = 17:30
+                if c_start in [645, 915, 1050]:
+                    self.solemne_days[d] = True
+                
+        self.all_rooms = sorted(list(rooms_set))
+        self.total_rooms = len(self.all_rooms)
+
+    def get_classes(self):
+        if not self.cache:
+            self._init_data()
+        return self.cache.get('data', {}).get('allSalasUdps', {}).get('edges', []) if self.cache else []
+
+    def get_status(self):
+        return {
+            "source": self.source,
+            "last_synced": self.last_synced,
+            "total_classes": self.total_classes,
+            "total_rooms": self.total_rooms,
+            "remote_url": REMOTE_URL
+        }
+
+dm = DataManager()
+def nombre_dia(n):
+    return DIAS_SEMANA.get(int(n), str(n))
+
+def coincide_facultad(nombre_sala, filtro_facultad):
+    if not filtro_facultad or filtro_facultad == "TODAS":
+        return True
+    f = filtro_facultad.strip().upper()
+    if f == "INGENIERIA":
+        return nombre_sala.startswith("E441") or nombre_sala.startswith("V432")
+    # Si es texto libre, aceptamos cualquier sala para evaluarla despues
+    return True
+
+def asignaciones_sala_seccion(nodo):
+    """Separa salas y secciones, emparejandolas cuando la API las agrupa."""
+    import re as re_local
+
+    raw_places = str(nodo.get('place') or '')
+    raw_sections = str(nodo.get('section') or '-').strip() or '-'
+    places = [p.strip() for p in re_local.split(r'[,/]', raw_places) if p.strip()]
+    sections = [s.strip() for s in re_local.split(r'[,/]', raw_sections) if s.strip()]
+
+    if len(places) > 1 and len(places) == len(sections):
+        return list(zip(places, sections))
+
+    return [(place, raw_sections) for place in places]
+
+def obtener_bloque_info(hora_id):
+    for b in STANDARD_BLOCKS:
+        if b["id"] == hora_id:
+            return b
+    # Si viene en formato simple "HH:MM"
+    for b in STANDARD_BLOCKS:
+        if b["start"].startswith(hora_id):
+            return b
+    # Default primer bloque
+    return STANDARD_BLOCKS[0]
+
+def obtener_salas(dia_numero, hora_exacta, filtro_facultad):
+    clases = dm.get_classes()
+    bloque_ref = obtener_bloque_info(hora_exacta)
+    b_start = bloque_ref["start_min"]
+    b_end = bloque_ref["end_min"]
+    dia_int = int(dia_numero)
+
+    now = get_chile_now()
+    now_min = now.hour * 60 + now.minute
+    is_today = (now.weekday() + 1 == dia_int)
+
+    todas_las_salas = set()
+    ocupadas_dict = {}
+    clases_por_sala = {}
+
+    for clase in clases:
+        nodo = clase.get('node', {})
+        asignaciones = asignaciones_sala_seccion(nodo)
+        if not asignaciones:
+            continue
+
+        for nombre_sala, seccion in asignaciones:
+            if not coincide_facultad(nombre_sala, filtro_facultad):
+                continue
+
+            todas_las_salas.add(nombre_sala)
+
+            if nodo.get('day') == dia_int:
+                if nombre_sala not in clases_por_sala:
+                    clases_por_sala[nombre_sala] = []
+
+                start_str = nodo.get('start', '')
+                finish_str = nodo.get('finish', '')
+                c_start = to_minutes(start_str)
+                c_finish = to_minutes(finish_str)
+
+                if c_finish <= c_start:
+                    c_finish = c_start + 80
+
+                clases_por_sala[nombre_sala].append({
+                    'start_min': c_start,
+                    'end_min': c_finish,
+                    'start': format_time(start_str),
+                    'finish': format_time(finish_str),
+                    'course': nodo.get('course', 'Sin curso'),
+                    'teacher': nodo.get('teacher', 'No informado'),
+                    'section': seccion,
+                    'code': nodo.get('code', '-')
+                })
+
+    for s, cl_list in clases_por_sala.items():
+        for c in cl_list:
+            if not (c['end_min'] <= b_start or c['start_min'] >= b_end):
+                ocupadas_dict[s] = {
+                    'sala': s,
+                    'curso': c['course'],
+                    'profe': c['teacher'],
+                    'seccion': c['section'],
+                    'codigo': c['code'],
+                    'horario': f"{c['start']} - {c['finish']}",
+                    'start': c['start'],
+                    'finish': c['finish'],
+                    'start_min': c['start_min'],
+                    'end_min': c['end_min']
+                }
+                break
+
+    vacias = sorted(list(todas_las_salas - set(ocupadas_dict.keys())))
+    vacias_info = {}
+
+    for s in vacias:
+        cl_list = clases_por_sala.get(s, [])
+        futuras = [c for c in cl_list if c['start_min'] >= b_start]
+        if futuras:
+            prox = min(futuras, key=lambda x: x['start_min'])
+            diff = prox['start_min'] - b_start
+            if diff >= 60:
+                hrs = diff // 60
+                mins = diff % 60
+                tiempo_str = f"{hrs}h{mins:02d}" if mins else f"{hrs}h"
+            else:
+                tiempo_str = f"{diff}m"
+
+            vacias_info[s] = {
+                'proxima_hora': prox['start'],
+                'proximo_curso': prox['course'],
+                'minutos_hasta_proxima': diff,
+                'libre_todo_el_dia': False,
+                'texto': f"Hasta las {prox['start']} ({tiempo_str})"
+            }
+        else:
+            vacias_info[s] = {
+                'proxima_hora': None,
+                'proximo_curso': None,
+                'minutos_hasta_proxima': None,
+                'libre_todo_el_dia': True,
+                'texto': "Sin más clases"
+            }
+
+    # Aplicar el filtro de texto libre al resultado final
+    filtro_f = (filtro_facultad or "").strip().upper()
+    is_text_search = filtro_f and filtro_f not in ["TODAS", "INGENIERIA"]
+    
+    tokens = [t for t in normalize_str(filtro_f).split() if len(t) > 0] if is_text_search else []
+
+    vacias_finales = []
+    for s in vacias:
+        if is_text_search:
+            info = vacias_info[s]
+            s_norm = normalize_str(s)
+            c_norm = normalize_str(info.get('proximo_curso', ''))
+            p_norm = "" # en vacias_info no guardamos profe por ahora, pero curso y sala sí
+            if not all(t in s_norm or t in c_norm for t in tokens):
+                continue
+        elif filtro_f == "INGENIERIA" and not (s.startswith("E441") or s.startswith("V432")):
+            continue
+        vacias_finales.append(s)
+
+    ocupadas_finales = {}
+    for s, info in ocupadas_dict.items():
+        if is_text_search:
+            s_norm = normalize_str(s)
+            c_norm = normalize_str(info.get('curso', ''))
+            p_norm = normalize_str(info.get('profe', ''))
+            if not all(t in s_norm or t in c_norm or t in p_norm for t in tokens):
+                continue
+        elif filtro_f == "INGENIERIA" and not (s.startswith("E441") or s.startswith("V432")):
+            continue
+        ocupadas_finales[s] = info
+
+    vacias_ordenadas = sorted(
+        vacias_finales,
+        key=lambda s: (
+            0 if vacias_info[s]['libre_todo_el_dia'] else 1,
+            -(vacias_info[s]['minutos_hasta_proxima'] or 0),
+            s
+        )
+    )
+
+    ocupadas_ordenadas = dict(sorted(ocupadas_finales.items()))
+    return vacias_ordenadas, ocupadas_ordenadas, vacias_info
+
+def normalize_str(s):
+    if not s:
+        return ""
+    nfkd = unicodedata.normalize('NFD', str(s))
+    return "".join(c for c in nfkd if not unicodedata.combining(c)).lower().strip()
+
+def buscar_profesor(nombre_buscado, dia_filtro=None, hora_filtro=None):
+    clases = dm.get_classes()
+    resultados = []
+    tokens = [t for t in normalize_str(nombre_buscado).split() if len(t) > 0]
+    if not tokens:
+        return []
+
+    dia_int = None
+    if dia_filtro and str(dia_filtro).strip().isdigit():
+        d_val = int(dia_filtro)
+        if 1 <= d_val <= 7:
+            dia_int = d_val
+
+    for clase in clases:
+        nodo = clase.get('node', {})
+        profe = nodo.get('teacher', "")
+        norm_p = normalize_str(profe)
+        if all(t in norm_p for t in tokens):
+            if dia_int is not None and nodo.get('day') != dia_int:
+                continue
+            c_start = format_time(nodo.get('start', ''))
+            if hora_filtro:
+                h_q = str(hora_filtro).strip()
+                if not (h_q.startswith(c_start) or c_start.startswith(h_q.replace(":00", "")) or h_q in nodo.get('start', '')):
+                    continue
+            resultados.append({
+                'sala': nodo.get('place', '-'),
+                'curso': nodo.get('course', '-'),
+                'seccion': nodo.get('section', '-'),
+                'codigo': nodo.get('code', '-'),
+                'hora_inicio': c_start,
+                'hora_termino': format_time(nodo.get('finish', '')),
+                'dia_numero': nodo.get('day'),
+                'dia': nombre_dia(nodo.get('day')),
+                'profe': profe
+            })
+    # Ordenar por día y hora
+    resultados.sort(key=lambda x: (x['dia_numero'], to_minutes(x['hora_inicio'])))
+    return resultados
+
+def buscar_curso(query, dia_filtro=None, hora_filtro=None):
+    clases = dm.get_classes()
+    resultados = []
+    tokens = [t for t in normalize_str(query).split() if len(t) > 0] if query else []
+    if not tokens and not (dia_filtro and hora_filtro):
+        return []
+
+    dia_int = None
+    if dia_filtro:
+        d_str = str(dia_filtro).strip().lower()
+        if d_str == 'hoy':
+            now = get_chile_now()
+            d_val = now.weekday() + 1
+            dia_int = d_val if d_val <= 5 else 1
+        elif d_str.isdigit() and 1 <= int(d_str) <= 7:
+            dia_int = int(d_str)
+
+    for clase in clases:
+        nodo = clase.get('node', {})
+        curso = nodo.get('course', "")
+        codigo = nodo.get('code', "")
+        profe = nodo.get('teacher', "")
+        norm_c = normalize_str(curso)
+        norm_code = normalize_str(codigo)
+        norm_p = normalize_str(profe)
+
+        if tokens:
+            if not (all(t in norm_c for t in tokens) or all(t in norm_code for t in tokens) or all(t in norm_p for t in tokens)):
+                continue
+
+        if dia_int is not None and nodo.get('day') != dia_int:
+            continue
+        c_start = format_time(nodo.get('start', ''))
+        if hora_filtro:
+            h_q = str(hora_filtro).strip()
+            if not (h_q.startswith(c_start) or c_start.startswith(h_q.replace(":00", "")) or h_q in nodo.get('start', '')):
+                continue
+
+        for p, seccion in asignaciones_sala_seccion(nodo) or [('-', nodo.get('section', '-'))]:
+            resultados.append({
+                'sala': p,
+                'curso': curso,
+                'codigo': codigo,
+                'seccion': seccion,
+                'profe': nodo.get('teacher', 'No informado'),
+                'dia': nombre_dia(nodo.get('day')),
+                'dia_numero': nodo.get('day'),
+                'hora_inicio': c_start,
+                'hora_termino': format_time(nodo.get('finish', '')),
+            })
+    resultados.sort(key=lambda x: (x['curso'], x['dia_numero'], to_minutes(x['hora_inicio'])))
+    return resultados
+
+MALLA_ICIT = {
+    1: {
+        'nombre': 'Semestre I',
+        'ramos': [
+            {'nombre': 'Álgebra y Geometría', 'keywords': ['algebra y geometria']},
+            {'nombre': 'Cálculo I', 'keywords': ['calculo i']},
+            {'nombre': 'Química', 'keywords': ['quimica']},
+            {'nombre': 'Programación', 'keywords': ['programacion']},
+            {'nombre': 'Comunicación para la Ingeniería', 'keywords': ['comunicacion para la ingenieria']},
+        ]
+    },
+    2: {
+        'nombre': 'Semestre II',
+        'ramos': [
+            {'nombre': 'Álgebra Lineal', 'keywords': ['algebra lineal']},
+            {'nombre': 'Cálculo II', 'keywords': ['calculo ii']},
+            {'nombre': 'Mecánica', 'keywords': ['mecanica']},
+            {'nombre': 'Programación Avanzada', 'keywords': ['programacion avanzada']},
+            {'nombre': 'Curso de Formación General (II)', 'keywords': ['curso de formacion general (ii)']},
+        ]
+    },
+    3: {
+        'nombre': 'Semestre III',
+        'ramos': [
+            {'nombre': 'Ecuaciones Diferenciales', 'keywords': ['ecuaciones diferenciales']},
+            {'nombre': 'Cálculo III', 'keywords': ['calculo iii']},
+            {'nombre': 'Calor y Ondas', 'keywords': ['calor y ondas']},
+            {'nombre': 'Estructuras de Datos y Algoritmos', 'keywords': ['estructuras de datos y algoritmos']},
+            {'nombre': 'Redes de Datos', 'keywords': ['redes de datos']},
+        ]
+    },
+    4: {
+        'nombre': 'Semestre IV',
+        'ramos': [
+            {'nombre': 'Probabilidades y Estadísticas', 'keywords': ['probabilidades y estadisticas']},
+            {'nombre': 'Electrónica y Electrotecnia', 'keywords': ['electronica y electrotecnia']},
+            {'nombre': 'Electricidad y Magnetismo', 'keywords': ['electricidad y magnetismo']},
+            {'nombre': 'Bases de Datos', 'keywords': ['bases de datos']},
+            {'nombre': 'Desarrollo Web y Móvil', 'keywords': ['desarrollo web y movil']},
+            {'nombre': 'Inglés I', 'keywords': ['ingles i']},
+        ]
+    },
+    5: {
+        'nombre': 'Semestre V',
+        'ramos': [
+            {'nombre': 'Optimización', 'keywords': ['optimizacion']},
+            {'nombre': 'Taller de Redes y Servicios', 'keywords': ['taller de redes y servicios']},
+            {'nombre': 'Proyecto en TICs I', 'keywords': ['proyecto en tics i']},
+            {'nombre': 'Bases de Datos Avanzadas', 'keywords': ['bases de datos avanzadas']},
+            {'nombre': 'Curso de Formación General (V)', 'keywords': ['curso de formacion general (v)']},
+            {'nombre': 'Inglés II', 'keywords': ['ingles ii']},
+            {'nombre': 'Práctica Profesional I', 'keywords': ['practica profesional i']},
+        ]
+    },
+    6: {
+        'nombre': 'Semestre VI',
+        'ramos': [
+            {'nombre': 'Contabilidad y Costos', 'keywords': ['contabilidad y costos']},
+            {'nombre': 'Arquitectura y Organización de Computadores', 'keywords': ['arquitectura y organizacion de computadores']},
+            {'nombre': 'Señales y Sistemas', 'keywords': ['señales y sistemas']},
+            {'nombre': 'Sistemas Operativos', 'keywords': ['sistemas operativos']},
+            {'nombre': 'Curso de Formación General (VI)', 'keywords': ['curso de formacion general (vi)']},
+            {'nombre': 'Inglés III', 'keywords': ['ingles iii']},
+        ]
+    },
+    7: {
+        'nombre': 'Semestre VII',
+        'ramos': [
+            {'nombre': 'Gestión Organizacional', 'keywords': ['gestion organizacional']},
+            {'nombre': 'Sistemas Distribuidos', 'keywords': ['sistemas distribuidos']},
+            {'nombre': 'Comunicaciones Digitales', 'keywords': ['comunicaciones digitales']},
+            {'nombre': 'Ingeniería de Software', 'keywords': ['ingenieria de software']},
+            {'nombre': 'Curso de Formación General (VII)', 'keywords': ['curso de formacion general (vii)']},
+        ]
+    },
+    8: {
+        'nombre': 'Semestre VIII',
+        'ramos': [
+            {'nombre': 'Introducción a la Economía', 'keywords': ['introduccion a la economia']},
+            {'nombre': 'Tecnologías Inalámbricas', 'keywords': ['tecnologias inalambricas']},
+            {'nombre': 'Criptografía y Seguridad en Redes', 'keywords': ['criptografia y seguridad en redes']},
+            {'nombre': 'Inteligencia Artificial', 'keywords': ['inteligencia artificial']},
+            {'nombre': 'Evaluación de Proyectos TIC', 'keywords': ['evaluacion de proyectos tic']},
+            {'nombre': 'Práctica Profesional II', 'keywords': ['practica profesional ii']},
+        ]
+    },
+    9: {
+        'nombre': 'Semestre IX',
+        'ramos': [
+            {'nombre': 'Electivo Profesional', 'keywords': ['electivo profesional (1)']},
+            {'nombre': 'Arquitecturas Emergentes', 'keywords': ['arquitecturas emergentes']},
+            {'nombre': 'Electivo Profesional', 'keywords': ['electivo profesional (2)']},
+            {'nombre': 'Arquitectura de Software', 'keywords': ['arquitectura de software']},
+            {'nombre': 'Data Science', 'keywords': ['data science']},
+        ]
+    },
+    10: {
+        'nombre': 'Semestre X',
+        'ramos': [
+            {'nombre': 'Electivo Profesional', 'keywords': ['electivo profesional (3)']},
+            {'nombre': 'Electivo Profesional', 'keywords': ['electivo profesional (4)']},
+            {'nombre': 'Electivo Profesional', 'keywords': ['electivo profesional (5)']},
+            {'nombre': 'Electivo Profesional', 'keywords': ['electivo profesional (6)']},
+            {'nombre': 'Proyecto en TICs II', 'keywords': ['proyecto en tics ii']},
+        ]
+    },
+    11: {
+        'nombre': 'Semestre XI',
+        'ramos': [
+            {'nombre': 'Actividad de Titulación', 'keywords': ['actividad de titulacion']},
+            {'nombre': 'Opción Magíster', 'keywords': ['opcion magister']},
+        ]
+    },
+}
+
+def obtener_clases_malla(semestre=8, dia_filtro=None, ramo_filtro=None, hora_filtro=None):
+    sem_info = MALLA_ICIT.get(int(semestre))
+    if not sem_info:
+        return []
+    
+    clases = dm.get_classes()
+    resultados = []
+    
+    dia_int = None
+    if dia_filtro:
+        d_str = str(dia_filtro).strip().lower()
+        if d_str == 'hoy':
+            now = get_chile_now()
+            d_val = now.weekday() + 1
+            dia_int = d_val if d_val <= 5 else 1
+        elif d_str.isdigit() and 1 <= int(d_str) <= 7:
+            dia_int = int(d_str)
+
+    ramo_q = normalize_str(ramo_filtro) if ramo_filtro else None
+
+    for c in clases:
+        n = c.get('node', {})
+        curso_oficial = n.get('course', '')
+        curso_norm = normalize_str(curso_oficial)
+        
+        matched_ramo = None
+        for r in sem_info['ramos']:
+            if any(k in curso_norm for k in r['keywords']):
+                matched_ramo = r['nombre']
+                break
+                
+        if not matched_ramo:
+            continue
+            
+        if ramo_q and ramo_q not in normalize_str(matched_ramo):
+            continue
+            
+        if dia_int is not None and n.get('day') != dia_int:
+            continue
+
+        c_start = format_time(n.get('start', ''))
+        if hora_filtro:
+            h_q = str(hora_filtro).strip()
+            if not (h_q.startswith(c_start) or c_start.startswith(h_q.replace(":00", "")) or h_q in n.get('start', '')):
+                continue
+
+        for p, seccion in asignaciones_sala_seccion(n) or [('-', n.get('section', '-'))]:
+            if not p: continue
+            resultados.append({
+                'ramo_malla': matched_ramo,
+                'curso_oficial': curso_oficial,
+                'seccion': seccion,
+                'codigo': n.get('code', '-'),
+                'dia': nombre_dia(n.get('day')),
+                'dia_numero': n.get('day'),
+                'hora_inicio': c_start,
+                'hora_termino': format_time(n.get('finish', '')),
+                'sala': p,
+                'profe': n.get('teacher', 'No informado')
+            })
+
+    # Ordenar primero los ramos más temprano (8:30 en adelante), luego por día, nombre y sección
+    def sort_key_malla(item):
+        try:
+            sec_num = int(str(item['seccion']).strip())
+        except ValueError:
+            sec_num = 999
+        return (to_minutes(item['hora_inicio']), item['dia_numero'], item['ramo_malla'], sec_num)
+
+    resultados.sort(key=sort_key_malla)
+    return resultados
+
+def horario_de_sala(nombre_sala):
+    clases = dm.get_classes()
+    nombre_clean = (nombre_sala or "").strip().upper()
+    horario_semanal = {d: [] for d in range(1, 6)}  # Lunes a Viernes
+
+    for clase in clases:
+        nodo = clase.get('node', {})
+        asignacion = next(
+            ((sala, seccion) for sala, seccion in asignaciones_sala_seccion(nodo) if sala.upper() == nombre_clean),
+            None
+        )
+        if asignacion:
+            _, seccion = asignacion
+            dia = nodo.get('day')
+            if dia in horario_semanal:
+                horario_semanal[dia].append({
+                    'curso': nodo.get('course', '-'),
+                    'codigo': nodo.get('code', '-'),
+                    'seccion': seccion,
+                    'profe': nodo.get('teacher', 'No informado'),
+                    'start': format_time(nodo.get('start', '')),
+                    'finish': format_time(nodo.get('finish', ''))
+                })
+
+    for dia in horario_semanal:
+        horario_semanal[dia].sort(key=lambda x: to_minutes(x['start']))
+
+    return horario_semanal
+
+def calcular_bloque_actual(ref_datetime=None):
+    """Determina el día y bloque correspondiente a la hora local actual de Chile (America/Santiago)."""
+    now = ref_datetime or get_chile_now()
+    dia_real = now.weekday() + 1
+    current_min = now.hour * 60 + now.minute
+
+    es_fin_de_semana = dia_real > 5
+    primer_bloque_min = STANDARD_BLOCKS[0]["start_min"]  # 08:30 (510 min)
+    ultimo_bloque_min = STANDARD_BLOCKS[-1]["end_min"]   # 18:45 (1125 min)
+    fuera_de_hora = current_min < primer_bloque_min or current_min > ultimo_bloque_min
+
+    en_horario_valido = (not es_fin_de_semana) and (not fuera_de_hora)
+
+    dia_seleccionado = dia_real if not es_fin_de_semana else 1
+    bloque_seleccionado = STANDARD_BLOCKS[0]
+
+    for b in STANDARD_BLOCKS:
+        if current_min <= b["end_min"]:
+            bloque_seleccionado = b
+            break
+    else:
+        bloque_seleccionado = STANDARD_BLOCKS[0] if fuera_de_hora else STANDARD_BLOCKS[-1]
+
+    mensaje_horario = ""
+    if es_fin_de_semana:
+        mensaje_horario = "Actualmente es fin de semana. Las clases se dictan de lunes a viernes (08:30 - 18:45)."
+    elif current_min < primer_bloque_min:
+        mensaje_horario = "Aún no inicia el horario de clases de hoy (el primer bloque inicia a las 08:30)."
+    elif current_min > ultimo_bloque_min:
+        mensaje_horario = "La jornada de clases ya finalizó por hoy (el último bloque finalizó a las 18:45)."
+
+    return dia_seleccionado, bloque_seleccionado, en_horario_valido, mensaje_horario

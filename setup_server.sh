@@ -28,18 +28,18 @@ if [ -f /home/ubuntu/BuscadorSalas/nginx_buscadorsalas.conf ]; then
     sudo rm -f /etc/nginx/sites-enabled/default
     sudo ln -sf /etc/nginx/sites-available/buscadorsalas /etc/nginx/sites-enabled/buscadorsalas
     sudo nginx -t
-    sudo systemctl restart nginx
+    sudo systemctl reload nginx
     sudo systemctl enable nginx
 fi
 
-# 4. Actualizar dependencias de Python y reiniciar la app
-echo "[4/5] Instalando dependencias y reiniciando servicio buscadorsalas..."
+# 4. Actualizar dependencias y recargar Gunicorn sin interrumpir conexiones
+echo "[4/5] Instalando dependencias y recargando servicio buscadorsalas..."
 cd /home/ubuntu/BuscadorSalas
 if [ -d venv ]; then
     source venv/bin/activate
     pip install -r requirements.txt
 fi
-sudo systemctl restart buscadorsalas
+sudo systemctl reload buscadorsalas
 
 # 5. Estado final
 echo "[5/5] Verificando servicios..."

@@ -1,0 +1,28 @@
+<section class="panel" id="tab-notas">
+<!-- Controles de Perfil y Asignatura -->
+<div class="control-card" style="margin-bottom: 24px; padding: 12px 16px; position: relative; z-index: 50;">
+<div class="notas-controls-header">
+<!-- Perfil (Ver de) -->
+
+<!-- Asignatura -->
+<div style="flex-grow: 1;">
+<div class="custom-dropdown" id="dd-notas-curso" style="width: 100%; max-width: 800px;">
+<button class="dropdown-trigger" onclick="toggleDropdown('dd-notas-curso')" style="background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 16px; width: 100%; justify-content: space-between; border-radius: 8px; transition: border-color 0.2s;" type="button">
+<span id="label-notas-curso" style="color: #f8fafc; font-size: 14px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">Selecciona una asignatura...</span>
+<svg class="dropdown-chevron" fill="none" height="16" stroke="currentColor" stroke-width="2.5" style="color: #94a3b8; margin-left: 8px;" viewbox="0 0 24 24" width="16"><polyline points="6 9 12 15 18 9"></polyline></svg>
+</button>
+<div class="dropdown-menu">
+<div class="dropdown-item active" data-val="" onclick="selectDropdownItem('dd-notas-curso', '', 'Selecciona una asignatura...', renderNotasBuilder)">Selecciona una asignatura...</div>
+</div>
+<input id="notas-curso-select" type="hidden" value=""/>
+</div>
+</div>
+</div>
+</div>
+<div id="notas-builder-container" style="padding-top: 16px;">
+<div style="text-align: center; color: #64748b; padding: 40px; font-size: 14px;">
+                Selecciona una asignatura arriba para configurar o ver tus notas.
+            </div>
+</div>
+</section>
+

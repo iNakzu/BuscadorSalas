@@ -1,15 +1,8 @@
-let clockInterval = null;
 let timerInterval = null;
 let timerRunning = false;
 let timerRemaining = 60 * 60;
 let timerValues = { hours: 1, minutes: 0, seconds: 0 };
 let timerEndAt = null;
-let stopwatchInterval = null;
-let stopwatchRunning = false;
-let stopwatchCentiseconds = 0;
-let stopwatchLaps = [];
-let activeTimeMode = 'timer';
-let isZenMode = false;
 let isTimerFocusMode = false;
 const TIMER_SEGMENTS = 60;
 
@@ -31,81 +24,6 @@ function renderTimerSegments(progress) {
         </svg>
     `;
 }
-
-function initReloj() {
-    renderReloj();
-    renderTimer();
-    renderStopwatch();
-    startClock();
-}
-
-function startClock() {
-    if (clockInterval) clearInterval(clockInterval);
-    clockInterval = setInterval(updateClock, 1000);
-    updateClock();
-}
-
-function updateClock() {
-    const now = new Date();
-    const h = now.getHours().toString().padStart(2, '0');
-    const m = now.getMinutes().toString().padStart(2, '0');
-    const s = now.getSeconds().toString().padStart(2, '0');
-    const timeEl = document.getElementById('reloj-time-display');
-    if (timeEl) timeEl.innerHTML = `${h}:${m}<span class="reloj-sec">:${s}</span>`;
-
-    const dateText = now.toLocaleDateString('es-ES', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
-    const date = dateText.charAt(0).toUpperCase() + dateText.slice(1);
-    const dateEl = document.getElementById('reloj-date-display');
-    if (dateEl) dateEl.textContent = date;
-
-    const cityTimes = [
-        ['time-ny', 'America/New_York'],
-        ['time-wroclaw', 'Europe/Warsaw'],
-        ['time-tokyo', 'Asia/Tokyo']
-    ];
-    cityTimes.forEach(([id, timeZone]) => {
-        const cityEl = document.getElementById(id);
-        if (cityEl) {
-            cityEl.textContent = now.toLocaleTimeString('es-ES', {
-                timeZone,
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
-    });
-}
-
-function toggleZenMode() {
-    isZenMode = !isZenMode;
-    const wrapper = document.querySelector('#reloj-container .reloj-wrapper');
-    if (wrapper) wrapper.classList.toggle('zen-mode', isZenMode);
-}
-
-function renderReloj() {
-    const container = document.getElementById('reloj-container');
-    if (!container) return;
-    container.innerHTML = `
-        <div class="reloj-wrapper ${isZenMode ? 'zen-mode' : ''}">
-            <div class="reloj-header hide-in-zen">
-                <h2>Tu reloj está exacto.</h2>
-                <p>La precisión de sincronización es de ±0.015 s.<br>Hora en Santiago, Chile ahora:</p>
-            </div>
-            <div class="reloj-time clickeable-time" id="reloj-time-display" onclick="toggleZenMode()">00:00<span class="reloj-sec">:00</span></div>
-            <div class="reloj-date hide-in-zen" id="reloj-date-display"></div>
-            <div class="reloj-cities hide-in-zen">
-                <div class="city-box"><div class="city-name">Nueva York</div><div class="city-time" id="time-ny">--:--</div></div>
-                <div class="city-box"><div class="city-name">Wrocław</div><div class="city-time" id="time-wroclaw">--:--</div></div>
-                <div class="city-box"><div class="city-name">Tokio</div><div class="city-time" id="time-tokyo">--:--</div></div>
-            </div>
-        </div>
-    `;
-}
-
 function renderTimer() {
     const container = document.getElementById('timer-container');
     if (!container) return;
@@ -171,30 +89,6 @@ function toggleTimerFocusMode() {
     if (page) page.classList.toggle('timer-focus-mode', isTimerFocusMode);
     document.body.classList.toggle('timer-focus-active', isTimerFocusMode);
 }
-
-function renderStopwatch() {
-    const container = document.getElementById('cronometro-container');
-    if (!container) return;
-    container.innerHTML = `
-        <div class="tiempo-page">
-            <div class="reloj-time tiempo-stopwatch-display" id="stopwatch-display">00:00<span class="reloj-sec">:00</span></div>
-            <div class="tiempo-primary-actions" style="gap:20px;">
-                <button class="estudio-btn-glossy btn-reset" onclick="recordLap()" title="Vuelta" ${stopwatchRunning ? '' : 'disabled'} style="${stopwatchRunning ? '' : 'opacity: 0.5; cursor: not-allowed;'}">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
-                </button>
-                <button id="stopwatch-main-btn" class="estudio-btn-glossy ${stopwatchRunning ? 'btn-pause' : 'btn-start'}" onclick="toggleStopwatch()" title="${stopwatchRunning ? 'Pausar' : 'Iniciar'}">
-                    ${stopwatchRunning ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>` : `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-left:2px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`}
-                </button>
-                <button class="estudio-btn-glossy btn-reset" onclick="resetStopwatch()" title="Reiniciar">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
-                </button>
-            </div>
-            <div id="stopwatch-laps" class="tiempo-laps"></div>
-        </div>
-    `;
-    updateStopwatchUI();
-}
-
 function renderWheel(field, label, min, max) {
     const value = timerValues[field];
     const previous = value <= min ? max : value - 1;
@@ -268,13 +162,6 @@ function bindTimerWheelGestures() {
         wheel.addEventListener('pointerup', finishDrag);
         wheel.addEventListener('pointercancel', finishDrag);
     });
-}
-
-function setTimeMode(mode) {
-    if (timerRunning || stopwatchRunning) return;
-    activeTimeMode = mode;
-    renderTimer();
-    renderStopwatch();
 }
 
 function changeTimerValue(field, delta, shouldRender = true) {
@@ -433,71 +320,4 @@ function updateTimerUI() {
     }
 }
 
-function toggleStopwatch() {
-    if (stopwatchRunning) {
-        clearInterval(stopwatchInterval);
-        stopwatchRunning = false;
-    } else {
-        stopwatchRunning = true;
-        stopwatchInterval = setInterval(() => {
-            stopwatchCentiseconds += 1;
-            updateStopwatchUI();
-        }, 10);
-    }
-    updateStopwatchUI();
-}
-
-function resetStopwatch() {
-    clearInterval(stopwatchInterval);
-    stopwatchRunning = false;
-    stopwatchCentiseconds = 0;
-    stopwatchLaps = [];
-    updateStopwatchUI();
-}
-
-function recordLap() {
-    if (!stopwatchRunning) return;
-    stopwatchLaps.unshift(formatStopwatch(stopwatchCentiseconds));
-    updateStopwatchUI();
-}
-
-function formatStopwatch(totalCentiseconds) {
-    const seconds = Math.floor(totalCentiseconds / 100);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    return `${formatUnit(hours)}:${formatUnit(minutes % 60)}.${formatUnit(seconds % 60)}`;
-}
-
-function updateStopwatchUI() {
-    const display = document.getElementById('stopwatch-display');
-    if (display) {
-        const seconds = Math.floor(stopwatchCentiseconds / 100);
-        const minutes = Math.floor(seconds / 60);
-        const hours = Math.floor(minutes / 60);
-        display.innerHTML = `${formatUnit(hours)}:${formatUnit(minutes % 60)}<span class="reloj-sec">:${formatUnit(seconds % 60)}</span>`;
-    }
-    const button = document.getElementById('stopwatch-main-btn');
-    if (button) {
-        button.innerHTML = stopwatchRunning 
-            ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>` 
-            : `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-left:2px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
-        button.className = stopwatchRunning ? 'estudio-btn-glossy btn-pause' : 'estudio-btn-glossy btn-start';
-        button.title = stopwatchRunning ? 'Pausar' : 'Iniciar';
-    }
-    const lapButton = document.querySelector('#cronometro-container .estudio-btn-glossy[title="Vuelta"]');
-    if (lapButton) {
-        lapButton.disabled = !stopwatchRunning;
-        lapButton.style = stopwatchRunning ? '' : 'opacity: 0.5; cursor: not-allowed;';
-    }
-    const laps = document.getElementById('stopwatch-laps');
-    if (laps) laps.innerHTML = stopwatchLaps.map((lap, index) => {
-        const num = stopwatchLaps.length - index;
-        const isLast = index === 0;
-        return `<div class="lap-row${isLast ? ' lap-row--latest' : ''}">
-            <span class="lap-num">${num}</span>
-            <span class="lap-time">${lap}</span>
-        </div>`;
-    }).join('');
-}
-
-document.addEventListener('DOMContentLoaded', initReloj);
+document.addEventListener('DOMContentLoaded', renderTimer);

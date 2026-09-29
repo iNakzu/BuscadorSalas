@@ -297,35 +297,7 @@ function renderSolemnes() {
 
 
     const searchInput = document.getElementById('solemnes-search');
-    const friendSelect = document.getElementById('solemnes-friend-select');
     const query = searchInput ? normStr(searchInput.value) : '';
-    const friendId = friendSelect ? friendSelect.value : '';
-
-    let friendRamos = [];
-    let friendEscuela = "";
-    if (friendId) {
-        let scheduleObj = null;
-        if (friendId === 'nakzu' && typeof MI_HORARIO_DATA !== 'undefined') {
-            scheduleObj = MI_HORARIO_DATA;
-        } else if (typeof HORARIOS_GUARDADOS !== 'undefined' && HORARIOS_GUARDADOS[friendId]) {
-            scheduleObj = HORARIOS_GUARDADOS[friendId];
-        }
-        
-        if (scheduleObj && scheduleObj.clases) {
-            friendEscuela = scheduleObj.escuela || "";
-            friendRamos = [];
-            window.friendRamosRoles = {};
-            scheduleObj.clases.forEach(c => {
-                const n = normStr(c.curso);
-                if (n) {
-                    friendRamos.push(n);
-                    if (c.rol === 'assistant') window.friendRamosRoles[n] = 'assistant';
-                    else if (!window.friendRamosRoles[n]) window.friendRamosRoles[n] = 'student';
-                }
-            });
-            friendRamos = [...new Set(friendRamos)];
-        }
-    }
 
     const mapDias = {
         1: { title: "Día 1", sub: "Jueves 24 Sept" },
@@ -385,39 +357,9 @@ function renderSolemnes() {
         for (let d = 1; d <= 5; d++) {
             const cellData = SOLEMNES_DATA.find(item => item.dia === d && item.horario === b.raw);
             const ramos = cellData ? cellData.ramos : [];
-            let matches = ramos;
-            if (query) {
-                matches = ramos.filter(r => normStr(r.nombre).includes(query));
-            } else if (friendId) {
-                matches = ramos.filter(r => {
-                    const normR = normStr(r.nombre);
-                    return friendRamos.some(fr => {
-                        let baseMatched = false;
-                        const examBaseName = normR.replace(/\s*\(.*?\)\s*/g, '').trim();
-                        
-                        if (isFuzzyMatch(fr, examBaseName)) {
-                            baseMatched = true;
-                        } else if (examBaseName.includes('/')) {
-                            const parts = examBaseName.split('/').map(p => p.trim());
-                            if (parts.some(p => isFuzzyMatch(p, fr))) baseMatched = true;
-                        }
-
-                        if (baseMatched) {
-                            if (normR.includes('(')) {
-                                if (friendEscuela && normR.includes(friendEscuela.toLowerCase())) {
-                                    return true;
-                                }
-                                return false;
-                            } else {
-                                return true;
-                            }
-                        }
-                        return false;
-                    });
-                });
-            }
+            const matches = query ? ramos.filter(r => normStr(r.nombre).includes(query)) : ramos;
             const hasMatch = matches.length > 0;
-            const isFiltering = query !== '' || friendId !== '';
+            const isFiltering = query !== '';
             
             // Opacity logic: if filtering and no matches in this cell, dim the whole cell heavily
             const cellOpacity = (isFiltering && !hasMatch && ramos.length > 0) ? '0.15' : '1';
@@ -433,40 +375,7 @@ function renderSolemnes() {
 
             let cellContent = '';
             ramos.forEach(r => {
-                let isMatch = true;
-                let matchedRole = 'student';
-                if (query) {
-                    isMatch = normStr(r.nombre).includes(query);
-                } else if (friendId) {
-                    const normR = normStr(r.nombre);
-                    isMatch = friendRamos.some(fr => {
-                        let baseMatched = false;
-                        const examBaseName = normR.replace(/\s*\(.*?\)\s*/g, '').trim();
-                        
-                        if (isFuzzyMatch(fr, examBaseName)) {
-                            baseMatched = true;
-                        } else if (examBaseName.includes('/')) {
-                            const parts = examBaseName.split('/').map(p => p.trim());
-                            if (parts.some(p => isFuzzyMatch(p, fr))) baseMatched = true;
-                        }
-
-                        if (baseMatched) {
-                            let isValid = false;
-                            if (normR.includes('(')) {
-                                if (friendEscuela && normR.includes(friendEscuela.toLowerCase())) {
-                                    isValid = true;
-                                }
-                            } else {
-                                isValid = true;
-                            }
-                            if (isValid) {
-                                matchedRole = window.friendRamosRoles[fr] || 'student';
-                                return true;
-                            }
-                        }
-                        return false;
-                    });
-                }
+                const isMatch = !query || normStr(r.nombre).includes(query);
                 
                 let theme = { bg: 'rgba(56, 189, 248, 0.15)', border: 'rgba(56, 189, 248, 0.4)', color: '#38bdf8' }; // Default Celeste
                 
@@ -483,15 +392,6 @@ function renderSolemnes() {
                         theme = { bg: 'rgba(168, 85, 247, 0.15)', border: 'rgba(168, 85, 247, 0.4)', color: '#c084fc' };
                     } else if (cLower.includes('blanco') || cLower.includes('sin color')) {
                         theme = { bg: 'rgba(255, 255, 255, 0.05)', border: 'rgba(255, 255, 255, 0.2)', color: '#cbd5e1' };
-                    }
-                }
-                
-                // If a friend schedule is selected and this is a match, color it stark white to easily spot it
-                if (friendId && isMatch) {
-                    if (matchedRole === 'assistant') {
-                        theme = { bg: 'linear-gradient(135deg, rgba(234,179,8,0.25), rgba(202,138,4,0.25))', border: 'rgba(234,179,8,0.7)', color: '#eab308' };
-                    } else {
-                        theme = { bg: 'rgba(255, 255, 255, 0.15)', border: 'rgba(255, 255, 255, 0.7)', color: '#ffffff' };
                     }
                 }
                 
@@ -550,45 +450,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 100);
     }
 });
-
-const SOLEMNES_PROFILES = [
-    { val: '', label: 'Todos' },
-    { val: 'nakzu', label: 'Nakzu' },
-    { val: 'alexis', label: 'Aleex1s' },
-    { val: 'felipe', label: 'Felipe' }
-];
-let currentSolemnesProfileIndex = 0;
-
-window.cycleSolemnesProfile = function(direction) {
-    const newIndex = (currentSolemnesProfileIndex + direction + SOLEMNES_PROFILES.length) % SOLEMNES_PROFILES.length;
-    const oldProfile = SOLEMNES_PROFILES[currentSolemnesProfileIndex];
-    const newProfile = SOLEMNES_PROFILES[newIndex];
-    currentSolemnesProfileIndex = newIndex;
-
-    const labelEl = document.getElementById('label-solemnes-friend-cycler');
-    const inputEl = document.getElementById('solemnes-friend-select');
-    
-    if (labelEl && inputEl) {
-        const slideOutClass = direction > 0 ? 'slide-out-left' : 'slide-out-right';
-        const slideInClass = direction > 0 ? 'slide-in-right' : 'slide-in-left';
-        
-        labelEl.classList.remove('active');
-        labelEl.classList.add(slideOutClass);
-        
-        setTimeout(() => {
-            labelEl.textContent = newProfile.label;
-            labelEl.classList.remove(slideOutClass);
-            labelEl.classList.add(slideInClass);
-            
-            void labelEl.offsetWidth; // Force reflow
-            
-            labelEl.classList.remove(slideInClass);
-            labelEl.classList.add('active');
-            
-            inputEl.value = newProfile.val;
-            if (typeof renderSolemnes === 'function') {
-                renderSolemnes();
-            }
-        }, 200);
-    }
-};

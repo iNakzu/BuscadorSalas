@@ -1,0 +1,47 @@
+<section class="panel" id="tab-agenda">
+<!-- Controles de Perfil y Búsqueda -->
+<div class="control-card" style="margin-bottom: 24px; padding: 16px; position: relative; z-index: 50;">
+<div style="position: relative; width: 100%;">
+<svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #64748b;" viewbox="0 0 24 24" width="18">
+<circle cx="11" cy="11" r="8"></circle>
+<line x1="21" x2="16.65" y1="21" y2="16.65"></line>
+</svg>
+<input autocomplete="off" id="input-agenda-search" onkeyup="triggerAgendaSearch()" placeholder="Buscar evento..." style="width: 100%; max-width: 800px; background: #0f172a; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 12px 32px 12px 42px; color: #f8fafc; font-size: 14px; outline: none; transition: border-color 0.2s;" type="text"/>
+<button class="clear-btn" id="clear-agenda-btn" onclick="limpiarAgendaSearch()" onmouseout="this.style.color='#94a3b8'" onmouseover="this.style.color='#ffffff'" style="display: none; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: #94a3b8; cursor: pointer; padding: 4px; line-height: 0; border-radius: 4px;" type="button">
+<svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="16">
+<line x1="18" x2="6" y1="6" y2="18"></line>
+<line x1="6" x2="18" y1="6" y2="18"></line>
+</svg>
+</button>
+</div>
+
+</div>
+<!-- CALENDARIO GIGANTE -->
+<div id="agenda-calendar-wrapper" style="padding: 0 8px 24px 8px; max-width: 760px; margin: 0 auto;">
+<div class="calendar-header" style="display: flex; justify-content: center; align-items: center; gap: 16px; margin-bottom: 16px;">
+<button class="cal-nav-btn" onclick="changeCalendarMonth(-1)" type="button">
+<svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" viewbox="0 0 24 24" width="24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+</button>
+<h3 id="calendar-month-title" style="margin: 0; font-size: 18px; font-weight: 700; color: #f8fafc; text-transform: capitalize;">Septiembre 2026</h3>
+<button class="cal-nav-btn" onclick="changeCalendarMonth(1)" type="button">
+<svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" viewbox="0 0 24 24" width="24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</button>
+</div>
+<div class="calendar-grid">
+<!-- Días de la semana -->
+<div class="cal-weekday">L</div>
+<div class="cal-weekday">M</div>
+<div class="cal-weekday">M</div>
+<div class="cal-weekday">J</div>
+<div class="cal-weekday">V</div>
+<div class="cal-weekday">S</div>
+<div class="cal-weekday">D</div>
+<!-- Días numéricos (inyectados por JS) -->
+<div id="calendar-days-container" style="display: contents;"></div>
+</div>
+</div>
+<div id="agenda-container" style="padding: 24px;">
+<!-- Renderizado dinámico -->
+</div>
+</section>
+

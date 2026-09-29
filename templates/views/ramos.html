@@ -1,0 +1,52 @@
+<section class="panel" id="tab-ramos">
+<div class="control-card">
+<!-- Barra de búsqueda con lupa para ramo -->
+<div class="search-field">
+<svg fill="none" height="17" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="17">
+<circle cx="11" cy="11" r="8"></circle>
+<line x1="21" x2="16.65" y1="21" y2="16.65"></line>
+</svg>
+<input autocomplete="off" id="input-ramo-search" oninput="ejecutarBusquedaRamo()" placeholder="Buscar ramo o código..." type="text"/>
+<button onclick="irABloqueActual('ramos')" onmouseout="this.style.color='#94a3b8'" onmouseover="this.style.color='#38bdf8'" style="background: transparent; border: none; color: #94a3b8; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px; border-radius: 6px; transition: color 0.2s;" title="Ir al horario actual" type="button">
+<svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="18"><line x1="10" x2="14" y1="2" y2="2"></line><line x1="12" x2="15" y1="14" y2="11"></line><circle cx="12" cy="14" r="8"></circle></svg>
+</button>
+<button class="clear-btn" id="clear-ramo-btn" onclick="limpiarRamo()" type="button">×</button>
+</div>
+<!-- Información del bloque actual, debajo del buscador -->
+<div class="window-alert-banner" id="banner-alerta-ramo">
+<div id="texto-alerta-ramo"></div>
+</div>
+<!-- Selector de Día para el ramo -->
+<div class="control-group">
+<div class="section-label">Filtrar por Día</div>
+<div class="pill-bar" id="bar-ramo-dia">
+<button class="pill-btn {% if sel.dia == '1' %}active{% endif %}" data-dia="1" onclick="setRamoDia('1', this)" type="button">Lunes</button>
+<button class="pill-btn {% if sel.dia == '2' %}active{% endif %}" data-dia="2" onclick="setRamoDia('2', this)" type="button">Martes</button>
+<button class="pill-btn {% if sel.dia == '3' %}active{% endif %}" data-dia="3" onclick="setRamoDia('3', this)" type="button">Miércoles</button>
+<button class="pill-btn {% if sel.dia == '4' %}active{% endif %}" data-dia="4" onclick="setRamoDia('4', this)" type="button">Jueves</button>
+<button class="pill-btn {% if sel.dia == '5' %}active{% endif %}" data-dia="5" onclick="setRamoDia('5', this)" type="button">Viernes</button>
+</div>
+</div>
+<!-- Selector de Horario Opcional para Ramo (ninguno marcado por defecto) -->
+<div class="control-group">
+<div class="section-label">Filtrar por Bloque Horario (Opcional - Haz clic para activar o desactivar)</div>
+<div class="pill-bar" id="bar-ramo-hora">
+<button class="pill-btn normal-block" data-hora="08:30:00" onclick="setRamoHora('08:30:00', this)" type="button">08:30 - 09:50</button>
+<button class="pill-btn normal-block" data-hora="10:00:00" onclick="setRamoHora('10:00:00', this)" type="button">10:00 - 11:20</button>
+<button class="pill-btn normal-block" data-hora="11:30:00" onclick="setRamoHora('11:30:00', this)" type="button">11:30 - 12:50</button>
+<button class="pill-btn normal-block" data-hora="13:00:00" onclick="setRamoHora('13:00:00', this)" type="button">13:00 - 14:20</button>
+<button class="pill-btn normal-block" data-hora="14:30:00" onclick="setRamoHora('14:30:00', this)" type="button">14:30 - 15:50</button>
+<button class="pill-btn normal-block" data-hora="16:00:00" onclick="setRamoHora('16:00:00', this)" type="button">16:00 - 17:20</button>
+<button class="pill-btn normal-block" data-hora="17:25:00" onclick="setRamoHora('17:25:00', this)" type="button">17:25 - 18:45</button>
+<button class="pill-btn solemne-block" data-hora="08:30:00_S" onclick="setRamoHora('08:30:00_S', this)" style="display:none;" type="button">08:30 - 10:30</button>
+<button class="pill-btn solemne-block" data-hora="10:45:00_S" onclick="setRamoHora('10:45:00_S', this)" style="display:none;" type="button">10:45 - 12:45</button>
+<button class="pill-btn solemne-block" data-hora="13:00:00_S" onclick="setRamoHora('13:00:00_S', this)" style="display:none;" type="button">13:00 - 15:00</button>
+<button class="pill-btn solemne-block" data-hora="15:15:00_S" onclick="setRamoHora('15:15:00_S', this)" style="display:none;" type="button">15:15 - 17:15</button>
+<button class="pill-btn solemne-block" data-hora="17:30:00_S" onclick="setRamoHora('17:30:00_S', this)" style="display:none;" type="button">17:30 - 19:30</button>
+</div>
+</div>
+</div>
+<div class="cards-grid" id="ramo-results-grid">
+<div class="empty-state">Ingresa el nombre o código de una asignatura para ver sus secciones, horarios y salas asignadas.</div>
+</div>
+</section>

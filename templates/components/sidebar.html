@@ -1,0 +1,29 @@
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<aside class="tabs-wrapper" id="sidebar-menu">
+  <div class="brand-meta">
+    <h1>Portal Estudiantil</h1>
+    <p class="brand-status-row"><span class="status-pill"><span class="pulse-dot"></span><span id="label-sync-count">{{ status.total_classes }} clases</span></span></p>
+  </div>
+  <div class="auth-card" id="auth-card">
+    <p id="auth-status">Inicia sesión para guardar tus datos personales.</p>
+    <button type="button" id="auth-login" class="auth-button" onclick="PortalAuth.signIn()">Continuar con Google</button>
+    <button type="button" id="auth-logout" class="auth-button auth-button-secondary" onclick="PortalAuth.signOut()" hidden>Cerrar sesión</button>
+  </div>
+  <nav class="tabs" aria-label="Navegación principal">
+  {% set tabs = [
+    ('tab-salas','Salas Disponibles',false), ('tab-profes','Buscar por Profesor',false),
+    ('tab-ramos','Buscar por Ramo',false), ('tab-malla','Ramos por Semestre',false),
+    ('tab-horario','Horario por Sala',false), ('tab-solemnes','Solemnes',false),
+    ('tab-mihorario','Horarios',true), ('tab-notas','Notas',true),
+    ('tab-agenda','Agenda',true), ('tab-progreso','Malla',true),
+    ('tab-estudio','Estudio',false), ('tab-timer','Timer',false)
+  ] %}
+  {% for id, label, private in tabs %}
+    <button type="button" class="tab-btn{% if loop.first %} active{% endif %}" data-tab="{{ id }}"{% if private %} data-private="true"{% endif %} onclick="cambiarTab('{{ id }}', this)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8 12h8"></path></svg>
+      <span>{{ label }}</span>{% if private %}<span class="private-mark" aria-label="Requiere sesión">●</span>{% endif %}
+    </button>
+  {% endfor %}
+  </nav>
+  <button type="button" class="pwa-install-btn" id="pwa-install-btn" onclick="instalarPortalPwa()" hidden>Instalar aplicación</button>
+</aside>

@@ -59,6 +59,7 @@ function guardarMiHorarioEnStorage() {
         if (typeof localStorage !== 'undefined') {
             localStorage.setItem('mi_horario_custom_v1', JSON.stringify(MI_HORARIO_DATA));
         }
+        if (window.PortalStore) window.PortalStore.save('schedule', MI_HORARIO_DATA);
     } catch (e) {
         console.error('Error al guardar mi horario en localStorage', e);
     }
@@ -126,61 +127,8 @@ function inicializarMiHorario() {
 }
 
 
-let vistaHorarioActual = 'nakzu'; // 'yo', 'alexis', 'cruce'
-
-function cambiarVistaHorario(vista, btn) {
-    vistaHorarioActual = vista;
-    const bar = document.getElementById('pill-bar-horarios');
-    if (bar) bar.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
-    if (btn) btn.classList.add('active');
-    renderMiHorario();
-    actualizarHeroMiHorario();
-    if (typeof autoSyncHorario === 'function') autoSyncHorario(vista);
-}
-
-function generarHorarioCruce() {
-    const cruce = [];
-    let id_counter = 1;
-    const diasNombres = {1: 'Lunes', 2: 'Martes', 3: 'Miércoles', 4: 'Jueves', 5: 'Viernes'};
-    for (let dia = 1; dia <= 5; dia++) {
-        for (let b of BLOQUES_HORARIOS) {
-            let alguienOcupado = false;
-            for (const amigo of cruceSeleccionados) {
-                let items = (amigo === 'nakzu') ? MI_HORARIO_DATA.clases : HORARIOS_GUARDADOS[amigo].clases;
-                if (!items) continue;
-                const clase = items.find(c => c.dia === dia && c.bloqueNum === b.num);
-                if (clase) {
-                    alguienOcupado = true;
-                    break;
-                }
-            }
-            
-            if (!alguienOcupado) {
-                cruce.push({
-                    id: 'cruce-' + id_counter++,
-                    dia: dia,
-                    diaNombre: diasNombres[dia],
-                    bloqueNum: b.num,
-                    bloqueLabel: b.label,
-                    horaInicio: b.inicio,
-                    horaFin: b.fin,
-                    curso: '¡Todos libres!',
-                    tipo: 'Cruce Libre',
-                    seccion: '-',
-                    sala: '-',
-                    profesor: '-',
-                    rol: 'cruce'
-                });
-            }
-        }
-    }
-    return cruce;
-}
-
 function getHorarioActivo() {
-    if (vistaHorarioActual === 'cruce') return generarHorarioCruce();
-    if (vistaHorarioActual === 'nakzu') return MI_HORARIO_DATA.clases;
-    return HORARIOS_GUARDADOS[vistaHorarioActual] ? HORARIOS_GUARDADOS[vistaHorarioActual].clases : MI_HORARIO_DATA.clases;
+    return MI_HORARIO_DATA.clases;
 }
 
 function actualizarHeroMiHorario() {
@@ -422,7 +370,6 @@ function actualizarContadoresFiltrosMiHorario() {
 }
 
 function eliminarClaseMiHorario(id, ev) {
-    if (vistaHorarioActual !== 'nakzu') return;
     if (ev) ev.stopPropagation();
     const idx = MI_HORARIO_DATA.clases.findIndex(c => c.id === id);
     if (idx === -1) return;
@@ -548,7 +495,6 @@ if (typeof document !== 'undefined' && document.addEventListener) {
 }
 
 function abrirModalAgregarClase(diaNum, bloqueNum) {
-    if (vistaHorarioActual !== 'nakzu') { mostrarToast('Solo puedes editar tu propio horario'); return; }
     const bloque = BLOQUES_HORARIOS.find(b => b.num === bloqueNum);
     const diasNombres = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
     const diaNombre = diasNombres[diaNum] || 'Día';
@@ -919,18 +865,18 @@ function renderMiHorario() {
                     const tipoHtml = `<span class="my-type-tag ${tipoCls}"><span>${escapeHtml(c.tipo || 'Cátedra')}</span>${secText}</span>`;
 
                     cardsHtml += `
-                        <div class="my-class-card ${tipoCls} ${c.rol === 'assistant' ? 'is-assistant' : (c.rol === 'cruce' ? 'is-cruce' : 'is-student')} ${isCurrent ? 'is-current-class' : ''}" id="card-${c.id}">
+                        <div class="my-class-card ${tipoCls} ${c.rol === 'assistant' ? 'is-assistant' : 'is-student'} ${isCurrent ? 'is-current-class' : ''}" id="card-${c.id}">
                             <div class="my-card-header">
                                 <span class="my-card-time">
                                     ${isCurrent ? '<span class="pulse-dot-white"></span>' : '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>'}
                                     <span>${c.bloqueLabel}</span>
                                 </span>
-                                ${vistaHorarioActual === 'nakzu' ? `<button type="button" class="my-btn-delete" onclick="eliminarClaseMiHorario('${c.id}', event)" title="Eliminar asignatura de este bloque">` : '<div style="display:none">'}
+                                <button type="button" class="my-btn-delete" onclick="eliminarClaseMiHorario('${c.id}', event)" title="Eliminar asignatura de este bloque">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M3 6h18"></path>
                                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                                     </svg>
-                                ${vistaHorarioActual === 'nakzu' ? '</button>' : '</div>'}
+                                </button>
                             </div>
                             <div class="my-card-title">${escapeHtml(c.curso)}</div>
                             <div class="my-card-meta">
@@ -950,7 +896,7 @@ function renderMiHorario() {
                     `;
                 } else {
                     cardsHtml += `
-                        <div class="my-empty-slot ${isCurrent ? 'is-current-empty' : ''}" ${vistaHorarioActual === 'nakzu' ? `onclick="abrirModalAgregarClase(${d.num}, ${b.num})" title="Haz clic para agregar una asignatura en este bloque (${b.label})"` : `title="Bloque libre"`} style="${vistaHorarioActual !== 'nakzu' ? 'cursor: default;' : ''}">
+                        <div class="my-empty-slot ${isCurrent ? 'is-current-empty' : ''}" onclick="abrirModalAgregarClase(${d.num}, ${b.num})" title="Haz clic para agregar una asignatura en este bloque (${b.label})">
                             <div class="my-empty-header">
                                 <span class="my-empty-time">
                                     ${isCurrent ? '<span class="pulse-dot-white"></span>' : '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>'}
@@ -995,125 +941,10 @@ function renderMiHorario() {
 }
 
 
-let cruceSeleccionados = [];
-
-function abrirModalCruce() {
-    const modal = document.getElementById('modal-cruce');
-    const container = document.getElementById('cruce-checkboxes');
-    if (!modal || !container) return;
-
-    const options = [{id: 'nakzu', name: 'Nakzu'}];
-    for (const amigo in HORARIOS_GUARDADOS) {
-        if (amigo !== 'nakzu') {
-            options.push({id: amigo, name: amigo.charAt(0).toUpperCase() + amigo.slice(1)});
-        }
-    }
-
-    let html = '';
-    for (const opt of options) {
-        // Por defecto Nakzu activo y otro amigo también activo
-        const isChecked = cruceSeleccionados.length > 0 ? cruceSeleccionados.includes(opt.id) : true;
-        
-        html += `
-            <label class="cruce-option">
-                <div class="cruce-info">
-                    <div class="cruce-avatar ${opt.id === 'nakzu' ? 'is-me' : ''}">${opt.name.charAt(0)}</div>
-                    <span>${escapeHtml(opt.name)}</span>
-                </div>
-                <input type="checkbox" value="${opt.id}" ${isChecked ? 'checked' : ''} class="cruce-checkbox">
-                <div class="cruce-toggle"></div>
-            </label>
-        `;
-    }
-
-    container.innerHTML = html;
-    modal.style.display = 'flex';
-}
-
-function cerrarModalCruce() {
-    const modal = document.getElementById('modal-cruce');
-    if (modal) modal.style.display = 'none';
-}
-
-function ejecutarCruce() {
-    const container = document.getElementById('cruce-checkboxes');
-    const checkboxes = container.querySelectorAll('input[type="checkbox"]:checked');
-    cruceSeleccionados = Array.from(checkboxes).map(cb => cb.value);
-
-    if (cruceSeleccionados.length === 0) {
-        mostrarToast('Debes seleccionar al menos un horario para comparar.');
-        return;
-    }
-
-    cerrarModalCruce();
-    
-    const btnCruce = document.querySelector('.pill-btn[onclick*="abrirModalCruce"]');
-    cambiarVistaHorario('cruce', btnCruce);
-}
-
-window.triggerHorariosChange = function() {
-    const val = document.getElementById('horarios-friend-select').value;
-    cambiarVistaHorario(val, null);
-};
-
-const HORARIO_PROFILES = [
-    { val: 'nakzu', label: 'Nakzu' },
-    { val: 'alexis', label: 'Aleex1s' },
-    { val: 'felipe', label: 'Felipe' }
-];
-let currentHorarioProfileIndex = 0;
-
-window.cycleHorarioProfile = function(direction) {
-    const newIndex = (currentHorarioProfileIndex + direction + HORARIO_PROFILES.length) % HORARIO_PROFILES.length;
-    const oldProfile = HORARIO_PROFILES[currentHorarioProfileIndex];
-    const newProfile = HORARIO_PROFILES[newIndex];
-    currentHorarioProfileIndex = newIndex;
-
-    const labelEl = document.getElementById('label-horarios-friend-cycler');
-    const inputEl = document.getElementById('horarios-friend-select');
-    
-    if (labelEl && inputEl) {
-        // Preparar animación (dirección)
-        const slideOutClass = direction > 0 ? 'slide-out-left' : 'slide-out-right';
-        const slideInClass = direction > 0 ? 'slide-in-right' : 'slide-in-left';
-        
-        labelEl.classList.remove('active');
-        labelEl.classList.add(slideOutClass);
-        
-        setTimeout(() => {
-            // Cambiar texto e iniciar estado de entrada
-            labelEl.textContent = newProfile.label;
-            labelEl.classList.remove(slideOutClass);
-            labelEl.classList.add(slideInClass);
-            
-            // Forzar reflow
-            void labelEl.offsetWidth;
-            
-            // Animar hacia el centro
-            labelEl.classList.remove(slideInClass);
-            labelEl.classList.add('active');
-            
-            // Actualizar input y disparar lógica
-            inputEl.value = newProfile.val;
-            if (typeof window.triggerHorariosChange === 'function') {
-                window.triggerHorariosChange();
-            }
-        }, 200); // Mitad de la animación
-    }
-};
-
-let syncCache = {};
-async function autoSyncHorario(friendId) {
-    if (syncCache[friendId]) return; // Ya se sincronizó en esta sesión
-    
-    let targetObj = null;
-    if (friendId === 'nakzu') {
-        targetObj = MI_HORARIO_DATA;
-    } else if (HORARIOS_GUARDADOS && HORARIOS_GUARDADOS[friendId]) {
-        targetObj = HORARIOS_GUARDADOS[friendId];
-    }
-    
-    if (!targetObj || !targetObj.clases || targetObj.clases.length === 0) return;
+let horarioSincronizado = false;
+async function autoSyncHorario() {
+    if (horarioSincronizado || !MI_HORARIO_DATA.clases.length) return;
+    const targetObj = MI_HORARIO_DATA;
     
     try {
         const resp = await fetch('/api/sync_horario', {
@@ -1126,8 +957,8 @@ async function autoSyncHorario(friendId) {
             const nuevasClases = await resp.json();
             if (nuevasClases && nuevasClases.length > 0) {
                 targetObj.clases = nuevasClases;
-                syncCache[friendId] = true;
-                if (friendId === 'nakzu') saveMiHorario();
+                horarioSincronizado = true;
+                guardarMiHorarioEnStorage();
                 renderMiHorario(); // Re-renderizar con salas actualizadas
             }
         }
@@ -1137,4 +968,13 @@ async function autoSyncHorario(friendId) {
 }
 
 // Auto-sync al cargar
-setTimeout(() => autoSyncHorario('nakzu'), 1500);
+setTimeout(() => autoSyncHorario(), 1500);
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.PortalStore) window.PortalStore.register('schedule', 'mi_horario_custom_v1', MI_HORARIO_DEFAULT_DATA);
+});
+document.addEventListener('portal:remote-state', event => {
+    if (event.detail.module !== 'schedule') return;
+    MI_HORARIO_DATA = event.detail.payload;
+    renderMiHorario();
+});

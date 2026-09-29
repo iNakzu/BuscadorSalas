@@ -1,12 +1,5 @@
 let AGENDA_DATA = [];
-let currentAgendaProfile = 'nakzu';
 let currentAgendaSearch = '';
-
-window.triggerAgendaProfileChange = function() {
-    currentAgendaProfile = document.getElementById('agenda-friend-select').value;
-    renderCalendar();
-    renderAgenda();
-};
 
 window.triggerAgendaSearch = function() {
     const input = document.getElementById('input-agenda-search');
@@ -31,9 +24,6 @@ window.limpiarAgendaSearch = function() {
 
 function getFilteredAgenda() {
     return AGENDA_DATA.filter(ev => {
-        const evProfile = ev.perfil || 'nakzu';
-        if (evProfile !== currentAgendaProfile) return false;
-        
         if (currentAgendaSearch) {
             const ramoMatch = (ev.ramo || '').toLowerCase().includes(currentAgendaSearch);
             const tipoMatch = (ev.tipo || '').toLowerCase().includes(currentAgendaSearch);
@@ -47,10 +37,10 @@ function getFilteredAgenda() {
 const AGENDA_STORAGE_KEY = 'mi_agenda_v1';
 
 const ICONS = {
-    'Solemne': '<span style="color:#ef4444;">🔴</span>',
-    'Control': '<span style="color:#f59e0b;">🟡</span>',
-    'Trabajo': '<span style="color:#8b5cf6;">🟣</span>',
-    'Presentacion': '<span style="color:#3b82f6;">🔵</span>'
+    'Solemne': '<span class="agenda-type-dot" style="background:#ef4444"></span>',
+    'Control': '<span class="agenda-type-dot" style="background:#f59e0b"></span>',
+    'Trabajo': '<span class="agenda-type-dot" style="background:#8b5cf6"></span>',
+    'Presentacion': '<span class="agenda-type-dot" style="background:#3b82f6"></span>'
 };
 
 let currentCalYear = new Date().getFullYear();
@@ -60,7 +50,9 @@ function initAgenda() {
     try {
         const stored = localStorage.getItem(AGENDA_STORAGE_KEY);
         if (stored) {
-            AGENDA_DATA = JSON.parse(stored);
+            AGENDA_DATA = JSON.parse(stored)
+                .filter(event => !event.perfil || event.perfil === 'me')
+                .map(({ perfil, ...event }) => event);
         }
     } catch(e) { console.error(e); }
     
@@ -71,6 +63,7 @@ function initAgenda() {
 function saveAgenda() {
     try {
         localStorage.setItem(AGENDA_STORAGE_KEY, JSON.stringify(AGENDA_DATA));
+        if (window.PortalStore) window.PortalStore.save('agenda', AGENDA_DATA);
     } catch(e) { console.error(e); }
 }
 
@@ -305,7 +298,6 @@ function guardarEventoAgenda(e) {
     } else {
         AGENDA_DATA.push({
             id: 'ag-' + Date.now(),
-            perfil: currentAgendaProfile,
             ramo: ramo,
             tipo: tipo,
             fecha: fechaFinal,
@@ -537,53 +529,22 @@ function renderAgenda() {
 // Inicializar al cargar
 document.addEventListener('DOMContentLoaded', () => {
     initAgenda();
+    if (window.PortalStore) window.PortalStore.register('agenda', AGENDA_STORAGE_KEY, []);
+});
+
+document.addEventListener('portal:remote-state', event => {
+    if (event.detail.module !== 'agenda') return;
+    AGENDA_DATA = (event.detail.payload || [])
+        .filter(item => !item.perfil || item.perfil === 'me')
+        .map(({ perfil, ...item }) => item);
+    renderCalendar();
+    renderAgenda();
 });
 // Para casos donde ya se cargó la página
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
     initAgenda();
 }
 
-
-const AGENDA_PROFILES = [
-    { val: 'nakzu', label: 'Nakzu' },
-    { val: 'alexis', label: 'Aleex1s' },
-    { val: 'felipe', label: 'Felipe' }
-];
-let currentAgendaProfileIndex = 0;
-
-window.cycleAgendaProfile = function(direction) {
-    const newIndex = (currentAgendaProfileIndex + direction + AGENDA_PROFILES.length) % AGENDA_PROFILES.length;
-    const oldProfile = AGENDA_PROFILES[currentAgendaProfileIndex];
-    const newProfile = AGENDA_PROFILES[newIndex];
-    currentAgendaProfileIndex = newIndex;
-
-    const labelEl = document.getElementById('label-agenda-friend-cycler');
-    const inputEl = document.getElementById('agenda-friend-select');
-    
-    if (labelEl && inputEl) {
-        const slideOutClass = direction > 0 ? 'slide-out-left' : 'slide-out-right';
-        const slideInClass = direction > 0 ? 'slide-in-right' : 'slide-in-left';
-        
-        labelEl.classList.remove('active');
-        labelEl.classList.add(slideOutClass);
-        
-        setTimeout(() => {
-            labelEl.textContent = newProfile.label;
-            labelEl.classList.remove(slideOutClass);
-            labelEl.classList.add(slideInClass);
-            
-            void labelEl.offsetWidth; // Force reflow
-            
-            labelEl.classList.remove(slideInClass);
-            labelEl.classList.add('active');
-            
-            inputEl.value = newProfile.val;
-            if (typeof triggerAgendaProfileChange === 'function') {
-                triggerAgendaProfileChange();
-            }
-        }, 200);
-    }
-};
 
 // Re-renderizar si la pantalla cambia de tamaño para actualizar el Zoom del Radar
 let resizeTimeout;
