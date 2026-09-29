@@ -388,11 +388,6 @@ function setMiHorarioRol(rolVal, btn) {
     renderMiHorario();
 }
 
-function filtrarMiHorarioTexto(val) {
-    state.miHorarioSearch = (val || '').trim().toLowerCase();
-    renderMiHorario();
-}
-
 function normStr(str) {
     if (!str) return '';
     return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
@@ -876,18 +871,9 @@ function renderMiHorario() {
 
     const comparison = horarioAmigoComparacion;
     // En el modo de otra persona, la grilla contiene exclusivamente sus clases.
-    let items = comparison ? [] : getHorarioActivo().filter(c => {
-        if (state.miHorarioRol !== 'ALL' && c.rol !== state.miHorarioRol) return false;
-        if (state.miHorarioSearch) {
-            const s = normStr(state.miHorarioSearch);
-            const matchCurso = normStr(c.curso).includes(s);
-            const matchSala = normStr(c.sala).includes(s);
-            const matchProf = normStr(c.profesor).includes(s);
-            const matchTipo = normStr(c.tipo).includes(s);
-            if (!matchCurso && !matchSala && !matchProf && !matchTipo) return false;
-        }
-        return true;
-    });
+    let items = comparison ? [] : getHorarioActivo().filter(c =>
+        state.miHorarioRol === 'ALL' || c.rol === state.miHorarioRol
+    );
     const friendItems = comparison ? normalizarClasesAmigo(comparison.clases).map((item, index) => ({ ...item, isFriend: true, id: `friend-${index}` })) : [];
 
     // Vista de toda la semana (5 Columnas)
