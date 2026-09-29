@@ -34,7 +34,7 @@ vm.runInContext(source, context);
   assert.match(html, /class="community-user-header"/);
   const attributes = {};
   const label = { textContent: 'Ver horario' };
-  const card = { dataset: { userId: 'friend' } };
+  const card = { dataset: { userId: 'friend' }, querySelector: () => ({ textContent: 'Ana García López' }) };
   const button = { closest: () => card, querySelector: () => label, setAttribute: (key, value) => { attributes[key] = value; } };
   listButtons.push(button);
   context.window.verHorarioAmigo(button);

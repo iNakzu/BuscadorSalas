@@ -39,12 +39,26 @@
         const name = user.display_name || 'Estudiante';
         window.mostrarHorarioAmigoEnMiHorario({ nombre: name, clases: cleanClasses(user.payload) });
         document.querySelectorAll('.community-view-schedule').forEach(item => {
-            item.setAttribute('aria-expanded', String(item === button));
+            const selected = item === button;
+            item.setAttribute('aria-expanded', String(selected));
+            const itemCard = item.closest('.community-user-card');
+            const itemName = itemCard && itemCard.querySelector('.community-name-full');
+            item.setAttribute('aria-label', selected ? `Viendo horario de ${name}` : `Ver horario de ${itemName ? itemName.textContent : 'estudiante'}`);
+            const itemLabel = item.querySelector('.community-view-label');
+            if (itemLabel) itemLabel.textContent = selected ? 'Viendo horario' : 'Ver horario';
         });
-        button.setAttribute('aria-label', `Viendo horario de ${name}`);
-        const label = button.querySelector('.community-view-label');
-        if (label) label.textContent = 'Viendo horario';
     };
+
+    document.addEventListener('portal:community-schedule-closed', () => {
+        document.querySelectorAll('.community-view-schedule').forEach(button => {
+            const card = button.closest('.community-user-card');
+            const name = card && card.querySelector('.community-name-full');
+            button.setAttribute('aria-expanded', 'false');
+            button.setAttribute('aria-label', `Ver horario de ${name ? name.textContent : 'estudiante'}`);
+            const label = button.querySelector('.community-view-label');
+            if (label) label.textContent = 'Ver horario';
+        });
+    });
 
     function filterSchedules(value) {
         const query = String(value || '').trim().toLocaleLowerCase('es');
