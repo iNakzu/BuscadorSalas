@@ -103,11 +103,20 @@
         const scheduleHtml = dayHtml || '<p class="community-empty-schedule">Todavía no ha agregado clases a su horario.</p>';
         const searchText = `${name} ${classes.map(item => `${item.curso || ''} ${item.sala || ''}`).join(' ')}`.toLocaleLowerCase('es');
         return `<article class="community-user-card" data-search="${escapeHtml(searchText)}">
-          <header class="community-user-header"><span class="community-avatar" aria-hidden="true">${escapeHtml(initials(name))}</span><h3>${escapeHtml(name)}</h3></header>
+          <header class="community-user-header"><div class="community-user-identity"><span class="community-avatar" aria-hidden="true">${escapeHtml(initials(name))}</span><h3 title="${escapeHtml(name)}">${escapeHtml(name)}</h3></div><button class="community-view-schedule" type="button" aria-expanded="false" onclick="verHorarioAmigo(this)">Ver horario</button></header>
           <p class="community-current-status" data-user-id="${escapeHtml(user.user_id)}">Según el horario de hoy: ${escapeHtml(currentScheduleStatus(classes))}</p>
-          <div class="community-week">${scheduleHtml}</div>
+          <div class="community-week" hidden>${scheduleHtml}</div>
         </article>`;
     }
+
+    window.verHorarioAmigo = function (button) {
+        const card = button && button.closest('.community-user-card');
+        const schedule = card && card.querySelector('.community-week');
+        if (!schedule) return;
+        schedule.hidden = !schedule.hidden;
+        button.setAttribute('aria-expanded', String(!schedule.hidden));
+        button.textContent = schedule.hidden ? 'Ver horario' : 'Ocultar horario';
+    };
 
     function filterSchedules(value) {
         const query = String(value || '').trim().toLocaleLowerCase('es');
