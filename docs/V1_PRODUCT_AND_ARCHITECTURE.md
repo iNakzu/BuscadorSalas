@@ -56,7 +56,7 @@ values ('persona@example.com', 'Piloto V1');
 ## Configuración de Supabase y Google
 
 1. Crear un proyecto con Data API habilitada, exposición automática de tablas nuevas deshabilitada y RLS automático habilitado. La migración concede permisos explícitos sólo a `authenticated` para las tablas personales; RLS limita cada fila al usuario propietario.
-2. Aplicar `supabase/migrations/202609280001_v1_personal_data.sql` con `supabase db push` o el SQL Editor.
+2. Aplicar, en orden, las migraciones de `supabase/migrations/` con `supabase db push` o el SQL Editor. La migración `202609290002_public_information.sql` convierte el permiso de horario público en información pública y habilita la vista comunitaria de horario, solemnes, notas, agenda y malla.
 3. En Authentication > Hooks, seleccionar `public.hook_restrict_signup` como **Before User Created**.
 4. Crear un cliente OAuth web en Google. El origen autorizado es `https://portal.144-22-33-41.sslip.io`; para preview, agregar `https://v1.144-22-33-41.sslip.io`.
 5. Copiar desde Supabase la URL callback exacta `https://<project-ref>.supabase.co/auth/v1/callback` a las redirect URIs de Google y habilitar Google en Authentication > Providers.

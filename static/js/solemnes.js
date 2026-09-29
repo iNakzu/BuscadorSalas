@@ -163,11 +163,23 @@ const customStyles = `
 <style>
     #tab-solemnes {
         padding: 0 !important;
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+    }
+    #solemnes-container {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
     }
     .solemnes-scroll-wrapper {
+        box-sizing: border-box;
         width: 100%;
+        min-width: 0;
+        max-width: 100%;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
+        overscroll-behavior-inline: contain;
         padding: 0 16px 20px 16px;
     }
     .solemnes-grid {
@@ -176,6 +188,16 @@ const customStyles = `
         gap: 12px;
         min-width: 1200px; /* Force wide layout for horizontal scroll */
         margin-top: 20px;
+    }
+    .solemnes-profile-note {
+        margin: 14px 16px 0;
+        padding: 10px 12px;
+        border: 1px solid rgba(56, 189, 248, 0.22);
+        border-radius: 10px;
+        background: rgba(14, 165, 233, 0.08);
+        color: #bae6fd;
+        font-size: 12px;
+        line-height: 1.5;
     }
     
     .sol-header-cell {
@@ -298,6 +320,34 @@ function renderSolemnes() {
 
     const searchInput = document.getElementById('solemnes-search');
     const query = searchInput ? normStr(searchInput.value) : '';
+    const publicProfile = window.PortalCommunity && typeof window.PortalCommunity.getSelected === 'function'
+        ? window.PortalCommunity.getSelected() : null;
+    const publicModules = publicProfile && publicProfile.modules || {};
+    const publicSchedule = publicModules.schedule && publicModules.schedule.clases;
+    const publicCourses = Array.isArray(publicSchedule)
+        ? [...new Set(publicSchedule.map(item => String(item && item.curso || '').trim()).filter(Boolean))]
+        : [];
+    const isPublicProfile = Boolean(publicProfile);
+
+    function comparableNames(value) {
+        return normStr(value)
+            .replace(/\([^)]*\)/g, '')
+            .split('/')
+            .map(item => item.replace(/[^a-z0-9]+/g, ' ').trim())
+            .filter(Boolean);
+    }
+
+    function matchesPublicCourse(examName) {
+        const examNames = comparableNames(examName);
+        return publicCourses.some(course => {
+            const courseNames = comparableNames(course);
+            return courseNames.some(courseName => examNames.some(exam =>
+                courseName === exam ||
+                (Math.min(courseName.length, exam.length) >= 8 && (courseName.includes(exam) || exam.includes(courseName))) ||
+                isFuzzyMatch(courseName, exam)
+            ));
+        });
+    }
 
     const mapDias = {
         1: { title: "Día 1", sub: "Jueves 24 Sept" },
@@ -357,16 +407,18 @@ function renderSolemnes() {
         for (let d = 1; d <= 5; d++) {
             const cellData = SOLEMNES_DATA.find(item => item.dia === d && item.horario === b.raw);
             const ramos = cellData ? cellData.ramos : [];
-            const matches = query ? ramos.filter(r => normStr(r.nombre).includes(query)) : ramos;
+            const matches = isPublicProfile
+                ? ramos.filter(r => matchesPublicCourse(r.nombre))
+                : (query ? ramos.filter(r => normStr(r.nombre).includes(query)) : ramos);
             const hasMatch = matches.length > 0;
-            const isFiltering = query !== '';
+            const isFiltering = isPublicProfile || query !== '';
             
             // Opacity logic: if filtering and no matches in this cell, dim the whole cell heavily
             const cellOpacity = (isFiltering && !hasMatch && ramos.length > 0) ? '0.15' : '1';
 
             if (ramos.length === 0) {
                 gridHtml += `
-                    <div class="sol-day-cell" style="opacity: ${query ? '0.1' : '0.5'};">
+                    <div class="sol-day-cell" style="opacity: ${isFiltering ? '0.1' : '0.5'};">
                         <div class="sol-empty">-</div>
                     </div>
                 `;
@@ -375,7 +427,7 @@ function renderSolemnes() {
 
             let cellContent = '';
             ramos.forEach(r => {
-                const isMatch = !query || normStr(r.nombre).includes(query);
+                const isMatch = isPublicProfile ? matchesPublicCourse(r.nombre) : (!query || normStr(r.nombre).includes(query));
                 
                 let theme = { bg: 'rgba(56, 189, 248, 0.15)', border: 'rgba(56, 189, 248, 0.4)', color: '#38bdf8' }; // Default Celeste
                 
@@ -416,6 +468,7 @@ function renderSolemnes() {
 
     const finalHtml = `
         ${customStyles}
+        ${isPublicProfile ? `<div class="solemnes-profile-note">Se resaltan las solemnes que coinciden con los ramos del horario de <strong>${escapeHtml(publicProfile.display_name || 'esta persona')}</strong>.</div>` : ''}
         <div class="solemnes-scroll-wrapper">
             ${gridHtml}
         </div>
