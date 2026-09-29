@@ -72,7 +72,7 @@
     }
 
     function renderUser(user) {
-        const name = user.display_name || 'Estudiante UDP';
+        const name = user.display_name || 'Estudiante';
         const classes = cleanClasses(user.payload).slice().sort((a, b) =>
             Number(a.dia) - Number(b.dia) || (toMinutes(a.horaInicio) || 0) - (toMinutes(b.horaInicio) || 0)
         );

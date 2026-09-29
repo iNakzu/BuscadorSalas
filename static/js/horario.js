@@ -632,10 +632,10 @@ function filtrarClasesRealesModal(query) {
             return;
         }
 
-        // 2. Si no hay en este bloque exacto, buscar en toda la base de datos de cursos UDP
+        // 2. Si no hay en este bloque exacto, buscar en toda la base de cursos
         const listEl = document.getElementById('modal-real-classes-list');
         if (listEl) {
-            listEl.innerHTML = `<div style="padding: 12px; text-align:center; color:#94a3b8; font-size:12px;">Buscando en toda la base de datos UDP...</div>`;
+            listEl.innerHTML = `<div style="padding: 12px; text-align:center; color:#94a3b8; font-size:12px;">Buscando en toda la base de datos...</div>`;
         }
 
         try {
@@ -643,7 +643,7 @@ function filtrarClasesRealesModal(query) {
             if (!resp.ok) throw new Error('Error al buscar');
             const data = await resp.json();
             const cursos = data.cursos || [];
-            if (badgeEl) badgeEl.textContent = `${cursos.length} en toda la UDP`;
+            if (badgeEl) badgeEl.textContent = `${cursos.length} cursos disponibles`;
             renderListaClasesRealesModal(cursos.slice(0, 30), true);
         } catch (err) {
             console.error('Error buscando clases:', err);

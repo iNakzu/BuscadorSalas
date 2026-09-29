@@ -1,8 +1,8 @@
 {
-  "name": "Portal Estudiantil UDP",
-  "short_name": "Portal UDP",
+  "name": "Portal Estudiantil",
+  "short_name": "Portal",
   "id": "/",
-  "description": "Salas, horarios y herramientas académicas para estudiantes UDP.",
+  "description": "Salas, horarios y herramientas académicas para estudiantes.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

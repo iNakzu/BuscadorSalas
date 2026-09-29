@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>Portal Estudiantil UDP</title>
-  <meta name="description" content="Salas, horarios y herramientas académicas para estudiantes UDP.">
+  <title>Portal Estudiantil</title>
+  <meta name="description" content="Salas, horarios y herramientas académicas para estudiantes.">
   <meta name="theme-color" content="#0f172a">
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="{{ url_for('static', filename='icon.svg') }}" type="image/svg+xml">
@@ -40,7 +40,7 @@
     {% include 'views/timer.html' %}
   </main>
 </div>
-<div class="auth-gate" id="auth-gate" hidden><div><h2>Tu espacio personal</h2><p>Inicia sesión con tu cuenta UDP para abrir este módulo y sincronizarlo entre dispositivos.</p><button type="button" class="auth-button" onclick="PortalAuth.signIn()">Continuar con Google</button></div></div>
+<div class="auth-gate" id="auth-gate" hidden><div><h2>Tu espacio personal</h2><p>Inicia sesión con tu cuenta institucional para abrir este módulo y sincronizarlo entre dispositivos.</p><button type="button" class="auth-button" onclick="PortalAuth.signIn()">Continuar con Google</button></div></div>
 <script>window.PORTAL_CONFIG={{ client_config|tojson }}; const TODAS_LAS_SALAS={{ todas_las_salas|tojson }}; window.statusSolemnes={{ solemne_status|tojson }};</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <script src="{{ url_for('static', filename='js/ui_feedback.js') }}" defer></script>

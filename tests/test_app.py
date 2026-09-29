@@ -21,6 +21,10 @@ class PortalV1Test(unittest.TestCase):
         for path in ("/", "/manifest.json", "/sw.js"):
             with self.client.get(path) as response:
                 self.assertEqual(response.status_code, 200, path)
+                if path == "/":
+                    self.assertNotIn("Portal Estudiantil UDP", response.get_data(as_text=True))
+                if path == "/manifest.json":
+                    self.assertNotIn("UDP", response.get_data(as_text=True))
 
     def test_removed_endpoints_are_gone(self):
         for path in ("/api/chat", "/api/tutor", "/api/transcribe", "/api/clima", "/api/transporte", "/api/metro-alertas"):

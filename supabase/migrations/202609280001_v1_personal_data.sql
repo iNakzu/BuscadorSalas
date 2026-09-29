@@ -159,7 +159,7 @@ begin
 
   return jsonb_build_object('error', jsonb_build_object(
     'http_code', 403,
-    'message', 'Usa tu correo @mail.udp.cl o solicita acceso.'
+    'message', 'Usa un correo institucional autorizado o solicita acceso.'
   ));
 end;
 $$;
