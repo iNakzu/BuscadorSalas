@@ -1,8 +1,21 @@
 (function () {
     let loadInProgress = false;
     let reloadPending = false;
+    let activeAuthUserId = '';
     let loadedUsers = [];
     let selectedUserId = '';
+    let selectedProfileRecord = null;
+    let serverDirectoryMode = false;
+    let profileSearchHasMore = false;
+    let profileSearchOffset = 0;
+    let visibleProfilePage = 0;
+    let profileSearchError = '';
+    let profileSearchTimer = null;
+    let profileSearchRequest = 0;
+    let selectionRequest = 0;
+    const profileModulesCache = new Map();
+    const MAX_VISIBLE_PROFILES = 40;
+    const MAX_CACHED_PROFILES = 20;
 
     const sections = [
         { id: 'tab-mihorario', module: 'schedule', label: 'Horario', native: true },
@@ -37,6 +50,7 @@
     }
 
     function selectedProfile() {
+        if (selectedProfileRecord && String(selectedProfileRecord.user_id || '') === selectedUserId) return selectedProfileRecord;
         return loadedUsers.find(item => String(item.user_id || '') === selectedUserId) || null;
     }
 
@@ -45,26 +59,215 @@
         const metadata = user && user.user_metadata || {};
         const name = [metadata.given_name, metadata.family_name].filter(Boolean).join(' ').trim()
             || String(metadata.full_name || metadata.name || '').trim()
-            || (user && user.email ? user.email.split('@')[0] : 'Mi información');
+            || (user && user.email ? user.email.split('@')[0] : 'Tu cuenta');
         return name;
-    }
-
-    function selectorOptions() {
-        return `<option value="">Mi información</option>${loadedUsers.map(user =>
-            `<option value="${escapeHtml(user.user_id || '')}">${escapeHtml(user.display_name || 'Estudiante')}</option>`
-        ).join('')}`;
     }
 
     function profileChoice(user, isCurrent = false) {
         const name = isCurrent ? ownDisplayName() : (user.display_name || 'Estudiante');
         const id = isCurrent ? '' : String(user.user_id || '');
         const selected = isCurrent ? !selectedUserId : selectedUserId === id;
-        const subtitle = isCurrent ? (name === 'Mi información' ? 'Tu malla personal' : name) : 'Información pública';
-        return `<button class="public-profile-option${selected ? ' is-selected' : ''}" type="button" role="option" aria-selected="${selected}" data-profile-id="${escapeHtml(id)}"><span class="public-profile-option-avatar${isCurrent ? ' is-own' : ''}" aria-hidden="true">${escapeHtml(initials(isCurrent && name === 'Mi información' ? 'YO' : name))}</span><span class="public-profile-option-copy"><strong>${escapeHtml(isCurrent ? 'Mi información' : name)}</strong><small>${escapeHtml(subtitle)}</small></span>${selected ? '<svg class="public-profile-option-check" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 10 4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}</button>`;
+        const subtitle = isCurrent ? 'Tu cuenta' : 'Perfil compartido';
+        return `<button class="public-profile-option${selected ? ' is-selected' : ''}" type="button" role="option" aria-selected="${selected}" data-profile-id="${escapeHtml(id)}"><span class="public-profile-option-avatar${isCurrent ? ' is-own' : ''}" aria-hidden="true">${escapeHtml(initials(name))}</span><span class="public-profile-option-copy"><strong>${escapeHtml(name)}</strong><small>${escapeHtml(subtitle)}</small></span>${selected ? '<svg class="public-profile-option-check" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 10 4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}</button>`;
     }
 
-    function renderProfileMenu() {
-        return `<div class="public-profile-menu-heading"><span>Elegir perfil</span><span>${loadedUsers.length} ${loadedUsers.length === 1 ? 'persona' : 'personas'}</span></div><div class="public-profile-menu-options" role="listbox" aria-label="Perfiles con información pública">${profileChoice(null, true)}${loadedUsers.map(user => profileChoice(user)).join('')}</div>`;
+    function normalizeSearch(value) {
+        return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es').trim();
+    }
+
+    function renderProfileMenu(query = '', loading = false) {
+        const normalizedQuery = normalizeSearch(query);
+        const matches = loadedUsers.filter(user => normalizeSearch(user.display_name || 'Estudiante').includes(normalizedQuery));
+        const pageStart = visibleProfilePage * MAX_VISIBLE_PROFILES;
+        const visible = matches.slice(pageStart, pageStart + MAX_VISIBLE_PROFILES);
+        const count = loadedUsers.length;
+        const countLabel = serverDirectoryMode
+            ? (profileSearchHasMore ? `${count}+ perfiles` : `${count} ${count === 1 ? 'perfil' : 'perfiles'}`)
+            : (count ? `${count} ${count === 1 ? 'persona' : 'personas'}` : 'Sin perfiles compartidos');
+        const resultLabel = loading ? 'Buscando perfiles…'
+            : (profileSearchError || (profileSearchHasMore
+                ? `Mostrando ${pageStart + 1}–${pageStart + visible.length} de más de ${count}`
+                : (matches.length ? `Mostrando ${pageStart + 1}–${pageStart + visible.length} de ${matches.length}` : '0 resultados')));
+        const listContent = `${profileChoice(null, true)}${visible.map(user => profileChoice(user)).join('')}${!visible.length && !loading ? '<div class="public-profile-search-empty">No encontramos perfiles con ese nombre.</div>' : ''}`;
+        const hasPrevious = visibleProfilePage > 0;
+        const hasNext = matches.length > pageStart + visible.length || profileSearchHasMore;
+        const pagination = hasPrevious || hasNext ? `<div class="public-profile-pagination">${hasPrevious ? '<button class="public-profile-page" data-direction="previous" type="button">Anterior</button>' : '<span></span>'}${hasNext ? '<button class="public-profile-page" data-direction="next" type="button">Siguiente</button>' : ''}</div>` : '';
+        return `<div class="public-profile-menu-heading"><span>Cambiar perfil</span><span>${escapeHtml(countLabel)}</span></div><label class="public-profile-search"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m16 16 4 4"></path></svg><input class="public-profile-search-input" type="search" autocomplete="off" placeholder="Buscar por nombre" aria-label="Buscar perfiles por nombre" value="${escapeHtml(query)}"></label><div class="public-profile-result-count" aria-live="polite">${escapeHtml(resultLabel)}</div><div class="public-profile-menu-options" role="listbox" aria-label="Perfiles">${listContent}</div>${pagination}`;
+    }
+
+    function pickerMarkup() {
+        return `<div class="public-profile-picker"><button class="public-profile-trigger" type="button" aria-haspopup="dialog" aria-expanded="false"><span class="public-profile-trigger-avatar" aria-hidden="true"></span><span class="public-profile-trigger-copy"><small>Viendo</small><strong></strong></span><svg class="public-profile-trigger-chevron" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m5 7.5 5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="public-profile-menu" role="dialog" aria-label="Cambiar perfil" hidden></div></div>`;
+    }
+
+    function wirePicker(toolbar) {
+        const trigger = toolbar.querySelector('.public-profile-trigger');
+        const menu = toolbar.querySelector('.public-profile-menu');
+        if (!trigger || !menu) return;
+        trigger.addEventListener('click', () => {
+            const opening = trigger.getAttribute('aria-expanded') !== 'true';
+            closeProfileMenus();
+            trigger.setAttribute('aria-expanded', String(opening));
+            menu.hidden = !opening;
+            if (opening) {
+                visibleProfilePage = 0;
+                menu.innerHTML = renderProfileMenu('', serverDirectoryMode);
+                menu.querySelector('.public-profile-search-input').focus();
+                if (serverDirectoryMode) searchProfileDirectory('', menu, false);
+            }
+        });
+        menu.addEventListener('input', event => {
+            if (!event.target.matches('.public-profile-search-input')) return;
+            const query = event.target.value;
+            const caret = event.target.selectionStart;
+            visibleProfilePage = 0;
+            if (profileSearchTimer) clearTimeout(profileSearchTimer);
+            if (serverDirectoryMode) {
+                menu.innerHTML = renderProfileMenu(query, true);
+                const input = menu.querySelector('.public-profile-search-input');
+                input.focus();
+                input.setSelectionRange(caret, caret);
+                profileSearchTimer = setTimeout(() => searchProfileDirectory(query, menu, false), 220);
+            } else {
+                menu.innerHTML = renderProfileMenu(query);
+                const input = menu.querySelector('.public-profile-search-input');
+                input.focus();
+                input.setSelectionRange(caret, caret);
+            }
+        });
+        menu.addEventListener('click', event => {
+            const pageButton = event.target.closest('.public-profile-page');
+            if (pageButton) {
+                event.preventDefault();
+                event.stopPropagation();
+                changeProfilePage(menu, pageButton.dataset.direction);
+                return;
+            }
+            const option = event.target.closest('.public-profile-option');
+            if (!option) return;
+            applySelection(option.dataset.profileId || '');
+            closeProfileMenus();
+            trigger.focus();
+        });
+        menu.addEventListener('keydown', event => {
+            if (event.key === 'Escape') { closeProfileMenus(); trigger.focus(); }
+            if (event.key === 'ArrowDown' && event.target.matches('.public-profile-search-input')) {
+                event.preventDefault();
+                const firstOption = menu.querySelector('.public-profile-option');
+                if (firstOption) firstOption.focus();
+            } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                const options = [...menu.querySelectorAll('.public-profile-option')];
+                const index = options.indexOf(document.activeElement);
+                if (index < 0) return;
+                event.preventDefault();
+                const delta = event.key === 'ArrowDown' ? 1 : -1;
+                const nextOption = options[(index + delta + options.length) % options.length];
+                if (nextOption) nextOption.focus();
+            }
+        });
+    }
+
+    async function searchProfileDirectory(query, menu, append) {
+        const auth = window.PortalAuth;
+        if (!auth || !auth.client || !serverDirectoryMode) return false;
+        const request = ++profileSearchRequest;
+        const offset = append ? profileSearchOffset : 0;
+        profileSearchError = '';
+        let response;
+        try {
+            response = await auth.client.rpc('search_shared_profiles', {
+                p_query: String(query || '').trim(),
+                p_limit: MAX_VISIBLE_PROFILES + 1,
+                p_offset: offset
+            });
+        } catch (error) {
+            response = { error };
+        }
+        if (request !== profileSearchRequest) return;
+        if (response.error) {
+            console.error('No se pudieron buscar los perfiles compartidos', response.error);
+            profileSearchError = 'No se pudo completar la búsqueda. Intenta otra vez.';
+            if (menu && !menu.hidden) {
+                const input = menu.querySelector('.public-profile-search-input');
+                const currentQuery = input ? input.value : query;
+                menu.innerHTML = renderProfileMenu(currentQuery);
+                const newInput = menu.querySelector('.public-profile-search-input');
+                if (newInput) { newInput.focus(); newInput.setSelectionRange(currentQuery.length, currentQuery.length); }
+            }
+            return false;
+        }
+        const rows = Array.isArray(response.data) ? response.data : [];
+        profileSearchHasMore = rows.length > MAX_VISIBLE_PROFILES;
+        const page = rows.slice(0, MAX_VISIBLE_PROFILES).map(user => ({
+            user_id: String(user.user_id || ''),
+            display_name: user.display_name || 'Estudiante'
+        }));
+        loadedUsers = append ? [...loadedUsers, ...page] : page;
+        if (!append) visibleProfilePage = 0;
+        profileSearchOffset = offset + page.length;
+        if (menu && !menu.hidden) {
+            const input = menu.querySelector('.public-profile-search-input');
+            const currentQuery = input ? input.value : query;
+            menu.innerHTML = renderProfileMenu(currentQuery);
+            const newInput = menu.querySelector('.public-profile-search-input');
+            if (newInput) { newInput.focus(); newInput.setSelectionRange(currentQuery.length, currentQuery.length); }
+        }
+        syncSelectors();
+        return true;
+    }
+
+    function changeProfilePage(menu, direction) {
+        const input = menu.querySelector('.public-profile-search-input');
+        const query = input ? input.value : '';
+        const matches = loadedUsers.filter(user => normalizeSearch(user.display_name || '').includes(normalizeSearch(query)));
+        if (direction === 'previous') {
+            visibleProfilePage = Math.max(0, visibleProfilePage - 1);
+            menu.innerHTML = renderProfileMenu(query);
+            menu.querySelector('.public-profile-search-input').focus();
+            return;
+        }
+        const nextPageStart = (visibleProfilePage + 1) * MAX_VISIBLE_PROFILES;
+        if (nextPageStart < matches.length) {
+            visibleProfilePage += 1;
+            menu.innerHTML = renderProfileMenu(query);
+            menu.querySelector('.public-profile-search-input').focus();
+        } else if (serverDirectoryMode && profileSearchHasMore) {
+            menu.innerHTML = renderProfileMenu(query, true);
+            searchProfileDirectory(query, menu, true).then(success => {
+                if (success) visibleProfilePage += 1;
+                menu.innerHTML = renderProfileMenu(query);
+                const newInput = menu.querySelector('.public-profile-search-input');
+                if (newInput) newInput.focus();
+            });
+        }
+    }
+
+    async function fetchProfileModules(profile) {
+        if (!profile || !serverDirectoryMode) return profile;
+        const id = String(profile.user_id || '');
+        if (profileModulesCache.has(id)) {
+            const modules = profileModulesCache.get(id);
+            profileModulesCache.delete(id);
+            profileModulesCache.set(id, modules);
+            return { ...profile, modules };
+        }
+        const auth = window.PortalAuth;
+        if (!auth || !auth.client) return profile;
+        let response;
+        try {
+            response = await auth.client.rpc('get_shared_profile_information', { p_user_id: id });
+        } catch (error) {
+            console.error('No se pudo cargar el perfil compartido', error);
+            return null;
+        }
+        if (response.error || !response.data) {
+            if (response.error) console.error('No se pudo cargar el perfil compartido', response.error);
+            return null;
+        }
+        profileModulesCache.set(id, response.data);
+        if (profileModulesCache.size > MAX_CACHED_PROFILES) {
+            profileModulesCache.delete(profileModulesCache.keys().next().value);
+        }
+        return { ...profile, modules: response.data };
     }
 
     function installToolbars() {
@@ -76,41 +279,15 @@
             toolbar.dataset.module = config.module;
             if (config.module === 'curriculum') {
                 toolbar.classList.add('public-profile-toolbar--malla');
-                toolbar.innerHTML = `<div class="public-profile-toolbar-copy"><span>Tu espacio</span><strong>Malla curricular</strong></div><div class="public-profile-picker"><button class="public-profile-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Cambiar persona para ver la malla"><span class="public-profile-trigger-avatar" aria-hidden="true"></span><span class="public-profile-trigger-copy"><small>Viendo</small><strong></strong></span><svg class="public-profile-trigger-chevron" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m5 7.5 5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="public-profile-menu" hidden></div></div>`;
-                const trigger = toolbar.querySelector('.public-profile-trigger');
-                const menu = toolbar.querySelector('.public-profile-menu');
-                trigger.addEventListener('click', () => {
-                    const opening = trigger.getAttribute('aria-expanded') !== 'true';
-                    closeProfileMenus();
-                    trigger.setAttribute('aria-expanded', String(opening));
-                    menu.hidden = !opening;
-                    if (opening) {
-                        const selectedOption = menu.querySelector('.public-profile-option.is-selected');
-                        if (selectedOption) selectedOption.focus();
-                    }
-                });
-                menu.addEventListener('click', event => {
-                    const option = event.target.closest('.public-profile-option');
-                    if (!option) return;
-                    applySelection(option.dataset.profileId || '');
-                    closeProfileMenus();
-                    trigger.focus();
-                });
-                menu.addEventListener('keydown', event => {
-                    if (event.key === 'Escape') { closeProfileMenus(); trigger.focus(); }
-                    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-                        event.preventDefault();
-                        const options = [...menu.querySelectorAll('.public-profile-option')];
-                        const index = options.indexOf(document.activeElement);
-                        const delta = event.key === 'ArrowDown' ? 1 : -1;
-                        const nextOption = options[(index + delta + options.length) % options.length];
-                        if (nextOption) nextOption.focus();
-                    }
-                });
+                toolbar.innerHTML = `<div class="public-profile-toolbar-copy"><span>Tu espacio</span><strong>Malla curricular</strong></div>${pickerMarkup()}`;
+                wirePicker(toolbar);
             } else if (config.module === 'agenda') {
-                toolbar.innerHTML = `<label><span class="sr-only">Persona</span><select class="public-profile-select" aria-label="Elegir persona" onchange="PortalCommunity.select(this.value)">${selectorOptions()}</select></label>`;
+                toolbar.classList.add('public-profile-toolbar--compact');
+                toolbar.innerHTML = pickerMarkup();
+                wirePicker(toolbar);
             } else {
-                toolbar.innerHTML = `<div class="public-profile-toolbar-copy"><span>Información de</span><strong>${config.label}</strong></div><label><span class="sr-only">Persona</span><select class="public-profile-select" aria-label="Elegir persona" onchange="PortalCommunity.select(this.value)">${selectorOptions()}</select></label>`;
+                toolbar.innerHTML = `<div class="public-profile-toolbar-copy"><span>Información de</span><strong>${config.label}</strong></div>${pickerMarkup()}`;
+                wirePicker(toolbar);
             }
             section.insertBefore(toolbar, section.firstChild);
             if (!config.native) {
@@ -125,37 +302,31 @@
     }
 
     function syncSelectors() {
-        document.querySelectorAll('.public-profile-select').forEach(select => {
-            select.innerHTML = selectorOptions();
-            select.value = loadedUsers.some(user => String(user.user_id) === selectedUserId) ? selectedUserId : '';
-        });
-        const toolbar = document.querySelector('.public-profile-toolbar--malla');
-        if (toolbar) {
-            const profile = selectedProfile();
-            const name = profile ? (profile.display_name || 'Estudiante') : ownDisplayName();
-            const trigger = toolbar.querySelector('.public-profile-trigger');
-            const menu = toolbar.querySelector('.public-profile-menu');
+        const profile = selectedProfile();
+        const name = profile ? (profile.display_name || 'Estudiante') : ownDisplayName();
+        document.querySelectorAll('.public-profile-picker').forEach(picker => {
+            const trigger = picker.querySelector('.public-profile-trigger');
+            const menu = picker.querySelector('.public-profile-menu');
             if (trigger) {
-                trigger.querySelector('.public-profile-trigger-avatar').textContent = initials(profile ? name : (name === 'Mi información' ? 'YO' : name));
-                trigger.querySelector('.public-profile-trigger-copy strong').textContent = profile ? name : 'Mi información';
-                trigger.querySelector('.public-profile-trigger-copy small').textContent = profile ? 'Malla compartida' : name;
-                trigger.setAttribute('aria-label', profile ? `Viendo la malla de ${name}. Cambiar persona` : `Viendo tu malla, ${name}. Cambiar persona`);
+                trigger.querySelector('.public-profile-trigger-avatar').textContent = initials(name);
+                trigger.querySelector('.public-profile-trigger-copy strong').textContent = name;
+                trigger.querySelector('.public-profile-trigger-copy small').textContent = profile ? 'Perfil compartido' : 'Tu perfil';
+                trigger.setAttribute('aria-label', profile ? `Viendo el perfil de ${name}. Cambiar persona` : `Viendo tu perfil, ${name}. Cambiar persona`);
             }
-            if (menu) menu.innerHTML = renderProfileMenu();
-        }
+        });
     }
 
     function closeProfileMenus() {
-        document.querySelectorAll('.public-profile-toolbar--malla').forEach(toolbar => {
-            const trigger = toolbar.querySelector('.public-profile-trigger');
-            const menu = toolbar.querySelector('.public-profile-menu');
+        document.querySelectorAll('.public-profile-picker').forEach(picker => {
+            const trigger = picker.querySelector('.public-profile-trigger');
+            const menu = picker.querySelector('.public-profile-menu');
             if (trigger) trigger.setAttribute('aria-expanded', 'false');
             if (menu) menu.hidden = true;
         });
     }
 
     document.addEventListener('click', event => {
-        if (!event.target.closest('.public-profile-toolbar--malla')) closeProfileMenus();
+        if (!event.target.closest('.public-profile-picker')) closeProfileMenus();
     });
     document.addEventListener('keydown', event => {
         if (event.key === 'Escape') closeProfileMenus();
@@ -209,10 +380,24 @@
         });
     }
 
-    function applySelection(userId) {
-        selectedUserId = loadedUsers.some(user => String(user.user_id || '') === String(userId || '')) ? String(userId) : '';
-        const profile = selectedProfile();
+    async function applySelection(userId) {
+        const requestedId = String(userId || '');
+        const found = loadedUsers.find(user => String(user.user_id || '') === requestedId)
+            || (selectedProfileRecord && String(selectedProfileRecord.user_id || '') === requestedId ? selectedProfileRecord : null);
+        selectedUserId = requestedId && found ? requestedId : '';
+        selectedProfileRecord = selectedUserId ? found : null;
+        const request = ++selectionRequest;
+        let profile = selectedProfile();
         syncSelectors();
+        if (profile && serverDirectoryMode) {
+            profile = await fetchProfileModules(profile);
+            if (request !== selectionRequest) return;
+            selectedProfileRecord = profile;
+            if (!profile) {
+                selectedUserId = '';
+                syncSelectors();
+            }
+        }
         sections.forEach(config => {
             const section = document.getElementById(config.id);
             if (section) section.classList.toggle('public-profile-active', Boolean(profile));
@@ -234,10 +419,53 @@
 
     async function loadSharedInformation() {
         const auth = window.PortalAuth;
-        if (!auth || !auth.user || !auth.client) return;
+        if (!auth || !auth.user || !auth.client) {
+            if (activeAuthUserId || selectedUserId) {
+                activeAuthUserId = '';
+                loadedUsers = [];
+                selectedUserId = '';
+                selectedProfileRecord = null;
+                profileModulesCache.clear();
+                serverDirectoryMode = false;
+                await applySelection('');
+            }
+            return;
+        }
+        const authUserId = String(auth.user.id || '');
+        if (activeAuthUserId && activeAuthUserId !== authUserId) {
+            loadedUsers = [];
+            selectedUserId = '';
+            selectedProfileRecord = null;
+            profileModulesCache.clear();
+            serverDirectoryMode = false;
+        }
+        activeAuthUserId = authUserId;
         if (loadInProgress) { reloadPending = true; return; }
         loadInProgress = true;
         try {
+            const directory = await auth.client.rpc('search_shared_profiles', {
+                p_query: '',
+                p_limit: MAX_VISIBLE_PROFILES + 1,
+                p_offset: 0
+            });
+            if (!directory.error) {
+                serverDirectoryMode = true;
+                const rows = Array.isArray(directory.data) ? directory.data : [];
+                profileSearchHasMore = rows.length > MAX_VISIBLE_PROFILES;
+                loadedUsers = rows.slice(0, MAX_VISIBLE_PROFILES).map(user => ({
+                    user_id: String(user.user_id || ''),
+                    display_name: user.display_name || 'Estudiante'
+                }));
+                profileSearchOffset = loadedUsers.length;
+                if (selectedUserId && !selectedProfileRecord && !loadedUsers.some(user => user.user_id === selectedUserId)) {
+                    selectedUserId = '';
+                }
+                syncSelectors();
+                if (selectedUserId) await applySelection(selectedUserId);
+                return;
+            }
+
+            serverDirectoryMode = false;
             let response = await auth.client.rpc('get_shared_information');
             let legacyMode = false;
             if (response.error) {
@@ -250,12 +478,14 @@
                 ? { ...user, modules: modulesFor(user) }
                 : user
             );
-            if (selectedUserId && !loadedUsers.some(user => String(user.user_id) === selectedUserId)) applySelection('');
+            selectedProfileRecord = selectedUserId ? loadedUsers.find(user => String(user.user_id) === selectedUserId) || null : null;
+            if (selectedUserId && !selectedProfileRecord) await applySelection('');
             syncSelectors();
         } catch (error) {
             console.error('No se pudo cargar la información compartida', error);
             loadedUsers = [];
-            if (selectedUserId) applySelection('');
+            selectedProfileRecord = null;
+            if (selectedUserId) await applySelection('');
             else syncSelectors();
         } finally {
             loadInProgress = false;

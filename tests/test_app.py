@@ -162,6 +162,18 @@ class PortalV1Test(unittest.TestCase):
         self.assertIn("grant execute on function public.get_shared_information() to authenticated", sql)
         self.assertNotIn("to anon", sql.split("grant execute on function public.get_shared_information()", 1)[1])
 
+    def test_shared_profile_search_is_paged_and_authorized(self):
+        migration = Path(__file__).parents[1] / "supabase/migrations/202609290003_searchable_shared_profiles.sql"
+        sql = migration.read_text()
+        self.assertIn("create or replace function public.search_shared_profiles(", sql)
+        self.assertIn("limit least(greatest(coalesce(p_limit, 41), 1), 101)", sql)
+        self.assertIn("'%' || replace(replace(replace(lower(trim(p_query))", sql)
+        self.assertIn("public.is_community_member(auth.uid())", sql)
+        self.assertIn("public.is_community_member(p.id)", sql)
+        self.assertIn("create or replace function public.get_shared_profile_information(p_user_id uuid)", sql)
+        self.assertIn("grant execute on function public.search_shared_profiles(text, integer, integer) to authenticated", sql)
+        self.assertNotIn("to anon", sql)
+
     def test_signed_in_profile_uses_initials_instead_of_a_photo(self):
         html = self.client.get("/").get_data(as_text=True)
         profile = html.split('id="auth-profile"', 1)[1].split("</div>", 1)[0]
