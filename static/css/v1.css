@@ -24,4 +24,7 @@
 .auth-gate h2 { margin: 0 0 8px; color: #f8fafc; }
 .auth-gate p { color: #94a3b8; line-height: 1.55; }
 .auth-gate .auth-button { margin-top: 12px; }
+.search-field .clear-btn { display: none !important; }
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; appearance: none; display: none; }
 .agenda-type-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; }
