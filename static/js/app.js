@@ -107,31 +107,17 @@ function setFacultadPill(val, btn) {
     if (btn) btn.classList.add('active');
     const input = document.getElementById('input-campus-search');
     if (input) input.value = '';
-    const clearBtn = document.getElementById('clear-campus-btn');
-    if (clearBtn) clearBtn.style.display = 'none';
     state.facultad = val;
     if (state.hora) cargarSalas();
 }
 
 let debounceCampus = null;
 function filtrarPorCampusTexto(val) {
-    const clearBtn = document.getElementById('clear-campus-btn');
-    if (clearBtn) clearBtn.style.display = val.length > 0 ? 'inline-block' : 'none';
-
     clearTimeout(debounceCampus);
     debounceCampus = setTimeout(() => {
         state.facultad = val.trim() || 'INGENIERIA';
         cargarSalas();
     }, 180);
-}
-
-function limpiarCampusTexto() {
-    const input = document.getElementById('input-campus-search');
-    if (input) input.value = '';
-    const clearBtn = document.getElementById('clear-campus-btn');
-    if (clearBtn) clearBtn.style.display = 'none';
-    state.facultad = 'INGENIERIA';
-    cargarSalas();
 }
 
 function setDia(val, btn) {
@@ -367,18 +353,9 @@ function setProfHora(horaVal, btn) {
     ejecutarBusquedaDocente();
 }
 
-function limpiarDocente() {
-    const input = document.getElementById('input-prof-search');
-    input.value = '';
-    document.getElementById('clear-prof-btn').style.display = 'none';
-    ejecutarBusquedaDocente();
-}
-
 function ejecutarBusquedaDocente() {
     const input = document.getElementById('input-prof-search');
     const q = input.value.trim();
-    const clearBtn = document.getElementById('clear-prof-btn');
-    clearBtn.style.display = q.length > 0 ? 'inline-block' : 'none';
 
     clearTimeout(debounceProf);
     debounceProf = setTimeout(async () => {
@@ -445,19 +422,9 @@ function setRamoHora(horaVal, btn) {
     ejecutarBusquedaRamo();
 }
 
-function limpiarRamo() {
-    const input = document.getElementById('input-ramo-search');
-    if (input) input.value = '';
-    const clearBtn = document.getElementById('clear-ramo-btn');
-    if (clearBtn) clearBtn.style.display = 'none';
-    ejecutarBusquedaRamo();
-}
-
 function ejecutarBusquedaRamo() {
     const input = document.getElementById('input-ramo-search');
     const q = input ? input.value.trim() : '';
-    const clearBtn = document.getElementById('clear-ramo-btn');
-    if (clearBtn) clearBtn.style.display = q.length > 0 ? 'inline-block' : 'none';
 
     clearTimeout(debounceRamo);
     debounceRamo = setTimeout(async () => {
@@ -548,9 +515,7 @@ function setMallaSemestre(sem) {
     if (btn) btn.classList.add('active');
     
     const input = document.getElementById('input-malla-search');
-    const clearBtn = document.getElementById('clear-malla-btn');
     if (input) input.value = '';
-    if (clearBtn) clearBtn.style.display = 'none';
 
     cargarClasesMalla(true);
 }
@@ -588,9 +553,7 @@ function setMallaRamo(ramoVal, btn) {
     }
     
     const input = document.getElementById('input-malla-search');
-    const clearBtn = document.getElementById('clear-malla-btn');
     if (input) input.value = state.mallaRamo || '';
-    if (clearBtn) clearBtn.style.display = state.mallaRamo ? 'block' : 'none';
     
     cargarClasesMalla(false);
 }
@@ -602,9 +565,7 @@ function filtrarSoloEsteRamo(ramoNombre) {
     });
     
     const input = document.getElementById('input-malla-search');
-    const clearBtn = document.getElementById('clear-malla-btn');
     if (input) input.value = state.mallaRamo || '';
-    if (clearBtn) clearBtn.style.display = state.mallaRamo ? 'block' : 'none';
     
     cargarClasesMalla(false);
     const topEl = document.getElementById('bar-malla-ramos');
@@ -688,8 +649,6 @@ function cambiarFiltroSugeridas(sub, btn) {
 function filtrarSalasLista(val) {
     const input = document.getElementById('input-sala-search');
     const q = (val || '').trim().toLowerCase();
-    const clearBtn = document.getElementById('clear-sala-btn');
-    if (clearBtn) clearBtn.style.display = q.length > 0 ? 'inline-block' : 'none';
 
     const container = document.getElementById('chips-salas');
     if (!container) return;
@@ -741,12 +700,6 @@ function setSalaDia(diaVal, btn) {
     if (state.salaActiva) {
         renderizarHorarioSala(state.salaActiva);
     }
-}
-
-function limpiarSalaInput() {
-    const input = document.getElementById('input-sala-search');
-    if (input) input.value = '';
-    filtrarSalasLista('');
 }
 
 function seleccionarSala(sala) {
@@ -1092,8 +1045,6 @@ function filtrarMallaTexto(val) {
         document.querySelectorAll('#bar-malla-ramos .pill-btn').forEach(b => b.classList.remove('active'));
         const allBtn = document.querySelector('#bar-malla-ramos .pill-btn[data-ramo=""]');
         if (allBtn) allBtn.classList.add('active');
-        const clearBtn = document.getElementById('clear-malla-btn');
-        if (clearBtn) clearBtn.style.display = 'none';
         cargarClasesMalla(false);
         return;
     }
@@ -1104,17 +1055,5 @@ function filtrarMallaTexto(val) {
     // UI Updates
     document.querySelectorAll('#bar-malla-ramos .pill-btn').forEach(b => b.classList.remove('active'));
     
-    const clearBtn = document.getElementById('clear-malla-btn');
-    if (clearBtn) clearBtn.style.display = 'block';
-    
     cargarClasesMalla(false);
-}
-
-function limpiarMallaTexto() {
-    const input = document.getElementById('input-malla-search');
-    if (input) {
-        input.value = '';
-        filtrarMallaTexto('');
-        input.focus();
-    }
 }

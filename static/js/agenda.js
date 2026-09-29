@@ -3,23 +3,10 @@ let currentAgendaSearch = '';
 
 window.triggerAgendaSearch = function() {
     const input = document.getElementById('input-agenda-search');
-    const clearBtn = document.getElementById('clear-agenda-btn');
     currentAgendaSearch = input.value.toLowerCase().trim();
-    
-    if (currentAgendaSearch.length > 0) {
-        clearBtn.style.display = 'block';
-    } else {
-        clearBtn.style.display = 'none';
-    }
     
     renderCalendar();
     renderAgenda();
-};
-
-window.limpiarAgendaSearch = function() {
-    const input = document.getElementById('input-agenda-search');
-    input.value = '';
-    triggerAgendaSearch();
 };
 
 function getFilteredAgenda() {

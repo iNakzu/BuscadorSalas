@@ -8,7 +8,7 @@
   </div>
   <div class="search-field community-schedules-search">
     <svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="16" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" x2="16.65" y1="21" y2="16.65"></line></svg>
-    <input id="community-schedules-search" type="search" autocomplete="off" placeholder="Buscar persona, ramo o sala..." oninput="filtrarHorariosComunidad(this.value)">
+    <input id="community-schedules-search" type="text" autocomplete="off" placeholder="Buscar persona, ramo o sala..." oninput="filtrarHorariosComunidad(this.value)">
   </div>
   <div id="community-schedules-status" class="community-schedules-status" role="status">Cargando horarios compartidos...</div>
   <div id="community-schedules-list" class="community-schedules-list"></div>
@@ -40,7 +40,6 @@
 </svg>
 <input autocomplete="off" id="input-mihorario-search" oninput="filtrarMiHorarioTexto(this.value)" placeholder="Buscar ramo o sala..." type="text"/>
 
-<button class="clear-btn" id="clear-mihorario-btn" onclick="limpiarMiHorarioTexto()" type="button">×</button>
 </div>
 <!-- NUEVO BLOQUE: Perfil y Topes -->
 
@@ -75,7 +74,6 @@
 <div class="search-field" style="margin-bottom: 0;">
 <svg fill="none" height="15" stroke="currentColor" stroke-width="2.3" viewbox="0 0 24 24" width="15"><circle cx="11" cy="11" r="8"></circle><line x1="21" x2="16.65" y1="21" y2="16.65"></line></svg>
 <input autocomplete="off" id="modal-input-real-search" oninput="filtrarClasesRealesModal(this.value)" placeholder="Buscar ramo o docente..." type="text"/>
-<button class="clear-btn" id="modal-clear-real-btn" onclick="limpiarBusquedaRealModal()" style="display:none;" type="button">×</button>
 </div>
 <div class="my-real-classes-list" id="modal-real-classes-list">
 <!-- Resultados dinámicos con botón para autocompletar -->
