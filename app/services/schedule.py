@@ -195,18 +195,30 @@ def coincide_facultad(nombre_sala, filtro_facultad):
     return True
 
 def asignaciones_sala_seccion(nodo):
-    """Separa salas y secciones, emparejandolas cuando la API las agrupa."""
-    import re as re_local
-
+    """Devuelve una sala y una sección por asignación de una fila del feed."""
     raw_places = str(nodo.get('place') or '')
     raw_sections = str(nodo.get('section') or '-').strip() or '-'
-    places = [p.strip() for p in re_local.split(r'[,/]', raw_places) if p.strip()]
-    sections = [s.strip() for s in re_local.split(r'[,/]', raw_sections) if s.strip()]
+    places = list(dict.fromkeys(p.strip() for p in re.split(r'[,/]', raw_places) if p.strip()))
+    sections = list(dict.fromkeys(
+        s.strip() for s in re.split(r'[,/;]|\s+y\s*|(?<=\d)\.(?=\d)', raw_sections, flags=re.IGNORECASE)
+        if s.strip()
+    ))
 
-    if len(places) > 1 and len(places) == len(sections):
+    if not places:
+        return []
+    if not sections:
+        sections = ['-']
+
+    if len(places) == len(sections):
         return list(zip(places, sections))
+    if len(places) == 1:
+        return [(places[0], section) for section in sections]
+    if len(sections) == 1:
+        return [(place, sections[0]) for place in places]
 
-    return [(place, raw_sections) for place in places]
+    # El feed no informa el emparejamiento exacto cuando las listas tienen
+    # longitudes distintas; expone cada combinación por separado, sin agruparlas.
+    return [(place, section) for place in places for section in sections]
 
 def obtener_bloque_info(hora_id):
     for b in STANDARD_BLOCKS:
@@ -392,17 +404,18 @@ def buscar_profesor(nombre_buscado, dia_filtro=None, hora_filtro=None):
                 h_q = str(hora_filtro).strip()
                 if not (h_q.startswith(c_start) or c_start.startswith(h_q.replace(":00", "")) or h_q in nodo.get('start', '')):
                     continue
-            resultados.append({
-                'sala': nodo.get('place', '-'),
-                'curso': nodo.get('course', '-'),
-                'seccion': nodo.get('section', '-'),
-                'codigo': nodo.get('code', '-'),
-                'hora_inicio': c_start,
-                'hora_termino': format_time(nodo.get('finish', '')),
-                'dia_numero': nodo.get('day'),
-                'dia': nombre_dia(nodo.get('day')),
-                'profe': profe
-            })
+            for sala, seccion in asignaciones_sala_seccion(nodo):
+                resultados.append({
+                    'sala': sala,
+                    'curso': nodo.get('course', '-'),
+                    'seccion': seccion,
+                    'codigo': nodo.get('code', '-'),
+                    'hora_inicio': c_start,
+                    'hora_termino': format_time(nodo.get('finish', '')),
+                    'dia_numero': nodo.get('day'),
+                    'dia': nombre_dia(nodo.get('day')),
+                    'profe': profe
+                })
     # Ordenar por día y hora
     resultados.sort(key=lambda x: (x['dia_numero'], to_minutes(x['hora_inicio'])))
     return resultados

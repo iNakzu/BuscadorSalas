@@ -53,6 +53,36 @@ class PortalV1Test(unittest.TestCase):
         self.assertEqual(last_normal["start"], "17:30:00")
         self.assertEqual(last_normal["finish"], "18:50:00")
 
+    def test_teacher_search_splits_each_room_and_section_into_its_own_result(self):
+        classes = [
+            {"node": {
+                "teacher": "PROFESORA EJEMPLO", "day": 2, "start": "10:00", "finish": "11:20",
+                "place": "E441.1.S101, E441.1.S102, E441.1.S103", "section": "1, 2 y 3",
+                "course": "Ramo agrupado", "code": "ABC123"
+            }},
+            {"node": {
+                "teacher": "PROFESORA EJEMPLO", "day": 2, "start": "13:00", "finish": "14:20",
+                "place": "E441.2.S201", "section": "4, 5", "course": "Ramo con secciones", "code": "DEF456"
+            }},
+            {"node": {
+                "teacher": "PROFESORA EJEMPLO", "day": 3, "start": "08:30", "finish": "09:50",
+                "place": "E441.3.S301, E441.3.S302", "section": "6, 7, 8", "course": "Ramo con asignación ambigua", "code": "GHI789"
+            }}
+        ]
+        with patch.object(schedule.dm, "get_classes", return_value=classes):
+            results = schedule.buscar_profesor("profesora ejemplo")
+
+        self.assertCountEqual(
+            [(item["sala"], item["seccion"]) for item in results],
+            [
+                ("E441.1.S101", "1"), ("E441.1.S102", "2"), ("E441.1.S103", "3"),
+                ("E441.2.S201", "4"), ("E441.2.S201", "5"),
+                ("E441.3.S301", "6"), ("E441.3.S301", "7"), ("E441.3.S301", "8"),
+                ("E441.3.S302", "6"), ("E441.3.S302", "7"), ("E441.3.S302", "8")
+            ]
+        )
+        self.assertTrue(all("," not in item["sala"] and "," not in item["seccion"] and " y " not in item["seccion"] for item in results))
+
     def test_search_rejects_empty_query_cleanly(self):
         response = self.client.get("/api/search")
         self.assertEqual(response.status_code, 200)
