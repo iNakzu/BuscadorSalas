@@ -2,6 +2,7 @@ import json
 import os
 import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 os.environ.setdefault("SCHEDULE_CACHE_FILE", os.path.join(tempfile.gettempdir(), "buscadorsalas-test.json"))
@@ -51,6 +52,15 @@ class PortalV1Test(unittest.TestCase):
         self.assertIn("url.pathname.startsWith('/api/')", worker)
         self.assertIn("url.pathname.includes('/auth/')", worker)
         self.assertLess(worker.index("response.clone()"), worker.index("caches.open(CACHE_NAME).then(cache => cache.put"))
+
+    def test_supabase_migration_uses_explicit_grants_and_rls(self):
+        migration = Path(__file__).parents[1] / "supabase/migrations/202609280001_v1_personal_data.sql"
+        sql = migration.read_text()
+        self.assertIn("alter table public.user_module_state enable row level security", sql)
+        self.assertIn("grant select, insert, update, delete on table public.user_module_state to authenticated", sql)
+        self.assertIn("grant usage on schema public to supabase_auth_admin", sql)
+        self.assertIn("create policy \"auth hook reads signup allowlist\"", sql)
+        self.assertNotIn("grant select, insert, update, delete on table public.user_module_state to anon", sql)
 
 
 if __name__ == "__main__":
