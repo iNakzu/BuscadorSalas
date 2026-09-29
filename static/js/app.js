@@ -1007,7 +1007,7 @@ function toggleSolemnesMode(isSolemne) {
     window.filtroRamoHora = "";
     window.filtroMallaHora = "";
     
-    if (typeof cargarSalas === 'function') cargarSalas();
+    if (typeof fetchSalas === 'function') cargarSalas();
     if (typeof triggerProfSearch === 'function') triggerProfSearch();
     if (typeof triggerRamoSearch === 'function') triggerRamoSearch();
     if (typeof renderMalla === 'function') renderMalla();

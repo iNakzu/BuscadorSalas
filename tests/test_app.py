@@ -49,7 +49,7 @@ class PortalV1Test(unittest.TestCase):
 
     def test_solemn_room_availability_counts_every_room_in_a_multi_room_class(self):
         classes = [{"node": {
-            "day": 5,
+            "day": "5",
             "start": "08:30",
             "finish": "10:30",
             "place": "E441.4.S402, E441.4.S403",
@@ -64,6 +64,9 @@ class PortalV1Test(unittest.TestCase):
 
         self.assertEqual(set(occupied), {"E441.4.S402", "E441.4.S403"})
         self.assertFalse(set(occupied).intersection(free))
+        for room in occupied.values():
+            self.assertEqual(room["curso"], "Probabilidades y Estadística")
+            self.assertEqual(room["profe"], "Profesora Ejemplo")
 
     def test_last_standard_block_uses_fixed_1730_to_1850_window(self):
         last_normal = next(block for block in schedule.STANDARD_BLOCKS if block["id"] == "17:30:00")
