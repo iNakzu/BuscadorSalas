@@ -115,12 +115,7 @@
     }
 
     function renderCurriculum(payload) {
-        const progress = payload && typeof payload === 'object' && !Array.isArray(payload) ? payload : {};
-        if (typeof MALLA_MOCK === 'undefined') return emptyState('No se pudo cargar la malla curricular.');
-        const courses = MALLA_MOCK.flatMap(semester => semester.cursos.map(course => ({ ...course, sem: semester.sem })));
-        const approved = courses.filter(course => Number(progress[course.id]) === 2).length;
-        const current = courses.filter(course => Number(progress[course.id]) === 1).length;
-        return `<div class="public-curriculum-summary"><strong>${approved} aprobados</strong><span>${current} cursando · ${courses.length - approved - current} pendientes</span></div><div class="public-curriculum-scroll"><div class="public-curriculum-grid">${MALLA_MOCK.map(semester => `<section><h3>Semestre ${semester.sem}</h3>${semester.cursos.map(course => { const state = Number(progress[course.id]) || 0; return `<div class="public-course-state state-${state}"><span>${escapeHtml(course.name)}</span><small>${state === 2 ? 'Aprobado' : state === 1 ? 'Cursando' : 'Pendiente'}</small></div>`; }).join('')}</section>`).join('')}</div></div>`;
+        return payload && typeof payload === 'object' && !Array.isArray(payload) ? payload : {};
     }
 
     function renderGenericViews(profile) {
@@ -131,7 +126,10 @@
             if (!profile) { content.innerHTML = ''; return; }
             if (module === 'grades') content.innerHTML = renderGrades(modules.grades);
             if (module === 'agenda') content.innerHTML = renderAgenda(modules.agenda);
-            if (module === 'curriculum') content.innerHTML = renderCurriculum(modules.curriculum);
+            if (module === 'curriculum') {
+                if (typeof window.renderMallaPublica === 'function') window.renderMallaPublica(content, renderCurriculum(modules.curriculum));
+                else content.innerHTML = emptyState('No se pudo cargar la malla curricular.');
+            }
         });
     }
 
