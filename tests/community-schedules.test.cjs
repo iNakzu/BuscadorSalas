@@ -15,8 +15,11 @@ assert.match(source, /document\.createElement\('dialog'\)/);
 assert.match(source, /dialog\.showModal\(\)/);
 assert.match(source, /aria-haspopup="dialog"/);
 assert.match(source, /toolbar\.classList\.add\('public-profile-toolbar--unified'\)/);
-assert.match(source, /toolbar\.innerHTML = pickerMarkup\(true\)/);
-assert.match(source, /\? 'Mi perfil'/);
+assert.match(source, /toolbar\.innerHTML = pickerMarkup\(\)/);
+for (const sectionId of ['tab-mihorario', 'tab-solemnes', 'tab-notas', 'tab-agenda', 'tab-progreso']) {
+  assert.match(source, new RegExp(`id: '${sectionId}'`));
+}
+assert.match(source, /public-profile-trigger-copy small'\)\.textContent = 'Mi perfil'/);
 assert.match(styles, /\.public-profile-toolbar--unified \.public-profile-picker \{ width: 100%; \}/);
 assert.doesNotMatch(styles, /\.public-profile-trigger-chevron \{[^}]*border(?:\s|:)/);
 assert.match(source, /type="text" inputmode="search"/);
