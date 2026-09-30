@@ -354,9 +354,8 @@
             if (trigger) {
                 trigger.querySelector('.public-profile-trigger-avatar').textContent = initials(name);
                 trigger.querySelector('.public-profile-trigger-copy strong').textContent = name;
-                const subtitle = profile ? 'Perfil compartido' : 'Mi perfil';
                 trigger.querySelector('.public-profile-trigger-copy small').textContent = trigger.classList.contains('public-profile-trigger--unified')
-                    ? `${subtitle} · Horario · Cambiar`
+                    ? 'Mi perfil'
                     : (profile ? 'Perfil compartido' : 'Tu perfil');
                 trigger.setAttribute('aria-label', profile ? `Viendo el perfil de ${name}. Cambiar persona` : `Viendo tu perfil, ${name}. Cambiar persona`);
             }
