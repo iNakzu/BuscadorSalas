@@ -98,8 +98,8 @@
         return `<div class="public-profile-dialog-shell"><header class="public-profile-dialog-header"><div><span class="public-profile-dialog-eyebrow">PERFILES COMPARTIDOS</span><h2 id="public-profile-dialog-title">Cambiar perfil</h2><p>Busca una persona para ver su información.</p></div><button class="public-profile-dialog-close" type="button" aria-label="Cerrar"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></header><label class="public-profile-search"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m16 16 4 4"></path></svg><input class="public-profile-search-input" type="text" inputmode="search" autocomplete="off" placeholder="Buscar por nombre" aria-label="Buscar perfiles por nombre" value="${escapeHtml(query)}"></label><div class="public-profile-result-count" aria-live="polite">${escapeHtml(resultLabel)}</div><div class="public-profile-dialog-results"><section class="public-profile-account"><h3>Tu cuenta</h3>${ownProfile}</section><section class="public-profile-shared"><div class="public-profile-shared-heading"><h3>Personas</h3><span>${escapeHtml(countLabel)}</span></div><div class="public-profile-dialog-options" aria-label="Perfiles compartidos">${sharedProfiles}</div></section></div>${pagination}</div>`;
     }
 
-    function pickerMarkup() {
-        return `<div class="public-profile-picker"><button class="public-profile-trigger" type="button" aria-haspopup="dialog"><span class="public-profile-trigger-avatar" aria-hidden="true"></span><span class="public-profile-trigger-copy"><small>Viendo</small><strong></strong></span><span class="public-profile-trigger-action">Cambiar</span></button></div>`;
+    function pickerMarkup(unified = false) {
+        return `<div class="public-profile-picker"><button class="public-profile-trigger${unified ? ' public-profile-trigger--unified' : ''}" type="button" aria-haspopup="dialog"><span class="public-profile-trigger-avatar" aria-hidden="true"></span><span class="public-profile-trigger-copy"><small></small><strong></strong></span>${unified ? '<span class="public-profile-trigger-chevron" aria-hidden="true">›</span>' : '<span class="public-profile-trigger-action">Cambiar</span>'}</button></div>`;
     }
 
     function wirePicker(toolbar) {
@@ -318,7 +318,11 @@
             const toolbar = document.createElement('div');
             toolbar.className = 'public-profile-toolbar';
             toolbar.dataset.module = config.module;
-            if (config.module === 'curriculum') {
+            if (config.module === 'schedule') {
+                toolbar.classList.add('public-profile-toolbar--unified');
+                toolbar.innerHTML = pickerMarkup(true);
+                wirePicker(toolbar);
+            } else if (config.module === 'curriculum') {
                 toolbar.classList.add('public-profile-toolbar--malla');
                 toolbar.innerHTML = `<div class="public-profile-toolbar-copy"><span>Tu espacio</span><strong>Malla curricular</strong></div>${pickerMarkup()}`;
                 wirePicker(toolbar);
@@ -350,7 +354,10 @@
             if (trigger) {
                 trigger.querySelector('.public-profile-trigger-avatar').textContent = initials(name);
                 trigger.querySelector('.public-profile-trigger-copy strong').textContent = name;
-                trigger.querySelector('.public-profile-trigger-copy small').textContent = profile ? 'Perfil compartido' : 'Tu perfil';
+                const subtitle = profile ? 'Perfil compartido' : 'Mi perfil';
+                trigger.querySelector('.public-profile-trigger-copy small').textContent = trigger.classList.contains('public-profile-trigger--unified')
+                    ? `${subtitle} · Horario · Cambiar`
+                    : (profile ? 'Perfil compartido' : 'Tu perfil');
                 trigger.setAttribute('aria-label', profile ? `Viendo el perfil de ${name}. Cambiar persona` : `Viendo tu perfil, ${name}. Cambiar persona`);
             }
         });
