@@ -13,6 +13,8 @@
     let profileSearchTimer = null;
     let profileSearchRequest = 0;
     let selectionRequest = 0;
+    let profileDialog = null;
+    let profileDialogTrigger = null;
     const profileModulesCache = new Map();
     const MAX_VISIBLE_PROFILES = 40;
     const MAX_CACHED_PROFILES = 20;
@@ -68,14 +70,14 @@
         const id = isCurrent ? '' : String(user.user_id || '');
         const selected = isCurrent ? !selectedUserId : selectedUserId === id;
         const subtitle = isCurrent ? 'Tu cuenta' : 'Perfil compartido';
-        return `<button class="public-profile-option${selected ? ' is-selected' : ''}" type="button" role="option" aria-selected="${selected}" data-profile-id="${escapeHtml(id)}"><span class="public-profile-option-avatar${isCurrent ? ' is-own' : ''}" aria-hidden="true">${escapeHtml(initials(name))}</span><span class="public-profile-option-copy"><strong>${escapeHtml(name)}</strong><small>${escapeHtml(subtitle)}</small></span>${selected ? '<svg class="public-profile-option-check" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 10 4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}</button>`;
+        return `<button class="public-profile-option${selected ? ' is-selected' : ''}" type="button" aria-pressed="${selected}" data-profile-id="${escapeHtml(id)}"><span class="public-profile-option-avatar${isCurrent ? ' is-own' : ''}" aria-hidden="true">${escapeHtml(initials(name))}</span><span class="public-profile-option-copy"><strong>${escapeHtml(name)}</strong><small>${escapeHtml(subtitle)}</small></span>${selected ? '<svg class="public-profile-option-check" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 10 4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}</button>`;
     }
 
     function normalizeSearch(value) {
         return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es').trim();
     }
 
-    function renderProfileMenu(query = '', loading = false) {
+    function renderProfileDialog(query = '', loading = false) {
         const normalizedQuery = normalizeSearch(query);
         const matches = loadedUsers.filter(user => normalizeSearch(user.display_name || 'Estudiante').includes(normalizedQuery));
         const pageStart = visibleProfilePage * MAX_VISIBLE_PROFILES;
@@ -88,74 +90,66 @@
             : (profileSearchError || (profileSearchHasMore
                 ? `Mostrando ${pageStart + 1}–${pageStart + visible.length} de más de ${count}`
                 : (matches.length ? `Mostrando ${pageStart + 1}–${pageStart + visible.length} de ${matches.length}` : '0 resultados')));
-        const listContent = `${profileChoice(null, true)}${visible.map(user => profileChoice(user)).join('')}${!visible.length && !loading ? '<div class="public-profile-search-empty">No encontramos perfiles con ese nombre.</div>' : ''}`;
         const hasPrevious = visibleProfilePage > 0;
         const hasNext = matches.length > pageStart + visible.length || profileSearchHasMore;
-        const pagination = hasPrevious || hasNext ? `<div class="public-profile-pagination">${hasPrevious ? '<button class="public-profile-page" data-direction="previous" type="button">Anterior</button>' : '<span></span>'}${hasNext ? '<button class="public-profile-page" data-direction="next" type="button">Siguiente</button>' : ''}</div>` : '';
-        return `<div class="public-profile-menu-heading"><span>Cambiar perfil</span><span>${escapeHtml(countLabel)}</span></div><label class="public-profile-search"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m16 16 4 4"></path></svg><input class="public-profile-search-input" type="search" autocomplete="off" placeholder="Buscar por nombre" aria-label="Buscar perfiles por nombre" value="${escapeHtml(query)}"></label><div class="public-profile-result-count" aria-live="polite">${escapeHtml(resultLabel)}</div><div class="public-profile-menu-options" role="listbox" aria-label="Perfiles">${listContent}</div>${pagination}`;
+        const pagination = hasPrevious || hasNext ? `<nav class="public-profile-pagination" aria-label="Páginas de perfiles">${hasPrevious ? '<button class="public-profile-page" data-direction="previous" type="button">Anterior</button>' : '<span></span>'}${hasNext ? '<button class="public-profile-page" data-direction="next" type="button">Siguiente</button>' : ''}</nav>` : '';
+        const ownProfile = profileChoice(null, true);
+        const sharedProfiles = `${visible.map(user => profileChoice(user)).join('')}${!visible.length && !loading ? '<div class="public-profile-search-empty">No encontramos perfiles con ese nombre.</div>' : ''}`;
+        return `<div class="public-profile-dialog-shell"><header class="public-profile-dialog-header"><div><span class="public-profile-dialog-eyebrow">PERFILES COMPARTIDOS</span><h2 id="public-profile-dialog-title">Cambiar perfil</h2><p>Busca una persona para ver su información.</p></div><button class="public-profile-dialog-close" type="button" aria-label="Cerrar"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></header><label class="public-profile-search"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m16 16 4 4"></path></svg><input class="public-profile-search-input" type="text" inputmode="search" autocomplete="off" placeholder="Buscar por nombre" aria-label="Buscar perfiles por nombre" value="${escapeHtml(query)}"></label><div class="public-profile-result-count" aria-live="polite">${escapeHtml(resultLabel)}</div><div class="public-profile-dialog-results"><section class="public-profile-account"><h3>Tu cuenta</h3>${ownProfile}</section><section class="public-profile-shared"><div class="public-profile-shared-heading"><h3>Personas</h3><span>${escapeHtml(countLabel)}</span></div><div class="public-profile-dialog-options" aria-label="Perfiles compartidos">${sharedProfiles}</div></section></div>${pagination}</div>`;
     }
 
     function pickerMarkup() {
-        return `<div class="public-profile-picker"><button class="public-profile-trigger" type="button" aria-haspopup="dialog" aria-expanded="false"><span class="public-profile-trigger-avatar" aria-hidden="true"></span><span class="public-profile-trigger-copy"><small>Viendo</small><strong></strong></span><svg class="public-profile-trigger-chevron" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m5 7.5 5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="public-profile-menu" role="dialog" aria-label="Cambiar perfil" hidden></div></div>`;
+        return `<div class="public-profile-picker"><button class="public-profile-trigger" type="button" aria-haspopup="dialog"><span class="public-profile-trigger-avatar" aria-hidden="true"></span><span class="public-profile-trigger-copy"><small>Viendo</small><strong></strong></span><span class="public-profile-trigger-action">Cambiar</span></button></div>`;
     }
 
     function wirePicker(toolbar) {
         const trigger = toolbar.querySelector('.public-profile-trigger');
-        const menu = toolbar.querySelector('.public-profile-menu');
-        if (!trigger || !menu) return;
-        trigger.addEventListener('click', () => {
-            const opening = trigger.getAttribute('aria-expanded') !== 'true';
-            closeProfileMenus();
-            trigger.setAttribute('aria-expanded', String(opening));
-            menu.hidden = !opening;
-            if (opening) {
-                visibleProfilePage = 0;
-                menu.innerHTML = renderProfileMenu('', serverDirectoryMode);
-                menu.querySelector('.public-profile-search-input').focus();
-                if (serverDirectoryMode) searchProfileDirectory('', menu, false);
-            }
-        });
-        menu.addEventListener('input', event => {
+        if (!trigger) return;
+        trigger.addEventListener('click', () => openProfileDialog(trigger));
+    }
+
+    function ensureProfileDialog() {
+        if (profileDialog) return profileDialog;
+        profileDialog = document.createElement('dialog');
+        profileDialog.className = 'public-profile-dialog';
+        profileDialog.setAttribute('aria-labelledby', 'public-profile-dialog-title');
+        profileDialog.setAttribute('aria-modal', 'true');
+        profileDialog.addEventListener('input', event => {
             if (!event.target.matches('.public-profile-search-input')) return;
             const query = event.target.value;
             const caret = event.target.selectionStart;
             visibleProfilePage = 0;
             if (profileSearchTimer) clearTimeout(profileSearchTimer);
-            if (serverDirectoryMode) {
-                menu.innerHTML = renderProfileMenu(query, true);
-                const input = menu.querySelector('.public-profile-search-input');
-                input.focus();
-                input.setSelectionRange(caret, caret);
-                profileSearchTimer = setTimeout(() => searchProfileDirectory(query, menu, false), 220);
-            } else {
-                menu.innerHTML = renderProfileMenu(query);
-                const input = menu.querySelector('.public-profile-search-input');
-                input.focus();
-                input.setSelectionRange(caret, caret);
-            }
+            profileDialog.innerHTML = renderProfileDialog(query, serverDirectoryMode);
+            const input = profileDialog.querySelector('.public-profile-search-input');
+            input.focus();
+            input.setSelectionRange(caret, caret);
+            if (serverDirectoryMode) profileSearchTimer = setTimeout(() => searchProfileDirectory(query, profileDialog, false), 220);
         });
-        menu.addEventListener('click', event => {
+        profileDialog.addEventListener('click', event => {
+            if (event.target === profileDialog || event.target.closest('.public-profile-dialog-close')) {
+                closeProfileDialog();
+                return;
+            }
             const pageButton = event.target.closest('.public-profile-page');
             if (pageButton) {
                 event.preventDefault();
                 event.stopPropagation();
-                changeProfilePage(menu, pageButton.dataset.direction);
+                changeProfilePage(profileDialog, pageButton.dataset.direction);
                 return;
             }
             const option = event.target.closest('.public-profile-option');
             if (!option) return;
             applySelection(option.dataset.profileId || '');
-            closeProfileMenus();
-            trigger.focus();
+            closeProfileDialog();
         });
-        menu.addEventListener('keydown', event => {
-            if (event.key === 'Escape') { closeProfileMenus(); trigger.focus(); }
+        profileDialog.addEventListener('keydown', event => {
             if (event.key === 'ArrowDown' && event.target.matches('.public-profile-search-input')) {
                 event.preventDefault();
-                const firstOption = menu.querySelector('.public-profile-option');
+                const firstOption = profileDialog.querySelector('.public-profile-option');
                 if (firstOption) firstOption.focus();
             } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-                const options = [...menu.querySelectorAll('.public-profile-option')];
+                const options = [...profileDialog.querySelectorAll('.public-profile-option')];
                 const index = options.indexOf(document.activeElement);
                 if (index < 0) return;
                 event.preventDefault();
@@ -164,9 +158,33 @@
                 if (nextOption) nextOption.focus();
             }
         });
+        profileDialog.addEventListener('close', () => {
+            const trigger = profileDialogTrigger;
+            profileDialogTrigger = null;
+            if (trigger && trigger.isConnected) trigger.focus();
+        });
+        document.body.appendChild(profileDialog);
+        return profileDialog;
     }
 
-    async function searchProfileDirectory(query, menu, append) {
+    function openProfileDialog(trigger) {
+        const dialog = ensureProfileDialog();
+        profileDialogTrigger = trigger;
+        visibleProfilePage = 0;
+        profileSearchOffset = 0;
+        if (profileSearchTimer) clearTimeout(profileSearchTimer);
+        dialog.innerHTML = renderProfileDialog('', serverDirectoryMode);
+        if (!dialog.open) dialog.showModal();
+        const input = dialog.querySelector('.public-profile-search-input');
+        if (input) input.focus();
+        if (serverDirectoryMode) searchProfileDirectory('', dialog, false);
+    }
+
+    function closeProfileDialog() {
+        if (profileDialog && profileDialog.open) profileDialog.close();
+    }
+
+    async function searchProfileDirectory(query, dialog, append) {
         const auth = window.PortalAuth;
         if (!auth || !auth.client || !serverDirectoryMode) return false;
         const request = ++profileSearchRequest;
@@ -186,11 +204,11 @@
         if (response.error) {
             console.error('No se pudieron buscar los perfiles compartidos', response.error);
             profileSearchError = 'No se pudo completar la búsqueda. Intenta otra vez.';
-            if (menu && !menu.hidden) {
-                const input = menu.querySelector('.public-profile-search-input');
+            if (dialog && dialog.open) {
+                const input = dialog.querySelector('.public-profile-search-input');
                 const currentQuery = input ? input.value : query;
-                menu.innerHTML = renderProfileMenu(currentQuery);
-                const newInput = menu.querySelector('.public-profile-search-input');
+                dialog.innerHTML = renderProfileDialog(currentQuery);
+                const newInput = dialog.querySelector('.public-profile-search-input');
                 if (newInput) { newInput.focus(); newInput.setSelectionRange(currentQuery.length, currentQuery.length); }
             }
             return false;
@@ -204,38 +222,38 @@
         loadedUsers = append ? [...loadedUsers, ...page] : page;
         if (!append) visibleProfilePage = 0;
         profileSearchOffset = offset + page.length;
-        if (menu && !menu.hidden) {
-            const input = menu.querySelector('.public-profile-search-input');
+        if (dialog && dialog.open) {
+            const input = dialog.querySelector('.public-profile-search-input');
             const currentQuery = input ? input.value : query;
-            menu.innerHTML = renderProfileMenu(currentQuery);
-            const newInput = menu.querySelector('.public-profile-search-input');
+            dialog.innerHTML = renderProfileDialog(currentQuery);
+            const newInput = dialog.querySelector('.public-profile-search-input');
             if (newInput) { newInput.focus(); newInput.setSelectionRange(currentQuery.length, currentQuery.length); }
         }
         syncSelectors();
         return true;
     }
 
-    function changeProfilePage(menu, direction) {
-        const input = menu.querySelector('.public-profile-search-input');
+    function changeProfilePage(dialog, direction) {
+        const input = dialog.querySelector('.public-profile-search-input');
         const query = input ? input.value : '';
         const matches = loadedUsers.filter(user => normalizeSearch(user.display_name || '').includes(normalizeSearch(query)));
         if (direction === 'previous') {
             visibleProfilePage = Math.max(0, visibleProfilePage - 1);
-            menu.innerHTML = renderProfileMenu(query);
-            menu.querySelector('.public-profile-search-input').focus();
+            dialog.innerHTML = renderProfileDialog(query);
+            dialog.querySelector('.public-profile-search-input').focus();
             return;
         }
         const nextPageStart = (visibleProfilePage + 1) * MAX_VISIBLE_PROFILES;
         if (nextPageStart < matches.length) {
             visibleProfilePage += 1;
-            menu.innerHTML = renderProfileMenu(query);
-            menu.querySelector('.public-profile-search-input').focus();
+            dialog.innerHTML = renderProfileDialog(query);
+            dialog.querySelector('.public-profile-search-input').focus();
         } else if (serverDirectoryMode && profileSearchHasMore) {
-            menu.innerHTML = renderProfileMenu(query, true);
-            searchProfileDirectory(query, menu, true).then(success => {
+            dialog.innerHTML = renderProfileDialog(query, true);
+            searchProfileDirectory(query, dialog, true).then(success => {
                 if (success) visibleProfilePage += 1;
-                menu.innerHTML = renderProfileMenu(query);
-                const newInput = menu.querySelector('.public-profile-search-input');
+                dialog.innerHTML = renderProfileDialog(query);
+                const newInput = dialog.querySelector('.public-profile-search-input');
                 if (newInput) newInput.focus();
             });
         }
@@ -306,7 +324,6 @@
         const name = profile ? (profile.display_name || 'Estudiante') : ownDisplayName();
         document.querySelectorAll('.public-profile-picker').forEach(picker => {
             const trigger = picker.querySelector('.public-profile-trigger');
-            const menu = picker.querySelector('.public-profile-menu');
             if (trigger) {
                 trigger.querySelector('.public-profile-trigger-avatar').textContent = initials(name);
                 trigger.querySelector('.public-profile-trigger-copy strong').textContent = name;
@@ -315,22 +332,6 @@
             }
         });
     }
-
-    function closeProfileMenus() {
-        document.querySelectorAll('.public-profile-picker').forEach(picker => {
-            const trigger = picker.querySelector('.public-profile-trigger');
-            const menu = picker.querySelector('.public-profile-menu');
-            if (trigger) trigger.setAttribute('aria-expanded', 'false');
-            if (menu) menu.hidden = true;
-        });
-    }
-
-    document.addEventListener('click', event => {
-        if (!event.target.closest('.public-profile-picker')) closeProfileMenus();
-    });
-    document.addEventListener('keydown', event => {
-        if (event.key === 'Escape') closeProfileMenus();
-    });
 
     function emptyState(message) {
         return `<div class="public-profile-empty">${escapeHtml(message)}</div>`;
