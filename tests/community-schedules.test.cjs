@@ -20,8 +20,11 @@ assert.doesNotMatch(source, /public-profile-menu|renderProfileMenu|aria-expanded
 assert.doesNotMatch(styles, /public-profile-menu/);
 assert.match(styles, /\.public-profile-dialog\[open\]\s*\{\s*display:\s*flex/);
 assert.match(styles, /\.public-profile-dialog\s*\{[^}]*max-height:/s);
-assert.match(styles, /\.public-profile-dialog\s*\{[^}]*height:\s*100dvh/s);
+assert.match(styles, /height:\s*min\(88dvh, 720px\)/);
+assert.match(styles, /max-height:\s*calc\(100dvh - 48px\)/);
 assert.match(styles, /\.public-profile-dialog\s*\{\s*position:\s*fixed;\s*inset:\s*0;/);
+assert.match(styles, /\.public-profile-dialog \.public-profile-dialog-header \{ position: static;[^}]*pointer-events: auto;/);
+assert.match(source, /const compactViewport = window\.matchMedia/);
 assert.doesNotMatch(source, /Mi información/);
 const elements = new Map();
 const sharedSchedules = [{ user_id: 'friend', display_name: 'Ana García López', modules: {
