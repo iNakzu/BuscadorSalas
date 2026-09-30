@@ -3,6 +3,7 @@ const fs = require('fs');
 const vm = require('vm');
 
 const source = fs.readFileSync('static/js/community_schedules.js', 'utf8');
+const styles = fs.readFileSync('static/css/community.css', 'utf8');
 assert.match(source, /class="public-profile-search-input"/);
 assert.match(source, /matches\.slice\(pageStart, pageStart \+ MAX_VISIBLE_PROFILES\)/);
 assert.match(source, /const MAX_VISIBLE_PROFILES = 40/);
@@ -10,6 +11,17 @@ assert.match(source, /class="public-profile-pagination"/);
 assert.match(source, /search_shared_profiles/);
 assert.match(source, /get_shared_profile_information/);
 assert.doesNotMatch(source, /<select class="public-profile-select"/);
+assert.match(source, /document\.createElement\('dialog'\)/);
+assert.match(source, /dialog\.showModal\(\)/);
+assert.match(source, /aria-haspopup="dialog"/);
+assert.match(source, /type="text" inputmode="search"/);
+assert.doesNotMatch(source, /type="search"/);
+assert.doesNotMatch(source, /public-profile-menu|renderProfileMenu|aria-expanded/);
+assert.doesNotMatch(styles, /public-profile-menu/);
+assert.match(styles, /\.public-profile-dialog\[open\]\s*\{\s*display:\s*flex/);
+assert.match(styles, /\.public-profile-dialog\s*\{[^}]*max-height:/s);
+assert.match(styles, /\.public-profile-dialog\s*\{[^}]*height:\s*100dvh/s);
+assert.match(styles, /\.public-profile-dialog\s*\{\s*position:\s*fixed;\s*inset:\s*0;/);
 assert.doesNotMatch(source, /Mi información/);
 const elements = new Map();
 const sharedSchedules = [{ user_id: 'friend', display_name: 'Ana García López', modules: {
