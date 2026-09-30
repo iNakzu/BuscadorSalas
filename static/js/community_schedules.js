@@ -176,12 +176,36 @@
         dialog.innerHTML = renderProfileDialog('', serverDirectoryMode);
         if (!dialog.open) dialog.showModal();
         const input = dialog.querySelector('.public-profile-search-input');
-        if (input) input.focus();
+        const compactViewport = window.matchMedia && window.matchMedia('(max-width: 600px)').matches;
+        const focusTarget = compactViewport ? dialog.querySelector('.public-profile-dialog-close') : input;
+        if (focusTarget) focusTarget.focus();
         if (serverDirectoryMode) searchProfileDirectory('', dialog, false);
     }
 
     function closeProfileDialog() {
         if (profileDialog && profileDialog.open) profileDialog.close();
+    }
+
+    function profileDialogFocusState(dialog) {
+        const active = document.activeElement;
+        if (!dialog || !active || !dialog.contains(active)) return '';
+        if (active.matches('.public-profile-search-input')) return 'search';
+        if (active.matches('.public-profile-dialog-close')) return 'close';
+        return '';
+    }
+
+    function restoreProfileDialogFocus(dialog, state, query = '') {
+        if (!dialog || !state) return;
+        const target = dialog.querySelector(state === 'search' ? '.public-profile-search-input' : '.public-profile-dialog-close');
+        if (!target) return;
+        target.focus();
+        if (state === 'search') target.setSelectionRange(query.length, query.length);
+    }
+
+    function focusProfilePageButton(dialog, direction) {
+        const target = dialog.querySelector(`.public-profile-page[data-direction="${direction}"]`)
+            || dialog.querySelector('.public-profile-page');
+        if (target) target.focus();
     }
 
     async function searchProfileDirectory(query, dialog, append) {
@@ -205,11 +229,11 @@
             console.error('No se pudieron buscar los perfiles compartidos', response.error);
             profileSearchError = 'No se pudo completar la búsqueda. Intenta otra vez.';
             if (dialog && dialog.open) {
+                const focusState = profileDialogFocusState(dialog);
                 const input = dialog.querySelector('.public-profile-search-input');
                 const currentQuery = input ? input.value : query;
                 dialog.innerHTML = renderProfileDialog(currentQuery);
-                const newInput = dialog.querySelector('.public-profile-search-input');
-                if (newInput) { newInput.focus(); newInput.setSelectionRange(currentQuery.length, currentQuery.length); }
+                restoreProfileDialogFocus(dialog, focusState, currentQuery);
             }
             return false;
         }
@@ -223,11 +247,11 @@
         if (!append) visibleProfilePage = 0;
         profileSearchOffset = offset + page.length;
         if (dialog && dialog.open) {
+            const focusState = profileDialogFocusState(dialog);
             const input = dialog.querySelector('.public-profile-search-input');
             const currentQuery = input ? input.value : query;
             dialog.innerHTML = renderProfileDialog(currentQuery);
-            const newInput = dialog.querySelector('.public-profile-search-input');
-            if (newInput) { newInput.focus(); newInput.setSelectionRange(currentQuery.length, currentQuery.length); }
+            restoreProfileDialogFocus(dialog, focusState, currentQuery);
         }
         syncSelectors();
         return true;
@@ -240,21 +264,20 @@
         if (direction === 'previous') {
             visibleProfilePage = Math.max(0, visibleProfilePage - 1);
             dialog.innerHTML = renderProfileDialog(query);
-            dialog.querySelector('.public-profile-search-input').focus();
+            focusProfilePageButton(dialog, direction);
             return;
         }
         const nextPageStart = (visibleProfilePage + 1) * MAX_VISIBLE_PROFILES;
         if (nextPageStart < matches.length) {
             visibleProfilePage += 1;
             dialog.innerHTML = renderProfileDialog(query);
-            dialog.querySelector('.public-profile-search-input').focus();
+            focusProfilePageButton(dialog, direction);
         } else if (serverDirectoryMode && profileSearchHasMore) {
             dialog.innerHTML = renderProfileDialog(query, true);
             searchProfileDirectory(query, dialog, true).then(success => {
                 if (success) visibleProfilePage += 1;
                 dialog.innerHTML = renderProfileDialog(query);
-                const newInput = dialog.querySelector('.public-profile-search-input');
-                if (newInput) newInput.focus();
+                focusProfilePageButton(dialog, direction);
             });
         }
     }

@@ -94,7 +94,7 @@
   .public-profile-trigger-avatar { flex-basis: 30px; width: 30px; height: 30px; font-size: 10px; }
   .public-profile-trigger-copy strong { font-size: 11px; }
   .public-profile-trigger-action { padding: 6px 8px; font-size: 9px; }
-  .public-profile-dialog { position: fixed; inset: 0; width: auto; height: 100dvh; max-width: none; max-height: none; margin: 0; border: 0; border-radius: 0; box-sizing: border-box; }
+  .public-profile-dialog { position: fixed; inset: 0; width: min(480px, calc(100vw - 28px)); height: min(88dvh, 720px); max-width: none; max-height: calc(100dvh - 48px); margin: auto; border: 1px solid rgba(148,163,184,.2); border-radius: 20px; box-sizing: border-box; }
   .public-profile-dialog-header { padding: calc(18px + env(safe-area-inset-top)) 18px 14px; }
   .public-profile-dialog > .public-profile-dialog-shell > .public-profile-search { margin-right: 18px; margin-left: 18px; }
   .public-profile-result-count { padding-right: 18px; padding-left: 18px; }
@@ -105,4 +105,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .public-profile-dialog[open] { animation: none; }
+}
+
+@media (max-width: 1023px) {
+  .public-profile-dialog .public-profile-dialog-header { position: static; top: auto; left: auto; z-index: auto; background: transparent; pointer-events: auto; }
 }
