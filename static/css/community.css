@@ -26,8 +26,8 @@
 .public-profile-dialog-eyebrow { color: #38bdf8; font-size: 9px; font-weight: 800; letter-spacing: .13em; }
 .public-profile-dialog-header h2 { margin: 5px 0 4px; color: #f8fafc; font-size: 20px; font-weight: 760; letter-spacing: -.02em; }
 .public-profile-dialog-header p { margin: 0; color: #94a3b8; font-size: 12px; }
-.public-profile-dialog-close { display: grid; flex: 0 0 36px; width: 36px; height: 36px; place-items: center; border: 1px solid rgba(148,163,184,.17); border-radius: 11px; background: rgba(148,163,184,.06); color: #94a3b8; cursor: pointer; }
-.public-profile-dialog-close:hover, .public-profile-dialog-close:focus-visible { outline: none; border-color: rgba(148,163,184,.35); background: rgba(148,163,184,.12); color: #f8fafc; }
+.public-profile-dialog-close { display: grid; flex: 0 0 36px; width: 36px; height: 36px; place-items: center; border: 0; border-radius: 0; background: transparent; color: #94a3b8; cursor: pointer; }
+.public-profile-dialog-close:hover, .public-profile-dialog-close:focus-visible { outline: none; border: 0; background: transparent; color: #f8fafc; }
 .public-profile-search { display: flex; align-items: center; gap: 9px; min-height: 40px; margin: 2px 2px 7px; padding: 0 11px; border: 1px solid rgba(148,163,184,.17); border-radius: 11px; background: rgba(2,6,23,.52); }
 .public-profile-dialog > .public-profile-dialog-shell > .public-profile-search { min-height: 48px; margin: 0 22px 10px; padding: 0 13px; }
 .public-profile-search:focus-within { border-color: rgba(56,189,248,.48); box-shadow: 0 0 0 3px rgba(56,189,248,.1); }
@@ -84,6 +84,7 @@
 #tab-notas.public-profile-active > :not(.public-profile-toolbar):not(.public-profile-content),
 #tab-agenda.public-profile-active > :not(.public-profile-toolbar):not(.public-profile-content),
 #tab-progreso.public-profile-active > :not(.public-profile-toolbar):not(.public-profile-content) { display: none !important; }
+#tab-progreso { overflow: visible !important; }
 #tab-mihorario.public-profile-active .schedule-import-control,
 #tab-mihorario.public-profile-active .my-modal-overlay { display: none !important; }
 #tab-solemnes.public-profile-active > .control-card { display: none !important; }

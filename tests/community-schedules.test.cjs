@@ -22,6 +22,9 @@ for (const sectionId of ['tab-mihorario', 'tab-solemnes', 'tab-notas', 'tab-agen
 assert.match(source, /public-profile-trigger-copy small'\)\.textContent = 'Mi perfil'/);
 assert.match(styles, /\.public-profile-toolbar--unified \.public-profile-picker \{ width: 100%; \}/);
 assert.doesNotMatch(styles, /\.public-profile-trigger-chevron \{[^}]*border(?:\s|:)/);
+assert.match(styles, /\.public-profile-dialog-close \{[^}]*border: 0;[^}]*background: transparent;/);
+assert.match(styles, /#tab-progreso \{ overflow: visible !important; \}/);
+assert.match(fs.readFileSync('static/css/main.css', 'utf8'), /\.malla-scroll-wrapper \{\s*overflow-x: auto;/);
 assert.match(source, /type="text" inputmode="search"/);
 assert.doesNotMatch(source, /type="search"/);
 assert.doesNotMatch(source, /public-profile-menu|renderProfileMenu|aria-expanded/);
