@@ -17,7 +17,7 @@
 .public-profile-trigger--unified .public-profile-trigger-copy { gap: 4px; }
 .public-profile-trigger--unified .public-profile-trigger-copy small { color: #7dd3fc; font-size: 10px; font-weight: 650; letter-spacing: .01em; text-transform: none; }
 .public-profile-trigger--unified .public-profile-trigger-copy strong { font-size: 14px; }
-.public-profile-trigger-chevron { display: grid; flex: 0 0 30px; width: 30px; height: 30px; place-items: center; border: 1px solid rgba(148,163,184,.16); border-radius: 10px; color: #94a3b8; font-size: 25px; line-height: 1; }
+.public-profile-trigger-chevron { display: grid; flex: 0 0 auto; place-items: center; color: #94a3b8; font-size: 25px; line-height: 1; }
 .public-profile-trigger-avatar, .public-profile-option-avatar { display: grid; flex: 0 0 34px; width: 34px; height: 34px; place-items: center; border-radius: 50%; background: linear-gradient(135deg,#7c3aed,#0891b2); color: white; font-size: 11px; font-weight: 800; }
 .public-profile-trigger-copy { display: grid; flex: 1 1 auto; gap: 1px; min-width: 0; }
 .public-profile-trigger-copy small { color: #64748b; font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
