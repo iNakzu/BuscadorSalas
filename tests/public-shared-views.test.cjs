@@ -14,19 +14,44 @@ function makeContext(extra = {}) {
   return context;
 }
 
-const notesContext = makeContext({ escapeHtml: value => String(value == null ? '' : value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]) });
-vm.runInContext(fs.readFileSync('static/js/notas.js', 'utf8'), notesContext);
 const notesRoot = { innerHTML: '' };
+const notesSelect = { value: '' };
+const notesLabel = { textContent: '' };
+const notesMenu = { innerHTML: '' };
+const notesDropdown = { classList: { remove() {} } };
+const notesProfile = { user_id: 'friend', modules: { schedule: { clases: [{ curso: 'Cálculo' }, { curso: 'Física' }] } } };
+const notesContext = makeContext({
+  escapeHtml: value => String(value == null ? '' : value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]),
+  document: {
+    readyState: 'loading',
+    addEventListener() {},
+    getElementById(id) {
+      return ({ 'notas-curso-select': notesSelect, 'label-notas-curso': notesLabel, 'dd-notas-curso': notesDropdown })[id] || null;
+    },
+    querySelector(selector) {
+      return ({ '#tab-notas .public-profile-content[data-module="grades"]': notesRoot, '#dd-notas-curso .dropdown-menu': notesMenu })[selector] || null;
+    },
+    querySelectorAll() { return []; }
+  },
+  window: { PortalCommunity: { getSelected: () => notesProfile } }
+});
+vm.runInContext(fs.readFileSync('static/js/notas.js', 'utf8'), notesContext);
 notesContext.window.renderNotasPublicas(notesRoot, {
   'me|Cálculo <I>': { items: [{ id: 1, name: 'Solemne 1', weight: 100, grade: 6.2 }], examGrade: null, examWeight: 30 }
 });
+assert.match(notesMenu.innerHTML, /data-val="Cálculo"/);
+assert.match(notesMenu.innerHTML, /data-val="Física"/);
+assert.match(notesRoot.innerHTML, /Selecciona un ramo para ver sus notas/);
+notesContext.window.selectNotasPerfilCourse('Física');
+assert.match(notesRoot.innerHTML, /Física: todavía no registra notas/);
+notesContext.window.selectNotasPerfilCourse('Cálculo <I>');
 assert.match(notesRoot.innerHTML, /class="notas-card/);
 assert.match(notesRoot.innerHTML, /class="notas-summary"/);
 assert.match(notesRoot.innerHTML, />6\.20</);
 assert.match(notesRoot.innerHTML, /notas-survival-box/);
 assert.match(notesRoot.innerHTML, /disabled/);
 assert.doesNotMatch(notesRoot.innerHTML, /updateNotaItem|updateGlobalNota|deleteNotaItem|addNotaItem/);
-assert.match(notesRoot.innerHTML, /Cálculo &lt;I&gt;/);
+assert.strictEqual(notesLabel.textContent, 'Cálculo <I>');
 assert.deepStrictEqual(JSON.parse(JSON.stringify(vm.runInContext('Object.keys(NOTAS_DATA)', notesContext))), []);
 
 const agendaContext = makeContext();
