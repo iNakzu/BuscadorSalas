@@ -88,6 +88,10 @@ function cambiarTab(panelId, btn) {
     if (activeDay && typeof checkSolemneAutoSwitch === 'function') {
         checkSolemneAutoSwitch(activeDay);
     }
+
+    if (target && document.dispatchEvent && typeof CustomEvent !== 'undefined') {
+        document.dispatchEvent(new CustomEvent('portal:section-entered', { detail: { panelId } }));
+    }
 }
 
 function toggleSidebar() {
