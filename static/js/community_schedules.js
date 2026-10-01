@@ -519,6 +519,10 @@
         getUsers: () => loadedUsers.slice()
     };
     window.cargarHorariosComunidad = loadSharedInformation;
+    document.addEventListener('portal:section-entered', event => {
+        if (!sections.some(section => section.id === event.detail.panelId) || !selectedUserId) return;
+        applySelection('');
+    });
     document.addEventListener('portal:auth-changed', loadSharedInformation);
     document.addEventListener('portal:personal-store-ready', loadSharedInformation);
     document.addEventListener('DOMContentLoaded', () => {

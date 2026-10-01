@@ -3,6 +3,7 @@ const fs = require('fs');
 const vm = require('vm');
 
 const source = fs.readFileSync('static/js/community_schedules.js', 'utf8');
+const appSource = fs.readFileSync('static/js/app.js', 'utf8');
 const styles = fs.readFileSync('static/css/community.css', 'utf8');
 assert.match(source, /class="public-profile-search-input"/);
 assert.match(source, /matches\.slice\(pageStart, pageStart \+ MAX_VISIBLE_PROFILES\)/);
@@ -17,6 +18,8 @@ assert.match(source, /aria-haspopup="dialog"/);
 assert.match(source, /toolbar\.classList\.add\('public-profile-toolbar--unified'\)/);
 assert.match(source, /toolbar\.innerHTML = pickerMarkup\(\)/);
 assert.match(source, /section\.insertBefore\(content, builder \? builder\.nextSibling : toolbar\.nextSibling\)/);
+assert.match(source, /document\.addEventListener\('portal:section-entered',[\s\S]*?sections\.some\(section => section\.id === event\.detail\.panelId\)[\s\S]*?applySelection\(''\)/);
+assert.match(appSource, /new CustomEvent\('portal:section-entered', \{ detail: \{ panelId \} \}\)/);
 for (const sectionId of ['tab-mihorario', 'tab-solemnes', 'tab-notas', 'tab-agenda', 'tab-progreso']) {
   assert.match(source, new RegExp(`id: '${sectionId}'`));
 }
@@ -60,6 +63,7 @@ const client = { rpc: async (name, args) => {
   throw new Error(`Unexpected RPC ${name}`);
 } };
 const selectors = [];
+const documentListeners = {};
 const publicContents = [
   { dataset: { module: 'grades' }, hidden: true, innerHTML: '' },
   { dataset: { module: 'agenda' }, hidden: true, innerHTML: '' }
@@ -76,7 +80,7 @@ const context = {
     getElementById: id => elements.get(id),
     querySelector: () => null,
     querySelectorAll: selector => selector === '.public-profile-picker' ? selectors : selector === '.public-profile-content' ? publicContents : [],
-    addEventListener() {}
+    addEventListener(name, callback) { documentListeners[name] = callback; }
   }, console
 };
 vm.createContext(context);
@@ -99,8 +103,14 @@ vm.runInContext(source, context);
   assert.deepStrictEqual(JSON.parse(JSON.stringify(context.publicAgenda)), [
     { fecha: '2026-10-02', ramo: 'Cálculo', tipo: 'Solemne' }
   ]);
-  context.window.PortalCommunity.select('');
-  assert.strictEqual(context.sharedSchedule, null);
+  for (const panelId of ['tab-mihorario', 'tab-solemnes', 'tab-notas', 'tab-agenda', 'tab-progreso']) {
+    await context.window.PortalCommunity.select('friend');
+    assert.strictEqual(context.window.PortalCommunity.getSelected().user_id, 'friend');
+    documentListeners['portal:section-entered']({ detail: { panelId } });
+    assert.strictEqual(context.window.PortalCommunity.getSelected(), null, `${panelId} returns to my profile`);
+    assert.strictEqual(context.sharedSchedule, null, `${panelId} clears the shared schedule overlay`);
+    assert.strictEqual(publicContents[0].hidden, true, `${panelId} hides shared notes`);
+  }
   context.window.PortalAuth.client.rpc = async name => {
     if (name === 'search_shared_profiles') return { data: null, error: { message: 'Migration not installed' } };
     if (name === 'get_shared_information') return { data: sharedSchedules, error: null };
