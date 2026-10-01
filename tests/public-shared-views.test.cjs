@@ -72,6 +72,9 @@ currentNotesProfile = null;
 notesListeners['portal:public-profile-changed']({ detail: { profile: null } });
 assert.match(notesMenu.innerHTML, /data-val="Mi ramo"/);
 assert.doesNotMatch(notesMenu.innerHTML, /data-val="Física"|data-val="Cálculo/);
+notesSelect.value = 'Mi ramo';
+notesContext.renderNotasBuilder();
+assert.doesNotMatch(privateNotesBuilder.innerHTML, /notas-btn-del|deleteNotaItem|El examen final no se puede eliminar|<path d="M7 11V7a5/);
 
 const agendaContext = makeContext();
 vm.runInContext(fs.readFileSync('static/js/agenda.js', 'utf8'), agendaContext);

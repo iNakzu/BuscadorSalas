@@ -207,10 +207,6 @@ function renderNotasBuilder(options = {}) {
                         <span class="notas-percent-symbol">%</span>
                     </div>
                     <input type="number" step="0.1" min="1.0" max="7.0" class="notas-input-grade" style="width: 80px;" value="${item.grade !== null ? item.grade : ''}" ${readOnly ? 'disabled' : `onchange="updateNotaItem('${dbKey}', ${index}, 'grade', this.value)"`} placeholder="Nota">
-                    
-                    ${readOnly ? '' : `<button class="notas-btn-del" onclick="deleteNotaItem('${dbKey}', ${index})" title="Eliminar ítem">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                    </button>`}
                 </div>
             </div>
         `;
@@ -329,9 +325,6 @@ function renderNotasBuilder(options = {}) {
                         <span class="notas-percent-symbol">%</span>
                     </div>
                     <input type="number" step="0.1" min="1.0" max="7.0" class="notas-input-grade" style="width: 80px;" value="${data.examGrade !== null ? data.examGrade : ''}" ${readOnly ? 'disabled' : `onchange="updateGlobalNota('${dbKey}', 'examGrade', this.value)"`} placeholder="Nota">
-                    <div style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; color: #64748b;" title="El examen final no se puede eliminar">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                    </div>
                 </div>
         </div>
     `;
@@ -564,15 +557,6 @@ function addNotaItem(dbKey) {
     saveNotas();
     renderNotasBuilder();
 }
-
-function deleteNotaItem(dbKey, index) {
-    if (!NOTAS_DATA[dbKey]) return;
-    NOTAS_DATA[dbKey].items.splice(index, 1);
-    saveNotas();
-    renderNotasBuilder();
-}
-
-
 
 document.addEventListener('DOMContentLoaded', () => {
     initNotas();
