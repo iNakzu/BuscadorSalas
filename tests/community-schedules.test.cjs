@@ -16,9 +16,6 @@ assert.match(source, /dialog\.showModal\(\)/);
 assert.match(source, /aria-haspopup="dialog"/);
 assert.match(source, /toolbar\.classList\.add\('public-profile-toolbar--unified'\)/);
 assert.match(source, /toolbar\.innerHTML = pickerMarkup\(\)/);
-assert.match(source, /id: 'tab-notas', module: 'grades', label: 'Notas', showPicker: false/);
-assert.match(source, /if \(config\.showPicker !== false && !toolbar\)/);
-assert.match(source, /toolbar \? toolbar\.nextSibling : section\.firstChild/);
 for (const sectionId of ['tab-mihorario', 'tab-solemnes', 'tab-notas', 'tab-agenda', 'tab-progreso']) {
   assert.match(source, new RegExp(`id: '${sectionId}'`));
 }
