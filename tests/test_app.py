@@ -39,6 +39,12 @@ class PortalV1Test(unittest.TestCase):
         for removed in ("ai-chat-window", "tab-reloj", "tab-cronometro", "tab-kanban", "tab-gastos", "tab-compras", "tab-notasvoz", "tab-habitos", "tab-riff", "tab-transporte", "tab-clima"):
             self.assertNotIn(removed, html)
 
+    def test_notes_course_selector_has_no_outer_card(self):
+        notes = Path("templates/views/notas.html").read_text()
+        self.assertIn('class="notas-controls-shell"', notes)
+        self.assertNotIn('class="control-card"', notes)
+        self.assertIn('id="dd-notas-curso"', notes)
+
     def test_schedule_api_contract(self):
         response = self.client.get("/api/salas?dia=1&hora=8:30:00&facultad=INGENIERIA")
         self.assertEqual(response.status_code, 200)
