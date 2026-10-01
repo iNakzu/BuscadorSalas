@@ -166,6 +166,7 @@ const customStyles = `
         width: 100%;
         min-width: 0;
         max-width: 100%;
+        overflow: visible !important;
     }
     #solemnes-container {
         width: 100%;

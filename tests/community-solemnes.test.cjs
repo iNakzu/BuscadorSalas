@@ -23,8 +23,11 @@ const context = {
   clearInterval() {},
   console
 };
+const source = fs.readFileSync('static/js/solemnes.js', 'utf8');
+assert.match(source, /#tab-solemnes \{[\s\S]*?overflow: visible !important;/);
+assert.match(source, /\.solemnes-scroll-wrapper \{[\s\S]*?overflow-x: auto;/);
 vm.createContext(context);
-vm.runInContext(fs.readFileSync('static/js/solemnes.js', 'utf8'), context);
+vm.runInContext(source, context);
 vm.runInContext('renderSolemnes()', context);
 
 assert.match(container.innerHTML, /Ana García/);
