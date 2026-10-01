@@ -4,22 +4,27 @@ const vm = require('vm');
 
 const source = fs.readFileSync('static/js/auth.js', 'utf8');
 
-function boot(session, signInError = null) {
+function boot(session, signInError = null, publicOrigin = 'https://horarios.dev') {
   const elements = new Map();
   for (const id of ['auth-status', 'auth-profile', 'auth-avatar', 'auth-name', 'auth-email', 'auth-login', 'auth-logout', 'btn-clear-cache']) {
     elements.set(id, { hidden: false, disabled: false, textContent: '' });
   }
   const listeners = {};
+  const calls = {};
   const client = {
     auth: {
       async getSession() { return { data: { session } }; },
       onAuthStateChange() {},
-      async signInWithOAuth() { return { error: signInError }; },
+      async signInWithOAuth(options) { calls.oauth = options; return { error: signInError }; },
       async signOut() {}
     }
   };
   const context = {
-    window: { PORTAL_CONFIG: { supabaseUrl: 'https://project.supabase.co', supabaseAnonKey: 'public-key' }, supabase: { createClient: () => client } },
+    window: {
+      PORTAL_CONFIG: { supabaseUrl: 'https://project.supabase.co', supabaseAnonKey: 'public-key', publicOrigin },
+      localStorage: {},
+      supabase: { createClient: (_url, _key, options) => { calls.clientOptions = options; return client; } }
+    },
     document: {
       getElementById: id => elements.get(id),
       addEventListener: (name, fn) => { listeners[name] = fn; },
@@ -31,7 +36,7 @@ function boot(session, signInError = null) {
   };
   vm.createContext(context);
   vm.runInContext(source, context);
-  return { context, elements, listeners };
+  return { context, elements, listeners, calls };
 }
 
 (async () => {
@@ -50,6 +55,9 @@ function boot(session, signInError = null) {
   await failedLogin.listeners.DOMContentLoaded();
   assert.strictEqual(failedLogin.elements.get('btn-clear-cache').hidden, true);
   await failedLogin.context.window.PortalAuth.signIn();
+  assert.strictEqual(failedLogin.calls.oauth.options.redirectTo, 'https://horarios.dev/');
+  assert.strictEqual(failedLogin.calls.clientOptions.auth.persistSession, true);
+  assert.strictEqual(failedLogin.calls.clientOptions.auth.detectSessionInUrl, true);
   assert.match(failedLogin.elements.get('auth-status').textContent, /No se pudo iniciar sesión con Google/);
   console.log('auth-ui: initials profile and OAuth error scenarios passed');
 })().catch(error => { console.error(error); process.exit(1); });

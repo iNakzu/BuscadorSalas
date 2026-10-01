@@ -1,7 +1,14 @@
 (function () {
     const config = window.PORTAL_CONFIG || {};
     const available = Boolean(config.supabaseUrl && config.supabaseAnonKey && window.supabase);
-    const client = available ? window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey) : null;
+    const client = available ? window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey, {
+        auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true,
+            storage: window.localStorage
+        }
+    }) : null;
 
     const api = window.PortalAuth = { client, user: null, available };
 
@@ -65,7 +72,7 @@
         if (!client) return;
         const { error } = await client.auth.signInWithOAuth({
             provider: 'google',
-            options: { redirectTo: `${location.origin}/` }
+            options: { redirectTo: `${config.publicOrigin || 'https://horarios.dev'}/` }
         });
         if (error) {
             const status = document.getElementById('auth-status');
