@@ -22,7 +22,7 @@
     const sections = [
         { id: 'tab-mihorario', module: 'schedule', label: 'Horario', native: true },
         { id: 'tab-solemnes', module: 'exams', label: 'Solemnes', native: true },
-        { id: 'tab-notas', module: 'grades', label: 'Notas' },
+        { id: 'tab-notas', module: 'grades', label: 'Notas', showPicker: false },
         { id: 'tab-agenda', module: 'agenda', label: 'Agenda' },
         { id: 'tab-progreso', module: 'curriculum', label: 'Malla' }
     ];
@@ -314,20 +314,23 @@
     function installToolbars() {
         sections.forEach(config => {
             const section = document.getElementById(config.id);
-            if (!section || section.querySelector('.public-profile-toolbar')) return;
-            const toolbar = document.createElement('div');
-            toolbar.className = 'public-profile-toolbar';
-            toolbar.dataset.module = config.module;
-            toolbar.classList.add('public-profile-toolbar--unified');
-            toolbar.innerHTML = pickerMarkup();
-            wirePicker(toolbar);
-            section.insertBefore(toolbar, section.firstChild);
-            if (!config.native) {
+            if (!section) return;
+            let toolbar = section.querySelector('.public-profile-toolbar');
+            if (config.showPicker !== false && !toolbar) {
+                toolbar = document.createElement('div');
+                toolbar.className = 'public-profile-toolbar';
+                toolbar.dataset.module = config.module;
+                toolbar.classList.add('public-profile-toolbar--unified');
+                toolbar.innerHTML = pickerMarkup();
+                wirePicker(toolbar);
+                section.insertBefore(toolbar, section.firstChild);
+            }
+            if (!config.native && !section.querySelector('.public-profile-content')) {
                 const content = document.createElement('div');
                 content.className = 'public-profile-content';
                 content.dataset.module = config.module;
                 content.hidden = true;
-                section.insertBefore(content, toolbar.nextSibling);
+                section.insertBefore(content, toolbar ? toolbar.nextSibling : section.firstChild);
             }
         });
         syncSelectors();
