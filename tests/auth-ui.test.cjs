@@ -56,6 +56,7 @@ function boot(session, signInError = null, publicOrigin = 'https://horarios.dev'
   assert.strictEqual(failedLogin.elements.get('btn-clear-cache').hidden, true);
   await failedLogin.context.window.PortalAuth.signIn();
   assert.strictEqual(failedLogin.calls.oauth.options.redirectTo, 'https://horarios.dev/');
+  assert.strictEqual(failedLogin.calls.clientOptions.auth.flowType, 'pkce');
   assert.strictEqual(failedLogin.calls.clientOptions.auth.persistSession, true);
   assert.strictEqual(failedLogin.calls.clientOptions.auth.detectSessionInUrl, true);
   assert.match(failedLogin.elements.get('auth-status').textContent, /No se pudo iniciar sesión con Google/);

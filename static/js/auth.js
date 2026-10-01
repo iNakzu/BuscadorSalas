@@ -3,6 +3,7 @@
     const available = Boolean(config.supabaseUrl && config.supabaseAnonKey && window.supabase);
     const client = available ? window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey, {
         auth: {
+            flowType: 'pkce',
             persistSession: true,
             autoRefreshToken: true,
             detectSessionInUrl: true,
