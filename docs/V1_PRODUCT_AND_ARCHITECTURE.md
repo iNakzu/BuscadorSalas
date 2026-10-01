@@ -73,7 +73,7 @@ Configurar `GEMINI_API_KEY` en el archivo de entorno del servicio del servidor; 
 
 La PWA usa un origen estable con certificado Let's Encrypt. El service worker sólo guarda la shell y recursos estáticos; excluye `/api/`, autenticación y datos personales. Cambios publicados se incorporan al abrir de nuevo la app o cuando el navegador actualiza el service worker.
 
-Producción usa `horarios.dev` y puerto interno 5000. Los nombres antiguos de `sslip.io` redirigen al dominio canónico. Preview usa `v1.144-22-33-41.sslip.io` y puerto 5001. Ambos dominios apuntan a la misma VM, pero a servicios y worktrees separados.
+Producción usa únicamente `horarios.dev` y puerto interno 5000. El host de preview `v1.144-22-33-41.sslip.io` usa el puerto 5001 y un worktree separado.
 
 ## Entrega
 
