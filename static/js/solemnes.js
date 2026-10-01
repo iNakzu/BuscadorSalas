@@ -183,6 +183,13 @@ const customStyles = `
         overscroll-behavior-inline: contain;
         padding: 0 16px 20px 16px;
     }
+    @media (max-width: 1023px) {
+        .solemnes-scroll-wrapper {
+            width: 100vw;
+            max-width: none;
+            margin-left: calc(-50vw + 50%);
+        }
+    }
     .solemnes-grid {
         display: grid;
         grid-template-columns: 100px repeat(5, minmax(220px, 1fr));
