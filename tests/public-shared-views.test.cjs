@@ -18,14 +18,18 @@ const notesRoot = { innerHTML: '' };
 const notesSelect = { value: '' };
 const privateNotesBuilder = { innerHTML: '' };
 const notesLabel = { textContent: '' };
-const notesMenu = { innerHTML: '' };
+const notesMenu = { innerHTML: '', querySelectorAll() { return []; } };
 const notesDropdown = { classList: { remove() {} } };
 const notesProfile = { user_id: 'friend', modules: { schedule: { clases: [{ curso: 'Cálculo' }, { curso: 'Física' }] } } };
+const notesListeners = {};
+let currentNotesProfile = notesProfile;
 const notesContext = makeContext({
   escapeHtml: value => String(value == null ? '' : value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]),
+  normStr: value => String(value || '').trim().toLocaleLowerCase(),
+  MI_HORARIO_DATA: { clases: [{ curso: 'Mi ramo' }] },
   document: {
     readyState: 'loading',
-    addEventListener() {},
+    addEventListener(name, callback) { notesListeners[name] = callback; },
     getElementById(id) {
       return ({ 'notas-curso-select': notesSelect, 'label-notas-curso': notesLabel, 'dd-notas-curso': notesDropdown, 'notas-builder-container': privateNotesBuilder })[id] || null;
     },
@@ -34,7 +38,7 @@ const notesContext = makeContext({
     },
     querySelectorAll() { return []; }
   },
-  window: { PortalCommunity: { getSelected: () => notesProfile } }
+  window: { PortalCommunity: { getSelected: () => currentNotesProfile } }
 });
 vm.runInContext(fs.readFileSync('static/js/notas.js', 'utf8'), notesContext);
 notesContext.renderNotasBuilder();
@@ -64,6 +68,10 @@ assert.match(notesRoot.innerHTML, /disabled/);
 assert.doesNotMatch(notesRoot.innerHTML, /updateNotaItem|updateGlobalNota|deleteNotaItem|addNotaItem/);
 assert.strictEqual(notesLabel.textContent, 'Cálculo <I>');
 assert.deepStrictEqual(JSON.parse(JSON.stringify(vm.runInContext('Object.keys(NOTAS_DATA)', notesContext))), []);
+currentNotesProfile = null;
+notesListeners['portal:public-profile-changed']({ detail: { profile: null } });
+assert.match(notesMenu.innerHTML, /data-val="Mi ramo"/);
+assert.doesNotMatch(notesMenu.innerHTML, /data-val="Física"|data-val="Cálculo/);
 
 const agendaContext = makeContext();
 vm.runInContext(fs.readFileSync('static/js/agenda.js', 'utf8'), agendaContext);
