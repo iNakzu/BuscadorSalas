@@ -87,7 +87,7 @@
 #tab-progreso { overflow: visible !important; }
 #tab-mihorario.public-profile-active .schedule-import-control,
 #tab-mihorario.public-profile-active .my-modal-overlay { display: none !important; }
-#tab-solemnes.public-profile-active > .control-card { display: none !important; }
+#tab-solemnes.public-profile-active > .search-field { display: none !important; }
 
 @media (max-width: 600px) {
   .public-profile-toolbar { align-items: stretch; flex-direction: column; gap: 9px; padding: 11px 12px; }

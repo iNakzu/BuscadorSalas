@@ -45,6 +45,11 @@ class PortalV1Test(unittest.TestCase):
         self.assertNotIn('class="control-card"', notes)
         self.assertIn('id="dd-notas-curso"', notes)
 
+    def test_solemnes_course_search_has_no_outer_card(self):
+        solemnes = Path("templates/views/solemnes.html").read_text()
+        self.assertNotIn('class="control-card"', solemnes)
+        self.assertIn('id="solemnes-search"', solemnes)
+
     def test_schedule_api_contract(self):
         response = self.client.get("/api/salas?dia=1&hora=8:30:00&facultad=INGENIERIA")
         self.assertEqual(response.status_code, 200)
