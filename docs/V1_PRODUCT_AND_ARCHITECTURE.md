@@ -58,7 +58,7 @@ values ('persona@example.com', 'Piloto V1');
 1. Crear un proyecto con Data API habilitada, exposición automática de tablas nuevas deshabilitada y RLS automático habilitado. La migración concede permisos explícitos sólo a `authenticated` para las tablas personales; RLS limita cada fila al usuario propietario.
 2. Aplicar, en orden, las migraciones de `supabase/migrations/` con `supabase db push` o el SQL Editor. La migración `202609290002_public_information.sql` convierte el permiso de horario público en información pública y habilita la vista comunitaria de horario, solemnes, notas, agenda y malla.
 3. En Authentication > Hooks, seleccionar `public.hook_restrict_signup` como **Before User Created**.
-4. Crear un cliente OAuth web en Google. El origen autorizado de producción es `https://horarios.dev`; para preview, agregar `https://v1.144-22-33-41.sslip.io`.
+4. Crear un cliente OAuth web en Google. El origen autorizado de producción es `https://horarios.dev`.
 5. Copiar desde Supabase la URL callback exacta `https://<project-ref>.supabase.co/auth/v1/callback` a las redirect URIs de Google y habilitar Google en Authentication > Providers.
 6. En Supabase URL Configuration, usar el dominio estable como Site URL y agregar el dominio preview a Redirect URLs.
 7. Copiar `.env.example` a `.env` en cada despliegue y completar `SUPABASE_URL`, `SUPABASE_ANON_KEY` y `SECRET_KEY`. La clave anon/publicable es apta para el navegador porque RLS protege los datos.
@@ -73,7 +73,7 @@ Configurar `GEMINI_API_KEY` en el archivo de entorno del servicio del servidor; 
 
 La PWA usa un origen estable con certificado Let's Encrypt. El service worker sólo guarda la shell y recursos estáticos; excluye `/api/`, autenticación y datos personales. Cambios publicados se incorporan al abrir de nuevo la app o cuando el navegador actualiza el service worker.
 
-Producción usa únicamente `horarios.dev` y puerto interno 5000. El host de preview `v1.144-22-33-41.sslip.io` usa el puerto 5001 y un worktree separado.
+Producción usa únicamente `horarios.dev` y puerto interno 5000.
 
 ## Entrega
 
