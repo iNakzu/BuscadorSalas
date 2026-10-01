@@ -214,6 +214,12 @@
     }
 }
 
+.notas-controls-shell {
+    position: relative;
+    z-index: 50;
+    margin-bottom: 24px;
+}
+
 .notas-controls-header {
     display: flex;
     gap: 12px;
