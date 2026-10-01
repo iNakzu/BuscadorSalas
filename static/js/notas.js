@@ -16,16 +16,32 @@ function initNotas() {
                 }
             }
         }
-        
+        NOTAS_DATA = limpiarRedundanciaNotas(NOTAS_DATA);
+        localStorage.setItem('mi_notas_v1', JSON.stringify(NOTAS_DATA));
 
     } catch(e) { console.error(e); }
 }
 
 function saveNotas() {
     try {
+        NOTAS_DATA = limpiarRedundanciaNotas(NOTAS_DATA);
         localStorage.setItem('mi_notas_v1', JSON.stringify(NOTAS_DATA));
         if (window.PortalStore) window.PortalStore.save('grades', NOTAS_DATA);
     } catch(e) { console.error(e); }
+}
+
+function limpiarRedundanciaNotas(payload) {
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return {};
+    Object.values(payload).forEach(course => {
+        if (!course || typeof course !== 'object' || Array.isArray(course)) return;
+        delete course.eximGrade;
+        if (Array.isArray(course.items)) {
+            course.items.forEach(item => {
+                if (item && typeof item === 'object' && !Array.isArray(item)) delete item.id;
+            });
+        }
+    });
+    return payload;
 }
 
 function notasEmptySelectionHtml() {
@@ -35,15 +51,21 @@ function notasEmptySelectionHtml() {
 function emptyPublicNotasData() {
     return {
         items: [
-            { id: 1, name: 'Solemne 1', weight: 30, grade: null },
-            { id: 2, name: 'Solemne 2', weight: 30, grade: null },
-            { id: 3, name: 'Controles', weight: 25, grade: null },
-            { id: 4, name: 'Tareas', weight: 15, grade: null }
+            { name: 'Solemne 1', weight: 30, grade: null },
+            { name: 'Solemne 2', weight: 30, grade: null },
+            { name: 'Controles', weight: 25, grade: null },
+            { name: 'Tareas', weight: 15, grade: null }
         ],
         examGrade: null,
-        examWeight: 30,
-        eximGrade: 5.0
+        examWeight: 30
     };
+}
+
+function assistantCourseSet(classes) {
+    return new Set((Array.isArray(classes) ? classes : [])
+        .filter(item => item && item.rol === 'assistant')
+        .map(item => normStr(item.curso))
+        .filter(Boolean));
 }
 
 function updateNotasDropdown() {
@@ -61,10 +83,11 @@ function updateNotasDropdown() {
     
     const userKey = 'me';
     const scheduleObj = typeof MI_HORARIO_DATA !== 'undefined' ? MI_HORARIO_DATA : null;
+    const assistantCourses = assistantCourseSet(scheduleObj && scheduleObj.clases);
     
     let myRamos = [];
     if (scheduleObj && scheduleObj.clases) {
-        const validClasses = scheduleObj.clases.filter(c => c.rol !== 'assistant');
+        const validClasses = scheduleObj.clases.filter(c => c.rol !== 'assistant' && !assistantCourses.has(normStr(c.curso)));
         myRamos = [...new Set(validClasses.map(c => normStr(c.curso)))].filter(Boolean).sort();
     }
     
@@ -85,9 +108,7 @@ function updateNotasDropdown() {
         if (key.startsWith(userKey + '|')) {
             const r = key.split('|')[1];
             
-            // Ocultar si el usuario es ayudante (y no estudiante) de este ramo
-            const isAssistant = scheduleObj && scheduleObj.clases && scheduleObj.clases.some(c => normStr(c.curso) === normStr(r) && c.rol === 'assistant') && !scheduleObj.clases.some(c => normStr(c.curso) === normStr(r) && c.rol !== 'assistant');
-            if (isAssistant) continue;
+            if (assistantCourses.has(normStr(r))) continue;
 
             if (!myRamos.includes(normStr(r))) {
                 const data = NOTAS_DATA[key];
@@ -152,14 +173,13 @@ function renderNotasBuilder(options = {}) {
     if (!readOnly && !NOTAS_DATA[dbKey]) {
         NOTAS_DATA[dbKey] = {
             items: [
-                { id: Date.now(), name: "Solemne 1", weight: 30, grade: null },
-                { id: Date.now()+1, name: "Solemne 2", weight: 30, grade: null },
-                { id: Date.now()+2, name: "Controles", weight: 25, grade: null },
-                { id: Date.now()+3, name: "Tareas", weight: 15, grade: null }
+                { name: "Solemne 1", weight: 30, grade: null },
+                { name: "Solemne 2", weight: 30, grade: null },
+                { name: "Controles", weight: 25, grade: null },
+                { name: "Tareas", weight: 15, grade: null }
             ],
             examGrade: null,
-            examWeight: 30,
-            eximGrade: 5.0
+            examWeight: 30
         };
         saveNotas();
     }
@@ -167,12 +187,12 @@ function renderNotasBuilder(options = {}) {
     const data = readOnly
         ? JSON.parse(JSON.stringify(options.data || {}))
         : NOTAS_DATA[dbKey];
+    limpiarRedundanciaNotas({ [dbKey]: data });
     const exim = 5.0;
     
     // Sanitizar posibles datos corruptos antiguos
     if (data.items) {
         data.items = data.items.map(item => ({
-            id: item.id || Date.now() + Math.random(),
             name: item.name || "Evaluación",
             weight: item.weight || 0,
             grade: item.grade || null
@@ -482,7 +502,7 @@ window.selectNotasPerfilCourse = function (course) {
 
 window.renderNotasPublicas = function (container, payload) {
     if (!container) return;
-    PUBLIC_NOTAS_PAYLOAD = payload && typeof payload === 'object' && !Array.isArray(payload) ? payload : {};
+    PUBLIC_NOTAS_PAYLOAD = limpiarRedundanciaNotas(payload);
     const profile = window.PortalCommunity && typeof window.PortalCommunity.getSelected === 'function'
         ? window.PortalCommunity.getSelected() : null;
     const profileId = String(profile && (profile.user_id || profile.id) || 'shared');
@@ -494,14 +514,15 @@ window.renderNotasPublicas = function (container, payload) {
 
     const schedule = profile && profile.modules && profile.modules.schedule;
     const classes = Array.isArray(schedule) ? schedule : schedule && Array.isArray(schedule.clases) ? schedule.clases : [];
+    const assistantCourses = assistantCourseSet(classes);
     const byName = new Map();
     classes.forEach(item => {
         const course = String(item && item.curso || '').trim();
-        if (course && !byName.has(course.toLocaleLowerCase())) byName.set(course.toLocaleLowerCase(), course);
+        if (course && !assistantCourses.has(normStr(course)) && !byName.has(course.toLocaleLowerCase())) byName.set(course.toLocaleLowerCase(), course);
     });
     Object.keys(PUBLIC_NOTAS_PAYLOAD).forEach(key => {
         const course = String(key).includes('|') ? String(key).split('|').slice(1).join('|').trim() : String(key).trim();
-        if (course && !byName.has(course.toLocaleLowerCase())) byName.set(course.toLocaleLowerCase(), course);
+        if (course && !assistantCourses.has(normStr(course)) && !byName.has(course.toLocaleLowerCase())) byName.set(course.toLocaleLowerCase(), course);
     });
     PUBLIC_NOTAS_COURSES = [...byName.values()].sort((a, b) => a.localeCompare(b, 'es'));
 
@@ -553,7 +574,7 @@ window.updateGlobalNota = function(dbKey, field, value) {
 
 function addNotaItem(dbKey) {
     if (!NOTAS_DATA[dbKey]) return;
-    NOTAS_DATA[dbKey].items.push({ id: Date.now(), name: "Nueva Evaluación", weight: 0, grade: null });
+    NOTAS_DATA[dbKey].items.push({ name: "Nueva Evaluación", weight: 0, grade: null });
     saveNotas();
     renderNotasBuilder();
 }
@@ -575,7 +596,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 document.addEventListener('portal:remote-state', event => {
     if (event.detail.module !== 'grades') return;
-    NOTAS_DATA = event.detail.payload || {};
+    const payload = event.detail.payload || {};
+    const original = JSON.stringify(payload);
+    NOTAS_DATA = limpiarRedundanciaNotas(payload);
+    if (JSON.stringify(NOTAS_DATA) !== original) saveNotas();
     updateNotasDropdown();
 });
 

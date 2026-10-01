@@ -27,6 +27,7 @@
 <button class="my-modal-close" onclick="cerrarModalAgregarClase()" title="Cerrar" type="button">×</button>
 </div>
 <form id="form-agregar-clase" onsubmit="guardarNuevaClaseModal(event)">
+<input id="modal-add-id" type="hidden" value=""/>
 <input id="modal-add-dia" type="hidden" value="1"/>
 <input id="modal-add-bloque" type="hidden" value="1"/>
 <input id="modal-add-hora-inicio" type="hidden" value="08:30"/>
@@ -93,8 +94,9 @@
 <input autocomplete="off" class="my-form-input" id="modal-add-profesor" placeholder="Nombre del docente" type="text" value=""/>
 </div>
 <div class="my-modal-actions">
+<button class="my-btn-secondary my-btn-danger" id="modal-delete-class" onclick="eliminarClaseDesdeEditor(event)" type="button" hidden>Eliminar clase</button>
 <button class="my-btn-secondary" onclick="cerrarModalAgregarClase()" type="button">Cancelar</button>
-<button class="my-btn-primary" type="submit">Guardar en tu horario</button>
+<button class="my-btn-primary" id="modal-save-class" type="submit">Guardar en tu horario</button>
 </div>
 </form>
 </div>

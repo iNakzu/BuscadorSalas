@@ -40,6 +40,13 @@ const context = {
 vm.createContext(context);
 vm.runInContext(fs.readFileSync('static/js/horario.js', 'utf8'), context);
 
+local.set('mi_horario_custom_v1', JSON.stringify({ escuela: 'EIT', clases: [
+  { dia: 1, curso: 'Horario antiguo', bloqueNum: 6, bloqueLabel: '16:00 - 17:20', horaInicio: '16:00', horaFin: '17:20' }
+]}));
+vm.runInContext('MI_HORARIO_DATA = cargarMiHorarioDesdeStorage()', context);
+const migratedLegacySchedule = JSON.parse(local.get('mi_horario_custom_v1'));
+assert.strictEqual(Object.prototype.hasOwnProperty.call(migratedLegacySchedule.clases[0], 'bloqueLabel'), false);
+
 vm.runInContext(`
   actualizarContadoresFiltrosMiHorario = function () {};
   renderMiHorario = function () {};
@@ -75,7 +82,7 @@ assert.strictEqual(schedule.clases[4].curso, 'Álgebra');
 assert.strictEqual(schedule.clases[4].bloqueNum, 5);
 assert.strictEqual(schedule.clases[5].curso, 'Redes');
 assert.strictEqual(schedule.clases[5].bloqueNum, 6);
-assert.strictEqual(schedule.clases[5].bloqueLabel, '16:00 - 17:20');
+assert.strictEqual(Object.prototype.hasOwnProperty.call(schedule.clases[5], 'bloqueLabel'), false);
 assert.strictEqual(context.toastMessage, 'Horario cargado: 6 clases.');
 
 (async () => {

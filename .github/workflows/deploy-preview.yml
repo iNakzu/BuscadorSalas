@@ -27,6 +27,8 @@ jobs:
           node tests/community-schedules.test.cjs
           node tests/community-schedule-overlay.test.cjs
           node tests/community-solemnes.test.cjs
+          node tests/notes-schema.test.cjs
+          node tests/schedule-class-edit.test.cjs
           node tests/schedule-import-ui.test.cjs
 
       - name: Actualizar preview en la VM

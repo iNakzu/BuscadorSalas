@@ -391,6 +391,17 @@
     }
 }
 
+@media (max-width: 900px) {
+    .my-week-grid {
+        width: 100vw;
+        max-width: none;
+        margin-left: calc(-50vw + 50%);
+        padding-left: max(20px, calc((100vw - 1400px) / 2));
+        padding-right: max(20px, calc((100vw - 1400px) / 2));
+        box-sizing: border-box;
+    }
+}
+
 .my-day-col {
     scroll-snap-align: center;
     background: rgba(15, 23, 42, 0.45);
@@ -569,6 +580,10 @@
     display: none;
 }
 
+.my-empty-slot.is-readonly:hover .my-empty-text {
+    display: inline;
+}
+
 .my-empty-slot:hover .my-empty-add-hint {
     display: inline-flex;
 }
@@ -635,7 +650,7 @@
     color: #fca5a5;
 }
 
-.my-btn-delete {
+.my-btn-edit {
     background: transparent;
     border: none;
     color: #64748b;
@@ -649,15 +664,15 @@
     opacity: 0.45;
 }
 
-.my-class-card:hover .my-btn-delete {
+.my-class-card:hover .my-btn-edit {
     opacity: 0.85;
 }
 
-.my-btn-delete:hover {
-    background: rgba(239, 68, 68, 0.2) !important;
-    color: #ef4444 !important;
+.my-btn-edit:hover {
+    background: rgba(59, 130, 246, 0.18) !important;
+    color: #93c5fd !important;
     opacity: 1 !important;
-    transform: scale(1.1);
+    transform: scale(1.08);
 }
 
 .my-btn-delete-timeline {
@@ -1096,6 +1111,9 @@
     .my-modal-dialog {
         padding: 20px 16px;
     }
+    .my-modal-actions {
+        flex-wrap: wrap;
+    }
 }
 
 
@@ -1118,6 +1136,23 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
+}
+
+.my-btn-secondary[hidden] {
+    display: none !important;
+}
+
+.my-btn-danger {
+    color: #fca5a5;
+    border-color: rgba(239, 68, 68, 0.28);
+    background: rgba(239, 68, 68, 0.08);
+    margin-right: auto;
+}
+
+.my-btn-danger:hover {
+    color: #fecaca;
+    border-color: rgba(239, 68, 68, 0.5);
+    background: rgba(239, 68, 68, 0.17);
 }
 
 .my-btn-secondary:hover {

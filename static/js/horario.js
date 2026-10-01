@@ -18,6 +18,7 @@ function cargarMiHorarioDesdeStorage() {
     if (!profile) {
         profile = JSON.parse(JSON.stringify(MI_HORARIO_DEFAULT_DATA));
     }
+    const removedBlockLabels = quitarBloqueLabels(profile.clases);
     // Limpiar "Ayudantía que impartes" y sincronizar secciones y profesores de ayudantías
     profile.clases.forEach(c => {
         if (c.seccion && c.seccion.toLowerCase().includes('ayudantía que impartes')) {
@@ -32,7 +33,26 @@ function cargarMiHorarioDesdeStorage() {
             }
         }
     });
+    if (removedBlockLabels && typeof localStorage !== 'undefined') {
+        try {
+            localStorage.setItem('mi_horario_custom_v1', JSON.stringify(profile));
+        } catch (e) {
+            console.error('Error al limpiar etiquetas redundantes del horario local', e);
+        }
+    }
     return profile;
+}
+
+function quitarBloqueLabels(clases) {
+    if (!Array.isArray(clases)) return false;
+    let changed = false;
+    clases.forEach(clase => {
+        if (clase && Object.prototype.hasOwnProperty.call(clase, 'bloqueLabel')) {
+            delete clase.bloqueLabel;
+            changed = true;
+        }
+    });
+    return changed;
 }
 
 let MI_HORARIO_DATA = cargarMiHorarioDesdeStorage();
@@ -40,11 +60,12 @@ let horarioPerfilSeleccionado = null;
 
 function etiquetaBloqueHorario(clase) {
     const block = BLOQUES_HORARIOS && BLOQUES_HORARIOS.find(item => item.num === Number(clase.bloqueNum));
-    return (block && block.label) || clase.bloqueLabel || '';
+    return (block && block.label) || (clase.horaInicio && clase.horaFin ? `${clase.horaInicio} - ${clase.horaFin}` : '');
 }
 
 function guardarMiHorarioEnStorage() {
     try {
+        quitarBloqueLabels(MI_HORARIO_DATA && MI_HORARIO_DATA.clases);
         if (typeof localStorage !== 'undefined') {
             localStorage.setItem('mi_horario_custom_v1', JSON.stringify(MI_HORARIO_DATA));
         }
@@ -344,7 +365,7 @@ function actualizarContadoresFiltrosMiHorario() {
     if (bViernes) bViernes.textContent = `Viernes (${viernes})`;
 }
 
-function eliminarClaseMiHorario(id, ev) {
+function eliminarClaseMiHorario(id, ev, afterDelete) {
     if (ev) ev.stopPropagation();
     const idx = MI_HORARIO_DATA.clases.findIndex(c => c.id === id);
     if (idx === -1) return;
@@ -352,6 +373,7 @@ function eliminarClaseMiHorario(id, ev) {
     confirmarWeb(`¿Eliminar "${c.curso}" de este bloque (${c.diaNombre} ${etiquetaBloqueHorario(c)})?`, () => {
         MI_HORARIO_DATA.clases.splice(idx, 1);
         guardarMiHorarioEnStorage();
+        if (typeof afterDelete === 'function') afterDelete();
         renderMiHorario();
         actualizarHeroMiHorario();
         mostrarToast(`"${c.curso}" eliminada de tu horario`);
@@ -469,7 +491,7 @@ if (typeof document !== 'undefined' && document.addEventListener) {
     });
 }
 
-function abrirModalAgregarClase(diaNum, bloqueNum) {
+function abrirModalAgregarClase(diaNum, bloqueNum, options = {}) {
     const bloque = BLOQUES_HORARIOS.find(b => b.num === bloqueNum);
     const diasNombres = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
     const diaNombre = diasNombres[diaNum] || 'Día';
@@ -491,7 +513,17 @@ function abrirModalAgregarClase(diaNum, bloqueNum) {
     const inpProf = document.getElementById('modal-add-profesor');
     const inpSearchReal = document.getElementById('modal-input-real-search');
     const dropdown = document.getElementById('modal-salas-dropdown');
+    const idInput = document.getElementById('modal-add-id');
+    const modalTitle = document.getElementById('modal-titulo-bloque');
+    const saveButton = document.getElementById('modal-save-class');
+    const deleteButton = document.getElementById('modal-delete-class');
+    const salaInput = document.getElementById('modal-add-sala');
 
+    if (idInput) idInput.value = '';
+    if (modalTitle) modalTitle.textContent = 'Agregar Asignatura';
+    if (saveButton) saveButton.textContent = 'Guardar en tu horario';
+    if (deleteButton) deleteButton.hidden = true;
+    if (salaInput) salaInput.required = true;
     if (inpCurso) inpCurso.value = '';
     if (inpSala) inpSala.value = '';
     if (inpSec) inpSec.value = ''; // Sin hardcodear Sec. 1
@@ -503,15 +535,52 @@ function abrirModalAgregarClase(diaNum, bloqueNum) {
     setModalRol('student');
 
     // Cargar clases reales de este bloque desde data.json vía /api/search
-    cargarClasesRealesBloque(diaNum, horaInicio);
+    if (!options.skipClassLookup) cargarClasesRealesBloque(diaNum, horaInicio);
 
     const modal = document.getElementById('modal-agregar-ramo');
     if (modal) {
         modal.style.display = 'flex';
         setTimeout(() => {
-            if (inpSearchReal) inpSearchReal.focus();
+            const focusTarget = options.skipClassLookup ? inpCurso : inpSearchReal;
+            if (focusTarget) focusTarget.focus();
         }, 60);
     }
+}
+
+function abrirModalEditarClase(id, ev) {
+    if (ev) ev.stopPropagation();
+    const clase = MI_HORARIO_DATA.clases.find(item => String(item.id) === String(id));
+    if (!clase) return;
+
+    abrirModalAgregarClase(Number(clase.dia), Number(clase.bloqueNum), { skipClassLookup: true });
+    const values = {
+        'modal-add-id': clase.id,
+        'modal-add-curso': clase.curso || '',
+        'modal-add-sala': clase.sala || '',
+        'modal-add-seccion': clase.seccion || '',
+        'modal-add-profesor': clase.profesor || ''
+    };
+    Object.keys(values).forEach(inputId => {
+        const input = document.getElementById(inputId);
+        if (input) input.value = values[inputId];
+    });
+    const title = document.getElementById('modal-titulo-bloque');
+    const saveButton = document.getElementById('modal-save-class');
+    const deleteButton = document.getElementById('modal-delete-class');
+    const salaInput = document.getElementById('modal-add-sala');
+    if (title) title.textContent = 'Editar Asignatura';
+    if (saveButton) saveButton.textContent = 'Guardar cambios';
+    if (deleteButton) deleteButton.hidden = false;
+    if (salaInput) salaInput.required = false;
+    setModalTipo(clase.tipo || 'Cátedra');
+    setModalRol(clase.rol || 'student');
+}
+
+function eliminarClaseDesdeEditor(ev) {
+    if (ev) ev.preventDefault();
+    const idInput = document.getElementById('modal-add-id');
+    if (!idInput || !idInput.value) return;
+    eliminarClaseMiHorario(idInput.value, ev, cerrarModalAgregarClase);
 }
 
 function cerrarModalAgregarClase() {
@@ -694,13 +763,15 @@ function guardarNuevaClaseModal(ev) {
     const tipo = (document.getElementById('modal-add-tipo').value || 'Cátedra').trim();
     const profesor = (document.getElementById('modal-add-profesor').value || '').trim();
     const rol = modalRolSeleccionado;
+    const idInput = document.getElementById('modal-add-id');
+    const editId = idInput ? idInput.value || '' : '';
 
     if (!curso) {
         mostrarAlertaWeb('Por favor escribe el nombre de la asignatura.', 'Falta la asignatura', 'error');
         document.getElementById('modal-add-curso').focus();
         return;
     }
-    if (!sala) {
+    if (!sala && !editId) {
         mostrarAlertaWeb('Por favor ingresa la sala asignada (ej. E441.2.S201).', 'Falta la sala', 'error');
         document.getElementById('modal-add-sala').focus();
         return;
@@ -709,15 +780,15 @@ function guardarNuevaClaseModal(ev) {
     const bloque = BLOQUES_HORARIOS.find(b => b.num === bloqueNum);
     const diasNombres = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
 
-    // Si ya existía alguna clase en este bloque exacto, se reemplaza
-    MI_HORARIO_DATA.clases = MI_HORARIO_DATA.clases.filter(c => !(c.dia === diaNum && c.bloqueNum === bloqueNum));
+    const editedIndex = editId ? MI_HORARIO_DATA.clases.findIndex(c => String(c.id) === String(editId)) : -1;
+    if (editId && editedIndex === -1) return;
 
     const nuevaClase = {
-        id: 'custom-' + Date.now(),
+        ...(editedIndex >= 0 ? MI_HORARIO_DATA.clases[editedIndex] : {}),
+        id: editId || 'custom-' + Date.now(),
         dia: diaNum,
         diaNombre: diasNombres[diaNum] || 'Día',
         bloqueNum: bloqueNum,
-        bloqueLabel: bloque ? bloque.label : '08:30 - 09:50',
         horaInicio: bloque ? bloque.inicio : '08:30',
         horaFin: bloque ? bloque.fin : '09:50',
         curso: curso,
@@ -728,12 +799,18 @@ function guardarNuevaClaseModal(ev) {
         rol: rol
     };
 
-    MI_HORARIO_DATA.clases.push(nuevaClase);
+    if (editedIndex >= 0) {
+        MI_HORARIO_DATA.clases[editedIndex] = nuevaClase;
+    } else {
+        // Al agregar, se reemplaza lo que ya hubiera en ese bloque.
+        MI_HORARIO_DATA.clases = MI_HORARIO_DATA.clases.filter(c => !(c.dia === diaNum && c.bloqueNum === bloqueNum));
+        MI_HORARIO_DATA.clases.push(nuevaClase);
+    }
     guardarMiHorarioEnStorage();
     cerrarModalAgregarClase();
     renderMiHorario();
     actualizarHeroMiHorario();
-    mostrarToast(`"${curso}" guardada en ${diasNombres[diaNum]} Bloque ${bloqueNum}`);
+    mostrarToast(editId ? `Cambios guardados en "${curso}"` : `"${curso}" guardada en ${diasNombres[diaNum]} Bloque ${bloqueNum}`);
 }
 
 function mostrarToast(mensaje) {
@@ -780,12 +857,13 @@ function normalizarClasesPerfil(clases) {
         const start = String(item.horaInicio || '').slice(0, 5);
         const savedBlock = BLOQUES_HORARIOS.find(block => block.num === Number(item.bloqueNum));
         const block = savedBlock || bloqueHorarioMasCercano(start);
+        const normalizedItem = { ...item };
+        delete normalizedItem.bloqueLabel;
         return {
-            ...item,
+            ...normalizedItem,
             dia: Number(item.dia),
             diaNombre: item.diaNombre || days[Number(item.dia)] || '',
             bloqueNum: block.num,
-            bloqueLabel: block.label,
             horaInicio: block.inicio,
             horaFin: block.fin
         };
@@ -843,10 +921,10 @@ function renderMiHorario() {
                                     ${isCurrent ? '<span class="pulse-dot-white"></span>' : '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>'}
                                     <span>${etiquetaBloqueHorario(c)}</span>
                                 </span>
-                                ${c.isSharedProfile ? '' : `<button type="button" class="my-btn-delete" onclick="eliminarClaseMiHorario('${c.id}', event)" title="Eliminar asignatura de este bloque">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M3 6h18"></path>
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                ${c.isSharedProfile ? '' : `<button type="button" class="my-btn-edit" onclick="abrirModalEditarClase(${escapeHtml(JSON.stringify(String(c.id)))}, event)" title="Editar asignatura" aria-label="Editar ${escapeHtml(c.curso)}">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M12 20h9"></path>
+                                        <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"></path>
                                     </svg>
                                 </button>`}
                             </div>
@@ -869,7 +947,7 @@ function renderMiHorario() {
                     });
                 } else {
                     cardsHtml += sharedProfileView ? `
-                        <div class="my-empty-slot">
+                        <div class="my-empty-slot is-readonly">
                             <div class="my-empty-header"><span class="my-empty-time"><span>${b.label}</span></span><span class="my-card-bloque-num">Bloque ${b.num}</span></div>
                             <div class="my-empty-body"><span class="my-empty-text">Sin clases</span></div>
                         </div>
@@ -966,7 +1044,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 document.addEventListener('portal:remote-state', event => {
     if (event.detail.module !== 'schedule') return;
-    MI_HORARIO_DATA = event.detail.payload;
+    MI_HORARIO_DATA = event.detail.payload || JSON.parse(JSON.stringify(MI_HORARIO_DEFAULT_DATA));
+    if (quitarBloqueLabels(MI_HORARIO_DATA.clases)) guardarMiHorarioEnStorage();
     renderMiHorario();
 });
 
@@ -1073,7 +1152,6 @@ function cargarHorarioImportado(clasesDetectadas) {
                 dia: day,
                 diaNombre: item.diaNombre,
                 bloqueNum: bloque.num,
-                bloqueLabel: bloque.label,
                 horaInicio: bloque.inicio,
                 horaFin: bloque.fin,
                 curso: item.curso,
