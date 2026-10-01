@@ -385,7 +385,7 @@ function ejecutarBusquedaDocente() {
                             <span class="status-dot occ"></span>
                             <span>${p.sala}</span>
                         </span>
-                        <span class="time-pill" style="color:#c084fc; background: var(--purple-bg); border-color: rgba(168, 85, 247, 0.25);">${p.dia} ${p.hora_inicio} - ${p.hora_termino}</span>
+                        <span class="time-pill" style="color:#c084fc; background: var(--purple-bg); border-color: rgba(168, 85, 247, 0.25);">${p.hora_inicio} - ${p.hora_termino}</span>
                     </div>
                     <div class="course-name">${p.curso}</div>
                     <div class="item-meta">
@@ -456,7 +456,7 @@ function ejecutarBusquedaRamo() {
                             <span class="status-dot occ"></span>
                             <span>${r.sala}</span>
                         </span>
-                        <span class="time-pill ramo-time">${r.dia} ${r.hora_inicio} - ${r.hora_termino}</span>
+                        <span class="time-pill ramo-time">${r.hora_inicio} - ${r.hora_termino}</span>
                     </div>
                     <div class="course-name">${r.curso}</div>
                     <div class="item-meta">
@@ -620,7 +620,7 @@ async function cargarClasesMalla(refrescarChips = false) {
                             <span>${s}</span>
                         </span>
                     `).join('')}
-                    <span class="time-pill">${c.dia} ${c.hora_inicio} - ${c.hora_termino}</span>
+                    <span class="time-pill">${c.hora_inicio} - ${c.hora_termino}</span>
                 </div>
                 <div class="course-name">${c.ramo_malla.toUpperCase()}</div>
                 <div class="item-meta">

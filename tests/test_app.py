@@ -50,6 +50,15 @@ class PortalV1Test(unittest.TestCase):
         self.assertNotIn('class="control-card"', solemnes)
         self.assertIn('id="solemnes-search"', solemnes)
 
+    def test_teacher_course_and_semester_results_show_time_without_day(self):
+        app_js = Path("static/js/app.js").read_text()
+        self.assertIn('${p.hora_inicio} - ${p.hora_termino}', app_js)
+        self.assertIn('${r.hora_inicio} - ${r.hora_termino}', app_js)
+        self.assertIn('${c.hora_inicio} - ${c.hora_termino}', app_js)
+        self.assertNotIn('${p.dia} ${p.hora_inicio}', app_js)
+        self.assertNotIn('${r.dia} ${r.hora_inicio}', app_js)
+        self.assertNotIn('${c.dia} ${c.hora_inicio}', app_js)
+
     def test_schedule_api_contract(self):
         response = self.client.get("/api/salas?dia=1&hora=8:30:00&facultad=INGENIERIA")
         self.assertEqual(response.status_code, 200)
