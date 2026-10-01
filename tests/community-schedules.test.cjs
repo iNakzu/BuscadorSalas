@@ -16,6 +16,7 @@ assert.match(source, /dialog\.showModal\(\)/);
 assert.match(source, /aria-haspopup="dialog"/);
 assert.match(source, /toolbar\.classList\.add\('public-profile-toolbar--unified'\)/);
 assert.match(source, /toolbar\.innerHTML = pickerMarkup\(\)/);
+assert.match(source, /section\.insertBefore\(content, builder \? builder\.nextSibling : toolbar\.nextSibling\)/);
 for (const sectionId of ['tab-mihorario', 'tab-solemnes', 'tab-notas', 'tab-agenda', 'tab-progreso']) {
   assert.match(source, new RegExp(`id: '${sectionId}'`));
 }
@@ -25,6 +26,8 @@ assert.match(styles.split('@media (max-width: 600px) {').pop(), /\.public-profil
 assert.doesNotMatch(styles, /\.public-profile-trigger-chevron \{[^}]*border(?:\s|:)/);
 assert.match(styles, /\.public-profile-dialog-close \{[^}]*border: 0;[^}]*background: transparent;/);
 assert.match(styles, /#tab-progreso \{ overflow: visible !important; \}/);
+assert.match(styles, /#tab-notas\.public-profile-active > :not\(\.public-profile-toolbar\):not\(\.public-profile-content\):not\(\.notas-controls-shell\)/);
+assert.match(styles, /#tab-notas\.public-profile-active #notas-builder-container \{ display: none !important; \}/);
 assert.match(fs.readFileSync('static/css/main.css', 'utf8'), /\.malla-scroll-wrapper \{\s*overflow-x: auto;/);
 assert.match(source, /type="text" inputmode="search"/);
 assert.doesNotMatch(source, /type="search"/);

@@ -327,7 +327,12 @@
                 content.className = 'public-profile-content';
                 content.dataset.module = config.module;
                 content.hidden = true;
-                section.insertBefore(content, toolbar.nextSibling);
+                if (config.module === 'grades') {
+                    const builder = section.querySelector('#notas-builder-container');
+                    section.insertBefore(content, builder ? builder.nextSibling : toolbar.nextSibling);
+                } else {
+                    section.insertBefore(content, toolbar.nextSibling);
+                }
             }
         });
         syncSelectors();

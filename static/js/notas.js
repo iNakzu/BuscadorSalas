@@ -1,4 +1,7 @@
 let NOTAS_DATA = {}; 
+let PUBLIC_NOTAS_PROFILE_ID = '';
+let PUBLIC_NOTAS_COURSES = [];
+let PUBLIC_NOTAS_PAYLOAD = {};
 
 function initNotas() {
     try {
@@ -28,6 +31,15 @@ function saveNotas() {
 function updateNotasDropdown() {
     const select = document.getElementById('notas-curso-select');
     if (!select) return;
+
+    const sharedProfile = window.PortalCommunity && typeof window.PortalCommunity.getSelected === 'function'
+        ? window.PortalCommunity.getSelected() : null;
+    if (sharedProfile) {
+        const content = document.querySelector('#tab-notas .public-profile-content[data-module="grades"]');
+        window.renderNotasPublicas(content, sharedProfile.modules && sharedProfile.modules.grades);
+        return;
+    }
+    PUBLIC_NOTAS_PROFILE_ID = '';
     
     const userKey = 'me';
     const scheduleObj = typeof MI_HORARIO_DATA !== 'undefined' ? MI_HORARIO_DATA : null;
@@ -435,12 +447,87 @@ function renderNotasBuilder(options = {}) {
     container.innerHTML = cardHtml;
 }
 
+function renderPublicNotasCourse() {
+    const container = document.querySelector('#tab-notas .public-profile-content[data-module="grades"]');
+    const select = document.getElementById('notas-curso-select');
+    if (!container || !select) return;
+    const course = select.value;
+    if (!course) {
+        container.innerHTML = '<div class="public-profile-empty">Selecciona un ramo para ver sus notas.</div>';
+        return;
+    }
+    const entry = Object.entries(PUBLIC_NOTAS_PAYLOAD).find(([key]) => {
+        const name = String(key).includes('|') ? String(key).split('|').slice(1).join('|') : String(key);
+        return name.trim().toLocaleLowerCase() === course.trim().toLocaleLowerCase();
+    });
+    if (!entry) {
+        container.innerHTML = `<div class="notas-public-empty">${escapeHtml(course)}: todavía no registra notas.</div>`;
+        return;
+    }
+    container.innerHTML = renderNotasBuilder({
+        readOnly: true,
+        course,
+        data: entry[1],
+        container: { innerHTML: '' }
+    });
+}
+
+window.selectNotasPerfilCourse = function (course) {
+    const value = String(course || '');
+    const select = document.getElementById('notas-curso-select');
+    const dropdown = document.getElementById('dd-notas-curso');
+    const label = document.getElementById('label-notas-curso');
+    if (select) select.value = value;
+    if (dropdown) dropdown.classList.remove('open');
+    if (label) label.textContent = value || 'Selecciona una asignatura...';
+    document.querySelectorAll('#dd-notas-curso .dropdown-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.val === value);
+    });
+    renderPublicNotasCourse();
+};
+
 window.renderNotasPublicas = function (container, payload) {
     if (!container) return;
-    const entries = payload && typeof payload === 'object' && !Array.isArray(payload)
-        ? Object.entries(payload)
-        : [];
-    renderNotasBuilder({ readOnly: true, entries, container });
+    PUBLIC_NOTAS_PAYLOAD = payload && typeof payload === 'object' && !Array.isArray(payload) ? payload : {};
+    const profile = window.PortalCommunity && typeof window.PortalCommunity.getSelected === 'function'
+        ? window.PortalCommunity.getSelected() : null;
+    const profileId = String(profile && (profile.user_id || profile.id) || 'shared');
+    if (profileId !== PUBLIC_NOTAS_PROFILE_ID) {
+        PUBLIC_NOTAS_PROFILE_ID = profileId;
+        const select = document.getElementById('notas-curso-select');
+        if (select) select.value = '';
+    }
+
+    const schedule = profile && profile.modules && profile.modules.schedule;
+    const classes = Array.isArray(schedule) ? schedule : schedule && Array.isArray(schedule.clases) ? schedule.clases : [];
+    const byName = new Map();
+    classes.forEach(item => {
+        const course = String(item && item.curso || '').trim();
+        if (course && !byName.has(course.toLocaleLowerCase())) byName.set(course.toLocaleLowerCase(), course);
+    });
+    Object.keys(PUBLIC_NOTAS_PAYLOAD).forEach(key => {
+        const course = String(key).includes('|') ? String(key).split('|').slice(1).join('|').trim() : String(key).trim();
+        if (course && !byName.has(course.toLocaleLowerCase())) byName.set(course.toLocaleLowerCase(), course);
+    });
+    PUBLIC_NOTAS_COURSES = [...byName.values()].sort((a, b) => a.localeCompare(b, 'es'));
+
+    const select = document.getElementById('notas-curso-select');
+    const menu = document.querySelector('#dd-notas-curso .dropdown-menu');
+    const label = document.getElementById('label-notas-curso');
+    const dropdown = document.getElementById('dd-notas-curso');
+    const selected = select && PUBLIC_NOTAS_COURSES.includes(select.value) ? select.value : '';
+    if (select) select.value = selected;
+    if (label) label.textContent = selected || 'Selecciona una asignatura...';
+    if (dropdown) dropdown.classList.remove('open');
+    if (menu) {
+        menu.innerHTML = `<div class="dropdown-item ${selected ? '' : 'active'}" data-val="" onclick="selectNotasPerfilCourse('')">Selecciona una asignatura...</div>` +
+            PUBLIC_NOTAS_COURSES.map(course => `<div class="dropdown-item ${selected === course ? 'active' : ''}" data-val="${escapeHtml(course)}" onclick="selectNotasPerfilCourse(this.dataset.val)">${escapeHtml(course)}</div>`).join('');
+    }
+    if (!PUBLIC_NOTAS_COURSES.length) {
+        container.innerHTML = '<div class="public-profile-empty">Esta persona no tiene ramos en su horario compartido.</div>';
+        return;
+    }
+    renderPublicNotasCourse();
 };
 
 

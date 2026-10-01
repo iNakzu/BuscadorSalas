@@ -81,9 +81,10 @@
 .notas-public-empty { padding: 40px 20px; color: #64748b; font-size: 14px; text-align: center; }
 .malla-ramo-card.malla-ramo-readonly { cursor: default; }
 .malla-ramo-card.malla-ramo-readonly:hover { transform: none; }
-#tab-notas.public-profile-active > :not(.public-profile-toolbar):not(.public-profile-content),
+#tab-notas.public-profile-active > :not(.public-profile-toolbar):not(.public-profile-content):not(.notas-controls-shell),
 #tab-agenda.public-profile-active > :not(.public-profile-toolbar):not(.public-profile-content),
 #tab-progreso.public-profile-active > :not(.public-profile-toolbar):not(.public-profile-content) { display: none !important; }
+#tab-notas.public-profile-active #notas-builder-container { display: none !important; }
 #tab-progreso { overflow: visible !important; }
 #tab-mihorario.public-profile-active .schedule-import-control,
 #tab-mihorario.public-profile-active .my-modal-overlay { display: none !important; }
