@@ -75,16 +75,14 @@
 .public-agenda-view .cal-day:not(.empty):hover { transform: none; box-shadow: none; background: rgba(15,23,42,.45); border-color: rgba(255,255,255,.05); }
 .public-agenda-view .cal-day.today:hover { background: rgba(56,189,248,.08); border-color: rgba(56,189,248,.5); }
 .agenda-card.agenda-card-readonly:hover { transform: none; }
-.notas-public-course { margin: 0 0 20px; }
-.notas-public-course > h3 { margin: 0 0 10px; color: #e2e8f0; font-size: 16px; font-weight: 700; }
 .notas-card.notas-readonly input:disabled { opacity: 1; color: #e2e8f0; -webkit-text-fill-color: #e2e8f0; }
-.notas-public-empty { padding: 40px 20px; color: #64748b; font-size: 14px; text-align: center; }
 .malla-ramo-card.malla-ramo-readonly { cursor: default; }
 .malla-ramo-card.malla-ramo-readonly:hover { transform: none; }
 #tab-notas.public-profile-active > :not(.public-profile-toolbar):not(.public-profile-content):not(.notas-controls-shell),
 #tab-agenda.public-profile-active > :not(.public-profile-toolbar):not(.public-profile-content),
 #tab-progreso.public-profile-active > :not(.public-profile-toolbar):not(.public-profile-content) { display: none !important; }
 #tab-notas.public-profile-active #notas-builder-container { display: none !important; }
+#tab-notas.public-profile-active > .public-profile-content[data-module="grades"] { box-sizing: border-box; padding-top: 16px; }
 #tab-progreso { overflow: visible !important; }
 #tab-mihorario.public-profile-active .schedule-import-control,
 #tab-mihorario.public-profile-active .my-modal-overlay { display: none !important; }

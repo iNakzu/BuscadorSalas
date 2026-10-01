@@ -28,6 +28,24 @@ function saveNotas() {
     } catch(e) { console.error(e); }
 }
 
+function notasEmptySelectionHtml() {
+    return '<div style="text-align: center; color: #64748b; padding: 40px; font-size: 14px;">Selecciona una asignatura arriba para configurar o ver tus notas.</div>';
+}
+
+function emptyPublicNotasData() {
+    return {
+        items: [
+            { id: 1, name: 'Solemne 1', weight: 30, grade: null },
+            { id: 2, name: 'Solemne 2', weight: 30, grade: null },
+            { id: 3, name: 'Controles', weight: 25, grade: null },
+            { id: 4, name: 'Tareas', weight: 15, grade: null }
+        ],
+        examGrade: null,
+        examWeight: 30,
+        eximGrade: 5.0
+    };
+}
+
 function updateNotasDropdown() {
     const select = document.getElementById('notas-curso-select');
     if (!select) return;
@@ -120,24 +138,11 @@ function renderNotasBuilder(options = {}) {
     const container = options.container || (readOnly ? { innerHTML: '' } : document.getElementById('notas-builder-container'));
     if (!select || !container) return;
 
-    if (readOnly && Array.isArray(options.entries)) {
-        const entries = options.entries.filter(([, data]) => data && typeof data === 'object');
-        if (!entries.length) {
-            container.innerHTML = `<div class="notas-public-empty">Esta persona todavía no ha registrado notas.</div>`;
-            return;
-        }
-        container.innerHTML = entries.map(([key, data]) => {
-            const course = String(key).includes('|') ? String(key).split('|').slice(1).join('|') : String(key);
-            return `<section class="notas-public-course"><h3>${escapeHtml(course)}</h3>${renderNotasBuilder({ readOnly: true, course, data })}</section>`;
-        }).join('');
-        return;
-    }
-    
     const curso = select.value;
     const userKey = readOnly ? 'shared' : 'me';
     
     if (!curso) {
-        container.innerHTML = `<div style="text-align: center; color: #64748b; padding: 40px; font-size: 14px;">Selecciona una asignatura arriba para configurar o ver tus notas.</div>`;
+        container.innerHTML = notasEmptySelectionHtml();
         return;
     }
     
@@ -453,21 +458,17 @@ function renderPublicNotasCourse() {
     if (!container || !select) return;
     const course = select.value;
     if (!course) {
-        container.innerHTML = '<div class="public-profile-empty">Selecciona un ramo para ver sus notas.</div>';
+        container.innerHTML = notasEmptySelectionHtml();
         return;
     }
     const entry = Object.entries(PUBLIC_NOTAS_PAYLOAD).find(([key]) => {
         const name = String(key).includes('|') ? String(key).split('|').slice(1).join('|') : String(key);
         return name.trim().toLocaleLowerCase() === course.trim().toLocaleLowerCase();
     });
-    if (!entry) {
-        container.innerHTML = `<div class="notas-public-empty">${escapeHtml(course)}: todavía no registra notas.</div>`;
-        return;
-    }
     container.innerHTML = renderNotasBuilder({
         readOnly: true,
         course,
-        data: entry[1],
+        data: entry ? entry[1] : emptyPublicNotasData(),
         container: { innerHTML: '' }
     });
 }
@@ -522,10 +523,6 @@ window.renderNotasPublicas = function (container, payload) {
     if (menu) {
         menu.innerHTML = `<div class="dropdown-item ${selected ? '' : 'active'}" data-val="" onclick="selectNotasPerfilCourse('')">Selecciona una asignatura...</div>` +
             PUBLIC_NOTAS_COURSES.map(course => `<div class="dropdown-item ${selected === course ? 'active' : ''}" data-val="${escapeHtml(course)}" onclick="selectNotasPerfilCourse(this.dataset.val)">${escapeHtml(course)}</div>`).join('');
-    }
-    if (!PUBLIC_NOTAS_COURSES.length) {
-        container.innerHTML = '<div class="public-profile-empty">Esta persona no tiene ramos en su horario compartido.</div>';
-        return;
     }
     renderPublicNotasCourse();
 };

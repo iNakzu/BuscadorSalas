@@ -16,6 +16,7 @@ function makeContext(extra = {}) {
 
 const notesRoot = { innerHTML: '' };
 const notesSelect = { value: '' };
+const privateNotesBuilder = { innerHTML: '' };
 const notesLabel = { textContent: '' };
 const notesMenu = { innerHTML: '' };
 const notesDropdown = { classList: { remove() {} } };
@@ -26,7 +27,7 @@ const notesContext = makeContext({
     readyState: 'loading',
     addEventListener() {},
     getElementById(id) {
-      return ({ 'notas-curso-select': notesSelect, 'label-notas-curso': notesLabel, 'dd-notas-curso': notesDropdown })[id] || null;
+      return ({ 'notas-curso-select': notesSelect, 'label-notas-curso': notesLabel, 'dd-notas-curso': notesDropdown, 'notas-builder-container': privateNotesBuilder })[id] || null;
     },
     querySelector(selector) {
       return ({ '#tab-notas .public-profile-content[data-module="grades"]': notesRoot, '#dd-notas-curso .dropdown-menu': notesMenu })[selector] || null;
@@ -36,14 +37,24 @@ const notesContext = makeContext({
   window: { PortalCommunity: { getSelected: () => notesProfile } }
 });
 vm.runInContext(fs.readFileSync('static/js/notas.js', 'utf8'), notesContext);
+notesContext.renderNotasBuilder();
+assert.match(privateNotesBuilder.innerHTML, /Selecciona una asignatura arriba para configurar o ver tus notas/);
 notesContext.window.renderNotasPublicas(notesRoot, {
   'me|Cálculo <I>': { items: [{ id: 1, name: 'Solemne 1', weight: 100, grade: 6.2 }], examGrade: null, examWeight: 30 }
 });
 assert.match(notesMenu.innerHTML, /data-val="Cálculo"/);
 assert.match(notesMenu.innerHTML, /data-val="Física"/);
-assert.match(notesRoot.innerHTML, /Selecciona un ramo para ver sus notas/);
+assert.strictEqual(notesRoot.innerHTML, privateNotesBuilder.innerHTML);
 notesContext.window.selectNotasPerfilCourse('Física');
-assert.match(notesRoot.innerHTML, /Física: todavía no registra notas/);
+assert.match(notesRoot.innerHTML, /class="notas-card [^\"]*notas-readonly/);
+assert.match(notesRoot.innerHTML, /Nota Presentación<\/div>\s*<div class="notas-summary-value"[^>]*>-<\/div>/);
+assert.match(notesRoot.innerHTML, /value="" disabled placeholder="Nota"/);
+assert.match(notesRoot.innerHTML, /Solemne 1/);
+assert.match(notesRoot.innerHTML, /Solemne 2/);
+assert.match(notesRoot.innerHTML, /Controles/);
+assert.match(notesRoot.innerHTML, /Tareas/);
+notesContext.window.selectNotasPerfilCourse('');
+assert.strictEqual(notesRoot.innerHTML, privateNotesBuilder.innerHTML);
 notesContext.window.selectNotasPerfilCourse('Cálculo <I>');
 assert.match(notesRoot.innerHTML, /class="notas-card/);
 assert.match(notesRoot.innerHTML, /class="notas-summary"/);
