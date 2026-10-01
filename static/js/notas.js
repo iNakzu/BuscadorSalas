@@ -594,3 +594,7 @@ document.addEventListener('portal:remote-state', event => {
     NOTAS_DATA = event.detail.payload || {};
     updateNotasDropdown();
 });
+
+document.addEventListener('portal:public-profile-changed', () => {
+    updateNotasDropdown();
+});
