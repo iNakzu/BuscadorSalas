@@ -7,6 +7,7 @@ Revisión realizada el 2 de octubre de 2026 en el código de `release/v1-core`, 
 - Se reemplazaron los límites de solicitudes en memoria por contadores SQLite atómicos compartidos entre workers de Gunicorn y reinicios. Cada usuario queda identificado por un hash; el archivo se crea con permisos privados. El límite de importación Gemini es cuatro intentos por usuario cada 60 segundos; la sincronización pública admite un intento cada 20 segundos.
 - Se escaparon datos variables del feed académico, la agenda, el horario compartido y las notas antes de insertarlos en HTML, incluidos textos y argumentos de control en atributos. Las URLs versionadas de esos scripts cambiaron para que los navegadores recojan las correcciones.
 - El endpoint de sincronización sólo admite `POST`; la importación Gemini valida el token de Supabase, el tipo y la firma de imagen, y limita su tamaño. Los errores de solemnidades ya no muestran detalles internos.
+- Nginx limita cada IP a 15 solicitudes por segundo a `/api/`, permite una ráfaga de 60 y devuelve `429` al excederla; `/api/sync` conserva su enfriamiento global y Gemini su límite por usuario.
 - El service worker no guarda páginas con parámetros de consulta —incluidos callbacks PKCE—, respuestas `/api/` ni rutas de autenticación; se incrementó su versión de caché.
 - Si una sesión pasa a `SIGNED_OUT` mientras hay un usuario autenticado, la página ahora se recarga para ocultar cualquier módulo personal que estuviera abierto; no se borran datos locales.
 - Nginx oculta su versión, evita registrar argumentos de URL y envía HSTS, `nosniff`, `DENY`, `strict-origin` y CSP con `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'self'` y `form-action 'self'`.
@@ -24,17 +25,17 @@ HTTPS de `horarios.dev` y la redirección desde HTTP respondieron correctamente.
 
 ## Verificación ejecutada
 
-- 31 pruebas Python, las pruebas Node del repositorio, sintaxis JavaScript, parseo YAML del workflow y `git diff --check` pasaron en ambos checkouts.
+- 32 pruebas Python, todas las pruebas Node, la sintaxis JavaScript, el YAML del workflow y `git diff --check` pasaron en el checkout de producción `main`.
 - `pip-audit` no encontró vulnerabilidades conocidas y `pip check` no encontró dependencias incompatibles.
-- `nginx -t` pasó; se reinició la aplicación con el límite SQLite configurado en `/var/lib/buscadorsalas/rate_limits.sqlite3` y `UMask=0077`.
+- `nginx -t` pasó con la configuración activa; el servicio usa límites SQLite en `/var/lib/buscadorsalas/rate_limits.sqlite3` y `UMask=0077`.
 - La web sirvió los scripts corregidos con URL versionada y las cabeceras nuevas.
 
 ## Límites y pasos pendientes
 
-- No pude probar una sesión real de Google OAuth ni escrituras cruzadas con dos usuarios autenticados. El cliente usa PKCE y persistencia de sesión; la política se revisó en SQL y se probó el acceso anónimo, pero hace falta una prueba manual autenticada con dos cuentas de prueba.
-- El CLI de Supabase no tenía una sesión de administración disponible. La configuración pública de Auth indica que Google está habilitado, pero no probé un inicio de sesión real. En el panel, confirma que `public.hook_restrict_signup` esté activo como **Before User Created** y que `https://horarios.dev/` sea el Site URL y una redirección permitida. No compartas tokens para hacer esta comprobación.
-- Las rutas públicas de consulta académica y `/api/sync_horario` no tienen límite por IP. `/api/sync` sí tiene enfriamiento global y Gemini tiene límite por usuario. Activar un umbral por IP requiere elegir una cuota: una cuota muy baja puede limitar a varias personas que comparten la misma salida a Internet.
+- No pude probar escrituras cruzadas con dos usuarios autenticados. El cliente usa PKCE y persistencia de sesión; la política se revisó en SQL y el acceso anónimo fue rechazado. Para probar RLS entre cuentas hace falta una prueba manual con dos sesiones autenticadas.
+- La configuración pública de Auth indica que Google está habilitado, y una solicitud de autorización redirigió a Google aceptando `https://horarios.dev/` como retorno. El usuario comprobó que un correo fuera de `mail.udp.cl` no puede crear cuenta, lo cual coincide con la regla `public.hook_restrict_signup` definida en SQL. No pude consultar el estado del hook en el panel porque el CLI no tiene una sesión administrativa; mantuve la regla y no cambié los permisos de la base. No compartas tokens para hacer esta comprobación.
+- Las personas detrás de una misma IP pública comparten el límite de Nginx. El umbral es alto para uso normal, pero una ráfaga conjunta puede recibir `429` temporalmente.
 - El navegador guarda la sesión de Supabase y los datos personales sincronizados en `localStorage`; otro proceso o usuario con acceso al mismo perfil del navegador puede leerlos. Además, datos locales antiguos sin `portal:legacy-owner` no permiten identificar a su dueño y podrían migrarse a la primera cuenta que inicie sesión en ese perfil. No uses perfiles compartidos del navegador para cuentas distintas si contienen datos locales previos.
 - CSP restringe marcos, objetos, `base-uri` y formularios, pero todavía no restringe `script-src`: la interfaz existente usa scripts y manejadores inline. Las inserciones dinámicas de texto deben seguir escapándose.
 - Los límites Gemini restringen el abuso por cuenta; no sustituyen los límites/cuotas del proveedor. Confirma también un límite de gasto o cuota en Google AI Studio/Cloud.
-- Los cambios de auditoría están publicados en `main` en los commits `ebae2e6`, `460e6a4` y `68f9ce6`; los despliegues automáticos terminaron correctamente. Tras corregir el virtual host de Nginx, `nginx -t` y la recarga también terminaron correctamente.
+- Los cambios de auditoría están publicados en `main`; los despliegues automáticos terminaron correctamente. Tras corregir el virtual host de Nginx, `nginx -t` y la recarga también terminaron correctamente.

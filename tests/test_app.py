@@ -138,6 +138,18 @@ class PortalV1Test(unittest.TestCase):
         self.assertIn("portal-estudiantil-v1-core-8", worker)
         self.assertLess(worker.index("response.clone()"), worker.index("caches.open(CACHE_NAME).then(cache => cache.put"))
 
+    def test_nginx_api_rate_limit_is_wired_before_validation(self):
+        zone = Path("nginx_api_limits.conf").read_text()
+        site = Path("nginx_buscadorsalas.conf").read_text()
+        workflow = Path(".github/workflows/deploy.yml").read_text()
+        self.assertIn("zone=buscador_api_per_ip:10m rate=15r/s", zone)
+        self.assertIn("limit_req zone=buscador_api_per_ip burst=60 nodelay", site)
+        self.assertIn("limit_req_status 429", site)
+        self.assertLess(
+            workflow.index("cp nginx_api_limits.conf /etc/nginx/conf.d/"),
+            workflow.index("sudo nginx -t && sudo systemctl reload nginx"),
+        )
+
     def test_supabase_browser_sdk_is_version_and_integrity_pinned(self):
         template = Path(__file__).parents[1] / "templates/index.html"
         html = template.read_text()
