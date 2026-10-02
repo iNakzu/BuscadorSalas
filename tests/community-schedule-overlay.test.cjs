@@ -78,8 +78,7 @@ vm.runInContext(`
   getChileTime = () => ({ dayOfWeek: 1, hours: 9, minutes: 0, totalMinutes: 540 });
   renderMiHorario();
 `, context);
-assert.strictEqual((container.innerHTML.match(/class="my-class-card my-class-slot-conflict/g) || []).length, 1);
-assert.match(container.innerHTML, /Conflicto en este bloque/);
-assert.strictEqual((container.innerHTML.match(/my-slot-conflict-button/g) || []).length, 2);
-assert.doesNotMatch(container.innerHTML, /Clase A|Clase B/);
+assert.doesNotMatch(container.innerHTML, /my-class-slot-conflict|my-slot-conflict-button|Conflicto en este bloque|Revisar [12]/);
+assert.match(container.innerHTML, /Clase A/);
+assert.match(container.innerHTML, /Clase B/);
 console.log('community_schedule_overlay: selected schedule uses the personal view and remains read-only');

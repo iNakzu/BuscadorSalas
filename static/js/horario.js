@@ -943,22 +943,7 @@ function renderMiHorario() {
                 const endM = timeToMinutes(b.fin);
                 const isCurrent = isToday && (totalMinutes >= startM && totalMinutes < endM);
 
-                if (slotItems.length > 1) {
-                    const conflictActions = slotItems.map((c, index) => c.isSharedProfile
-                        ? `<span class="my-slot-conflict-label">Clase ${index + 1}</span>`
-                        : `<button type="button" class="my-slot-conflict-button" onclick="abrirModalEditarClase(${escapeHtml(JSON.stringify(String(c.id)))}, event)" aria-label="Revisar clase ${index + 1}">Revisar ${index + 1}</button>`
-                    ).join('');
-                    cardsHtml += `
-                        <div class="my-class-card my-class-slot-conflict ${isCurrent ? 'is-current-class' : ''}">
-                            <div class="my-card-header">
-                                <span class="my-card-time">${isCurrent ? '<span class="pulse-dot-white"></span>' : ''}<span>${b.label}</span></span>
-                                <span class="my-card-bloque-num">Bloque ${b.num}</span>
-                            </div>
-                            <div class="my-card-title">Conflicto en este bloque</div>
-                            <div class="my-slot-conflict-message">Solo puede haber una clase por bloque.</div>
-                            <div class="my-slot-conflict-actions">${conflictActions}</div>
-                        </div>`;
-                } else if (slotItems.length) {
+                if (slotItems.length) {
                     slotItems.forEach(c => {
                     const tipoCls = 'tipo-' + (c.tipo || 'Cátedra').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
                     let cleanSec = (c.seccion || '').trim();
