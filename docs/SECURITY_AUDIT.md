@@ -31,8 +31,8 @@ HTTPS de `horarios.dev` y la redirección desde HTTP respondieron correctamente.
 ## Límites y pasos pendientes
 
 - No pude probar una sesión real de Google OAuth ni escrituras cruzadas con dos usuarios autenticados. El cliente usa PKCE y persistencia de sesión; la política se revisó en SQL y se probó el acceso anónimo, pero hace falta una prueba manual autenticada con dos cuentas de prueba.
-- El CLI de Supabase no tenía una sesión de administración disponible. En el panel de Supabase, confirma que `public.hook_restrict_signup` esté activo como **Before User Created**, que Google OAuth esté habilitado y que `https://horarios.dev` sea el Site URL y la redirección permitida. No compartas tokens para hacer esta comprobación.
+- El CLI de Supabase no tenía una sesión de administración disponible. La configuración pública de Auth indica que Google está habilitado, pero no probé un inicio de sesión real. En el panel, confirma que `public.hook_restrict_signup` esté activo como **Before User Created** y que `https://horarios.dev/` sea el Site URL y una redirección permitida. No compartas tokens para hacer esta comprobación.
 - El navegador guarda la sesión de Supabase y los datos personales sincronizados en `localStorage`; otro proceso o usuario con acceso al mismo perfil del navegador puede leerlos. Cierra sesión y protege el dispositivo compartido.
 - CSP restringe marcos, objetos, `base-uri` y formularios, pero todavía no restringe `script-src`: la interfaz existente usa scripts y manejadores inline. Las inserciones dinámicas de texto deben seguir escapándose.
 - Los límites Gemini restringen el abuso por cuenta; no sustituyen los límites/cuotas del proveedor. Confirma también un límite de gasto o cuota en Google AI Studio/Cloud.
-- Los cambios de auditoría están en los checkouts locales; no se hizo commit ni push durante esta revisión.
+- Los cambios de auditoría están publicados en `main` en los commits `ebae2e6` y `460e6a4`; ambos despliegues automáticos terminaron correctamente. Tras corregir el virtual host de Nginx, `nginx -t` y la recarga también terminaron correctamente.
