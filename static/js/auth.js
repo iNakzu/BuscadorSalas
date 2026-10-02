@@ -63,10 +63,12 @@
         }
     }
 
-    function publish(session) {
+    function publish(session, wasSignedOut = false) {
+        const hadAuthenticatedUser = Boolean(api.user);
         api.user = session && session.user || null;
         render();
         document.dispatchEvent(new CustomEvent('portal:auth-changed', { detail: { user: api.user } }));
+        if (wasSignedOut && hadAuthenticatedUser && !api.user) window.location.reload();
     }
 
     api.signIn = async function () {
@@ -94,6 +96,6 @@
         if (!client) return;
         const { data } = await client.auth.getSession();
         publish(data.session);
-        client.auth.onAuthStateChange((_event, session) => publish(session));
+        client.auth.onAuthStateChange((event, session) => publish(session, event === 'SIGNED_OUT'));
     });
 })();

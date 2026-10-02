@@ -11,10 +11,11 @@ function boot(session, signInError = null, publicOrigin = 'https://horarios.dev'
   }
   const listeners = {};
   const calls = {};
+  let authStateCallback = null;
   const client = {
     auth: {
       async getSession() { return { data: { session } }; },
-      onAuthStateChange() {},
+      onAuthStateChange(callback) { authStateCallback = callback; },
       async signInWithOAuth(options) { calls.oauth = options; return { error: signInError }; },
       async signOut() {}
     }
@@ -23,6 +24,7 @@ function boot(session, signInError = null, publicOrigin = 'https://horarios.dev'
     window: {
       PORTAL_CONFIG: { supabaseUrl: 'https://project.supabase.co', supabaseAnonKey: 'public-key', publicOrigin },
       localStorage: {},
+      location: { reload() { calls.reload = (calls.reload || 0) + 1; } },
       supabase: { createClient: (_url, _key, options) => { calls.clientOptions = options; return client; } }
     },
     document: {
@@ -31,12 +33,12 @@ function boot(session, signInError = null, publicOrigin = 'https://horarios.dev'
       dispatchEvent() {}
     },
     CustomEvent: class {},
-    location: { origin: 'https://portal.example' },
+    location: { origin: 'https://portal.example', reload() { calls.reload = (calls.reload || 0) + 1; } },
     console
   };
   vm.createContext(context);
   vm.runInContext(source, context);
-  return { context, elements, listeners, calls };
+  return { context, elements, listeners, calls, authStateCallback: () => authStateCallback };
 }
 
 (async () => {
@@ -50,6 +52,8 @@ function boot(session, signInError = null, publicOrigin = 'https://horarios.dev'
   assert.strictEqual(signedIn.elements.get('auth-profile').hidden, false);
   assert.strictEqual(signedIn.elements.get('auth-status').hidden, true);
   assert.strictEqual(signedIn.elements.get('btn-clear-cache').hidden, false);
+  signedIn.authStateCallback()('SIGNED_OUT', null);
+  assert.strictEqual(signedIn.calls.reload, 1, 'signed-out users should return to the public page');
 
   const failedLogin = boot(null, { message: 'provider disabled' });
   await failedLogin.listeners.DOMContentLoaded();
