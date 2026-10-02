@@ -34,6 +34,30 @@ class GeminiScheduleServiceTest(unittest.TestCase):
         self.assertEqual(classes[0]["confianza"], 0)
         self.assertEqual(classes[1]["curso"], "Álgebra")
 
+    def test_removes_class_type_labels_from_course_and_keeps_type_separate(self):
+        classes = _normalize_classes([
+            {
+                "day": 1, "start": "08:30", "end": "09:50",
+                "course": "Bioética y Sociedad Actual - Ayudantia Obligatoria",
+                "kind": "Ayudantía Obligatoria", "confidence": 0.9,
+            },
+            {
+                "day": 1, "start": "10:00", "end": "11:20",
+                "course": "Laboratorio de Física", "kind": "Laboratorio", "confidence": 0.9,
+            },
+            {
+                "day": 1, "start": "11:30", "end": "12:50",
+                "course": "Ayudantía Obligatoria - Taller de Robótica", "kind": "", "confidence": 0.9,
+            },
+        ])
+
+        self.assertEqual([item["curso"] for item in classes], [
+            "Bioética y Sociedad Actual", "Física", "Robótica",
+        ])
+        self.assertEqual([item["tipo"] for item in classes], [
+            "Ayudantía", "Laboratorio", "Ayudantía",
+        ])
+
     def test_rejects_unusable_model_output(self):
         with self.assertRaises(GeminiScheduleError):
             _normalize_classes([{"day": 6, "start": "08:30", "end": "09:30", "course": "Física"}])
@@ -62,6 +86,9 @@ class GeminiScheduleServiceTest(unittest.TestCase):
         self.assertTrue(args[0].endswith("/gemini-2.5-flash:generateContent"))
         self.assertEqual(kwargs["headers"]["x-goog-api-key"], "do-not-log-key")
         self.assertEqual(kwargs["json"]["contents"][0]["parts"][1]["inline_data"]["mime_type"], "image/png")
+        prompt = kwargs["json"]["contents"][0]["parts"][0]["text"]
+        self.assertIn("Ayudantía Obligatoria", prompt)
+        self.assertIn("No consultes ni dependas de una malla curricular", prompt)
 
     @patch("app.services.gemini_schedule.time.sleep")
     @patch("app.services.gemini_schedule.requests.post")
