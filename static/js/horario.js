@@ -1117,10 +1117,12 @@ function seleccionarFotoHorario() {
 
 function mostrarEstadoImportacionHorario(message, isError = false, isBlockWarning = false) {
     const status = document.getElementById('schedule-import-status');
-    if (!status) return;
-    status.textContent = message || '';
-    status.classList.toggle('is-error', Boolean(isError && !isBlockWarning));
-    status.classList.toggle('is-block-warning', Boolean(message && isBlockWarning));
+    const warning = document.getElementById('schedule-import-warning');
+    if (status) {
+        status.textContent = isBlockWarning ? '' : (message || '');
+        status.classList.toggle('is-error', Boolean(isError && !isBlockWarning));
+    }
+    if (warning) warning.textContent = isBlockWarning ? (message || '') : '';
 }
 
 async function importarHorarioDesdeFoto(event) {

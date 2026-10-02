@@ -3,8 +3,9 @@ const fs = require('fs');
 const vm = require('vm');
 
 const elements = new Map();
-for (const id of ['schedule-import-file', 'schedule-import-button', 'schedule-import-status']) {
+for (const id of ['schedule-import-file', 'schedule-import-button', 'schedule-import-status', 'schedule-import-warning']) {
   const classes = new Set();
+  if (id === 'schedule-import-warning') classes.add('is-block-warning');
   elements.set(id, {
     hidden: false,
     disabled: false,
@@ -128,9 +129,13 @@ assert.strictEqual(context.duplicateResult, true);
 assert.strictEqual(context.duplicateSchedule.clases.length, 1);
 assert.strictEqual(context.conflictResult, false);
 assert.strictEqual(context.conflictSchedule.clases[0].id, 'preserved');
-assert.strictEqual(elements.get('schedule-import-status').classList.contains('is-block-warning'), true);
-assert.match(elements.get('schedule-import-status').textContent, /Solo se permite una clase por bloque horario/);
-assert.doesNotMatch(elements.get('schedule-import-status').textContent, /Química|Física|11:30/);
+assert.strictEqual(elements.get('schedule-import-status').textContent, '');
+assert.match(elements.get('schedule-import-warning').textContent, /Solo se permite una clase por bloque horario/);
+assert.strictEqual(elements.get('schedule-import-warning').classList.contains('is-block-warning'), true);
+assert.doesNotMatch(elements.get('schedule-import-warning').textContent, /Química|Física|11:30/);
+vm.runInContext(`mostrarEstadoImportacionHorario('Leyendo la foto con Gemini…');`, context);
+assert.match(elements.get('schedule-import-status').textContent, /Leyendo la foto con Gemini/);
+assert.strictEqual(elements.get('schedule-import-warning').textContent, '');
 
 (async () => {
   const file = { type: 'image/jpeg', size: 100, name: 'horario.jpg' };

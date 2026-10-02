@@ -5,9 +5,10 @@
 <span>Importar horario desde una foto</span>
 </button>
 <input id="schedule-import-file" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" hidden onchange="importarHorarioDesdeFoto(event)">
+<span id="schedule-import-status" class="schedule-import-status" role="status" aria-live="polite"></span>
 <p class="schedule-import-note">La foto se envía a Google Gemini para leerla y no se guarda en este portal. En el nivel gratuito, Google puede usar solicitudes para mejorar sus productos.</p>
 </div>
-<span id="schedule-import-status" class="schedule-import-status" role="status" aria-live="polite"></span>
+<span id="schedule-import-warning" class="schedule-import-status is-block-warning" role="status" aria-live="polite"></span>
 <!-- WIDGET HERO EN TIEMPO REAL -->
 <div class="my-schedule-hero" id="my-schedule-hero">
 <!-- Renderizado dinámico desde JS -->

@@ -61,7 +61,14 @@
 
 .schedule-import-status:not(:empty) {
     display: block;
+}
+
+.schedule-import-status.is-block-warning:not(:empty) {
     margin: 0 0 16px;
+}
+
+.schedule-import-status.is-block-warning:empty {
+    display: none;
 }
 
 .schedule-import-status.is-error {
