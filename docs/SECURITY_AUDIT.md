@@ -28,6 +28,7 @@ HTTPS de `horarios.dev` y la redirección desde HTTP respondieron correctamente.
 - 32 pruebas Python, todas las pruebas Node, la sintaxis JavaScript, el YAML del workflow y `git diff --check` pasaron en el checkout de producción `main`.
 - `pip-audit` no encontró vulnerabilidades conocidas y `pip check` no encontró dependencias incompatibles.
 - `nginx -t` pasó con la configuración activa; el servicio usa límites SQLite en `/var/lib/buscadorsalas/rate_limits.sqlite3` y `UMask=0077`.
+- En la VM envié 80 solicitudes ligeras a `/api/status` en una ráfaga local: 67 respondieron `200` y 13 `429`; tras seis segundos, una solicitud normal volvió a responder `200`.
 - La web sirvió los scripts corregidos con URL versionada y las cabeceras nuevas.
 
 ## Límites y pasos pendientes
