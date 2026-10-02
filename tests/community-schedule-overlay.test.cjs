@@ -50,6 +50,7 @@ assert.doesNotMatch(hero.innerHTML, /Ana García/);
 assert.strictEqual(vm.runInContext('JSON.stringify(MI_HORARIO_DATA.clases)', context), originalSchedule);
 context.window.cerrarHorarioPerfilEnMiHorario();
 assert.match(container.innerHTML, /my-btn-edit/);
+assert.match(container.innerHTML, /M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7/);
 assert.match(container.innerHTML, /17:30 - 18:50/);
 assert.match(hero.innerHTML, /Mi clase/);
 assert.strictEqual(vm.runInContext('JSON.stringify(MI_HORARIO_DATA.clases)', context), originalSchedule);
