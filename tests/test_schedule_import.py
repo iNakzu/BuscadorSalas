@@ -38,6 +38,13 @@ class GeminiScheduleServiceTest(unittest.TestCase):
         with self.assertRaises(GeminiScheduleError):
             _normalize_classes([{"day": 6, "start": "08:30", "end": "09:30", "course": "Física"}])
 
+    def test_missing_or_undefined_room_is_normalized_to_dash(self):
+        base = {"day": 1, "start": "08:30", "end": "09:50", "course": "Cálculo"}
+        for room in ("", "SALA NO DEFINIDA", "Sala no definida.", "Sin sala"):
+            with self.subTest(room=room):
+                classes = _normalize_classes([{**base, "room": room}])
+                self.assertEqual(classes[0]["sala"], "-")
+
     @patch("app.services.gemini_schedule.requests.post")
     def test_sends_inline_image_and_parses_gemini_response(self, post):
         post.return_value = Mock(
