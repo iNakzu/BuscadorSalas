@@ -27,6 +27,12 @@ class PortalV1Test(unittest.TestCase):
                 if path == "/manifest.json":
                     self.assertNotIn("UDP", response.get_data(as_text=True))
 
+    def test_agenda_mobile_cards_use_search_width(self):
+        template = Path("templates/views/agenda.html").read_text()
+        styles = Path("static/css/agenda.css").read_text()
+        self.assertIn('<div id="agenda-container">', template)
+        self.assertRegex(styles, r"@media \(max-width: 600px\)\s*\{[^}]*#agenda-container\s*\{\s*padding:\s*24px 0;",)
+
     def test_removed_endpoints_are_gone(self):
         for path in ("/api/chat", "/api/tutor", "/api/transcribe", "/api/clima", "/api/transporte", "/api/metro-alertas"):
             self.assertEqual(self.client.get(path).status_code, 404, path)
