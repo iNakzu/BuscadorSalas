@@ -730,7 +730,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(4, 7, 15, 0.58);
+    background: transparent;
     z-index: 9999;
     display: flex;
     align-items: center;
@@ -1030,11 +1030,11 @@
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 4px;
-    background: transparent;
-    border: 0;
-    border-radius: 0;
-    padding: 0;
-    box-shadow: none;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 4px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .my-tipo-pill {
@@ -1083,11 +1083,11 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 6px;
-    background: transparent;
-    border: 0;
-    border-radius: 0;
-    padding: 0;
-    box-shadow: none;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 4px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .my-role-btn {

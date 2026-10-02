@@ -33,6 +33,15 @@ class PortalV1Test(unittest.TestCase):
         self.assertIn('<div id="agenda-container">', template)
         self.assertRegex(styles, r"@media \(max-width: 600px\)\s*\{[^}]*#agenda-container\s*\{\s*padding:\s*24px 0;",)
 
+    def test_schedule_editor_overlay_keeps_main_view_unshaded(self):
+        styles = Path("static/css/horario.css").read_text()
+        overlay = styles.split(".my-modal-overlay {", 1)[1].split("}", 1)[0]
+        self.assertIn("background: transparent", overlay)
+        self.assertNotIn("backdrop-filter", overlay)
+        for selector in (".my-tipo-pills", ".my-role-selector"):
+            control = styles.split(f"{selector} {{", 1)[1].split("}", 1)[0]
+            self.assertIn("background: rgba(15, 23, 42, 0.8)", control)
+
     def test_removed_endpoints_are_gone(self):
         for path in ("/api/chat", "/api/tutor", "/api/transcribe", "/api/clima", "/api/transporte", "/api/metro-alertas"):
             self.assertEqual(self.client.get(path).status_code, 404, path)
