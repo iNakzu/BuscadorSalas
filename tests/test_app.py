@@ -135,7 +135,7 @@ class PortalV1Test(unittest.TestCase):
         self.assertIn("url.pathname.startsWith('/api/')", worker)
         self.assertIn("url.pathname.includes('/auth/')", worker)
         self.assertIn("if (url.search)", worker)
-        self.assertIn("portal-estudiantil-v1-core-8", worker)
+        self.assertIn("portal-estudiantil-v1-core-9", worker)
         self.assertLess(worker.index("response.clone()"), worker.index("caches.open(CACHE_NAME).then(cache => cache.put"))
 
     def test_nginx_api_rate_limit_is_wired_before_validation(self):

@@ -68,4 +68,18 @@ assert.doesNotMatch(hero.innerHTML, /Descanso de fin de semana|Fin de semana/);
 vm.runInContext(`getChileTime = () => ({ dayOfWeek: 6, hours: 9, minutes: 0, totalMinutes: 540 }); actualizarHeroMiHorario();`, context);
 assert.match(hero.innerHTML, /Fin de semana/);
 assert.match(hero.innerHTML, /Descanso de fin de semana/);
+
+vm.runInContext(`
+  MI_HORARIO_DATA = { escuela: 'EIT', clases: [
+    { id: 'conflict-one', dia: 1, bloqueNum: 3, curso: 'Clase A', tipo: 'Cátedra', sala: 'E101' },
+    { id: 'conflict-two', dia: 1, bloqueNum: 3, curso: 'Clase B', tipo: 'Laboratorio', sala: 'E102' }
+  ] };
+  state = { miHorarioRol: 'ALL', miHorarioSearch: '' };
+  getChileTime = () => ({ dayOfWeek: 1, hours: 9, minutes: 0, totalMinutes: 540 });
+  renderMiHorario();
+`, context);
+assert.strictEqual((container.innerHTML.match(/class="my-class-card my-class-slot-conflict/g) || []).length, 1);
+assert.match(container.innerHTML, /Conflicto en este bloque/);
+assert.strictEqual((container.innerHTML.match(/my-slot-conflict-button/g) || []).length, 2);
+assert.doesNotMatch(container.innerHTML, /Clase A|Clase B/);
 console.log('community_schedule_overlay: selected schedule uses the personal view and remains read-only');

@@ -4,12 +4,18 @@ const vm = require('vm');
 
 const elements = new Map();
 for (const id of ['schedule-import-file', 'schedule-import-button', 'schedule-import-status']) {
+  const classes = new Set();
   elements.set(id, {
     hidden: false,
     disabled: false,
     textContent: '',
     innerHTML: '',
-    classList: { add() {}, remove() {}, toggle() {} },
+    classList: {
+      add(name) { classes.add(name); },
+      remove(name) { classes.delete(name); },
+      contains(name) { return classes.has(name); },
+      toggle(name, force) { if (force === undefined ? !classes.has(name) : force) classes.add(name); else classes.delete(name); }
+    },
     scrollIntoView() {},
     replaceChildren() { this.innerHTML = ''; }
   });
@@ -84,6 +90,47 @@ assert.strictEqual(schedule.clases[5].curso, 'Redes');
 assert.strictEqual(schedule.clases[5].bloqueNum, 6);
 assert.strictEqual(Object.prototype.hasOwnProperty.call(schedule.clases[5], 'bloqueLabel'), false);
 assert.strictEqual(context.toastMessage, 'Horario cargado: 6 clases.');
+
+vm.runInContext(`
+  MI_HORARIO_DATA = { escuela: 'EIT', clases: [{ id: 'preserved', curso: 'Horario actual' }] };
+  guardarMiHorarioEnStorage();
+  globalThis.sameCourseResult = cargarHorarioImportado([
+    { dia: 1, horaInicio: '11:30', horaFin: '12:50', curso: 'Cálculo', tipo: 'Cátedra', seccion: '1', sala: 'E101', profesor: 'Ana' },
+    { dia: 1, horaInicio: '13:00', horaFin: '14:20', curso: 'Cálculo', tipo: 'Cátedra', seccion: '1', sala: 'E101', profesor: 'Ana' }
+  ]);
+  globalThis.sameCourseSchedule = JSON.parse(localStorage.getItem('mi_horario_custom_v1'));
+  globalThis.longClassResult = cargarHorarioImportado([
+    { dia: 1, horaInicio: '11:30', horaFin: '14:20', curso: 'Estadística', tipo: 'Cátedra', seccion: '1', sala: 'E102', profesor: 'Luis' }
+  ]);
+  globalThis.longClassSchedule = JSON.parse(localStorage.getItem('mi_horario_custom_v1'));
+`, context);
+assert.strictEqual(context.sameCourseResult, true);
+assert.deepStrictEqual(context.sameCourseSchedule.clases.map(item => item.bloqueNum), [3, 4]);
+assert.deepStrictEqual(context.sameCourseSchedule.clases.map(item => item.curso), ['Cálculo', 'Cálculo']);
+assert.strictEqual(context.longClassResult, true);
+assert.deepStrictEqual(context.longClassSchedule.clases.map(item => item.bloqueNum), [3, 4]);
+
+vm.runInContext(`
+  globalThis.duplicateResult = cargarHorarioImportado([
+    { dia: 1, horaInicio: '11:30', horaFin: '12:50', curso: 'Química', tipo: 'Cátedra', seccion: '1', sala: 'E103', profesor: 'Eva' },
+    { dia: 1, horaInicio: '11:30', horaFin: '12:50', curso: 'Química', tipo: 'Cátedra', seccion: '1', sala: 'E103', profesor: 'Eva' }
+  ]);
+  globalThis.duplicateSchedule = JSON.parse(localStorage.getItem('mi_horario_custom_v1'));
+  MI_HORARIO_DATA = { escuela: 'EIT', clases: [{ id: 'preserved', curso: 'Horario actual' }] };
+  guardarMiHorarioEnStorage();
+  globalThis.conflictResult = cargarHorarioImportado([
+    { dia: 1, horaInicio: '11:30', horaFin: '12:50', curso: 'Química', tipo: 'Cátedra', sala: 'E103' },
+    { dia: 1, horaInicio: '11:30', horaFin: '12:50', curso: 'Física', tipo: 'Cátedra', sala: 'E104' }
+  ]);
+  globalThis.conflictSchedule = JSON.parse(localStorage.getItem('mi_horario_custom_v1'));
+`, context);
+assert.strictEqual(context.duplicateResult, true);
+assert.strictEqual(context.duplicateSchedule.clases.length, 1);
+assert.strictEqual(context.conflictResult, false);
+assert.strictEqual(context.conflictSchedule.clases[0].id, 'preserved');
+assert.strictEqual(elements.get('schedule-import-status').classList.contains('is-block-warning'), true);
+assert.match(elements.get('schedule-import-status').textContent, /Solo se permite una clase por bloque horario/);
+assert.doesNotMatch(elements.get('schedule-import-status').textContent, /Química|Física|11:30/);
 
 (async () => {
   const file = { type: 'image/jpeg', size: 100, name: 'horario.jpg' };

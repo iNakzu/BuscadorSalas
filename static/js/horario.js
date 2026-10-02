@@ -816,6 +816,14 @@ function guardarNuevaClaseModal(ev) {
     const editedIndex = editId ? MI_HORARIO_DATA.clases.findIndex(c => String(c.id) === String(editId)) : -1;
     if (editId && editedIndex === -1) return;
 
+    const blockIsOccupied = MI_HORARIO_DATA.clases.some((clase, index) =>
+        index !== editedIndex && Number(clase.dia) === diaNum && Number(clase.bloqueNum) === bloqueNum
+    );
+    if (blockIsOccupied) {
+        mostrarAlertaWeb('Solo puede haber una clase por bloque horario. Elige un bloque sin otra clase.', 'Bloque ocupado', 'error');
+        return;
+    }
+
     const nuevaClase = {
         ...(editedIndex >= 0 ? MI_HORARIO_DATA.clases[editedIndex] : {}),
         id: editId || 'custom-' + Date.now(),
@@ -935,7 +943,22 @@ function renderMiHorario() {
                 const endM = timeToMinutes(b.fin);
                 const isCurrent = isToday && (totalMinutes >= startM && totalMinutes < endM);
 
-                if (slotItems.length) {
+                if (slotItems.length > 1) {
+                    const conflictActions = slotItems.map((c, index) => c.isSharedProfile
+                        ? `<span class="my-slot-conflict-label">Clase ${index + 1}</span>`
+                        : `<button type="button" class="my-slot-conflict-button" onclick="abrirModalEditarClase(${escapeHtml(JSON.stringify(String(c.id)))}, event)" aria-label="Revisar clase ${index + 1}">Revisar ${index + 1}</button>`
+                    ).join('');
+                    cardsHtml += `
+                        <div class="my-class-card my-class-slot-conflict ${isCurrent ? 'is-current-class' : ''}">
+                            <div class="my-card-header">
+                                <span class="my-card-time">${isCurrent ? '<span class="pulse-dot-white"></span>' : ''}<span>${b.label}</span></span>
+                                <span class="my-card-bloque-num">Bloque ${b.num}</span>
+                            </div>
+                            <div class="my-card-title">Conflicto en este bloque</div>
+                            <div class="my-slot-conflict-message">Solo puede haber una clase por bloque.</div>
+                            <div class="my-slot-conflict-actions">${conflictActions}</div>
+                        </div>`;
+                } else if (slotItems.length) {
                     slotItems.forEach(c => {
                     const tipoCls = 'tipo-' + (c.tipo || 'Cátedra').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
                     let cleanSec = (c.seccion || '').trim();
@@ -1092,11 +1115,12 @@ function seleccionarFotoHorario() {
     input.click();
 }
 
-function mostrarEstadoImportacionHorario(message, isError = false) {
+function mostrarEstadoImportacionHorario(message, isError = false, isBlockWarning = false) {
     const status = document.getElementById('schedule-import-status');
     if (!status) return;
     status.textContent = message || '';
-    status.classList.toggle('is-error', Boolean(isError));
+    status.classList.toggle('is-error', Boolean(isError && !isBlockWarning));
+    status.classList.toggle('is-block-warning', Boolean(message && isBlockWarning));
 }
 
 async function importarHorarioDesdeFoto(event) {
@@ -1165,21 +1189,62 @@ function bloqueHorarioMasCercano(hora) {
     , BLOQUES_HORARIOS[0]);
 }
 
+function bloquesHorarioDeClase(item) {
+    const inicio = timeToMinutes(item.horaInicio);
+    const fin = timeToMinutes(item.horaFin);
+    const primerBloque = bloqueHorarioMasCercano(item.horaInicio);
+    const bloquesOcupados = BLOQUES_HORARIOS.filter(block =>
+        block.num >= primerBloque.num && timeToMinutes(block.inicio) < fin && timeToMinutes(block.fin) > inicio
+    );
+    return bloquesOcupados.length ? bloquesOcupados : [primerBloque];
+}
+
+function claveClaseImportada(item) {
+    const normalizar = value => String(value || '')
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLocaleLowerCase('es');
+    return [
+        normalizar(item.curso),
+        normalizar(item.tipo || 'Cátedra'),
+        normalizar(item.seccion),
+        normalizar(item.sala || '-'),
+        normalizar(item.profesor)
+    ].join('|');
+}
+
 function cargarHorarioImportado(clasesDetectadas) {
     if (!Array.isArray(clasesDetectadas) || !clasesDetectadas.length) return;
     const days = [[], [], [], [], [], []];
+    const occupiedBlocks = new Map();
+    const entries = [];
     clasesDetectadas.forEach(item => {
         const day = Number(item.dia);
-        if (day >= 1 && day <= 5) days[day].push(item);
+        if (day < 1 || day > 5) return;
+        bloquesHorarioDeClase(item).forEach(bloque => {
+            const key = `${day}-${bloque.num}`;
+            const existing = occupiedBlocks.get(key);
+            if (existing) {
+                if (claveClaseImportada(existing.item) === claveClaseImportada(item)) return;
+                mostrarEstadoImportacionHorario(
+                    'No se pudo importar el horario. Solo se permite una clase por bloque horario. Revisa la foto e inténtalo de nuevo. Tu horario actual no se modificó.',
+                    true,
+                    true
+                );
+                entries.push({ conflict: true });
+                return;
+            }
+            occupiedBlocks.set(key, { item });
+            entries.push({ day, item, bloque });
+        });
     });
+    if (entries.some(entry => entry.conflict)) return false;
+    entries.forEach(entry => days[entry.day].push(entry));
     const imported = [];
     const types = ['Cátedra', 'Ayudantía', 'Laboratorio', 'Taller', 'Estudio'];
     days.forEach((items, day) => {
-        items.sort((a, b) => a.horaInicio.localeCompare(b.horaInicio));
-        items.forEach((item, index) => {
+        items.sort((a, b) => timeToMinutes(a.item.horaInicio) - timeToMinutes(b.item.horaInicio) || a.bloque.num - b.bloque.num);
+        items.forEach(({ item, bloque }, index) => {
             const sourceType = String(item.tipo || '').toLocaleLowerCase('es');
             const tipo = types.find(value => sourceType.includes(value.toLocaleLowerCase('es'))) || 'Cátedra';
-            const bloque = bloqueHorarioMasCercano(item.horaInicio);
             imported.push({
                 id: 'import-' + Date.now() + '-' + day + '-' + index,
                 dia: day,
@@ -1204,4 +1269,5 @@ function cargarHorarioImportado(clasesDetectadas) {
     if (scheduleDisplay) scheduleDisplay.scrollIntoView({ behavior: 'smooth', block: 'start' });
     mostrarEstadoImportacionHorario('');
     mostrarToast('Horario cargado: ' + imported.length + ' clases.');
+    return true;
 }

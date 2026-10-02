@@ -45,6 +45,7 @@ vm.runInContext(`
   renderMiHorario = function () {};
   actualizarHeroMiHorario = function () {};
   mostrarToast = function () {};
+  mostrarAlertaWeb = function (message, title, type) { globalThis.alertResult = { message, title, type }; };
   actualizarContadoresFiltrosMiHorario = function () {};
   modalRolSeleccionado = 'assistant';
 `, context);
@@ -65,8 +66,18 @@ assert.strictEqual(savedClass.rol, 'assistant');
 assert.strictEqual(savedClass.profesor, 'Rivero Rosa Elvira');
 assert.strictEqual(savedClass.sala, '');
 
+vm.runInContext(`MI_HORARIO_DATA.clases.push({ id: 'occupied', dia: 1, bloqueNum: 2, curso: 'Otra clase' });`, context);
+context.abrirModalEditarClase('edit-me', { stopPropagation() {} });
+fields.get('modal-add-bloque').value = '2';
+fields.get('modal-add-curso').value = 'Ecuaciones Diferenciales';
+context.guardarNuevaClaseModal({ preventDefault() {} });
+assert.strictEqual(context.alertResult.title, 'Bloque ocupado');
+assert.match(context.alertResult.message, /Solo puede haber una clase por bloque horario/);
+assert.strictEqual(vm.runInContext(`MI_HORARIO_DATA.clases.find(c => c.id === 'edit-me').bloqueNum`, context), 6);
+assert.strictEqual(vm.runInContext(`MI_HORARIO_DATA.clases.find(c => c.id === 'occupied').curso`, context), 'Otra clase');
+
 context.confirmarWeb = (_message, callback) => callback();
 fields.get('modal-add-id').value = 'edit-me';
 context.eliminarClaseDesdeEditor({ preventDefault() {}, stopPropagation() {} });
-assert.strictEqual(vm.runInContext('MI_HORARIO_DATA.clases.length', context), 0);
+assert.strictEqual(vm.runInContext('MI_HORARIO_DATA.clases.length', context), 1);
 console.log('schedule-class-edit: edits role and details, preserves empty room, and deletes from editor');

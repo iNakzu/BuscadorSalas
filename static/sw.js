@@ -1,4 +1,4 @@
-const CACHE_NAME = 'portal-estudiantil-v1-core-8';
+const CACHE_NAME = 'portal-estudiantil-v1-core-9';
 const SHELL = [
   '/', '/manifest.json', '/static/css/main.css', '/static/css/components.css',
   '/static/css/notas.css', '/static/css/agenda.css', '/static/css/horario.css',
