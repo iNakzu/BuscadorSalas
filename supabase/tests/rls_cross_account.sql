@@ -1,14 +1,18 @@
 -- Safe cross-account RLS smoke test for Supabase SQL Editor.
--- Run the preflight queries first as postgres, then replace the UUID
+-- Run only the preflight SELECT first as postgres, then replace the UUID
 -- placeholders in the test transaction with two eligible mail.udp.cl users.
--- The target account must have a `schedule` row (verify in preflight).
--- Run the whole test block. It always ends with ROLLBACK; do not remove it.
+-- Choose a target account with has_schedule_row = true. Run the whole test
+-- block. It always ends with ROLLBACK; do not remove it.
 
 -- Preflight: returns only account IDs and module names, never email or payload.
-select id
-from auth.users
-where split_part(lower(email), '@', 2) = 'mail.udp.cl'
-order by created_at
+select u.id,
+       exists (
+         select 1 from public.user_module_state s
+         where s.user_id = u.id and s.module_key = 'schedule'
+       ) as has_schedule_row
+from auth.users u
+where split_part(lower(u.email), '@', 2) = 'mail.udp.cl'
+order by u.created_at
 limit 2;
 
 -- After selecting UUIDs above, replace UUID_A and UUID_B below and run:
