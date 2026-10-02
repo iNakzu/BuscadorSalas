@@ -3,6 +3,11 @@ let PUBLIC_NOTAS_PROFILE_ID = '';
 let PUBLIC_NOTAS_COURSES = [];
 let PUBLIC_NOTAS_PAYLOAD = {};
 
+function notasJsArg(value) {
+    return escapeHtml(JSON.stringify(String(value == null ? '' : value)));
+}
+
+
 function initNotas() {
     try {
         const stored = localStorage.getItem('mi_notas_v1');
@@ -101,7 +106,7 @@ function updateNotasDropdown() {
         const originalCourse = foundCourse ? foundCourse.curso : r;
         const isActive = (currVal === originalCourse);
         if (isActive) { labelText = originalCourse; isCurrValValid = true; }
-        htmlMenu += `<div class="dropdown-item ${isActive ? 'active' : ''}" data-val="${originalCourse}" onclick="selectDropdownItem('dd-notas-curso', '${originalCourse.replace(/'/g, "\'")}', '${escapeHtml(originalCourse).replace(/'/g, "\'")}', renderNotasBuilder)">${escapeHtml(originalCourse)}</div>`;
+        htmlMenu += `<div class="dropdown-item ${isActive ? 'active' : ''}" data-val="${escapeHtml(originalCourse)}" onclick="selectDropdownItem('dd-notas-curso', ${notasJsArg(originalCourse)}, ${notasJsArg(originalCourse)}, renderNotasBuilder)">${escapeHtml(originalCourse)}</div>`;
     });
     
     for (const key of Object.keys(NOTAS_DATA)) {
@@ -121,7 +126,7 @@ function updateNotasDropdown() {
                 if (hasGrades) {
                     const isActive = (currVal === r);
                     if (isActive) { labelText = `${r} (Fuera de horario)`; isCurrValValid = true; }
-                    htmlMenu += `<div class="dropdown-item ${isActive ? 'active' : ''}" data-val="${r}" onclick="selectDropdownItem('dd-notas-curso', '${r.replace(/'/g, "\'")}', '${escapeHtml(r).replace(/'/g, "\'")} (Fuera de horario)', renderNotasBuilder)">${escapeHtml(r)} (Fuera de horario)</div>`;
+                    htmlMenu += `<div class="dropdown-item ${isActive ? 'active' : ''}" data-val="${escapeHtml(r)}" onclick="selectDropdownItem('dd-notas-curso', ${notasJsArg(r)}, ${notasJsArg(`${r} (Fuera de horario)`)}, renderNotasBuilder)">${escapeHtml(r)} (Fuera de horario)</div>`;
                 } else {
                     delete NOTAS_DATA[key];
                     saveNotas();
@@ -220,13 +225,13 @@ function renderNotasBuilder(options = {}) {
         
         itemsHtml += `
             <div class="notas-item-row">
-                <input type="text" class="notas-input-name" value="${escapeHtml(item.name)}" ${readOnly ? 'disabled' : `onchange="updateNotaItem('${dbKey}', ${index}, 'name', this.value)"`} placeholder="Nombre (ej: Controles)">
+                <input type="text" class="notas-input-name" value="${escapeHtml(item.name)}" ${readOnly ? 'disabled' : `onchange="updateNotaItem(${notasJsArg(dbKey)}, ${index}, 'name', this.value)"`} placeholder="Nombre (ej: Controles)">
                 <div style="display:flex; align-items:center; gap: 6px;">
                     <div class="notas-input-wrapper" style="width: 60px;">
-                        <input type="number" class="notas-input-weight" value="${item.weight}" ${readOnly ? 'disabled' : `onchange="updateNotaItem('${dbKey}', ${index}, 'weight', this.value)"`} placeholder="%">
+                        <input type="number" class="notas-input-weight" value="${escapeHtml(item.weight)}" ${readOnly ? 'disabled' : `onchange="updateNotaItem(${notasJsArg(dbKey)}, ${index}, 'weight', this.value)"`} placeholder="%">
                         <span class="notas-percent-symbol">%</span>
                     </div>
-                    <input type="number" step="0.1" min="1.0" max="7.0" class="notas-input-grade" style="width: 80px;" value="${item.grade !== null ? item.grade : ''}" ${readOnly ? 'disabled' : `onchange="updateNotaItem('${dbKey}', ${index}, 'grade', this.value)"`} placeholder="Nota">
+                    <input type="number" step="0.1" min="1.0" max="7.0" class="notas-input-grade" style="width: 80px;" value="${escapeHtml(item.grade !== null ? item.grade : '')}" ${readOnly ? 'disabled' : `onchange="updateNotaItem(${notasJsArg(dbKey)}, ${index}, 'grade', this.value)"`} placeholder="Nota">
                 </div>
             </div>
         `;
@@ -341,10 +346,10 @@ function renderNotasBuilder(options = {}) {
                 <div style="display:flex; align-items:center; gap: 6px;">
 
                     <div class="notas-input-wrapper" style="width: 60px;">
-                        <input type="number" class="notas-input-weight" value="${data.examWeight !== undefined ? data.examWeight : 30}" ${readOnly ? 'disabled' : `onchange="updateGlobalNota('${dbKey}', 'examWeight', this.value)"`} placeholder="%">
+                        <input type="number" class="notas-input-weight" value="${escapeHtml(data.examWeight !== undefined ? data.examWeight : 30)}" ${readOnly ? 'disabled' : `onchange="updateGlobalNota(${notasJsArg(dbKey)}, 'examWeight', this.value)"`} placeholder="%">
                         <span class="notas-percent-symbol">%</span>
                     </div>
-                    <input type="number" step="0.1" min="1.0" max="7.0" class="notas-input-grade" style="width: 80px;" value="${data.examGrade !== null ? data.examGrade : ''}" ${readOnly ? 'disabled' : `onchange="updateGlobalNota('${dbKey}', 'examGrade', this.value)"`} placeholder="Nota">
+                    <input type="number" step="0.1" min="1.0" max="7.0" class="notas-input-grade" style="width: 80px;" value="${escapeHtml(data.examGrade !== null ? data.examGrade : '')}" ${readOnly ? 'disabled' : `onchange="updateGlobalNota(${notasJsArg(dbKey)}, 'examGrade', this.value)"`} placeholder="Nota">
                 </div>
         </div>
     `;
@@ -445,7 +450,7 @@ function renderNotasBuilder(options = {}) {
                 ${itemsHtml}
                 
                 ${readOnly ? '' : `<div class="notas-add-row" style="display: flex; gap: 12px; justify-content: center; margin-bottom: 16px; margin-top: 8px;">
-                    <button class="notas-btn-add" onclick="addNotaItem('${dbKey}')">
+                    <button class="notas-btn-add" onclick="addNotaItem(${notasJsArg(dbKey)})">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                         Añadir Evaluación Parcial
                     </button>

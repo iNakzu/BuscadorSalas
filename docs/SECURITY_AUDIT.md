@@ -5,7 +5,7 @@ Revisión realizada el 2 de octubre de 2026 en el código de `release/v1-core`, 
 ## Cambios aplicados
 
 - Se reemplazaron los límites de solicitudes en memoria por contadores SQLite atómicos compartidos entre workers de Gunicorn y reinicios. Cada usuario queda identificado por un hash; el archivo se crea con permisos privados. El límite de importación Gemini es cuatro intentos por usuario cada 60 segundos; la sincronización pública admite un intento cada 20 segundos.
-- Se escaparon datos variables del feed académico y de la agenda antes de insertarlos en HTML, incluidos textos y argumentos de control en atributos. Las URLs versionadas de esos scripts cambiaron para que los navegadores recojan las correcciones.
+- Se escaparon datos variables del feed académico, la agenda, el horario compartido y las notas antes de insertarlos en HTML, incluidos textos y argumentos de control en atributos. Las URLs versionadas de esos scripts cambiaron para que los navegadores recojan las correcciones.
 - El endpoint de sincronización sólo admite `POST`; la importación Gemini valida el token de Supabase, el tipo y la firma de imagen, y limita su tamaño. Los errores de solemnidades ya no muestran detalles internos.
 - El service worker no guarda páginas con parámetros de consulta —incluidos callbacks PKCE—, respuestas `/api/` ni rutas de autenticación; se incrementó su versión de caché.
 - Nginx oculta su versión, evita registrar argumentos de URL y envía HSTS, `nosniff`, `DENY`, `strict-origin` y CSP con `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'self'` y `form-action 'self'`.

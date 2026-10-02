@@ -37,4 +37,29 @@ assert(agendaSource.includes('data-val="${escapeAgendaHtml(r)}"'));
 assert(agendaSource.includes('data-val="${escapeAgendaHtml(ev.ramo)}"'));
 assert(agendaSource.includes('const displayText = escapeAgendaHtml;'));
 assert(agendaSource.includes('toggleCompletado(${agendaJsArg(ev.id)})'));
-console.log('app dynamic HTML escaping checks passed');
+
+const horarioSource = fs.readFileSync('static/js/horario.js', 'utf8');
+const horarioHelpers = horarioSource.match(/^function escapeHtml[\s\S]*?^}/m)[0]
+    + '\n' + horarioSource.match(/^function horarioJsArg[\s\S]*?^}/m)[0];
+const horarioContext = {};
+vm.runInNewContext(`${horarioHelpers}\nthis.escapeHtml = escapeHtml; this.horarioJsArg = horarioJsArg;`, horarioContext);
+assert.equal(horarioContext.escapeHtml(hostile), '&lt;/div&gt;&lt;img src=x onerror=&quot;alert(1)&quot;&gt;&amp;&#039;');
+assert(!horarioContext.horarioJsArg(hostile).includes('<'));
+assert(horarioSource.includes('verHorarioDirecto(${horarioJsArg(s)})'));
+assert(horarioSource.includes('seleccionarSalaModal(${horarioJsArg(s)})'));
+assert(horarioSource.includes('JSON.parse(${objSafe})'));
+for (const field of ['c.sala', 'c.profesor || \'-\'', 'c.diaNombre', 'c.horaInicio', 'c.tipo', 'getShortTipo(c.tipo)']) {
+    assert(horarioSource.includes(`escapeHtml(${field})`), `unescaped shared schedule field: ${field}`);
+}
+assert(horarioSource.includes('<span>${escapeHtml(mensaje)}</span>'));
+
+const notasSource = fs.readFileSync('static/js/notas.js', 'utf8');
+const notasHelpers = notasSource.match(/^function notasJsArg[\s\S]*?^}/m)[0];
+const notasContext = { escapeHtml: horarioContext.escapeHtml };
+vm.runInNewContext(`${notasHelpers}\nthis.notasJsArg = notasJsArg;`, notasContext);
+assert(!notasContext.notasJsArg(hostile).includes('<'));
+assert(notasSource.includes('data-val="${escapeHtml(originalCourse)}"'));
+assert(notasSource.includes('updateNotaItem(${notasJsArg(dbKey)}'));
+assert(notasSource.includes('updateGlobalNota(${notasJsArg(dbKey)}'));
+assert(notasSource.includes('addNotaItem(${notasJsArg(dbKey)})'));
+console.log('dynamic HTML and inline-handler escaping checks passed');

@@ -240,9 +240,9 @@ function actualizarHeroMiHorario() {
                         <span>${escapeHtml(c.curso)}</span>
                     </div>
                     <div class="my-hero-subtitle">
-                        ${c.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${c.sala}</span></span>` : ''}
-                        <span class="hide-on-mobile" style="${pill_style}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg>${etiquetaBloqueHorario(c)}</span>
-                        ${c.rol !== 'assistant' ? `<span class="hide-on-mobile" style="${pill_style}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>${c.profesor || '-'}</span>` : ''}
+                        ${c.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${escapeHtml(c.sala)}</span></span>` : ''}
+                        <span class="hide-on-mobile" style="${pill_style}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg>${escapeHtml(etiquetaBloqueHorario(c))}</span>
+                        ${c.rol !== 'assistant' ? `<span class="hide-on-mobile" style="${pill_style}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>${escapeHtml(c.profesor || '-')}</span>` : ''}
                         <span style="${pill_style}">Quedan <strong>${quedan}m</strong></span>
                     </div>
                 </div>
@@ -273,9 +273,9 @@ function actualizarHeroMiHorario() {
                     <div class="my-hero-subtitle">
                         <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-top: 4px;">
                             <span>Tu próxima clase es <strong>${escapeHtml(c.curso)}</strong></span>
-                            <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>${c.diaNombre} ${c.horaInicio}</span></span>
-                            <span style="${pill_style}"><span class="hide-on-mobile">${c.tipo}</span><span class="show-mobile-inline">${getShortTipo(c.tipo)}</span></span>
-                            ${c.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${c.sala}</span></span>` : ''}
+                            <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>${escapeHtml(c.diaNombre)} ${escapeHtml(c.horaInicio)}</span></span>
+                            <span style="${pill_style}"><span class="hide-on-mobile">${escapeHtml(c.tipo)}</span><span class="show-mobile-inline">${escapeHtml(getShortTipo(c.tipo))}</span></span>
+                            ${c.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${escapeHtml(c.sala)}</span></span>` : ''}
                         </div>
                     </div>
                 </div>
@@ -296,9 +296,9 @@ function actualizarHeroMiHorario() {
                     <div class="my-hero-subtitle">
                         <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-top: 4px;">
                             <span>Tu próxima clase es <strong>${escapeHtml(c.curso)}</strong></span>
-                            <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>${c.diaNombre} ${c.horaInicio}</span></span>
-                            <span style="${pill_style}"><span class="hide-on-mobile">${c.tipo}</span><span class="show-mobile-inline">${getShortTipo(c.tipo)}</span></span>
-                            ${c.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${c.sala}</span></span>` : ''}
+                            <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>${escapeHtml(c.diaNombre)} ${escapeHtml(c.horaInicio)}</span></span>
+                            <span style="${pill_style}"><span class="hide-on-mobile">${escapeHtml(c.tipo)}</span><span class="show-mobile-inline">${escapeHtml(getShortTipo(c.tipo))}</span></span>
+                            ${c.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${escapeHtml(c.sala)}</span></span>` : ''}
                         </div>
                     </div>
                 </div>
@@ -319,9 +319,9 @@ function actualizarHeroMiHorario() {
                     <div class="my-hero-subtitle">
                         <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-top: 4px;">
                             <span>Tu próxima clase es <strong>${escapeHtml(c.curso)}</strong></span>
-                            <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>${c.diaNombre} ${c.horaInicio}</span></span>
-                            <span style="${pill_style}"><span class="hide-on-mobile">${c.tipo}</span><span class="show-mobile-inline">${getShortTipo(c.tipo)}</span></span>
-                            ${c.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${c.sala}</span></span>` : ''}
+                            <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>${escapeHtml(c.diaNombre)} ${escapeHtml(c.horaInicio)}</span></span>
+                            <span style="${pill_style}"><span class="hide-on-mobile">${escapeHtml(c.tipo)}</span><span class="show-mobile-inline">${escapeHtml(getShortTipo(c.tipo))}</span></span>
+                            ${c.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${escapeHtml(c.sala)}</span></span>` : ''}
                         </div>
                     </div>
                 </div>
@@ -394,6 +394,10 @@ function escapeHtml(str) {
         .replace(/'/g, '&#039;');
 }
 
+function horarioJsArg(value) {
+    return escapeHtml(JSON.stringify(String(value == null ? '' : value)));
+}
+
 function setModalRol(rol) {
     modalRolSeleccionado = rol;
     const btnEst = document.getElementById('btn-modal-rol-student');
@@ -459,7 +463,7 @@ function filtrarSalasDropdown(val) {
     }
 
     dropdown.innerHTML = matches.map(s => `
-        <div class="my-dropdown-item" onclick="seleccionarSalaModal('${escapeHtml(s)}')">
+        <div class="my-dropdown-item" onclick="seleccionarSalaModal(${horarioJsArg(s)})">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block; margin-right:6px; vertical-align:middle; opacity:0.75;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
             <span>${escapeHtml(s)}</span>
         </div>
@@ -636,10 +640,10 @@ function renderListaClasesRealesModal(lista, esBusquedaGlobal) {
         const sec = rawSec ? (rawSec.toLowerCase().startsWith('secc') ? rawSec : (rawSec.toLowerCase().startsWith('sec') ? rawSec.replace(/^sec\.?\s*/i, 'Sección ') : `Sección ${rawSec}`)) : '';
         const profe = escapeHtml(c.profe || '');
         const codigo = escapeHtml(c.codigo || '');
-        const objSafe = JSON.stringify(c).replace(/"/g, '&quot;');
+        const objSafe = horarioJsArg(JSON.stringify(c));
 
         return `
-            <div class="my-real-class-item" onclick="seleccionarClaseRealPorObj(${objSafe})">
+            <div class="my-real-class-item" onclick="seleccionarClaseRealPorObj(JSON.parse(${objSafe}))">
                 <div class="my-real-item-info">
                     <div class="my-real-item-title">${cursoNombre}</div>
                     <div class="my-real-item-meta">
@@ -823,7 +827,7 @@ function mostrarToast(mensaje) {
     }
     t.innerHTML = `
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-        <span>${mensaje}</span>
+        <span>${escapeHtml(mensaje)}</span>
     `;
     t.classList.add('show');
     if (window._toastTimeout) clearTimeout(window._toastTimeout);
@@ -915,11 +919,11 @@ function renderMiHorario() {
                     const tipoHtml = `<span class="my-type-tag ${tipoCls}"><span>${escapeHtml(c.tipo || 'Cátedra')}</span>${secText}</span>`;
 
                     cardsHtml += `
-                        <div class="my-class-card ${tipoCls} ${c.rol === 'assistant' ? 'is-assistant' : 'is-student'} ${isCurrent ? 'is-current-class' : ''}" id="card-${c.id}">
+                        <div class="my-class-card ${tipoCls} ${c.rol === 'assistant' ? 'is-assistant' : 'is-student'} ${isCurrent ? 'is-current-class' : ''}" id="card-${escapeHtml(c.id)}">
                             <div class="my-card-header">
                                 <span class="my-card-time">
                                     ${isCurrent ? '<span class="pulse-dot-white"></span>' : '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>'}
-                                    <span>${etiquetaBloqueHorario(c)}</span>
+                                    <span>${escapeHtml(etiquetaBloqueHorario(c))}</span>
                                 </span>
                                 ${c.isSharedProfile ? '' : `<button type="button" class="my-btn-edit" onclick="abrirModalEditarClase(${escapeHtml(JSON.stringify(String(c.id)))}, event)" title="Editar asignatura" aria-label="Editar ${escapeHtml(c.curso)}">
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -935,12 +939,12 @@ function renderMiHorario() {
                             </div>
                             <div class="my-card-footer">
                                 ${(c.sala || '').split(/[,/]+/).map(s => s.trim()).filter(s => s).map(s => `
-                                <span class="my-room-pill" onclick="verHorarioDirecto('${s}')" title="Sala ${s}">
+                                <span class="my-room-pill" onclick="verHorarioDirecto(${horarioJsArg(s)})" title="Sala ${escapeHtml(s)}">
                                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
                                     <span>${escapeHtml(s)}</span>
                                 </span>
                                 `).join('')}
-                                <span class="my-card-bloque-num">Bloque ${c.bloqueNum}</span>
+                                <span class="my-card-bloque-num">Bloque ${escapeHtml(c.bloqueNum)}</span>
                             </div>
                         </div>
                     `;
