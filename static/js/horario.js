@@ -2,6 +2,16 @@
    TAB 6: MI HORARIO - DATOS Y LÓGICA REACTIVA EN TIEMPO REAL
    ========================================================= */
 
+function normalizarSeccionHorario(value) {
+    let section = String(value == null ? '' : value).trim();
+    if (!section || /^(?:-|–|—|\.|\?|n\/?a|sin sección|sin seccion|no disponible|no legible)$/i.test(section)) {
+        return 'Sección -';
+    }
+    section = section.replace(/^secci[oó]n\b\s*/i, '').replace(/^sec(?:ci[oó]n)?\.?\s*/i, '');
+    section = section.replace(/^s\s*(\d+)$/i, '$1').trim();
+    return section && !/^(?:-|–|—)$/.test(section) ? `Sección ${section}` : 'Sección -';
+}
+
 function cargarMiHorarioDesdeStorage() {
     let profile = null;
     try {
@@ -665,8 +675,7 @@ function renderListaClasesRealesModal(lista, esBusquedaGlobal) {
     listEl.innerHTML = lista.map(c => {
         const cursoNombre = escapeHtml(c.curso || 'Asignatura');
         const sala = escapeHtml(c.sala || 'Sin sala');
-        const rawSec = (c.seccion !== undefined && c.seccion !== null && c.seccion !== '') ? String(c.seccion).trim() : '';
-        const sec = rawSec ? (rawSec.toLowerCase().startsWith('secc') ? rawSec : (rawSec.toLowerCase().startsWith('sec') ? rawSec.replace(/^sec\.?\s*/i, 'Sección ') : `Sección ${rawSec}`)) : '';
+        const sec = normalizarSeccionHorario(c.seccion);
         const profe = escapeHtml(c.profe || '');
         const codigo = escapeHtml(c.codigo || '');
         const objSafe = horarioJsArg(JSON.stringify(c));
@@ -761,8 +770,7 @@ function seleccionarClaseRealPorObj(c) {
     }
 
     if (inpSec) {
-        const numSec = (c.seccion !== undefined && c.seccion !== null) ? String(c.seccion).trim() : '';
-        inpSec.value = numSec ? (numSec.toLowerCase().startsWith('secc') ? numSec : (numSec.toLowerCase().startsWith('sec') ? numSec.replace(/^sec\.?\s*/i, 'Sección ') : `Sección ${numSec}`)) : '';
+        inpSec.value = normalizarSeccionHorario(c.seccion);
         inpSec.classList.add('field-autofilled');
         setTimeout(() => inpSec.classList.remove('field-autofilled'), 1200);
     }
@@ -946,13 +954,7 @@ function renderMiHorario() {
                 if (slotItems.length) {
                     slotItems.forEach(c => {
                     const tipoCls = 'tipo-' + (c.tipo || 'Cátedra').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
-                    let cleanSec = (c.seccion || '').trim();
-                    if (cleanSec.toLowerCase().startsWith('sec.')) {
-                        cleanSec = cleanSec.replace(/^sec\.\s*/i, 'Sección ');
-                    } else if (cleanSec.toLowerCase().startsWith('sec ')) {
-                        cleanSec = cleanSec.replace(/^sec\s*/i, 'Sección ');
-                    }
-                    const secText = `<span class="my-type-sec">• ${escapeHtml(cleanSec && !cleanSec.toLowerCase().includes('ayudantía que impartes') ? cleanSec : 'Sección -')}</span>`;
+                    const secText = `<span class="my-type-sec">• ${escapeHtml(normalizarSeccionHorario(c.seccion && !String(c.seccion).toLowerCase().includes('ayudantía que impartes') ? c.seccion : ''))}</span>`;
                     const tipoHtml = `<span class="my-type-tag ${tipoCls}"><span>${escapeHtml(c.tipo || 'Cátedra')}</span>${secText}</span>`;
 
                     cardsHtml += `
@@ -1241,7 +1243,7 @@ function cargarHorarioImportado(clasesDetectadas) {
                 horaFin: bloque.fin,
                 curso: item.curso,
                 tipo: tipo,
-                seccion: item.seccion || '',
+                seccion: normalizarSeccionHorario(item.seccion),
                 sala: item.sala || '',
                 profesor: item.profesor || '',
                 rol: 'student'

@@ -63,7 +63,7 @@ vm.runInContext(`
   cargarHorarioImportado([
     { dia: 1, diaNombre: 'Lunes', horaInicio: '16:00', horaFin: '17:20', curso: 'Redes', tipo: 'Cátedra', sala: 'E420', profesor: 'Lucía Rojas' },
     { dia: 1, diaNombre: 'Lunes', horaInicio: '10:00', horaFin: '11:20', curso: 'Programación', tipo: 'Laboratorio', seccion: 'Sección A', sala: 'E310', profesor: 'Juan Soto' },
-    { dia: 1, diaNombre: 'Lunes', horaInicio: '08:30', horaFin: '09:50', curso: 'Cálculo I', tipo: 'Cátedra', seccion: '2', sala: 'E441.2.S201', profesor: 'María Pérez' },
+    { dia: 1, diaNombre: 'Lunes', horaInicio: '08:30', horaFin: '09:50', curso: 'Cálculo I', tipo: 'Cátedra', seccion: 'S4', sala: 'E441.2.S201', profesor: 'María Pérez' },
     { dia: 1, diaNombre: 'Lunes', horaInicio: '14:30', horaFin: '15:50', curso: 'Álgebra', tipo: 'Cátedra', sala: 'E302', profesor: 'Mario Díaz' },
     { dia: 1, diaNombre: 'Lunes', horaInicio: '13:00', horaFin: '14:20', curso: 'Física', tipo: 'Cátedra', sala: 'E304', profesor: 'Ana Soto' },
     { dia: 1, diaNombre: 'Lunes', horaInicio: '11:30', horaFin: '12:50', curso: 'Cálculo II', tipo: 'Cátedra', sala: 'E306', profesor: 'Pedro Rojas' }
@@ -77,7 +77,7 @@ assert.strictEqual(schedule.clases[0].id.startsWith('import-'), true);
 assert.strictEqual(schedule.clases[0].curso, 'Cálculo I');
 assert.strictEqual(schedule.clases[0].bloqueNum, 1);
 assert.strictEqual(schedule.clases[0].profesor, 'María Pérez');
-assert.strictEqual(schedule.clases[0].seccion, '2');
+assert.strictEqual(schedule.clases[0].seccion, 'Sección 4');
 assert.strictEqual(schedule.clases[0].sala, 'E441.2.S201');
 assert.strictEqual(schedule.clases[1].curso, 'Programación');
 assert.strictEqual(schedule.clases[1].bloqueNum, 2);
@@ -89,6 +89,7 @@ assert.strictEqual(schedule.clases[4].curso, 'Álgebra');
 assert.strictEqual(schedule.clases[4].bloqueNum, 5);
 assert.strictEqual(schedule.clases[5].curso, 'Redes');
 assert.strictEqual(schedule.clases[5].bloqueNum, 6);
+assert.strictEqual(schedule.clases[5].seccion, 'Sección -');
 assert.strictEqual(Object.prototype.hasOwnProperty.call(schedule.clases[5], 'bloqueLabel'), false);
 assert.strictEqual(elements.get('schedule-import-status').textContent, 'Horario importado correctamente.');
 assert.strictEqual(context.toastMessage, undefined);

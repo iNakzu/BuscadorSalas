@@ -28,7 +28,7 @@ SCHEDULE_SCHEMA = {
                     "start": {"type": "string", "description": "Exact 24-hour start time HH:MM."},
                     "end": {"type": "string", "description": "Exact 24-hour end time HH:MM."},
                     "course": {"type": "string", "description": "Only the course name, in natural Spanish title case. Preserve genuine acronyms based on their meaning and context; do not copy all-caps formatting from the image."},
-                    "section": {"type": "string", "description": "Section number or label, empty if not shown."},
+                    "section": {"type": "string", "description": "Always write the value as 'Sección N' (or 'Sección <label>'). If the image says S4, write 'Sección 4'. If no section is visible, write exactly 'Sección -'."},
                     "professor": {"type": "string", "description": "Teacher name, empty if not shown."},
                     "room": {"type": "string", "description": "Classroom, or '-' if it is not visible or readable."},
                     "kind": {"type": "string", "description": "Lecture, lab, tutorial, workshop, or other type; empty if unclear."},
@@ -44,6 +44,7 @@ SCHEDULE_SCHEMA = {
 PROMPT = """Lee la imagen de un horario semanal personal y extrae todas las clases que aparecen.
 Devuelve cada clase con el día (1=lunes, 2=martes, 3=miércoles, 4=jueves, 5=viernes), hora exacta de inicio y término en formato 24 horas HH:MM, nombre del ramo/actividad, sección, profesor, sala y tipo de clase.
 Separa siempre el nombre del ramo y el tipo de clase. En "course" escribe únicamente el nombre del ramo, sin etiquetas de tipo como Cátedra, Ayudantía, Ayudantía Obligatoria, Laboratorio o Taller, aunque aparezcan antes, después o mezcladas con el nombre. En "kind" escribe el tipo detectado. Por ejemplo, "Cátedra de Historia del Arte" debe producir course="Historia del Arte" y kind="Cátedra"; "Laboratorio de Física" debe producir course="Física" y kind="Laboratorio". No incluyas el tipo de clase dentro del nombre del ramo.
+En "section", escribe siempre "Sección " seguido del número o etiqueta. Por ejemplo, si en la imagen aparece "S4", devuelve "Sección 4"; si aparece "Sec. 2", devuelve "Sección 2". Si no hay una sección visible o legible, devuelve exactamente "Sección -".
 Escribe "course" con mayúsculas y minúsculas naturales en español, aunque la foto esté completamente en mayúsculas. Usa mayúscula inicial en las palabras principales y minúscula en conectores comunes como "de", "del", "la", "en" y "y", salvo al inicio del título. Decide por significado y contexto cuáles términos son siglas reales y consérvalos en mayúsculas, incluso si son cortos (por ejemplo, TIC o IA). Las palabras comunes cortas no son siglas y deben escribirse normalmente. Si un término breve no es una palabra común y el contexto indica que es una abreviación, escríbelo en mayúsculas. No copies la capitalización de la foto ni conviertas todos los términos cortos en siglas. No consultes ni dependas de una malla curricular o diccionario de siglas.
 Ejemplos de títulos: "EVALUACIÓN DE PROYECTOS TIC - CÁTEDRA" debe producir course="Evaluación de Proyectos TIC" y kind="Cátedra"; "BIOETICA Y SOCIEDAD ACTUAL" debe producir course="Bioética y Sociedad Actual".
 Usa solamente datos visibles. En "room" devuelve únicamente el código o número real de la sala; no pongas etiquetas como "BLOQUE", "SALA", "AULA" o "EDIFICIO". Si solo se ve una de esas etiquetas, o no puedes identificar un código/número de sala, devuelve exactamente "-"; no inventes ni infieras la sala desde el bloque horario. Para los demás campos, usa cadena vacía si no aparecen o no se pueden leer. No conviertas encabezados, recreos, ventanas ni filas vacías en clases. Interpreta la intersección entre fila/columna si el horario está en una cuadrícula. Si la imagen contiene varios horarios o secciones alternativas, extrae solo el horario personal claramente identificado; si no se distingue cuál pertenece a la persona, devuelve clases solo cuando la selección sea inequívoca.
@@ -154,6 +155,19 @@ def _normalize_room(value):
     return room or "-"
 
 
+def _normalize_section(value):
+    section = _clean_text(value, 60)
+    if not section or re.fullmatch(r"[-–—.?]|(?:N/?A|SIN SECCI[ÓO]N|NO (?:VISIBLE|LEGIBLE|DISPONIBLE))", section, re.IGNORECASE):
+        return "Sección -"
+
+    section = re.sub(r"^secci[oó]n\b\s*", "", section, flags=re.IGNORECASE)
+    section = re.sub(r"^sec(?:ci[oó]n)?\.?\s*", "", section, flags=re.IGNORECASE)
+    section = re.sub(r"^S\s*(\d+)$", r"\1", section, flags=re.IGNORECASE)
+    if not section or section in {"-", "–", "—"}:
+        return "Sección -"
+    return f"Sección {section}"
+
+
 def _normalize_classes(raw_classes):
     if not isinstance(raw_classes, list):
         raise GeminiScheduleError("No pude reconocer un horario en esa imagen. Prueba con una foto más clara.", 422)
@@ -178,7 +192,7 @@ def _normalize_classes(raw_classes):
             "horaFin": end,
             "curso": course,
             "tipo": _normalize_kind(item.get("kind"), inferred_kind),
-            "seccion": _clean_text(item.get("section"), 60),
+            "seccion": _normalize_section(item.get("section")),
             "sala": room,
             "profesor": _clean_text(item.get("professor"), 100),
             "confianza": _confidence(item.get("confidence")),

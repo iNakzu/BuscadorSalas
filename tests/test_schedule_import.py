@@ -30,7 +30,7 @@ class GeminiScheduleServiceTest(unittest.TestCase):
         self.assertEqual(classes[0]["horaInicio"], "08:30")
         self.assertEqual(classes[0]["sala"], "E-201")
         self.assertEqual(classes[0]["profesor"], "Prof. Rojas")
-        self.assertEqual(classes[0]["seccion"], "1")
+        self.assertEqual(classes[0]["seccion"], "Sección 1")
         self.assertEqual(classes[0]["confianza"], 0)
         self.assertEqual(classes[1]["curso"], "Álgebra")
 
@@ -71,6 +71,13 @@ class GeminiScheduleServiceTest(unittest.TestCase):
         labeled_room = _normalize_classes([{**base, "room": "BLOQUE E441.2.S201"}])
         self.assertEqual(labeled_room[0]["sala"], "E441.2.S201")
 
+    def test_sections_are_labeled_and_s4_is_expanded(self):
+        base = {"day": 1, "start": "08:30", "end": "09:50", "course": "Cálculo"}
+        for section, expected in (("S4", "Sección 4"), ("Sec. 2", "Sección 2"), ("4", "Sección 4"), ("", "Sección -")):
+            with self.subTest(section=section):
+                classes = _normalize_classes([{**base, "section": section}])
+                self.assertEqual(classes[0]["seccion"], expected)
+
     @patch("app.services.gemini_schedule.requests.post")
     def test_sends_inline_image_and_parses_gemini_response(self, post):
         post.return_value = Mock(
@@ -93,6 +100,8 @@ class GeminiScheduleServiceTest(unittest.TestCase):
         prompt = kwargs["json"]["contents"][0]["parts"][0]["text"]
         self.assertIn("Ayudantía Obligatoria", prompt)
         self.assertIn("No consultes ni dependas de una malla curricular", prompt)
+        self.assertIn('si en la imagen aparece "S4", devuelve "Sección 4"', prompt)
+        self.assertIn('devuelve exactamente "Sección -"', prompt)
 
     @patch("app.services.gemini_schedule.time.sleep")
     @patch("app.services.gemini_schedule.requests.post")
