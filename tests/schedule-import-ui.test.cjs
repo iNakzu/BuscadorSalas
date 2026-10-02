@@ -3,7 +3,7 @@ const fs = require('fs');
 const vm = require('vm');
 
 const elements = new Map();
-for (const id of ['schedule-import-file', 'schedule-import-button', 'schedule-import-status', 'schedule-import-warning']) {
+for (const id of ['schedule-import-file', 'schedule-import-button', 'schedule-import-status', 'schedule-import-warning', 'mihorario-display-container']) {
   const classes = new Set();
   if (id === 'schedule-import-warning') classes.add('is-block-warning');
   elements.set(id, {
@@ -17,7 +17,7 @@ for (const id of ['schedule-import-file', 'schedule-import-button', 'schedule-im
       contains(name) { return classes.has(name); },
       toggle(name, force) { if (force === undefined ? !classes.has(name) : force) classes.add(name); else classes.delete(name); }
     },
-    scrollIntoView() {},
+    scrollIntoView() { this.scrollCount = (this.scrollCount || 0) + 1; },
     replaceChildren() { this.innerHTML = ''; }
   });
 }
@@ -90,7 +90,9 @@ assert.strictEqual(schedule.clases[4].bloqueNum, 5);
 assert.strictEqual(schedule.clases[5].curso, 'Redes');
 assert.strictEqual(schedule.clases[5].bloqueNum, 6);
 assert.strictEqual(Object.prototype.hasOwnProperty.call(schedule.clases[5], 'bloqueLabel'), false);
-assert.strictEqual(context.toastMessage, 'Horario cargado: 6 clases.');
+assert.strictEqual(elements.get('schedule-import-status').textContent, 'Horario importado correctamente.');
+assert.strictEqual(context.toastMessage, undefined);
+assert.strictEqual(elements.get('mihorario-display-container').scrollCount || 0, 0);
 
 vm.runInContext(`
   MI_HORARIO_DATA = { escuela: 'EIT', clases: [{ id: 'preserved', curso: 'Horario actual' }] };
@@ -155,6 +157,9 @@ assert.strictEqual(elements.get('schedule-import-warning').textContent, '');
   assert.strictEqual(directlyLoaded.clases.length, 1);
   assert.strictEqual(directlyLoaded.clases[0].bloqueNum, 3);
   assert.strictEqual(directlyLoaded.clases[0].curso, 'Estructuras');
+  assert.strictEqual(elements.get('schedule-import-status').textContent, 'Horario importado correctamente.');
+  assert.strictEqual(context.toastMessage, undefined);
+  assert.strictEqual(elements.get('mihorario-display-container').scrollCount || 0, 0);
   assert.strictEqual(input.value, '');
   console.log('schedule-import-ui: photo upload loads detected classes directly into matching timetable blocks');
 })().catch(error => { console.error(error); process.exit(1); });

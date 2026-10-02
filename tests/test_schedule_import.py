@@ -64,10 +64,12 @@ class GeminiScheduleServiceTest(unittest.TestCase):
 
     def test_missing_or_undefined_room_is_normalized_to_dash(self):
         base = {"day": 1, "start": "08:30", "end": "09:50", "course": "Cálculo"}
-        for room in ("", "SALA NO DEFINIDA", "Sala no definida.", "Sin sala"):
+        for room in ("", "SALA NO DEFINIDA", "Sala no definida.", "Sin sala", "BLOQUE", "Bloque 1", "BLOQUE A", "AULA"):
             with self.subTest(room=room):
                 classes = _normalize_classes([{**base, "room": room}])
                 self.assertEqual(classes[0]["sala"], "-")
+        labeled_room = _normalize_classes([{**base, "room": "BLOQUE E441.2.S201"}])
+        self.assertEqual(labeled_room[0]["sala"], "E441.2.S201")
 
     @patch("app.services.gemini_schedule.requests.post")
     def test_sends_inline_image_and_parses_gemini_response(self, post):
@@ -86,6 +88,8 @@ class GeminiScheduleServiceTest(unittest.TestCase):
         self.assertTrue(args[0].endswith("/gemini-2.5-flash:generateContent"))
         self.assertEqual(kwargs["headers"]["x-goog-api-key"], "do-not-log-key")
         self.assertEqual(kwargs["json"]["contents"][0]["parts"][1]["inline_data"]["mime_type"], "image/png")
+        prompt = kwargs["json"]["contents"][0]["parts"][0]["text"]
+        self.assertIn('no pongas etiquetas como "BLOQUE"', prompt)
         prompt = kwargs["json"]["contents"][0]["parts"][0]["text"]
         self.assertIn("Ayudantía Obligatoria", prompt)
         self.assertIn("No consultes ni dependas de una malla curricular", prompt)

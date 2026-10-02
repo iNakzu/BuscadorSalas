@@ -1267,9 +1267,6 @@ function cargarHorarioImportado(clasesDetectadas) {
     guardarMiHorarioEnStorage();
     renderMiHorario();
     actualizarHeroMiHorario();
-    const scheduleDisplay = document.getElementById('mihorario-display-container');
-    if (scheduleDisplay) scheduleDisplay.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    mostrarEstadoImportacionHorario('');
-    mostrarToast('Horario cargado: ' + imported.length + ' clases.');
+    mostrarEstadoImportacionHorario('Horario importado correctamente.');
     return true;
 }
