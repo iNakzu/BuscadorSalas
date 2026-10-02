@@ -54,8 +54,14 @@
 }
 
 .schedule-import-status {
+    display: none;
     color: var(--text-muted);
     font-size: 12px;
+}
+
+.schedule-import-status:not(:empty) {
+    display: block;
+    margin: 0 0 16px;
 }
 
 .schedule-import-status.is-error {

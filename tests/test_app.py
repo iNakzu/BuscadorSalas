@@ -135,7 +135,7 @@ class PortalV1Test(unittest.TestCase):
         self.assertIn("url.pathname.startsWith('/api/')", worker)
         self.assertIn("url.pathname.includes('/auth/')", worker)
         self.assertIn("if (url.search)", worker)
-        self.assertIn("portal-estudiantil-v1-core-9", worker)
+        self.assertIn("portal-estudiantil-v1-core-10", worker)
         self.assertLess(worker.index("response.clone()"), worker.index("caches.open(CACHE_NAME).then(cache => cache.put"))
 
     def test_nginx_api_rate_limit_is_wired_before_validation(self):
@@ -181,6 +181,8 @@ class PortalV1Test(unittest.TestCase):
         self.assertNotIn('Personas de la comunidad', html)
         self.assertIn('id="schedule-import-button"', html)
         self.assertIn('id="schedule-import-file"', html)
+        self.assertLess(html.index('class="schedule-import-control schedule-import-control-top"'), html.index('id="schedule-import-status"'))
+        self.assertLess(html.index('id="schedule-import-status"'), html.index('id="my-schedule-hero"'))
         self.assertNotIn('id="schedule-import-preview"', html)
         self.assertIn('data-tab="tab-mihorario" data-private="true"', html)
         self.assertNotIn('id="share-schedule-toggle"', html)
