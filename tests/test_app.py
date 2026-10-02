@@ -23,6 +23,7 @@ class PortalV1Test(unittest.TestCase):
                 self.assertEqual(response.status_code, 200, path)
                 if path == "/":
                     self.assertNotIn("Portal Estudiantil UDP", response.get_data(as_text=True))
+                    self.assertNotIn('id="pwa-install-btn"', response.get_data(as_text=True))
                 if path == "/manifest.json":
                     self.assertNotIn("UDP", response.get_data(as_text=True))
 
@@ -135,7 +136,7 @@ class PortalV1Test(unittest.TestCase):
         self.assertIn("url.pathname.startsWith('/api/')", worker)
         self.assertIn("url.pathname.includes('/auth/')", worker)
         self.assertIn("if (url.search)", worker)
-        self.assertIn("portal-estudiantil-v1-core-11", worker)
+        self.assertIn("portal-estudiantil-v1-core-12", worker)
         self.assertLess(worker.index("response.clone()"), worker.index("caches.open(CACHE_NAME).then(cache => cache.put"))
 
     def test_nginx_api_rate_limit_is_wired_before_validation(self):

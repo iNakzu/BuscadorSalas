@@ -17,7 +17,7 @@
 .auth-card .auth-button, .auth-card .auth-profile { box-sizing: border-box; width: 100%; }
 .auth-card .auth-profile { justify-content: center; }
 .tabs-wrapper .brand-status-row { display: flex; align-items: center; gap: 6px; }
-.tabs-wrapper .pwa-install-btn[hidden], .tabs-wrapper .btn-clear-cache[hidden] { display: none; }
+.tabs-wrapper .btn-clear-cache[hidden] { display: none; }
 .auth-gate { position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center; padding: 24px; background: rgba(2,6,23,.78); backdrop-filter: blur(12px); }
 .auth-gate[hidden] { display: none; }
 .auth-gate > div { width: min(420px,100%); padding: 28px; border: 1px solid rgba(148,163,184,.2); border-radius: 18px; background: #0f172a; box-shadow: 0 25px 60px rgba(0,0,0,.4); }

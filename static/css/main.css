@@ -2507,34 +2507,6 @@ html {
     background: rgba(255, 255, 255, 0.15);
 }
 
-.pwa-install-btn {
-    background: rgba(56, 189, 248, 0.12);
-    border: 1px solid rgba(56, 189, 248, 0.28);
-    color: #38bdf8;
-    border-radius: 50%;
-    width: 22px;
-    height: 22px;
-    padding: 0;
-    margin: 0;
-    flex: 0 0 22px;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    vertical-align: middle;
-}
-.pwa-install-btn[hidden] {
-    display: none;
-}
-.pwa-install-btn:hover {
-    background: rgba(56, 189, 248, 0.24);
-    border-color: rgba(56, 189, 248, 0.5);
-}
-.pwa-install-btn:active {
-    transform: scale(0.9);
-}
-
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
