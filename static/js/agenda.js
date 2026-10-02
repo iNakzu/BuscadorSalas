@@ -28,6 +28,10 @@ function escapeAgendaHtml(value) {
     })[char]);
 }
 
+function agendaJsArg(value) {
+    return escapeAgendaHtml(JSON.stringify(String(value == null ? '' : value)));
+}
+
 const AGENDA_STORAGE_KEY = 'mi_agenda_v1';
 
 const ICONS = {
@@ -200,7 +204,7 @@ function abrirModalAgenda(id = null, clickedDate = null) {
     
     let htmlMenu = `<div class="dropdown-item active" data-val="" onclick="selectDropdownItem('dd-agenda-ramo', '', 'Selecciona un Ramo...')">Selecciona un Ramo...</div>`;
     myRamos.forEach(r => {
-        htmlMenu += `<div class="dropdown-item" data-val="${r}" onclick="selectDropdownItem('dd-agenda-ramo', '${r.replace(/'/g, "\'")}', '${r.replace(/'/g, "\'")}')">${r}</div>`;
+        htmlMenu += `<div class="dropdown-item" data-val="${escapeAgendaHtml(r)}" onclick="selectDropdownItem('dd-agenda-ramo', ${agendaJsArg(r)}, ${agendaJsArg(r)})">${escapeAgendaHtml(r)}</div>`;
     });
     htmlMenu += `<div class="dropdown-item" data-val="Otro" onclick="selectDropdownItem('dd-agenda-ramo', 'Otro', 'Otro...')">Otro...</div>`;
     
@@ -213,7 +217,7 @@ function abrirModalAgenda(id = null, clickedDate = null) {
             document.getElementById('agenda-id').value = ev.id;
             
             if (ev.ramo && !myRamos.includes(ev.ramo) && ev.ramo !== 'Otro') {
-                htmlMenu += `<div class="dropdown-item" data-val="${ev.ramo}" onclick="selectDropdownItem('dd-agenda-ramo', '${ev.ramo.replace(/'/g, "\'")}', '${ev.ramo.replace(/'/g, "\'")}')">${ev.ramo}</div>`;
+                htmlMenu += `<div class="dropdown-item" data-val="${escapeAgendaHtml(ev.ramo)}" onclick="selectDropdownItem('dd-agenda-ramo', ${agendaJsArg(ev.ramo)}, ${agendaJsArg(ev.ramo)})">${escapeAgendaHtml(ev.ramo)}</div>`;
                 if (menuEl) menuEl.innerHTML = htmlMenu;
             }
             selectDropdownItem('dd-agenda-ramo', ev.ramo, ev.ramo);
@@ -349,7 +353,7 @@ function renderAgenda(publicView = null) {
     const query = publicView ? publicView.query : currentAgendaSearch;
     const readOnly = Boolean(publicView && publicView.readOnly);
     const filtered = getFilteredAgenda(events, query);
-    const displayText = value => readOnly ? escapeAgendaHtml(value) : value;
+    const displayText = escapeAgendaHtml;
     
     if (filtered.length === 0) {
         container.innerHTML = `
@@ -478,7 +482,7 @@ function renderAgenda(publicView = null) {
         html += `
             <div class="agenda-card ${ev.completado ? 'is-completed' : ''}${readOnly ? ' agenda-card-readonly' : ''}">
                 <div class="agenda-check-wrapper" style="display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 2px;">
-                    ${readOnly ? '<span class="agenda-checkbox-btn" aria-hidden="true" style="margin: 0;">' : `<button class="agenda-checkbox-btn" onclick="toggleCompletado('${ev.id}')" title="Marcar como completado" style="margin: 0;">`}
+                    ${readOnly ? '<span class="agenda-checkbox-btn" aria-hidden="true" style="margin: 0;">' : `<button class="agenda-checkbox-btn" onclick="toggleCompletado(${agendaJsArg(ev.id)})" title="Marcar como completado" style="margin: 0;">`}
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                     ${readOnly ? '</span>' : '</button>'}
                     <div class="mobile-agenda-dot">${iconHtml}</div>
@@ -514,10 +518,10 @@ function renderAgenda(publicView = null) {
                         ${formatearFecha(ev.fecha, ev.hasTime)}
                     </span>
                     ${readOnly ? '' : `<div class="agenda-actions">
-                        <button class="agenda-btn-icon" onclick="abrirModalAgenda('${ev.id}')" title="Editar">
+                        <button class="agenda-btn-icon" onclick="abrirModalAgenda(${agendaJsArg(ev.id)})" title="Editar">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                         </button>
-                        <button class="agenda-btn-icon delete" onclick="eliminarEventoAgenda('${ev.id}')" title="Eliminar">
+                        <button class="agenda-btn-icon delete" onclick="eliminarEventoAgenda(${agendaJsArg(ev.id)})" title="Eliminar">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                         </button>
                     </div>`}

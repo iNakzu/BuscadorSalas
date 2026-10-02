@@ -22,7 +22,7 @@ Funciones personales, con Google OAuth:
 - Agenda.
 - Malla interactiva y progreso.
 
-El horario compartido sólo expone nombre visible, asignatura, día, hora y sala mediante `public.get_shared_schedules()`; no expone correo, notas, agenda, progreso, profesor, sección ni rol. `profiles.share_schedule` controla la visibilidad y se crea en `true`. No hay un control de visibilidad en la interfaz; se puede ocultar manualmente desde SQL con `UPDATE public.profiles SET share_schedule = false WHERE id = '<auth-user-uuid>';`. La tabla base conserva RLS sólo para el dueño y la función filtra cuentas ocultas, valida que quien consulta y el dueño sean miembros UDP/autorizados, y devuelve sólo los campos permitidos. El hook Before User Created debe quedar habilitado para limitar el registro a cuentas UDP y correos autorizados.
+El directorio comunitario requiere iniciar sesión y, por diseño actual, otros usuarios autenticados pueden ver el horario, las notas, la agenda y el progreso de malla cuando `profiles.share_information` es `true` (valor predeterminado). El horario incluye asignatura, día, horas, tipo, sala, profesor, sección y rol; los otros módulos se comparten como sus documentos JSON. No se expone el correo del perfil ni existen controles separados por módulo. Para ocultar todo el perfil compartido se puede ejecutar `UPDATE public.profiles SET share_information = false WHERE id = '<auth-user-uuid>';`. Las tablas personales mantienen RLS por dueño; las funciones comunitarias validan que quien consulta y el perfil consultado sean miembros autorizados. El hook Before User Created debe estar habilitado para limitar el registro a cuentas permitidas.
 
 Quedan fuera de V1: chat o tutor de IA, perfiles de amigos, mensajería, reloj mundial, cronómetro, Kanban, gastos, compras, notas de voz, hábitos, guitarra, transporte, clima y corrector.
 
@@ -57,17 +57,17 @@ values ('persona@example.com', 'Piloto V1');
 
 1. Crear un proyecto con Data API habilitada, exposición automática de tablas nuevas deshabilitada y RLS automático habilitado. La migración concede permisos explícitos sólo a `authenticated` para las tablas personales; RLS limita cada fila al usuario propietario.
 2. Aplicar, en orden, las migraciones de `supabase/migrations/` con `supabase db push` o el SQL Editor. La migración `202609290002_public_information.sql` convierte el permiso de horario público en información pública y habilita la vista comunitaria de horario, solemnes, notas, agenda y malla.
-3. En Authentication > Hooks, seleccionar `public.hook_restrict_signup` como **Before User Created**.
+3. En Authentication > Hooks, seleccionar `public.hook_restrict_signup` como **Before User Created** y confirmar que el hook esté activo en producción.
 4. Crear un cliente OAuth web en Google. El origen autorizado de producción es `https://horarios.dev`.
 5. Copiar desde Supabase la URL callback exacta `https://<project-ref>.supabase.co/auth/v1/callback` a las redirect URIs de Google y habilitar Google en Authentication > Providers.
-6. En Supabase URL Configuration, usar el dominio estable como Site URL y agregar el dominio preview a Redirect URLs.
-7. Copiar `.env.example` a `.env` en cada despliegue y completar `SUPABASE_URL`, `SUPABASE_ANON_KEY` y `SECRET_KEY`. La clave anon/publicable es apta para el navegador porque RLS protege los datos.
+6. En Supabase URL Configuration, usar `https://horarios.dev` como Site URL y permitir ese origen como Redirect URL. No se usa un dominio preview.
+7. Copiar `.env.example` a `.env` en cada despliegue y completar `SUPABASE_URL`, `SUPABASE_ANON_KEY` y, si se habilita Gemini, `GEMINI_API_KEY`. La clave anon/publicable es apta para el navegador porque RLS protege las tablas; no poner claves secretas en HTML o JavaScript. La aplicación no usa sesiones Flask y no necesita `SECRET_KEY` actualmente.
 
 ## Importación de horario desde una foto
 
-La sección Horarios ofrece un botón de importación para fotos JPG, PNG, WebP y HEIC de hasta 9 MB. El endpoint `POST /api/import_schedule` valida el token de sesión de Supabase, limita intentos por usuario y envía la imagen en memoria a Gemini `gemini-3.5-flash-lite` con una respuesta JSON estructurada. Si el modelo está saturado, aplica reintentos con espera creciente y luego prueba `gemini-3.5-flash`. El navegador muestra un resumen para revisar; sólo al confirmar se reemplaza el horario local y sincronizado. El portal no persiste la imagen.
+La sección Horarios ofrece un botón de importación para fotos JPG, PNG, WebP y HEIC de hasta 9 MB. El endpoint `POST /api/import_schedule` valida el token de sesión de Supabase, limita intentos por usuario mediante SQLite compartido entre workers, y envía la imagen en memoria a Gemini `gemini-3.5-flash-lite` con una respuesta JSON estructurada. Si el modelo está saturado, aplica reintentos con espera creciente y luego prueba `gemini-3.5-flash`. El navegador muestra un resumen para revisar; sólo al confirmar se reemplaza el horario local y sincronizado. El portal no persiste la imagen.
 
-Configurar `GEMINI_API_KEY` en el archivo de entorno del servicio del servidor; nunca incluirla en JavaScript, HTML o Git. `GEMINI_MODEL` permite cambiar el modelo y por defecto usa `gemini-3.5-flash-lite`. La imagen se procesa mediante Google Gemini; en el nivel gratuito Google puede usar solicitudes para mejorar sus productos. El modelo extrae ramo, día, horas, sección, profesor, sala y tipo de clase. La validación conserva datos inciertos para revisión y no inventa campos que no logra leer. Profesor y sección se guardan en el horario propio, pero no se exponen en el directorio comunitario.
+Configurar `GEMINI_API_KEY` en el archivo de entorno del servicio del servidor; nunca incluirla en JavaScript, HTML o Git. `GEMINI_MODEL` permite cambiar el modelo y por defecto usa `gemini-3.5-flash-lite`. La imagen se procesa mediante Google Gemini y no se guarda en el portal. El modelo extrae ramo, día, horas, sección, profesor, sala y tipo de clase. La validación conserva datos inciertos para revisión y no inventa campos que no logra leer. Profesor y sección forman parte del horario compartido.
 
 ## PWA y HTTPS
 
@@ -79,12 +79,12 @@ Producción usa únicamente `horarios.dev` y puerto interno 5000.
 
 - Desarrollo: `release/v1-core`.
 - Respaldo del prototipo: `archive/full-portal-2026-09-28` y tag `prototype-full-2026-09-28`.
-- Preview: despliegue automático de `release/v1-core`.
-- Producción: sólo después de aceptar el preview, fusionar a `main` y crear `v1.0.0`.
+- Producción: `main`; un push a `main` activa `.github/workflows/deploy.yml` en la VM. No hay despliegue preview activo.
 
 Validación mínima antes de publicar:
 
 ```bash
 python -m unittest discover -s tests
-curl --fail http://127.0.0.1:5001/api/status
+node tests/personal-store.test.cjs
+curl --fail http://127.0.0.1:5000/api/status
 ```

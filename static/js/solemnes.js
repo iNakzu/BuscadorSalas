@@ -485,7 +485,8 @@ function renderSolemnes() {
 
     container.innerHTML = finalHtml;
     } catch (e) {
-        container.innerHTML = '<div style="color:red; padding: 20px;">Error rendering solemnes: ' + e.message + ' ' + e.stack + '</div>';
+        console.error('No se pudieron renderizar las solemnes.', e);
+        container.innerHTML = '<div class="empty-state">No se pudieron cargar las solemnes. Inténtalo nuevamente.</div>';
     }
 }
 

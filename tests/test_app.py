@@ -52,9 +52,9 @@ class PortalV1Test(unittest.TestCase):
 
     def test_teacher_course_and_semester_results_show_time_without_day(self):
         app_js = Path("static/js/app.js").read_text()
-        self.assertIn('${p.hora_inicio} - ${p.hora_termino}', app_js)
-        self.assertIn('${r.hora_inicio} - ${r.hora_termino}', app_js)
-        self.assertIn('${c.hora_inicio} - ${c.hora_termino}', app_js)
+        self.assertIn('${escapeAppHtml(p.hora_inicio)} - ${escapeAppHtml(p.hora_termino)}', app_js)
+        self.assertIn('${escapeAppHtml(r.hora_inicio)} - ${escapeAppHtml(r.hora_termino)}', app_js)
+        self.assertIn('${escapeAppHtml(c.hora_inicio)} - ${escapeAppHtml(c.hora_termino)}', app_js)
         self.assertNotIn('${p.dia} ${p.hora_inicio}', app_js)
         self.assertNotIn('${r.dia} ${r.hora_inicio}', app_js)
         self.assertNotIn('${c.dia} ${c.hora_inicio}', app_js)
@@ -134,7 +134,16 @@ class PortalV1Test(unittest.TestCase):
             worker = response.get_data(as_text=True)
         self.assertIn("url.pathname.startsWith('/api/')", worker)
         self.assertIn("url.pathname.includes('/auth/')", worker)
+        self.assertIn("if (url.search)", worker)
+        self.assertIn("portal-estudiantil-v1-core-8", worker)
         self.assertLess(worker.index("response.clone()"), worker.index("caches.open(CACHE_NAME).then(cache => cache.put"))
+
+    def test_supabase_browser_sdk_is_version_and_integrity_pinned(self):
+        template = Path(__file__).parents[1] / "templates/index.html"
+        html = template.read_text()
+        self.assertIn("@supabase/supabase-js@2.117.2", html)
+        self.assertIn("integrity=\"sha384-WgXwGL6fUsYJWNaKJgVbrJKGRQwc1vieh2oy4kw9nXqpNDz3tdSsqEYUgeHD/NuF\"", html)
+        self.assertNotIn("@supabase/supabase-js@2\"", html)
 
     def test_supabase_migration_uses_explicit_grants_and_rls(self):
         migration = Path(__file__).parents[1] / "supabase/migrations/202609280001_v1_personal_data.sql"

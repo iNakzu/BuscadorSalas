@@ -93,13 +93,50 @@ class GeminiScheduleServiceTest(unittest.TestCase):
 
 class ScheduleImportEndpointTest(unittest.TestCase):
     def setUp(self):
+        self.rate_limit_dir = tempfile.TemporaryDirectory()
+        self.rate_limit_db = os.path.join(self.rate_limit_dir.name, "rate_limits.sqlite3")
         self.app = create_app({
             "TESTING": True,
             "SUPABASE_URL": "https://project.example",
             "SUPABASE_ANON_KEY": "public-test-key",
             "GEMINI_API_KEY": "private-test-key",
+            "RATE_LIMIT_DB": self.rate_limit_db,
         })
         self.client = self.app.test_client()
+
+    def tearDown(self):
+        self.rate_limit_dir.cleanup()
+
+    def test_sync_endpoint_does_not_accept_get_requests(self):
+        response = self.client.get("/api/sync")
+        self.assertEqual(response.status_code, 405)
+
+    @patch("app.blueprints.academic_api.dm.sync_from_remote", return_value=True)
+    def test_sync_endpoint_throttles_repeated_manual_refreshes(self, sync):
+        first = self.client.post("/api/sync")
+        second = self.client.post("/api/sync")
+        self.assertEqual(first.status_code, 200)
+        self.assertEqual(second.status_code, 429)
+        self.assertGreaterEqual(int(second.headers["Retry-After"]), 1)
+        sync.assert_called_once()
+
+    def test_import_rate_limit_is_shared_across_app_workers(self):
+        import app.blueprints.academic_api as api
+        with self.app.app_context():
+            for _ in range(4):
+                self.assertTrue(api._allow_schedule_import("same-user"))
+        second_app = create_app({"RATE_LIMIT_DB": self.rate_limit_db})
+        with second_app.app_context():
+            self.assertFalse(api._allow_schedule_import("same-user"))
+            self.assertTrue(api._allow_schedule_import("different-user"))
+
+    def test_schedule_sync_rejects_malformed_or_oversized_class_lists(self):
+        malformed = self.client.post("/api/sync_horario", json={"clases": "not-a-list"})
+        oversized = self.client.post("/api/sync_horario", json={"clases": [{}] * 101})
+        nested = self.client.post("/api/sync_horario", json={"clases": ["not-an-object"]})
+        self.assertEqual(malformed.status_code, 400)
+        self.assertEqual(oversized.status_code, 413)
+        self.assertEqual(nested.status_code, 400)
 
     def test_import_requires_signed_in_user(self):
         response = self.client.post("/api/import_schedule")

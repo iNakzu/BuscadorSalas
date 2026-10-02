@@ -1,4 +1,6 @@
-import threading
+import hashlib
+import os
+import sqlite3
 import time
 
 import requests
@@ -14,10 +16,45 @@ from app.services.schedule import (
 
 academic_api = Blueprint("academic_api", __name__)
 
-_import_lock = threading.Lock()
-_import_attempts = {}
 _IMPORT_RATE_LIMIT = 4
 _IMPORT_RATE_WINDOW_SECONDS = 60
+_SYNC_COOLDOWN_SECONDS = 20
+
+
+def _consume_rate_limit(scope, actor, limit, window_seconds):
+    """Atomically share API limits across Gunicorn workers and restarts."""
+    database = current_app.config["RATE_LIMIT_DB"]
+    os.makedirs(os.path.dirname(database) or ".", mode=0o700, exist_ok=True)
+    actor_hash = hashlib.sha256(str(actor).encode("utf-8")).hexdigest()
+    now = time.time()
+    with sqlite3.connect(database, timeout=5) as connection:
+        connection.execute("PRAGMA busy_timeout = 5000")
+        connection.execute(
+            "CREATE TABLE IF NOT EXISTS api_rate_limit_events ("
+            "scope TEXT NOT NULL, actor_hash TEXT NOT NULL, occurred_at REAL NOT NULL)"
+        )
+        connection.execute(
+            "CREATE INDEX IF NOT EXISTS api_rate_limit_lookup "
+            "ON api_rate_limit_events(scope, actor_hash, occurred_at)"
+        )
+        connection.execute("BEGIN IMMEDIATE")
+        connection.execute("DELETE FROM api_rate_limit_events WHERE occurred_at < ?", (now - 3600,))
+        recent = connection.execute(
+            "SELECT occurred_at FROM api_rate_limit_events "
+            "WHERE scope = ? AND actor_hash = ? AND occurred_at >= ? ORDER BY occurred_at",
+            (scope, actor_hash, now - window_seconds),
+        ).fetchall()
+        if len(recent) >= limit:
+            retry_after = max(1, int(window_seconds - (now - recent[0][0]) + 0.999))
+            connection.commit()
+            return False, retry_after
+        connection.execute(
+            "INSERT INTO api_rate_limit_events(scope, actor_hash, occurred_at) VALUES (?, ?, ?)",
+            (scope, actor_hash, now),
+        )
+        connection.commit()
+        os.chmod(database, 0o600)
+        return True, 0
 
 
 def _valid_image_signature(data, mime_type):
@@ -35,24 +72,25 @@ def _valid_image_signature(data, mime_type):
 
 
 def _allow_schedule_import(user_id):
-    now = time.monotonic()
-    with _import_lock:
-        for key in list(_import_attempts):
-            _import_attempts[key] = [stamp for stamp in _import_attempts[key] if now - stamp < _IMPORT_RATE_WINDOW_SECONDS]
-            if not _import_attempts[key]:
-                del _import_attempts[key]
-        attempts = _import_attempts.setdefault(user_id, [])
-        if len(attempts) >= _IMPORT_RATE_LIMIT:
-            return False
-        attempts.append(now)
-        return True
+    allowed, _ = _consume_rate_limit("schedule-import", user_id, _IMPORT_RATE_LIMIT, _IMPORT_RATE_WINDOW_SECONDS)
+    return allowed
 
 @academic_api.route("/status", methods=["GET"])
 def api_status():
     return jsonify(dm.get_status())
 
-@academic_api.route("/sync", methods=["POST", "GET"])
+@academic_api.route("/sync", methods=["POST"])
 def api_sync():
+    try:
+        allowed, wait_seconds = _consume_rate_limit("schedule-sync", "global", 1, _SYNC_COOLDOWN_SECONDS)
+    except (OSError, sqlite3.Error):
+        current_app.logger.exception("Rate-limit storage is unavailable")
+        return jsonify({"success": False, "message": "No se pudo validar el límite de solicitudes."}), 503
+    if not allowed:
+        response = jsonify({"success": False, "message": "Espera unos segundos antes de volver a sincronizar."})
+        response.status_code = 429
+        response.headers["Retry-After"] = str(wait_seconds)
+        return response
     ok = dm.sync_from_remote()
     return jsonify({
         "success": ok,
@@ -89,7 +127,12 @@ def api_import_schedule():
     user_id = user.get("id") if isinstance(user, dict) else None
     if not user_id:
         return jsonify({"error": "No pude validar tu sesión. Inicia sesión de nuevo."}), 401
-    if not _allow_schedule_import(str(user_id)):
+    try:
+        import_allowed = _allow_schedule_import(str(user_id))
+    except (OSError, sqlite3.Error):
+        current_app.logger.exception("Rate-limit storage is unavailable")
+        return jsonify({"error": "No se pudo validar el límite de importaciones."}), 503
+    if not import_allowed:
         return jsonify({"error": "Has realizado varias importaciones. Espera un minuto y prueba de nuevo."}), 429
 
     image = request.files.get("image")
@@ -144,8 +187,14 @@ def api_salas():
 
 @academic_api.route("/sync_horario", methods=["POST"])
 def api_sync_horario():
-    data = request.get_json() or {}
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({"error": "El formato del horario no es válido."}), 400
     horario_usuario = data.get("clases", [])
+    if not isinstance(horario_usuario, list) or any(not isinstance(item, dict) for item in horario_usuario):
+        return jsonify({"error": "La lista de clases no es válida."}), 400
+    if len(horario_usuario) > 100:
+        return jsonify({"error": "El horario supera el máximo permitido de 100 clases."}), 413
     if not horario_usuario:
         return jsonify([])
         

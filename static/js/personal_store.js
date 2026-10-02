@@ -42,6 +42,19 @@
         if (syncing) { pendingSync = true; return; }
         syncing = true;
         try {
+            const currentUserId = auth.user.id;
+            const ownerKey = 'portal:legacy-owner';
+            const legacyOwner = localStorage.getItem(ownerKey);
+            if (legacyOwner && legacyOwner !== currentUserId) {
+                // Replace any previous account's legacy display before awaiting Supabase.
+                for (const [module, registration] of modules) {
+                    const previous = parse(localStorage.getItem(registration.legacyKey), registration.empty);
+                    const scoped = parse(localStorage.getItem(scopedKey(module, currentUserId)), registration.empty);
+                    showPayload(module, registration, currentUserId, scoped,
+                        localStorage.getItem(updatedKey(module, currentUserId)), previous);
+                }
+                localStorage.setItem(ownerKey, currentUserId);
+            }
             for (const [module, registration] of modules) {
                 const userId = auth.user.id;
                 const legacyRaw = localStorage.getItem(registration.legacyKey);

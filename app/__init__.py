@@ -15,12 +15,15 @@ def create_app(test_config=None):
         static_url_path="/static",
     )
     app.config.from_mapping(
-        SECRET_KEY=os.getenv("SECRET_KEY", "dev-only-change-me"),
+        # No Flask sessions are used. Leave signing disabled unless a strong,
+        # persistent key is explicitly configured; never fall back to a public key.
+        SECRET_KEY=os.getenv("SECRET_KEY") or None,
         SUPABASE_URL=os.getenv("SUPABASE_URL", ""),
         SUPABASE_ANON_KEY=os.getenv("SUPABASE_ANON_KEY", ""),
         PUBLIC_ORIGIN=os.getenv("PUBLIC_ORIGIN", "https://horarios.dev"),
         GEMINI_API_KEY=os.getenv("GEMINI_API_KEY", ""),
         GEMINI_MODEL=os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite"),
+        RATE_LIMIT_DB=os.getenv("RATE_LIMIT_DB", os.path.join(app.instance_path, "rate_limits.sqlite3")),
         MAX_CONTENT_LENGTH=12 * 1024 * 1024,
     )
     if test_config:
@@ -46,7 +49,7 @@ def create_app(test_config=None):
             response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
             response.headers["Pragma"] = "no-cache"
         response.headers.setdefault("X-Content-Type-Options", "nosniff")
-        response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+        response.headers.setdefault("Referrer-Policy", "strict-origin")
         response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
         return response
 

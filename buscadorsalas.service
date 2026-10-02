@@ -5,8 +5,10 @@ After=network.target
 [Service]
 User=ubuntu
 Group=ubuntu
+UMask=0077
 WorkingDirectory=/home/ubuntu/BuscadorSalas
 Environment="PATH=/home/ubuntu/BuscadorSalas/venv/bin:/usr/local/bin:/usr/bin"
+Environment="RATE_LIMIT_DB=/var/lib/buscadorsalas/rate_limits.sqlite3"
 EnvironmentFile=-/home/ubuntu/BuscadorSalas/.env
 ExecStart=/home/ubuntu/BuscadorSalas/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:5000 flask_app:app --timeout 60
 ExecReload=/bin/kill -s HUP $MAINPID

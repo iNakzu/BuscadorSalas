@@ -76,5 +76,8 @@ const settle = () => new Promise(resolve => setTimeout(resolve, 20));
   await settle();
   assert.deepStrictEqual(secondUser.upserts[0].payload, []);
   assert.deepStrictEqual(JSON.parse(secondUser.localStorage.getItem('mi_agenda_v1')), []);
+  assert.strictEqual(secondUser.events.some(event => event.type === 'portal:remote-state'
+    && event.detail.module === 'agenda' && Array.isArray(event.detail.payload)
+    && event.detail.payload.length === 0), true);
   console.log('personal_store: 3 scenarios passed');
 })().catch(error => { console.error(error); process.exit(1); });

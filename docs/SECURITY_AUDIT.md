@@ -1,0 +1,38 @@
+# Auditoría de seguridad
+
+Revisión realizada el 2 de octubre de 2026 en el código de `release/v1-core`, el checkout de producción `main` y el servicio activo en `horarios.dev`. Esto reduce riesgos comprobables; no equivale a una certificación ni garantiza que el sistema esté libre de vulnerabilidades.
+
+## Cambios aplicados
+
+- Se reemplazaron los límites de solicitudes en memoria por contadores SQLite atómicos compartidos entre workers de Gunicorn y reinicios. Cada usuario queda identificado por un hash; el archivo se crea con permisos privados. El límite de importación Gemini es cuatro intentos por usuario cada 60 segundos; la sincronización pública admite un intento cada 20 segundos.
+- Se escaparon datos variables del feed académico y de la agenda antes de insertarlos en HTML, incluidos textos y argumentos de control en atributos. Las URLs versionadas de esos scripts cambiaron para que los navegadores recojan las correcciones.
+- El endpoint de sincronización sólo admite `POST`; la importación Gemini valida el token de Supabase, el tipo y la firma de imagen, y limita su tamaño. Los errores de solemnidades ya no muestran detalles internos.
+- El service worker no guarda páginas con parámetros de consulta —incluidos callbacks PKCE—, respuestas `/api/` ni rutas de autenticación; se incrementó su versión de caché.
+- Nginx oculta su versión, evita registrar argumentos de URL y envía HSTS, `nosniff`, `DENY`, `strict-origin` y CSP con `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'self'` y `form-action 'self'`.
+- Se eliminó la clave Flask débil de respaldo, se fijó la versión e integridad SRI del SDK de Supabase, se fijaron los commits de las acciones de GitHub y se elevó el mínimo de `urllib3`.
+
+## Datos y controles comprobados
+
+La política compartida actual es intencional: usuarios autenticados que sean miembros permitidos pueden ver el horario, las notas, la agenda y el progreso de malla de otros perfiles con `share_information=true`. La migración devuelve sólo esos módulos y no expone el correo del perfil. Las tablas personales tienen RLS por `auth.uid()` y las funciones RPC validan la membresía. No se cambiaron las políticas ni se borraron datos.
+
+En producción, las peticiones anónimas a `profiles`, `user_module_state` y las funciones de lectura compartida recibieron `401`. La página y `/api/status` respondieron `200`; `GET /api/sync` respondió `405`; la importación sin sesión respondió `401`; el límite compartido de sincronización dio `200` y luego `429`. Los payloads malformados y excesivos de `/api/sync_horario` respondieron `400` y `413`.
+
+Una búsqueda de patrones de alta confianza no encontró credenciales en los archivos versionados ni en el historial Git alcanzable de ambos checkouts. `.env` no está versionado y tiene modo `600`. No se imprimieron valores de credenciales. No se encontraron mapas de fuente en los recursos estáticos y el análisis de dependencias no reportó vulnerabilidades conocidas.
+
+HTTPS de `horarios.dev` y la redirección desde HTTP respondieron correctamente. El certificado de dominio vence el 30 de diciembre de 2026; el certificado para la IP vence el 5 de octubre de 2026. Ninguno estaba vencido. La simulación de renovación de Certbot para ambos certificados terminó correctamente y el timer de renovación está activo. Let’s Encrypt ofrece certificados de IP de vida corta; el de esta máquina usa el perfil `shortlived` y requiere renovaciones frecuentes ([documentación oficial](https://letsencrypt.org/2026/01/15/6day-and-ip-general-availability), [soporte de Certbot](https://letsencrypt.org/2026/03/11/shorter-certs-certbot/)).
+
+## Verificación ejecutada
+
+- 31 pruebas Python, las pruebas Node del repositorio, sintaxis JavaScript, parseo YAML del workflow y `git diff --check` pasaron en ambos checkouts.
+- `pip-audit` no encontró vulnerabilidades conocidas y `pip check` no encontró dependencias incompatibles.
+- `nginx -t` pasó; se reinició la aplicación con el límite SQLite configurado en `/var/lib/buscadorsalas/rate_limits.sqlite3` y `UMask=0077`.
+- La web sirvió los scripts corregidos con URL versionada y las cabeceras nuevas.
+
+## Límites y pasos pendientes
+
+- No pude probar una sesión real de Google OAuth ni escrituras cruzadas con dos usuarios autenticados. El cliente usa PKCE y persistencia de sesión; la política se revisó en SQL y se probó el acceso anónimo, pero hace falta una prueba manual autenticada con dos cuentas de prueba.
+- El CLI de Supabase no tenía una sesión de administración disponible. En el panel de Supabase, confirma que `public.hook_restrict_signup` esté activo como **Before User Created**, que Google OAuth esté habilitado y que `https://horarios.dev` sea el Site URL y la redirección permitida. No compartas tokens para hacer esta comprobación.
+- El navegador guarda la sesión de Supabase y los datos personales sincronizados en `localStorage`; otro proceso o usuario con acceso al mismo perfil del navegador puede leerlos. Cierra sesión y protege el dispositivo compartido.
+- CSP restringe marcos, objetos, `base-uri` y formularios, pero todavía no restringe `script-src`: la interfaz existente usa scripts y manejadores inline. Las inserciones dinámicas de texto deben seguir escapándose.
+- Los límites Gemini restringen el abuso por cuenta; no sustituyen los límites/cuotas del proveedor. Confirma también un límite de gasto o cuota en Google AI Studio/Cloud.
+- Los cambios de auditoría están en los checkouts locales; no se hizo commit ni push durante esta revisión.

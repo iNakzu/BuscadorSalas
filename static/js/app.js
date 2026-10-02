@@ -1,4 +1,14 @@
 
+function escapeAppHtml(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[char]);
+}
+
+function appJsArg(value) {
+    return escapeAppHtml(JSON.stringify(String(value == null ? '' : value)));
+}
+
 window.statusSolemnes = window.statusSolemnes || {};
 
 async function fetchSolemnesStatus() {
@@ -162,18 +172,18 @@ async function cargarSalas() {
             gridVacias.innerHTML = data.vacias.map(s => {
                 const vinfo = vaciasInfo[s];
                 const timeTxt = vinfo ? vinfo.texto : 'Libre';
-                const proxTxt = (vinfo && vinfo.proximo_curso) ? `Próxima clase: <strong>${vinfo.proximo_curso}</strong>` : 'Sin más clases programadas hoy';
+                const proxTxt = (vinfo && vinfo.proximo_curso) ? `Próxima clase: <strong>${escapeAppHtml(vinfo.proximo_curso)}</strong>` : 'Sin más clases programadas hoy';
 
                 return `
-                    <div class="item-card free" onclick="verHorarioDirecto('${s}')" title="Ver horario semanal de ${s}">
+                    <div class="item-card free" onclick="verHorarioDirecto(${appJsArg(s)})" title="Ver horario semanal de ${escapeAppHtml(s)}">
                         <div class="item-top">
                             <span class="room-pill free">
                                 <span class="pulse-dot"></span>
-                                <span>${s}</span>
+                                <span>${escapeAppHtml(s)}</span>
                             </span>
                             <span class="time-pill free">
                                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                                <span>${timeTxt}</span>
+                                <span>${escapeAppHtml(timeTxt)}</span>
                             </span>
                         </div>
                         <div class="course-name" style="color: #34d399;">SALA DISPONIBLE</div>
@@ -195,16 +205,16 @@ async function cargarSalas() {
                 return `
                     <div class="item-card">
                         <div class="item-top">
-                            <span class="room-pill" onclick="verHorarioDirecto('${k}')" title="Ver horario de esta sala">
+                            <span class="room-pill" onclick="verHorarioDirecto(${appJsArg(k)})" title="Ver horario de esta sala">
                                 <span class="status-dot occ"></span>
-                                <span>${k}</span>
+                                <span>${escapeAppHtml(k)}</span>
                             </span>
-                            <span class="time-pill">${info.horario}</span>
+                            <span class="time-pill">${escapeAppHtml(info.horario)}</span>
                         </div>
-                        <div class="course-name">${info.curso}</div>
+                        <div class="course-name">${escapeAppHtml(info.curso)}</div>
                         <div class="item-meta">
-                            <div>Profesor: <strong>${info.profe}</strong></div>
-                            <span>Sección ${info.seccion} • Cód: ${info.codigo}</span>
+                            <div>Profesor: <strong>${escapeAppHtml(info.profe)}</strong></div>
+                            <span>Sección ${escapeAppHtml(info.seccion)} • Cód: ${escapeAppHtml(info.codigo)}</span>
                         </div>
                     </div>
                 `;
@@ -237,7 +247,7 @@ async function irABloqueActual(tipo = 'salas') {
 
         if (banner && alertaTxt) {
             if (!data.en_horario_valido) {
-                alertaTxt.innerHTML = `<strong>Fuera de horario académico — ${horaActual} hrs.</strong><br>${data.mensaje_horario} Se muestra de referencia el primer bloque del día (${data.dia_nombre} ${data.bloque.label}).`;
+                alertaTxt.innerHTML = `<strong>Fuera de horario académico — ${escapeAppHtml(horaActual)} hrs.</strong><br>${escapeAppHtml(data.mensaje_horario)} Se muestra de referencia el primer bloque del día (${escapeAppHtml(data.dia_nombre)} ${escapeAppHtml(data.bloque.label)}).`;
                 banner.classList.add('show');
             } else {
                 banner.classList.remove('show');
@@ -378,23 +388,23 @@ function ejecutarBusquedaDocente() {
             if (!data.profesores || data.profesores.length === 0) {
                 const diaMsg = state.profDia ? `para el día seleccionado` : '';
                 const horaMsg = state.profHora ? ` en el horario seleccionado` : '';
-                container.innerHTML = `<div class="empty-state">No se registraron clases para "${q}" ${diaMsg}${horaMsg}.</div>`;
+                container.innerHTML = `<div class="empty-state">No se registraron clases para "${escapeAppHtml(q)}" ${diaMsg}${horaMsg}.</div>`;
                 return;
             }
 
             container.innerHTML = data.profesores.map(p => `
                 <div class="item-card prof">
                     <div class="item-top">
-                        <span class="room-pill" onclick="verHorarioDirecto('${p.sala}')" title="Ver horario de esta sala">
+                        <span class="room-pill" onclick="verHorarioDirecto(${appJsArg(p.sala)})" title="Ver horario de esta sala">
                             <span class="status-dot occ"></span>
-                            <span>${p.sala}</span>
+                            <span>${escapeAppHtml(p.sala)}</span>
                         </span>
-                        <span class="time-pill" style="color:#c084fc; background: var(--purple-bg); border-color: rgba(168, 85, 247, 0.25);">${p.hora_inicio} - ${p.hora_termino}</span>
+                        <span class="time-pill" style="color:#c084fc; background: var(--purple-bg); border-color: rgba(168, 85, 247, 0.25);">${escapeAppHtml(p.hora_inicio)} - ${escapeAppHtml(p.hora_termino)}</span>
                     </div>
-                    <div class="course-name">${p.curso}</div>
+                    <div class="course-name">${escapeAppHtml(p.curso)}</div>
                     <div class="item-meta">
-                        <div>Profesor: <strong>${p.profe}</strong></div>
-                        <span>Sección ${p.seccion} • Cód: ${p.codigo}</span>
+                        <div>Profesor: <strong>${escapeAppHtml(p.profe)}</strong></div>
+                        <span>Sección ${escapeAppHtml(p.seccion)} • Cód: ${escapeAppHtml(p.codigo)}</span>
                     </div>
                 </div>
             `).join('');
@@ -449,23 +459,23 @@ function ejecutarBusquedaRamo() {
             if (lista.length === 0) {
                 const diaMsg = state.ramoDia ? `para el día seleccionado` : '';
                 const horaMsg = state.ramoHora ? ` en el horario seleccionado` : '';
-                container.innerHTML = `<div class="empty-state">No se registraron asignaturas para "${q}" ${diaMsg}${horaMsg}.</div>`;
+                container.innerHTML = `<div class="empty-state">No se registraron asignaturas para "${escapeAppHtml(q)}" ${diaMsg}${horaMsg}.</div>`;
                 return;
             }
 
             container.innerHTML = lista.map(r => `
                 <div class="item-card ramo">
                     <div class="item-top">
-                        <span class="room-pill" onclick="verHorarioDirecto('${r.sala}')" title="Ver horario de esta sala">
+                        <span class="room-pill" onclick="verHorarioDirecto(${appJsArg(r.sala)})" title="Ver horario de esta sala">
                             <span class="status-dot occ"></span>
-                            <span>${r.sala}</span>
+                            <span>${escapeAppHtml(r.sala)}</span>
                         </span>
-                        <span class="time-pill ramo-time">${r.hora_inicio} - ${r.hora_termino}</span>
+                        <span class="time-pill ramo-time">${escapeAppHtml(r.hora_inicio)} - ${escapeAppHtml(r.hora_termino)}</span>
                     </div>
-                    <div class="course-name">${r.curso}</div>
+                    <div class="course-name">${escapeAppHtml(r.curso)}</div>
                     <div class="item-meta">
-                        <div>Profesor: <strong>${r.profe}</strong></div>
-                        <span>Sección ${r.seccion} • Cód: ${r.codigo}</span>
+                        <div>Profesor: <strong>${escapeAppHtml(r.profe)}</strong></div>
+                        <span>Sección ${escapeAppHtml(r.seccion)} • Cód: ${escapeAppHtml(r.codigo)}</span>
                     </div>
                 </div>
             `).join('');
@@ -601,7 +611,7 @@ async function cargarClasesMalla(refrescarChips = false) {
                         chipsHtml += `<div class="pill-row-break"></div>`;
                     }
                     const isAct = state.mallaRamo === r;
-                    chipsHtml += `<button type="button" class="pill-btn ${isAct ? 'active' : ''}" data-ramo="${r}" onclick="setMallaRamo('${r}', this)">${r}</button>`;
+                    chipsHtml += `<button type="button" class="pill-btn ${isAct ? 'active' : ''}" data-ramo="${escapeAppHtml(r)}" onclick="setMallaRamo(${appJsArg(r)}, this)">${escapeAppHtml(r)}</button>`;
                 });
                 chipsContainer.innerHTML = chipsHtml;
             }
@@ -609,9 +619,9 @@ async function cargarClasesMalla(refrescarChips = false) {
 
         if (!data.clases || data.clases.length === 0) {
             const diaTxt = state.mallaDia ? ' para el día seleccionado' : '';
-            const ramoTxt = state.mallaRamo ? ` de "${state.mallaRamo}"` : '';
+            const ramoTxt = state.mallaRamo ? ` de "${escapeAppHtml(state.mallaRamo)}"` : '';
             const horaTxt = state.mallaHora ? ' en el horario seleccionado' : '';
-            container.innerHTML = `<div class="empty-state">No se registraron clases programadas en ${data.semestre_nombre}${ramoTxt}${diaTxt}${horaTxt}.</div>`;
+            container.innerHTML = `<div class="empty-state">No se registraron clases programadas en ${escapeAppHtml(data.semestre_nombre)}${ramoTxt}${diaTxt}${horaTxt}.</div>`;
             return;
         }
 
@@ -619,17 +629,17 @@ async function cargarClasesMalla(refrescarChips = false) {
             <div class="item-card">
                 <div class="item-top">
                     ${(c.sala || '').split(/[,/]+/).map(s => s.trim()).filter(s => s).map(s => `
-                        <span class="room-pill" onclick="verHorarioDirecto('${s}')" title="Ver horario de la sala ${s}">
+                        <span class="room-pill" onclick="verHorarioDirecto(${appJsArg(s)})" title="Ver horario de la sala ${escapeAppHtml(s)}">
                             <span class="status-dot occ"></span>
-                            <span>${s}</span>
+                            <span>${escapeAppHtml(s)}</span>
                         </span>
                     `).join('')}
-                    <span class="time-pill">${c.hora_inicio} - ${c.hora_termino}</span>
+                    <span class="time-pill">${escapeAppHtml(c.hora_inicio)} - ${escapeAppHtml(c.hora_termino)}</span>
                 </div>
-                <div class="course-name">${c.ramo_malla.toUpperCase()}</div>
+                <div class="course-name">${escapeAppHtml(String(c.ramo_malla || '').toUpperCase())}</div>
                 <div class="item-meta">
-                    <div>Profesor: <strong>${c.profe}</strong></div>
-                    <span>Sección ${c.seccion} • Cód: ${c.codigo}</span>
+                    <div>Profesor: <strong>${escapeAppHtml(c.profe)}</strong></div>
+                    <span>Sección ${escapeAppHtml(c.seccion)} • Cód: ${escapeAppHtml(c.codigo)}</span>
                 </div>
             </div>
         `).join('');
@@ -665,9 +675,9 @@ function filtrarSalasLista(val) {
         const dotClass = isE441 ? 'chip-dot e441' : 'chip-dot v432';
         const isActive = s === state.salaActiva;
         return `
-            <button type="button" class="room-chip ${isActive ? 'active' : ''}" data-sala="${s}" onclick="seleccionarSala('${s}')" title="${isE441 ? 'Ejército 441' : 'Vergara 432'}">
+            <button type="button" class="room-chip ${isActive ? 'active' : ''}" data-sala="${escapeAppHtml(s)}" onclick="seleccionarSala(${appJsArg(s)})" title="${isE441 ? 'Ejército 441' : 'Vergara 432'}">
                 <span class="${dotClass}"></span>
-                <span>${s}</span>
+                <span>${escapeAppHtml(s)}</span>
             </button>
         `;
     }).join('');
@@ -717,7 +727,7 @@ async function renderizarHorarioSala(sala) {
                     <span class="timetable-pill-tag">HORARIO Y PLANIFICACIÓN</span>
                     <div class="timetable-title-row">
                         <span class="timetable-room-indicator ${isE441 ? 'e441' : 'v432'}"></span>
-                        <h3 class="timetable-room-title">${sala}</h3>
+                        <h3 class="timetable-room-title">${escapeAppHtml(sala)}</h3>
                     </div>
                 </div>
                 <div class="timetable-campus-pill">
@@ -725,7 +735,7 @@ async function renderizarHorarioSala(sala) {
                         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                         <polyline points="9 22 9 12 15 12 15 22"></polyline>
                     </svg>
-                    <span>${campusLabel}</span>
+                    <span>${escapeAppHtml(campusLabel)}</span>
                 </div>
             </div>
         `;
@@ -784,19 +794,19 @@ async function renderizarHorarioSala(sala) {
                                         <circle cx="12" cy="12" r="10"></circle>
                                         <polyline points="12 6 12 12 16 14"></polyline>
                                     </svg>
-                                    <span class="slot-time-range"><span>${c.start}</span><span class="slot-time-separator">-</span><span>${c.finish}</span></span>
+                                    <span class="slot-time-range"><span>${escapeAppHtml(c.start)}</span><span class="slot-time-separator">-</span><span>${escapeAppHtml(c.finish)}</span></span>
                                 </div>
                                 <div class="slot-details">
                                     <div class="slot-course-row">
-                                        <span class="slot-course-title">${c.curso}</span>
-                                        <span class="slot-meta-pill">Sec. ${c.seccion} • ${c.codigo}</span>
+                                        <span class="slot-course-title">${escapeAppHtml(c.curso)}</span>
+                                        <span class="slot-meta-pill">Sec. ${escapeAppHtml(c.seccion)} • ${escapeAppHtml(c.codigo)}</span>
                                     </div>
                                     <div class="slot-teacher">
                                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                             <circle cx="12" cy="7" r="4"></circle>
                                         </svg>
-                                        <span>Profesor: ${hasTeacher ? `<strong>${c.profe.trim()}</strong>` : `<em class="teacher-empty">No informado</em>`}</span>
+                                        <span>Profesor: ${hasTeacher ? `<strong>${escapeAppHtml(c.profe.trim())}</strong>` : `<em class="teacher-empty">No informado</em>`}</span>
                                     </div>
                                 </div>
                             </div>
@@ -835,19 +845,19 @@ async function renderizarHorarioSala(sala) {
                                     <circle cx="12" cy="12" r="10"></circle>
                                     <polyline points="12 6 12 12 16 14"></polyline>
                                 </svg>
-                                <span class="slot-time-range"><span>${c.start}</span><span class="slot-time-separator">-</span><span>${c.finish}</span></span>
+                            <span class="slot-time-range"><span>${escapeAppHtml(c.start)}</span><span class="slot-time-separator">-</span><span>${escapeAppHtml(c.finish)}</span></span>
                             </div>
                             <div class="slot-details">
                                 <div class="slot-course-row">
-                                    <span class="slot-course-title">${c.curso}</span>
-                                    <span class="slot-meta-pill">Sec. ${c.seccion} • ${c.codigo}</span>
+                                    <span class="slot-course-title">${escapeAppHtml(c.curso)}</span>
+                                    <span class="slot-meta-pill">Sec. ${escapeAppHtml(c.seccion)} • ${escapeAppHtml(c.codigo)}</span>
                                 </div>
                                 <div class="slot-teacher">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                         <circle cx="12" cy="7" r="4"></circle>
                                     </svg>
-                                    <span>Profesor: ${hasTeacher ? `<strong>${c.profe.trim()}</strong>` : `<em class="teacher-empty">No informado</em>`}</span>
+                                    <span>Profesor: ${hasTeacher ? `<strong>${escapeAppHtml(c.profe.trim())}</strong>` : `<em class="teacher-empty">No informado</em>`}</span>
                                 </div>
                             </div>
                         </div>
@@ -860,7 +870,7 @@ async function renderizarHorarioSala(sala) {
                     <div class="timetable-day-head">
                         <div class="day-title-group">
                             <span class="day-dot ${tieneClasesHoy ? '' : 'free'}"></span>
-                            <span class="day-name">${diasNombres[d]}</span>
+                            <span class="day-name">${escapeAppHtml(diasNombres[d])}</span>
                         </div>
                         <span class="day-count-badge ${tieneClasesHoy ? '' : 'free'}">
                             ${tieneClasesHoy ? `
