@@ -35,6 +35,7 @@ jobs:
           node tests/notes-schema.test.cjs
           node tests/schedule-class-edit.test.cjs
           node tests/schedule-import-ui.test.cjs
+          node tests/schedule-mobile-day-focus.test.cjs
 
       - name: Ejecutar despliegue vía SSH en la VM
         uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3

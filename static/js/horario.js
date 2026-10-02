@@ -144,6 +144,31 @@ function inicializarMiHorario() {
         renderMiHorario();
         actualizarHeroMiHorario();
     }
+    posicionarHorarioEnDiaActual();
+}
+
+function posicionarHorarioEnDiaActual() {
+    if (window.matchMedia && !window.matchMedia('(max-width: 900px)').matches) return;
+    const container = document.getElementById('mihorario-display-container');
+    const grid = container && container.querySelector('.my-week-grid');
+    if (!grid) return;
+
+    const { dayOfWeek } = getChileTime();
+    const day = dayOfWeek >= 1 && dayOfWeek <= 5 ? dayOfWeek : 1;
+    const position = () => {
+        if (!grid.clientWidth) return;
+        const column = grid.querySelector(`#my-day-col-${day}`);
+        if (!column) return;
+
+        const gridRect = grid.getBoundingClientRect();
+        const columnRect = column.getBoundingClientRect();
+        const centeredLeft = grid.scrollLeft + columnRect.left - gridRect.left - (grid.clientWidth - columnRect.width) / 2;
+        const maxScroll = Math.max(0, grid.scrollWidth - grid.clientWidth);
+        grid.scrollTo({ left: Math.max(0, Math.min(maxScroll, centeredLeft)), behavior: 'smooth' });
+    };
+
+    if (typeof requestAnimationFrame === 'function') requestAnimationFrame(position);
+    else position();
 }
 
 
