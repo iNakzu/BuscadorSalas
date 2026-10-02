@@ -53,4 +53,19 @@ assert.match(container.innerHTML, /my-btn-edit/);
 assert.match(container.innerHTML, /17:30 - 18:50/);
 assert.match(hero.innerHTML, /Mi clase/);
 assert.strictEqual(vm.runInContext('JSON.stringify(MI_HORARIO_DATA.clases)', context), originalSchedule);
+
+vm.runInContext(`
+  MI_HORARIO_DATA = { escuela: 'EIT', clases: [{ id: 'tue', dia: 2, diaNombre: 'Martes', horaInicio: '10:00', horaFin: '11:20', curso: 'Clase del martes', tipo: 'Cátedra', sala: 'E101' }] };
+  getChileTime = () => ({ dayOfWeek: 1, hours: 9, minutes: 0, totalMinutes: 540 });
+  actualizarHeroMiHorario();
+`, context);
+assert.match(hero.innerHTML, /Sin clases/);
+assert.match(hero.innerHTML, /Hoy no tienes clases/);
+assert.match(hero.innerHTML, /Clase del martes/);
+assert.match(hero.innerHTML, /Martes a las 10:00/);
+assert.doesNotMatch(hero.innerHTML, /Descanso de fin de semana|Fin de semana/);
+
+vm.runInContext(`getChileTime = () => ({ dayOfWeek: 6, hours: 9, minutes: 0, totalMinutes: 540 }); actualizarHeroMiHorario();`, context);
+assert.match(hero.innerHTML, /Fin de semana/);
+assert.match(hero.innerHTML, /Descanso de fin de semana/);
 console.log('community_schedule_overlay: selected schedule uses the personal view and remains read-only');

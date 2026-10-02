@@ -212,9 +212,10 @@ function actualizarHeroMiHorario() {
     const hayClasesHoy = clasesHoy.length > 0;
     const todasTerminaron = hayClasesHoy && clasesHoy.every(c => timeToMinutes(c.horaFin) <= nowMins);
 
-    const proximaFutura = misClases.find(c => {
-        return c.dia > nowDay;
-    }) || misClases[0];
+    const clasesSemana = misClases
+        .filter(c => Number(c.dia) >= 1 && Number(c.dia) <= 5)
+        .sort((a, b) => Number(a.dia) - Number(b.dia) || timeToMinutes(a.horaInicio) - timeToMinutes(b.horaInicio));
+    const proximaFutura = clasesSemana.find(c => Number(c.dia) > nowDay) || clasesSemana[0] || null;
 
     let html = '';
 
@@ -304,8 +305,36 @@ function actualizarHeroMiHorario() {
                 </div>
             </div>`;
 
+    } else if (!hayClasesHoy && nowDay >= 1 && nowDay <= 5) {
+        html = `
+            <div class="my-hero-top">
+                <div class="my-hero-status-pill done">
+                    <span class="pulse-dot"></span>
+                    <span>Sin clases</span>
+                </div>
+            </div>
+            <div class="my-hero-body">
+                <div class="my-hero-class-info">
+                    <div class="my-hero-title">Hoy no tienes clases</div>
+                    <div class="my-hero-subtitle">
+                        ${proximaFutura
+                            ? `<span>Tu próxima clase es <strong>${escapeHtml(proximaFutura.curso)}</strong>, ${escapeHtml(proximaFutura.diaNombre)} a las ${escapeHtml(proximaFutura.horaInicio)}.</span>`
+                            : '<span>No hay clases programadas de lunes a viernes.</span>'}
+                    </div>
+                </div>
+            </div>`;
+
     } else {
         const c = proximaFutura;
+        if (!c) {
+            html = `
+                <div class="my-hero-top">
+                    <div class="my-hero-status-pill done"><span class="pulse-dot"></span><span>Fin de semana</span></div>
+                </div>
+                <div class="my-hero-body"><div class="my-hero-class-info"><div class="my-hero-title">Descanso de fin de semana</div></div></div>`;
+            heroEl.innerHTML = html;
+            return;
+        }
         html = `
             <div class="my-hero-top">
                 <div class="my-hero-status-pill done">
