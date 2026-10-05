@@ -3,21 +3,15 @@ const fs = require('fs');
 const vm = require('vm');
 
 const elements = new Map();
-for (const id of ['schedule-import-file', 'schedule-import-button', 'schedule-import-status', 'schedule-import-warning', 'mihorario-display-container']) {
-  const classes = new Set();
-  if (id === 'schedule-import-warning') classes.add('is-block-warning');
+const documentListeners = new Map();
+for (const id of ['schedule-import-file', 'schedule-import-button', 'schedule-import-status']) {
   elements.set(id, {
     hidden: false,
     disabled: false,
     textContent: '',
     innerHTML: '',
-    classList: {
-      add(name) { classes.add(name); },
-      remove(name) { classes.delete(name); },
-      contains(name) { return classes.has(name); },
-      toggle(name, force) { if (force === undefined ? !classes.has(name) : force) classes.add(name); else classes.delete(name); }
-    },
-    scrollIntoView() { this.scrollCount = (this.scrollCount || 0) + 1; },
+    classList: { add() {}, remove() {}, toggle() {} },
+    scrollIntoView() {},
     replaceChildren() { this.innerHTML = ''; }
   });
 }
@@ -30,7 +24,7 @@ const context = {
   },
   document: {
     getElementById(id) { return elements.get(id) || null; },
-    addEventListener() {},
+    addEventListener(name, callback) { documentListeners.set(name, callback); },
     createElement() { return { classList: { add() {}, remove() {} }, appendChild() {} }; }
   },
   MI_HORARIO_DEFAULT_DATA: { escuela: 'EIT', clases: [] },
@@ -58,12 +52,11 @@ vm.runInContext(`
   actualizarContadoresFiltrosMiHorario = function () {};
   renderMiHorario = function () {};
   actualizarHeroMiHorario = function () {};
-  mostrarToast = function (message) { globalThis.toastMessage = message; };
   MI_HORARIO_DATA = { escuela: 'EIT', clases: [{ id: 'old-class', curso: 'Horario previo' }] };
   cargarHorarioImportado([
     { dia: 1, diaNombre: 'Lunes', horaInicio: '16:00', horaFin: '17:20', curso: 'Redes', tipo: 'Cátedra', sala: 'E420', profesor: 'Lucía Rojas' },
     { dia: 1, diaNombre: 'Lunes', horaInicio: '10:00', horaFin: '11:20', curso: 'Programación', tipo: 'Laboratorio', seccion: 'Sección A', sala: 'E310', profesor: 'Juan Soto' },
-    { dia: 1, diaNombre: 'Lunes', horaInicio: '08:30', horaFin: '09:50', curso: 'Cálculo I', tipo: 'Cátedra', seccion: 'S4', sala: 'E441.2.S201', profesor: 'María Pérez' },
+    { dia: 1, diaNombre: 'Lunes', horaInicio: '08:30', horaFin: '09:50', curso: 'Cálculo I', tipo: 'Cátedra', seccion: '2', sala: 'E441.2.S201', profesor: 'María Pérez' },
     { dia: 1, diaNombre: 'Lunes', horaInicio: '14:30', horaFin: '15:50', curso: 'Álgebra', tipo: 'Cátedra', sala: 'E302', profesor: 'Mario Díaz' },
     { dia: 1, diaNombre: 'Lunes', horaInicio: '13:00', horaFin: '14:20', curso: 'Física', tipo: 'Cátedra', sala: 'E304', profesor: 'Ana Soto' },
     { dia: 1, diaNombre: 'Lunes', horaInicio: '11:30', horaFin: '12:50', curso: 'Cálculo II', tipo: 'Cátedra', sala: 'E306', profesor: 'Pedro Rojas' }
@@ -77,7 +70,7 @@ assert.strictEqual(schedule.clases[0].id.startsWith('import-'), true);
 assert.strictEqual(schedule.clases[0].curso, 'Cálculo I');
 assert.strictEqual(schedule.clases[0].bloqueNum, 1);
 assert.strictEqual(schedule.clases[0].profesor, 'María Pérez');
-assert.strictEqual(schedule.clases[0].seccion, 'Sección 4');
+assert.strictEqual(schedule.clases[0].seccion, '2');
 assert.strictEqual(schedule.clases[0].sala, 'E441.2.S201');
 assert.strictEqual(schedule.clases[1].curso, 'Programación');
 assert.strictEqual(schedule.clases[1].bloqueNum, 2);
@@ -89,56 +82,9 @@ assert.strictEqual(schedule.clases[4].curso, 'Álgebra');
 assert.strictEqual(schedule.clases[4].bloqueNum, 5);
 assert.strictEqual(schedule.clases[5].curso, 'Redes');
 assert.strictEqual(schedule.clases[5].bloqueNum, 6);
-assert.strictEqual(schedule.clases[5].seccion, 'Sección -');
 assert.strictEqual(Object.prototype.hasOwnProperty.call(schedule.clases[5], 'bloqueLabel'), false);
-assert.strictEqual(elements.get('schedule-import-status').textContent, 'Horario importado correctamente.');
-assert.strictEqual(context.toastMessage, undefined);
-assert.strictEqual(elements.get('mihorario-display-container').scrollCount || 0, 0);
-
-vm.runInContext(`
-  MI_HORARIO_DATA = { escuela: 'EIT', clases: [{ id: 'preserved', curso: 'Horario actual' }] };
-  guardarMiHorarioEnStorage();
-  globalThis.sameCourseResult = cargarHorarioImportado([
-    { dia: 1, horaInicio: '11:30', horaFin: '12:50', curso: 'Cálculo', tipo: 'Cátedra', seccion: '1', sala: 'E101', profesor: 'Ana' },
-    { dia: 1, horaInicio: '13:00', horaFin: '14:20', curso: 'Cálculo', tipo: 'Cátedra', seccion: '1', sala: 'E101', profesor: 'Ana' }
-  ]);
-  globalThis.sameCourseSchedule = JSON.parse(localStorage.getItem('mi_horario_custom_v1'));
-  globalThis.longClassResult = cargarHorarioImportado([
-    { dia: 1, horaInicio: '11:30', horaFin: '14:20', curso: 'Estadística', tipo: 'Cátedra', seccion: '1', sala: 'E102', profesor: 'Luis' }
-  ]);
-  globalThis.longClassSchedule = JSON.parse(localStorage.getItem('mi_horario_custom_v1'));
-`, context);
-assert.strictEqual(context.sameCourseResult, true);
-assert.deepStrictEqual(context.sameCourseSchedule.clases.map(item => item.bloqueNum), [3, 4]);
-assert.deepStrictEqual(context.sameCourseSchedule.clases.map(item => item.curso), ['Cálculo', 'Cálculo']);
-assert.strictEqual(context.longClassResult, true);
-assert.deepStrictEqual(context.longClassSchedule.clases.map(item => item.bloqueNum), [3, 4]);
-
-vm.runInContext(`
-  globalThis.duplicateResult = cargarHorarioImportado([
-    { dia: 1, horaInicio: '11:30', horaFin: '12:50', curso: 'Química', tipo: 'Cátedra', seccion: '1', sala: 'E103', profesor: 'Eva' },
-    { dia: 1, horaInicio: '11:30', horaFin: '12:50', curso: 'Química', tipo: 'Cátedra', seccion: '1', sala: 'E103', profesor: 'Eva' }
-  ]);
-  globalThis.duplicateSchedule = JSON.parse(localStorage.getItem('mi_horario_custom_v1'));
-  MI_HORARIO_DATA = { escuela: 'EIT', clases: [{ id: 'preserved', curso: 'Horario actual' }] };
-  guardarMiHorarioEnStorage();
-  globalThis.conflictResult = cargarHorarioImportado([
-    { dia: 1, horaInicio: '11:30', horaFin: '12:50', curso: 'Química', tipo: 'Cátedra', sala: 'E103' },
-    { dia: 1, horaInicio: '11:30', horaFin: '12:50', curso: 'Física', tipo: 'Cátedra', sala: 'E104' }
-  ]);
-  globalThis.conflictSchedule = JSON.parse(localStorage.getItem('mi_horario_custom_v1'));
-`, context);
-assert.strictEqual(context.duplicateResult, true);
-assert.strictEqual(context.duplicateSchedule.clases.length, 1);
-assert.strictEqual(context.conflictResult, false);
-assert.strictEqual(context.conflictSchedule.clases[0].id, 'preserved');
-assert.strictEqual(elements.get('schedule-import-status').textContent, '');
-assert.match(elements.get('schedule-import-warning').textContent, /Solo se permite una clase por bloque horario/);
-assert.strictEqual(elements.get('schedule-import-warning').classList.contains('is-block-warning'), true);
-assert.doesNotMatch(elements.get('schedule-import-warning').textContent, /Química|Física|11:30/);
-vm.runInContext(`mostrarEstadoImportacionHorario('Leyendo la foto con Gemini…');`, context);
-assert.match(elements.get('schedule-import-status').textContent, /Leyendo la foto con Gemini/);
-assert.strictEqual(elements.get('schedule-import-warning').textContent, '');
+assert.strictEqual(elements.get('schedule-import-status').textContent, '', 'successful import should clear progress without showing a success notification');
+assert(!/Horario cargado:/.test(fs.readFileSync('static/js/horario.js', 'utf8')), 'successful Gemini import must not create a toast notification');
 
 (async () => {
   const file = { type: 'image/jpeg', size: 100, name: 'horario.jpg' };
@@ -147,20 +93,35 @@ assert.strictEqual(elements.get('schedule-import-warning').textContent, '');
     client: { auth: { getSession: async () => ({ data: { session: { access_token: 'session-token' } }, error: null }) } }
   };
   context.FormData = class { append() {} };
-  context.fetch = async url => {
-    assert.strictEqual(url, '/api/import_schedule');
-    return { ok: true, json: async () => ({ clases: [
-      { dia: 2, diaNombre: 'Martes', horaInicio: '11:30', horaFin: '12:50', curso: 'Estructuras', tipo: 'Cátedra' }
-    ] }) };
+  let syncPayload = null;
+  let syncCalls = 0;
+  context.fetch = async (url, options = {}) => {
+    if (url === '/api/import_schedule') {
+      return { ok: true, json: async () => ({ clases: [
+        { dia: 2, diaNombre: 'Martes', horaInicio: '11:30', horaFin: '12:50', curso: 'Estructuras', tipo: 'Cátedra', seccion: '2' }
+      ] }) };
+    }
+    assert.strictEqual(url, '/api/sync_horario');
+    syncCalls += 1;
+    syncPayload = JSON.parse(options.body);
+    return {
+      ok: true,
+      json: async () => syncPayload.clases.map(clase => ({ ...clase, sala: 'E441.2.S201' }))
+    };
   };
   await context.importarHorarioDesdeFoto({ target: input });
+  await new Promise(resolve => setImmediate(resolve));
   const directlyLoaded = JSON.parse(local.get('mi_horario_custom_v1'));
   assert.strictEqual(directlyLoaded.clases.length, 1);
   assert.strictEqual(directlyLoaded.clases[0].bloqueNum, 3);
   assert.strictEqual(directlyLoaded.clases[0].curso, 'Estructuras');
-  assert.strictEqual(elements.get('schedule-import-status').textContent, 'Horario importado correctamente.');
-  assert.strictEqual(context.toastMessage, undefined);
-  assert.strictEqual(elements.get('mihorario-display-container').scrollCount || 0, 0);
+  assert.strictEqual(syncPayload.clases[0].seccion, '2');
+  assert.strictEqual(directlyLoaded.clases[0].sala, 'E441.2.S201');
+  let persistedSchedule = null;
+  context.window.PortalStore = { save(module, payload) { assert.strictEqual(module, 'schedule'); persistedSchedule = payload; } };
+  await documentListeners.get('portal:section-entered')({ detail: { panelId: 'tab-mihorario' } });
+  assert.strictEqual(syncCalls, 2, 'an unresolved or stale schedule can be synchronized again without editing it');
+  assert.strictEqual(persistedSchedule.clases[0].sala, 'E441.2.S201');
   assert.strictEqual(input.value, '');
-  console.log('schedule-import-ui: photo upload loads detected classes directly into matching timetable blocks');
+  console.log('schedule-import-ui: photo upload loads classes and immediately syncs their room data');
 })().catch(error => { console.error(error); process.exit(1); });

@@ -29,7 +29,7 @@ class GeminiScheduleServiceTest(unittest.TestCase):
         self.assertEqual(classes[0]["diaNombre"], "Lunes")
         self.assertEqual(classes[0]["horaInicio"], "08:30")
         self.assertEqual(classes[0]["sala"], "E-201")
-        self.assertEqual(classes[0]["profesor"], "Prof. Rojas")
+        self.assertEqual(classes[0]["profesor"], "PROF. ROJAS")
         self.assertEqual(classes[0]["seccion"], "Sección 1")
         self.assertEqual(classes[0]["confianza"], 0)
         self.assertEqual(classes[1]["curso"], "Álgebra")
@@ -185,13 +185,285 @@ class ScheduleImportEndpointTest(unittest.TestCase):
         self.assertEqual(oversized.status_code, 413)
         self.assertEqual(nested.status_code, 400)
 
+    @patch("app.blueprints.academic_api.dm.get_classes")
+    def test_schedule_sync_normalizes_course_spaces_and_requires_matching_section(self, get_classes):
+        get_classes.return_value = [
+            {"node": {
+                "course": "INTRODUCCIÓN  A LA ECONOMÍA", "day": 2, "start": "11:30:00", "finish": "12:50:00",
+                "place": "E441.2.S205", "teacher": "OLIVARES GUILLERMO ANTONIO", "section": 5, "code": "CII2100",
+            }},
+            {"node": {
+                "course": "INTRODUCCIÓN  A LA ECONOMÍA", "day": 2, "start": "11:30:00", "finish": "12:50:00",
+                "place": "E441.2.S201", "teacher": "CALCAGNO JAIME ALBERTO", "section": 1, "code": "CII2100",
+            }},
+            {"node": {
+                "course": "INTRODUCCIÓN  A LA ECONOMÍA", "day": 1, "start": "11:30:00", "finish": "12:50:00",
+                "place": "E441.2.S101", "teacher": "Otro día", "section": 1, "code": "CII2100",
+            }},
+        ]
+        original = {
+            "curso": "Introduccion   a la economia", "dia": 2, "horaInicio": "11:30", "horaFin": "12:50",
+            "bloqueNum": 3, "seccion": "S1", "sala": "", "profesor": "",
+        }
+        response = self.client.post("/api/sync_horario", json={"clases": [original]})
+        self.assertEqual(response.status_code, 200)
+        matched = response.get_json()[0]
+        self.assertEqual(matched["curso"], "Introducción a la Economía")
+        self.assertEqual(matched["sala"], "E441.2.S201")
+        self.assertEqual(matched["profesor"], "CALCAGNO JAIME ALBERTO")
+        self.assertEqual(matched["seccion"], "Sección 1")
+        get_classes.assert_called_once()
+
+    @patch("app.blueprints.academic_api.dm.get_classes")
+    def test_schedule_sync_leaves_missing_section_unchanged_when_candidates_are_ambiguous(self, get_classes):
+        get_classes.return_value = [
+            {"node": {
+                "course": "INTRODUCCIÓN  A LA ECONOMÍA", "day": 2, "start": "11:30:00", "finish": "12:50:00",
+                "place": "E441.2.S201", "teacher": "Docente sección 1", "section": 1, "code": "CII2100",
+            }},
+            {"node": {
+                "course": "INTRODUCCIÓN  A LA ECONOMÍA", "day": 2, "start": "11:30:00", "finish": "12:50:00",
+                "place": "E441.2.S205", "teacher": "Docente sección 5", "section": 5, "code": "CII2100",
+            }},
+        ]
+        original = {
+            "curso": "Introduccion a la economia", "dia": 2, "horaInicio": "11:30", "horaFin": "12:50",
+            "bloqueNum": 3, "seccion": "", "sala": "Sala ingresada", "profesor": "Docente ingresado",
+        }
+        response = self.client.post("/api/sync_horario", json={"clases": [original]})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), [original])
+        get_classes.assert_called_once()
+
+    @patch("app.blueprints.academic_api.dm.get_classes")
+    def test_schedule_sync_preserves_existing_values_when_no_candidate_matches(self, get_classes):
+        get_classes.return_value = [{"node": {
+            "course": "INTRODUCCIÓN A LA ECONOMÍA", "day": 2, "start": "11:30:00", "finish": "12:50:00",
+            "place": "E441.2.S201", "teacher": "DOCENTE OFICIAL", "section": 1, "code": "CII2100",
+        }}]
+        original = {
+            "curso": "Arquitectura de Software", "dia": 2, "horaInicio": "11:30", "horaFin": "12:50",
+            "bloqueNum": 3, "seccion": "Sección 7", "sala": "Sala guardada", "profesor": "Docente guardado",
+        }
+
+        response = self.client.post("/api/sync_horario", json={"clases": [original]})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), [original])
+        get_classes.assert_called_once()
+
+    @patch("app.blueprints.academic_api.dm.get_classes")
+    def test_schedule_sync_fills_section_when_the_normal_block_has_one_candidate(self, get_classes):
+        get_classes.return_value = [{"node": {
+            "course": "INTRODUCCIÓN  A LA ECONOMÍA", "day": 2, "start": "11:30:00", "finish": "12:50:00",
+            "place": "E441.2.S201", "teacher": "CALCAGNO JAIME ALBERTO", "section": "Sección 1", "code": "CII2100",
+        }}]
+        original = {
+            "curso": "Introduccion a la economia", "dia": 2, "horaInicio": "11:30", "horaFin": "12:50",
+            "bloqueNum": 3, "seccion": "", "sala": "", "profesor": "",
+        }
+        response = self.client.post("/api/sync_horario", json={"clases": [original]})
+        self.assertEqual(response.status_code, 200)
+        matched = response.get_json()[0]
+        self.assertEqual(matched["curso"], "Introducción a la Economía")
+        self.assertEqual(matched["sala"], "E441.2.S201")
+        self.assertEqual(matched["profesor"], "CALCAGNO JAIME ALBERTO")
+        self.assertEqual(matched["seccion"], "Sección 1")
+        get_classes.assert_called_once()
+
+    @patch("app.blueprints.academic_api.dm.get_classes")
+    def test_schedule_sync_uses_existing_room_and_intro_abbreviation_to_fill_missing_details(self, get_classes):
+        get_classes.return_value = [
+            {"node": {
+                "course": "INTRODUCCIÓN AL ÁLGEBRA", "day": 5, "start": "11:30:00", "finish": "12:50:00",
+                "place": "E306.2.S208", "teacher": "", "section": 5, "code": "CBM1100",
+            }},
+            {"node": {
+                "course": "INTRODUCCIÓN AL ÁLGEBRA", "day": 5, "start": "11:30:00", "finish": "12:50:00",
+                "place": "V432.3.AU", "teacher": "MARTI EMILIO ANDRES", "section": 7, "code": "CBM1100",
+            }},
+            {"node": {
+                "course": "INTRODUCCIÓN AL ÁLGEBRA", "day": 5, "start": "14:30:00", "finish": "15:50:00",
+                "place": "E306.1.S101", "teacher": "", "section": 3, "code": "CBM1100",
+            }},
+            {"node": {
+                "course": "ÁLGEBRA LINEAL", "day": 5, "start": "16:00:00", "finish": "17:20:00",
+                "place": "E306.2.S208", "teacher": "", "section": 11, "code": "CBM1102",
+            }},
+            {"node": {
+                "course": "ÁLGEBRA LINEAL", "day": 5, "start": "16:00:00", "finish": "17:20:00",
+                "place": "E306.2.S204", "teacher": "", "section": 12, "code": "CBM1102",
+            }},
+        ]
+        classes = [
+            {"id": "intro-1130", "curso": "Intro al Algebra", "dia": 5, "horaInicio": "11:30", "horaFin": "12:50",
+             "bloqueNum": 3, "seccion": "", "sala": "E306.2.S208", "profesor": ""},
+            {"id": "intro-1430", "curso": "Intro al Algebra", "dia": 5, "horaInicio": "14:30", "horaFin": "15:50",
+             "bloqueNum": 5, "seccion": "", "sala": "", "profesor": ""},
+            {"id": "lineal-1600", "curso": "Álgebra Lineal", "dia": 5, "horaInicio": "16:00", "horaFin": "17:20",
+             "bloqueNum": 6, "seccion": "", "sala": "E306.2.S208", "profesor": ""},
+            {"id": "lineal-1130", "curso": "Álgebra Lineal", "dia": 5, "horaInicio": "11:30", "horaFin": "12:50",
+             "bloqueNum": 3, "seccion": "", "sala": "Sala guardada", "profesor": "Docente guardado"},
+        ]
+
+        response = self.client.post("/api/sync_horario", json={"clases": classes})
+
+        self.assertEqual(response.status_code, 200)
+        matched = response.get_json()
+        self.assertEqual((matched[0]["curso"], matched[0]["seccion"], matched[0]["sala"]),
+                         ("Introducción al Álgebra", "Sección 5", "E306.2.S208"))
+        self.assertEqual((matched[1]["curso"], matched[1]["seccion"], matched[1]["sala"]),
+                         ("Introducción al Álgebra", "Sección 3", "E306.1.S101"))
+        self.assertEqual((matched[2]["seccion"], matched[2]["sala"]), ("Sección 11", "E306.2.S208"))
+        self.assertEqual(matched[3], classes[3])
+        get_classes.assert_called_once()
+
+    @patch("app.blueprints.academic_api.dm.get_classes")
+    def test_schedule_sync_matches_plural_course_name_from_official_json(self, get_classes):
+        get_classes.return_value = [{"node": {
+            "course": "ARQUITECTURAS EMERGENTES", "day": 3, "start": "17:25:00", "finish": "18:45:00",
+            "place": "E441.1.S105", "teacher": "", "section": 2, "code": "CIT3100",
+        }}]
+        original = {
+            "curso": "Arquitectura Emergente", "dia": 3, "horaInicio": "17:25", "horaFin": "18:45",
+            "bloqueNum": 7, "seccion": "Sección 2", "sala": "", "profesor": "",
+        }
+        response = self.client.post("/api/sync_horario", json={"clases": [original]})
+        self.assertEqual(response.status_code, 200)
+        matched = response.get_json()[0]
+        self.assertEqual(matched["curso"], "Arquitecturas Emergentes")
+        self.assertEqual(matched["sala"], "E441.1.S105")
+        get_classes.assert_called_once()
+
+    @patch("app.blueprints.academic_api.dm.get_classes")
+    def test_schedule_sync_preserves_known_course_acronyms_in_official_name(self, get_classes):
+        get_classes.return_value = [{"node": {
+            "course": "EVALUACIÓN DE PROYECTOS TIC", "day": 1, "start": "08:30:00", "finish": "09:50:00",
+            "place": "E441.2.S201", "teacher": "DOCENTE", "section": 1, "code": "CIT2207",
+        }}]
+        original = {
+            "curso": "Evaluación de Proyectos TIC", "dia": 1, "horaInicio": "08:30", "horaFin": "09:50",
+            "bloqueNum": 1, "seccion": "Sección 1", "sala": "", "profesor": "",
+        }
+
+        response = self.client.post("/api/sync_horario", json={"clases": [original]})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()[0]["curso"], "Evaluación de Proyectos TIC")
+        get_classes.assert_called_once()
+
+    @patch("app.blueprints.academic_api.dm.get_classes")
+    def test_schedule_sync_allows_up_to_four_course_name_edits_but_not_more(self, get_classes):
+        get_classes.return_value = [{"node": {
+            "course": "ARQUITECTURAS EMERGENTES", "day": 3, "start": "17:25:00", "finish": "18:45:00",
+            "place": "E441.1.S105", "teacher": "", "section": 2, "code": "CIT3100",
+        }}]
+        classes = [
+            {"curso": name, "dia": 3, "horaInicio": "17:25", "horaFin": "18:45", "bloqueNum": 7,
+             "seccion": "Sección 2", "sala": "", "profesor": ""}
+            for name in ("Arquitectura Emergente", "Arquiteqtura Emerjente", "Arquiqeqtura Emerrjente")
+        ]
+        response = self.client.post("/api/sync_horario", json={"clases": classes})
+        matched = response.get_json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(matched[0]["sala"], "E441.1.S105")
+        self.assertEqual(matched[1]["sala"], "E441.1.S105")
+        self.assertEqual(matched[2]["sala"], "")
+        get_classes.assert_called_once()
+
+    @patch("app.blueprints.academic_api.dm.get_classes")
+    def test_schedule_sync_maps_legacy_last_normal_block_to_current_json_time(self, get_classes):
+        get_classes.return_value = [{"node": {
+            "course": "ARQUITECTURAS EMERGENTES", "day": 3, "start": "17:25:00", "finish": "18:45:00",
+            "place": "E441.1.S105", "teacher": "", "section": 2, "code": "CIT3100",
+        }}]
+        legacy_class = {
+            "curso": "Arquitectura Emergente", "dia": 3, "horaInicio": "17:30", "horaFin": "18:50",
+            "bloqueNum": 7, "seccion": "Sección 2", "sala": "", "profesor": "",
+        }
+        response = self.client.post("/api/sync_horario", json={"clases": [legacy_class]})
+        matched = response.get_json()[0]
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(matched["sala"], "E441.1.S105")
+        self.assertEqual(matched["horaInicio"], "17:25")
+        self.assertEqual(matched["horaFin"], "18:45")
+
+    @patch("app.blueprints.academic_api.dm.get_classes")
+    def test_schedule_sync_can_use_teacher_when_course_name_is_missing(self, get_classes):
+        get_classes.return_value = [{"node": {
+            "course": "EVALUACIÓN DE PROYECTOS TIC", "day": 1, "start": "16:00:00", "finish": "17:20:00",
+            "place": "E441.3.S302", "teacher": "FAIVOVICH EDUARDO JAIME", "section": 1, "code": "CIT2207",
+        }}]
+        teacher_only_class = {
+            "curso": "", "dia": 1, "horaInicio": "16:00", "horaFin": "17:20", "bloqueNum": 6,
+            "seccion": "S1", "sala": "", "profesor": "Faivovich Eduardo Jaime",
+        }
+        response = self.client.post("/api/sync_horario", json={"clases": [teacher_only_class]})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()[0]["sala"], "E441.3.S302")
+
+    @patch("app.blueprints.academic_api.dm.get_classes")
+    def test_schedule_sync_can_use_a_unique_section_when_course_and_teacher_are_missing(self, get_classes):
+        get_classes.return_value = [{"node": {
+            "course": "EVALUACIÓN DE PROYECTOS TIC", "day": 1, "start": "16:00:00", "finish": "17:20:00",
+            "place": "E441.3.S302", "teacher": "FAIVOVICH EDUARDO JAIME", "section": 1, "code": "CIT2207",
+        }}]
+        section_only_class = {
+            "curso": "", "dia": 1, "horaInicio": "16:00", "horaFin": "17:20", "bloqueNum": 6,
+            "seccion": "S1", "sala": "", "profesor": "",
+        }
+        response = self.client.post("/api/sync_horario", json={"clases": [section_only_class]})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()[0]["sala"], "E441.3.S302")
+
+    @patch("app.blueprints.academic_api.dm.get_classes")
+    def test_schedule_sync_only_queries_json_for_verified_normal_blocks(self, get_classes):
+        unverified_blocks = [
+            {
+                "curso": "Introduccion a la economia", "dia": 2, "horaInicio": "08:30", "horaFin": "10:30",
+                "bloqueNum": 1, "seccion": "1", "sala": "", "profesor": "",
+            },
+            {
+                "curso": "Introduccion a la economia", "dia": 2, "horaInicio": "11:30", "horaFin": "12:50",
+                "bloqueNum": 1, "seccion": "1", "sala": "", "profesor": "",
+            },
+            {
+                "curso": "Introduccion a la economia", "dia": 2, "horaInicio": [], "horaFin": "12:50",
+                "bloqueNum": 3, "seccion": "1", "sala": "", "profesor": "",
+            },
+            {
+                "curso": "Introduccion a la economia", "dia": 2, "horaInicio": [], "horaFin": "12:50",
+                "bloqueNum": 3, "seccion": "1", "sala": "", "profesor": "",
+            },
+        ]
+        response = self.client.post("/api/sync_horario", json={"clases": unverified_blocks})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), unverified_blocks)
+        get_classes.assert_not_called()
+
+    @patch("app.blueprints.academic_api.dm.get_classes")
+    def test_schedule_sync_rejects_a_normal_slot_with_a_mismatched_finish_time(self, get_classes):
+        get_classes.return_value = [{"node": {
+            "course": "ARQUITECTURAS EMERGENTES", "day": 3, "start": "17:25:00", "finish": "18:45:00",
+            "place": "E441.1.S105", "teacher": "", "section": 2, "code": "CIT3100",
+        }}]
+        stale_class = {
+            "curso": "Arquitecturas Emergentes", "dia": 3, "horaInicio": "17:25", "horaFin": "18:50",
+            "bloqueNum": 7, "seccion": "Sección 2", "sala": "", "profesor": "",
+        }
+        response = self.client.post("/api/sync_horario", json={"clases": [stale_class]})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), [stale_class])
+        get_classes.assert_not_called()
+
     def test_import_requires_signed_in_user(self):
         response = self.client.post("/api/import_schedule")
         self.assertEqual(response.status_code, 401)
 
     @patch("app.blueprints.academic_api.extract_schedule_from_image")
     @patch("app.blueprints.academic_api.requests.get")
-    def test_authenticated_upload_returns_classes_without_storing_image(self, auth_get, extract):
+    @patch("app.blueprints.academic_api.dm.get_classes", return_value=[])
+    def test_authenticated_upload_discards_unmatched_teacher_without_storing_image(self, _get_classes, auth_get, extract):
         auth_get.return_value = Mock(ok=True, json=lambda: {"id": "test-user"})
         extract.return_value = [{
             "dia": 1, "diaNombre": "Lunes", "horaInicio": "08:30", "horaFin": "09:50",
@@ -206,7 +478,7 @@ class ScheduleImportEndpointTest(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 200, response.get_json())
         self.assertEqual(response.get_json()["total"], 1)
-        self.assertEqual(response.get_json()["clases"][0]["profesor"], "Docente")
+        self.assertEqual(response.get_json()["clases"][0]["profesor"], "")
         self.assertNotIn("image", response.get_json())
         auth_get.assert_called_once()
         extract.assert_called_once()

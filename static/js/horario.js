@@ -2,16 +2,6 @@
    TAB 6: MI HORARIO - DATOS Y LÓGICA REACTIVA EN TIEMPO REAL
    ========================================================= */
 
-function normalizarSeccionHorario(value) {
-    let section = String(value == null ? '' : value).trim();
-    if (!section || /^(?:-|–|—|\.|\?|n\/?a|sin sección|sin seccion|no disponible|no legible)$/i.test(section)) {
-        return 'Sección -';
-    }
-    section = section.replace(/^secci[oó]n\b\s*/i, '').replace(/^sec(?:ci[oó]n)?\.?\s*/i, '');
-    section = section.replace(/^s\s*(\d+)$/i, '$1').trim();
-    return section && !/^(?:-|–|—)$/.test(section) ? `Sección ${section}` : 'Sección -';
-}
-
 function cargarMiHorarioDesdeStorage() {
     let profile = null;
     try {
@@ -28,7 +18,7 @@ function cargarMiHorarioDesdeStorage() {
     if (!profile) {
         profile = JSON.parse(JSON.stringify(MI_HORARIO_DEFAULT_DATA));
     }
-    const removedBlockLabels = quitarBloqueLabels(profile.clases);
+    let changed = quitarBloqueLabels(profile.clases);
     // Limpiar "Ayudantía que impartes" y sincronizar secciones y profesores de ayudantías
     profile.clases.forEach(c => {
         if (c.seccion && c.seccion.toLowerCase().includes('ayudantía que impartes')) {
@@ -43,7 +33,8 @@ function cargarMiHorarioDesdeStorage() {
             }
         }
     });
-    if (removedBlockLabels && typeof localStorage !== 'undefined') {
+    changed = rellenarSeccionesMismoRamo(profile.clases) || changed;
+    if (changed && typeof localStorage !== 'undefined') {
         try {
             localStorage.setItem('mi_horario_custom_v1', JSON.stringify(profile));
         } catch (e) {
@@ -74,17 +65,24 @@ function etiquetaBloqueHorario(clase) {
 }
 
 function guardarMiHorarioEnStorage() {
+    let remoteSave = null;
     try {
         quitarBloqueLabels(MI_HORARIO_DATA && MI_HORARIO_DATA.clases);
+        rellenarSeccionesMismoRamo(MI_HORARIO_DATA && MI_HORARIO_DATA.clases);
         if (typeof localStorage !== 'undefined') {
             localStorage.setItem('mi_horario_custom_v1', JSON.stringify(MI_HORARIO_DATA));
         }
-        if (window.PortalStore) window.PortalStore.save('schedule', MI_HORARIO_DATA);
+        if (window.PortalStore) remoteSave = window.PortalStore.save('schedule', MI_HORARIO_DATA);
     } catch (e) {
         console.error('Error al guardar mi horario en localStorage', e);
     }
     actualizarContadoresFiltrosMiHorario();
+    if (typeof CustomEvent === 'function') document.dispatchEvent(new CustomEvent('portal:schedule-updated'));
+    return remoteSave;
 }
+
+window.portalGetSchedulePushData = () => (MI_HORARIO_DATA && Array.isArray(MI_HORARIO_DATA.clases) ? MI_HORARIO_DATA.clases : [])
+    .map(clase => ({ day: Number(clase.dia), time: String(clase.horaInicio || '').slice(0, 5) }));
 
 
 let miHorarioInitialized = false;
@@ -144,31 +142,6 @@ function inicializarMiHorario() {
         renderMiHorario();
         actualizarHeroMiHorario();
     }
-    posicionarHorarioEnDiaActual();
-}
-
-function posicionarHorarioEnDiaActual() {
-    if (window.matchMedia && !window.matchMedia('(max-width: 900px)').matches) return;
-    const container = document.getElementById('mihorario-display-container');
-    const grid = container && container.querySelector('.my-week-grid');
-    if (!grid) return;
-
-    const { dayOfWeek } = getChileTime();
-    const day = dayOfWeek >= 1 && dayOfWeek <= 5 ? dayOfWeek : 1;
-    const position = () => {
-        if (!grid.clientWidth) return;
-        const column = grid.querySelector(`#my-day-col-${day}`);
-        if (!column) return;
-
-        const gridRect = grid.getBoundingClientRect();
-        const columnRect = column.getBoundingClientRect();
-        const centeredLeft = grid.scrollLeft + columnRect.left - gridRect.left - (grid.clientWidth - columnRect.width) / 2;
-        const maxScroll = Math.max(0, grid.scrollWidth - grid.clientWidth);
-        grid.scrollTo({ left: Math.max(0, Math.min(maxScroll, centeredLeft)), behavior: 'smooth' });
-    };
-
-    if (typeof requestAnimationFrame === 'function') requestAnimationFrame(position);
-    else position();
 }
 
 
@@ -194,6 +167,7 @@ function actualizarHeroMiHorario() {
             <div class="my-hero-body">
                 <div class="my-hero-class-info">
                     <div class="my-hero-title">No hay clases cargadas</div>
+                    <div class="my-hero-subtitle">Importa una foto de tu horario para comenzar.</div>
                 </div>
             </div>`;
         return;
@@ -201,7 +175,7 @@ function actualizarHeroMiHorario() {
 
     function getShortTipo(tipo) {
         if (!tipo) return '';
-        const t = tipo.toLowerCase();
+        const t = normalizarTipoClase(tipo).toLocaleLowerCase('es');
         if (t.includes('cátedra') || t.includes('catedra')) return 'Cát.';
         if (t.includes('ayudantía') || t.includes('ayudantia')) return 'Ayud.';
         if (t.includes('laboratorio')) return 'Lab.';
@@ -211,16 +185,18 @@ function actualizarHeroMiHorario() {
     function getColorClass(c) {
         if (!c) return '';
         if (c.rol === 'assistant') return 'assistant';
-        if (c.tipo && c.tipo.toLowerCase().includes('laboratorio')) return 'laboratorio';
-        if (c.tipo && c.tipo.toLowerCase().includes('ayudantía')) return 'ayudantia-student';
+        const tipo = normalizarTipoClase(c.tipo).toLocaleLowerCase('es');
+        if (tipo.includes('laboratorio')) return 'laboratorio';
+        if (tipo.includes('ayudantía') || tipo.includes('ayudantia')) return 'ayudantia-student';
         return 'catedra';
     }
 
     function getEnTexto(c) {
         if (!c) return 'En clase';
-        if (c.rol === 'assistant') return 'En ayudantía';
-        if (c.tipo && c.tipo.toLowerCase().includes('laboratorio')) return 'En laboratorio';
-        if (c.tipo && c.tipo.toLowerCase().includes('ayudantía')) return 'En ayudantía';
+        if (c.rol === 'assistant') return 'Dando ayudantía';
+        const tipo = normalizarTipoClase(c.tipo).toLocaleLowerCase('es');
+        if (tipo.includes('laboratorio')) return 'En laboratorio';
+        if (tipo.includes('ayudantía') || tipo.includes('ayudantia')) return 'En ayudantía';
         return 'En cátedra';
     }
 
@@ -245,12 +221,14 @@ function actualizarHeroMiHorario() {
     });
 
     const hayClasesHoy = clasesHoy.length > 0;
+    const hayClaseFinalizadaHoy = clasesHoy.some(c =>
+        timeToMinutes(c.horaInicio) < nowMins && timeToMinutes(c.horaFin) <= nowMins
+    );
     const todasTerminaron = hayClasesHoy && clasesHoy.every(c => timeToMinutes(c.horaFin) <= nowMins);
 
-    const clasesSemana = misClases
-        .filter(c => Number(c.dia) >= 1 && Number(c.dia) <= 5)
-        .sort((a, b) => Number(a.dia) - Number(b.dia) || timeToMinutes(a.horaInicio) - timeToMinutes(b.horaInicio));
-    const proximaFutura = clasesSemana.find(c => Number(c.dia) > nowDay) || clasesSemana[0] || null;
+    const proximaFutura = misClases.find(c => {
+        return c.dia > nowDay;
+    }) || misClases[0];
 
     let html = '';
 
@@ -273,7 +251,7 @@ function actualizarHeroMiHorario() {
             <div class="my-hero-body">
                 <div class="my-hero-class-info">
                     <div class="my-hero-title" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
-                        <span>${escapeHtml(c.curso)}</span>
+                        <span class="my-course-display">${escapeHtml(getCourseDisplay(c))}</span>
                     </div>
                     <div class="my-hero-subtitle">
                         ${c.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${escapeHtml(c.sala)}</span></span>` : ''}
@@ -295,22 +273,28 @@ function actualizarHeroMiHorario() {
         const label = hrs > 0
             ? (mins > 0 ? `en ${hrs}h ${mins}m` : `en ${hrs}h`)
             : `en ${mins}m`;
+        const tiempoLibre = hrs > 0
+            ? (mins > 0 ? `${hrs}h ${mins}m` : `${hrs}h`)
+            : `${mins} min`;
+        const tituloProximaClase = hayClaseFinalizadaHoy
+            ? `Tienes ${tiempoLibre} libre${minsParaEmpezar === 1 ? '' : 's'}`
+            : `Comienza ${label}`;
 
         html = `
             <div class="my-hero-top">
-                <div class="my-hero-status-pill now">
+                <div class="my-hero-status-pill ${hayClaseFinalizadaHoy ? 'now' : 'next'}">
                     <span class="pulse-dot"></span>
-                    <span>En ventana</span>
+                    <span>${hayClaseFinalizadaHoy ? 'En ventana' : 'Clase hoy'}</span>
                 </div>
             </div>
             <div class="my-hero-body">
                 <div class="my-hero-class-info">
-                    <div class="my-hero-title">Próxima clase ${label}</div>
+                    <div class="my-hero-title">${tituloProximaClase}</div>
                     <div class="my-hero-subtitle">
                         <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-top: 4px;">
-                            <span>Tu próxima clase es <strong>${escapeHtml(c.curso)}</strong></span>
+                            <span>Tienes clase de <strong class="my-course-display">${escapeHtml(getCourseDisplay(c))}</strong></span>
                             <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>${escapeHtml(c.diaNombre)} ${escapeHtml(c.horaInicio)}</span></span>
-                            <span style="${pill_style}"><span class="hide-on-mobile">${escapeHtml(c.tipo)}</span><span class="show-mobile-inline">${escapeHtml(getShortTipo(c.tipo))}</span></span>
+                            <span style="${pill_style}">${escapeHtml(c.rol === 'assistant' ? 'Ayudante' : getShortTipo(c.tipo))}</span>
                             ${c.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${escapeHtml(c.sala)}</span></span>` : ''}
                         </div>
                     </div>
@@ -331,60 +315,33 @@ function actualizarHeroMiHorario() {
                     <div class="my-hero-title">No tienes más clases hoy</div>
                     <div class="my-hero-subtitle">
                         <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-top: 4px;">
-                            <span>Tu próxima clase es <strong>${escapeHtml(c.curso)}</strong></span>
+                            <span>Tu próxima clase es <strong class="my-course-display">${escapeHtml(getCourseDisplay(c))}</strong></span>
                             <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>${escapeHtml(c.diaNombre)} ${escapeHtml(c.horaInicio)}</span></span>
-                            <span style="${pill_style}"><span class="hide-on-mobile">${escapeHtml(c.tipo)}</span><span class="show-mobile-inline">${escapeHtml(getShortTipo(c.tipo))}</span></span>
+                            <span style="${pill_style}">${escapeHtml(c.rol === 'assistant' ? 'Ayudante' : getShortTipo(c.tipo))}</span>
                             ${c.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${escapeHtml(c.sala)}</span></span>` : ''}
                         </div>
                     </div>
                 </div>
             </div>`;
 
-    } else if (!hayClasesHoy && nowDay >= 1 && nowDay <= 5) {
-        html = `
-            <div class="my-hero-top">
-                <div class="my-hero-status-pill done">
-                    <span class="pulse-dot"></span>
-                    <span>Sin clases</span>
-                </div>
-            </div>
-            <div class="my-hero-body">
-                <div class="my-hero-class-info">
-                    <div class="my-hero-title">Hoy no tienes clases</div>
-                    <div class="my-hero-subtitle">
-                        ${proximaFutura
-                            ? `<span>Tu próxima clase es <strong>${escapeHtml(proximaFutura.curso)}</strong>, ${escapeHtml(proximaFutura.diaNombre)} a las ${escapeHtml(proximaFutura.horaInicio)}.</span>`
-                            : '<span>No hay clases programadas de lunes a viernes.</span>'}
-                    </div>
-                </div>
-            </div>`;
-
     } else {
         const c = proximaFutura;
-        if (!c) {
-            html = `
-                <div class="my-hero-top">
-                    <div class="my-hero-status-pill done"><span class="pulse-dot"></span><span>Fin de semana</span></div>
-                </div>
-                <div class="my-hero-body"><div class="my-hero-class-info"><div class="my-hero-title">Descanso de fin de semana</div></div></div>`;
-            heroEl.innerHTML = html;
-            return;
-        }
+        const estadoSinClase = nowDay >= 1 && nowDay <= 5 ? 'Sin clases hoy' : 'Fin de semana';
         html = `
             <div class="my-hero-top">
                 <div class="my-hero-status-pill done">
                     <span class="pulse-dot"></span>
-                    <span>Fin de semana</span>
+                    <span>${estadoSinClase}</span>
                 </div>
             </div>
             <div class="my-hero-body">
                 <div class="my-hero-class-info">
-                    <div class="my-hero-title">Descanso de fin de semana!</div>
+                    <div class="my-hero-title">Hoy toca descansar</div>
                     <div class="my-hero-subtitle">
                         <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-top: 4px;">
-                            <span>Tu próxima clase es <strong>${escapeHtml(c.curso)}</strong></span>
+                            <span>Tu próxima clase es <strong class="my-course-display">${escapeHtml(getCourseDisplay(c))}</strong></span>
                             <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>${escapeHtml(c.diaNombre)} ${escapeHtml(c.horaInicio)}</span></span>
-                            <span style="${pill_style}"><span class="hide-on-mobile">${escapeHtml(c.tipo)}</span><span class="show-mobile-inline">${escapeHtml(getShortTipo(c.tipo))}</span></span>
+                            <span style="${pill_style}">${escapeHtml(c.rol === 'assistant' ? 'Ayudante' : getShortTipo(c.tipo))}</span>
                             ${c.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${escapeHtml(c.sala)}</span></span>` : ''}
                         </div>
                     </div>
@@ -405,6 +362,36 @@ function setMiHorarioRol(rolVal, btn) {
 function normStr(str) {
     if (!str) return '';
     return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+function formatCourseTitle(value) {
+    const text = String(value || '').trim().replace(/\s*:\s*/g, ': ');
+    if (!text) return '';
+    const connectors = new Set(['a', 'al', 'con', 'de', 'del', 'e', 'el', 'en', 'la', 'las', 'lo', 'los', 'o', 'para', 'por', 'sí', 'un', 'una', 'y']);
+    const words = text.split(/\s+/);
+    const allCapsSource = words.filter(word => /[\p{L}]/u.test(word)).every(word => word === word.toLocaleUpperCase('es'));
+    return words.map((word, index) => {
+        if (connectors.has(word.toLocaleLowerCase('es'))) {
+            const lower = word.toLocaleLowerCase('es');
+            return index > 0 ? lower : lower.replace(/^([\p{L}])/u, initial => initial.toLocaleUpperCase('es'));
+        }
+        if (index > 0 && word.toLocaleLowerCase('es') === 'mismo' && words[index - 1].toLocaleLowerCase('es') === 'sí') return 'mismo';
+        if (index > 0 && words[index - 1].endsWith(':')) {
+            if ((!allCapsSource && /^[A-ZÁÉÍÓÚÜÑ]{2,6}$/.test(word)) || (allCapsSource && /^[A-ZÁÉÍÓÚÜÑ]{2,3}$/.test(word))) return word;
+            return word.toLocaleLowerCase('es').replace(/^([\p{L}])/u, initial => initial.toLocaleUpperCase('es'));
+        }
+        if ((!allCapsSource && /^[A-ZÁÉÍÓÚÜÑ]{2,6}$/.test(word)) || (allCapsSource && /^[A-ZÁÉÍÓÚÜÑ]{2,3}$/.test(word))) return word;
+        return word.toLocaleLowerCase('es').replace(/^([\p{L}])/u, initial => initial.toLocaleUpperCase('es'));
+    }).join(' ');
+}
+
+function getCourseDisplay(clase) {
+    return String(clase && (clase.cursoDisplay || clase.curso_display) || '').trim() || formatCourseTitle(clase && clase.curso);
+}
+
+function normalizarTipoClase(tipo) {
+    const value = String(tipo || '').trim();
+    return !value || value.toLocaleLowerCase('es') === 'estudio' ? 'Cátedra' : value;
 }
 
 function actualizarContadoresFiltrosMiHorario() {
@@ -433,20 +420,53 @@ function eliminarClaseMiHorario(id, ev, afterDelete) {
     if (ev) ev.stopPropagation();
     const idx = MI_HORARIO_DATA.clases.findIndex(c => c.id === id);
     if (idx === -1) return;
-    const c = MI_HORARIO_DATA.clases[idx];
-    confirmarWeb(`¿Eliminar "${c.curso}" de este bloque (${c.diaNombre} ${etiquetaBloqueHorario(c)})?`, () => {
-        MI_HORARIO_DATA.clases.splice(idx, 1);
-        guardarMiHorarioEnStorage();
-        if (typeof afterDelete === 'function') afterDelete();
-        renderMiHorario();
-        actualizarHeroMiHorario();
-        mostrarToast(`"${c.curso}" eliminada de tu horario`);
-    }, 'Eliminar clase');
+    MI_HORARIO_DATA.clases.splice(idx, 1);
+    guardarMiHorarioEnStorage();
+    if (typeof afterDelete === 'function') afterDelete();
+    renderMiHorario();
+    actualizarHeroMiHorario();
 }
 
 let modalRolSeleccionado = 'student';
-let modalClasesRealesBloqueActual = [];
-let modalBusquedaRealTimeout = null;
+let modalBusquedaProfesorTimeout = null;
+let modalProfesorRequestId = 0;
+let modalScrollY = null;
+let modalCenteringResizeHandler = null;
+
+function centrarEditorEnContenido() {
+    const modal = document.getElementById('modal-agregar-ramo');
+    const dialog = modal ? modal.querySelector('.my-modal-dialog') : null;
+    if (!dialog) return;
+    if (window.innerWidth < 1024) {
+        dialog.style.left = '';
+        dialog.style.position = '';
+        dialog.style.width = '';
+        return;
+    }
+    const main = document.querySelector('.container > main');
+    if (!main) return;
+    const bounds = main.getBoundingClientRect();
+    const centerOffset = ((bounds.left + bounds.right) / 2) - (window.innerWidth / 2);
+    dialog.style.position = 'relative';
+    dialog.style.left = Math.round(centerOffset) + 'px';
+    dialog.style.width = Math.round(Math.min(bounds.width * 0.95, 980)) + 'px';
+}
+
+function bloquearScrollFondoHorario() {
+    if (modalScrollY !== null || !document.body) return;
+    modalScrollY = window.scrollY || window.pageYOffset || 0;
+    document.body.style.top = '-' + modalScrollY + 'px';
+    document.body.classList.add('schedule-modal-open');
+}
+
+function restaurarScrollFondoHorario() {
+    if (modalScrollY === null || !document.body) return;
+    const scrollY = modalScrollY;
+    modalScrollY = null;
+    document.body.classList.remove('schedule-modal-open');
+    document.body.style.top = '';
+    window.scrollTo(0, scrollY);
+}
 
 function escapeHtml(str) {
     if (str === null || str === undefined) return '';
@@ -463,103 +483,151 @@ function horarioJsArg(value) {
 }
 
 function setModalRol(rol) {
-    modalRolSeleccionado = rol;
-    const btnEst = document.getElementById('btn-modal-rol-student');
-    const btnAyu = document.getElementById('btn-modal-rol-assistant');
-    if (btnEst && btnAyu) {
-        if (rol === 'assistant') {
-            btnEst.classList.remove('active');
-            btnAyu.classList.add('active');
-        } else {
-            btnEst.classList.add('active');
-            btnAyu.classList.remove('active');
-        }
+    modalRolSeleccionado = rol === 'assistant' ? 'assistant' : 'student';
+    const input = document.getElementById('modal-add-rol');
+    const label = document.getElementById('label-modal-rol');
+    const dropdown = document.getElementById('dd-modal-rol');
+    const typeDropdown = document.getElementById('dd-modal-tipo');
+    const typeTrigger = document.getElementById('modal-label-tipo');
+    const typeLabel = document.getElementById('label-modal-tipo');
+    const typeLock = document.getElementById('modal-tipo-lock');
+    if (input) input.value = modalRolSeleccionado;
+    if (label) label.textContent = modalRolSeleccionado === 'assistant' ? 'Ayudante' : 'Estudiante';
+    if (typeDropdown) typeDropdown.classList.toggle('is-locked', modalRolSeleccionado === 'assistant');
+    if (typeTrigger) {
+        typeTrigger.disabled = modalRolSeleccionado === 'assistant';
+        typeTrigger.setAttribute('aria-disabled', String(modalRolSeleccionado === 'assistant'));
+    }
+    if (typeLock) typeLock.hidden = modalRolSeleccionado !== 'assistant';
+    const typeInput = document.getElementById('modal-add-tipo');
+    if (typeLabel) typeLabel.textContent = modalRolSeleccionado === 'assistant' ? '' : (typeInput && typeInput.value || 'Cátedra');
+    if (dropdown) {
+        dropdown.classList.remove('open');
+        dropdown.querySelectorAll('.dropdown-item').forEach(item => {
+            item.classList.toggle('active', item.dataset.val === modalRolSeleccionado);
+        });
     }
 }
 
-function setModalTipo(tipo, btn) {
+function setModalTipo(tipo) {
+    if (modalRolSeleccionado === 'assistant') return;
+    tipo = normalizarTipoClase(tipo);
     const inpTipo = document.getElementById('modal-add-tipo');
     if (inpTipo) inpTipo.value = tipo;
-    const container = document.getElementById('modal-tipo-pills');
-    if (container) {
-        container.querySelectorAll('.my-tipo-pill').forEach(b => b.classList.remove('active'));
+    const label = document.getElementById('label-modal-tipo');
+    const dropdown = document.getElementById('dd-modal-tipo');
+    if (label) label.textContent = tipo || 'Cátedra';
+    if (dropdown) {
+        dropdown.classList.remove('open');
+        dropdown.querySelectorAll('.dropdown-item').forEach(item => {
+            item.classList.toggle('active', item.dataset.val === tipo);
+        });
     }
-    if (btn) {
-        btn.classList.add('active');
-    } else if (container) {
-        const pills = container.querySelectorAll('.my-tipo-pill');
-        pills.forEach(p => {
-            const txt = p.textContent.trim().toLowerCase();
-            const dtipo = (p.dataset.tipo || '').trim().toLowerCase();
-            const target = (tipo || '').trim().toLowerCase();
-            if (txt === target || dtipo === target || (target.startsWith('lab') && (txt === 'lab' || dtipo.startsWith('lab'))) || (target.startsWith('estud') && (txt === 'estudio' || dtipo.startsWith('estud')))) {
-                p.classList.add('active');
-            }
+}
+
+function setModalSelectValue(dropdownId, inputId, labelId, value, placeholder, displayValue) {
+    const selectedValue = String(value || '').trim();
+    const dropdown = document.getElementById(dropdownId);
+    const input = document.getElementById(inputId);
+    const label = document.getElementById(labelId);
+    if (input) input.value = selectedValue;
+    if (label) {
+        label.textContent = selectedValue ? String(displayValue || selectedValue) : placeholder;
+    }
+    if (dropdown) {
+        dropdown.classList.remove('open');
+        dropdown.querySelectorAll('.dropdown-item[data-val]').forEach(item => {
+            item.classList.toggle('active', item.dataset.val === selectedValue);
         });
     }
 }
 
 function abrirSalasDropdown() {
-    const inp = document.getElementById('modal-add-sala');
-    filtrarSalasDropdown(inp ? inp.value : '');
-}
-
-function filtrarSalasDropdown(val) {
-    const dropdown = document.getElementById('modal-salas-dropdown');
-    if (!dropdown) return;
-    if (typeof TODAS_LAS_SALAS === 'undefined' || !Array.isArray(TODAS_LAS_SALAS)) {
-        dropdown.style.display = 'none';
-        return;
-    }
-
-    const q = (val || '').trim().toLowerCase();
-    let matches = [];
-    if (!q) {
-        matches = TODAS_LAS_SALAS.slice(0, 20);
-    } else {
-        matches = TODAS_LAS_SALAS.filter(s => s.toLowerCase().includes(q)).slice(0, 20);
-    }
-
-    if (matches.length === 0) {
-        dropdown.innerHTML = `<div style="padding: 10px 12px; font-size: 12px; color: #94a3b8; text-align: center;">No hay salas que coincidan</div>`;
-        dropdown.style.display = 'block';
-        return;
-    }
-
-    dropdown.innerHTML = matches.map(s => `
-        <div class="my-dropdown-item" onclick="seleccionarSalaModal(${horarioJsArg(s)})">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block; margin-right:6px; vertical-align:middle; opacity:0.75;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-            <span>${escapeHtml(s)}</span>
-        </div>
-    `).join('');
-    dropdown.style.display = 'block';
+    const list = document.getElementById('modal-salas-options');
+    if (!list) return;
+    const selectedInput = document.getElementById('modal-add-sala');
+    const selected = selectedInput ? selectedInput.value : '';
+    const rooms = typeof TODAS_LAS_SALAS !== 'undefined' && Array.isArray(TODAS_LAS_SALAS)
+        ? TODAS_LAS_SALAS.map(room => String(room || '').trim()).filter(Boolean) : [];
+    const buildings = ['E441', 'V432'];
+    const orderedRooms = buildings.reduce((ordered, building) => {
+        const buildingRooms = [...new Set(rooms.filter(room =>
+            new RegExp('^' + building + '(?:\\.|$)', 'i').test(room)
+        ))].sort((a, b) => a.localeCompare(b, 'es', { numeric: true, sensitivity: 'base' }));
+        return ordered.concat(buildingRooms);
+    }, []);
+    const roomOptions = orderedRooms.map(room =>
+        '<button class="dropdown-item' + (room === selected ? ' active' : '') + '" data-val="' + escapeHtml(room) +
+        '" onclick="seleccionarSalaModal(' + horarioJsArg(room) + ')" role="option" type="button">' + escapeHtml(room) + '</button>'
+    ).join('');
+    const noRoomOption = '<button class="dropdown-item' + (!selected ? ' active' : '') +
+        '" data-val="" onclick="seleccionarSalaModal(\'\')" role="option" type="button">-</button>';
+    list.innerHTML = noRoomOption + (roomOptions ||
+        '<div class="my-modal-select-message">No hay salas disponibles en E441 o V432</div>');
 }
 
 function seleccionarSalaModal(sala) {
-    const inpSala = document.getElementById('modal-add-sala');
-    if (inpSala) {
-        inpSala.value = sala;
-        inpSala.classList.add('field-autofilled');
-        setTimeout(() => inpSala.classList.remove('field-autofilled'), 1200);
+    setModalSelectValue('dd-modal-sala', 'modal-add-sala', 'label-modal-sala', sala, '-');
+}
+
+function abrirProfesoresDropdown() {
+    const search = document.getElementById('modal-profesor-search');
+    if (search) search.value = '';
+    buscarProfesoresModal('');
+}
+
+function buscarProfesoresModal(query) {
+    if (modalBusquedaProfesorTimeout) clearTimeout(modalBusquedaProfesorTimeout);
+    const list = document.getElementById('modal-profesores-options');
+    const q = String(query || '').trim();
+    const requestId = ++modalProfesorRequestId;
+    if (!list) return;
+    if (q.length < 2) {
+        const selectedInput = document.getElementById('modal-add-profesor');
+        list.innerHTML = '<button class="dropdown-item' + (!(selectedInput && selectedInput.value) ? ' active' : '') +
+            '" data-val="" onclick="seleccionarProfesorModal(\'\')" role="option" type="button">Sin profesor</button>' +
+            '<div class="my-modal-select-message">Escribe al menos 2 letras para buscar</div>';
+        return;
     }
-    const dropdown = document.getElementById('modal-salas-dropdown');
-    if (dropdown) dropdown.style.display = 'none';
-}
 
-// Cerrar dropdown de salas al hacer clic afuera
-if (typeof document !== 'undefined' && document.addEventListener) {
-    document.addEventListener('click', function(ev) {
-        const dropdown = document.getElementById('modal-salas-dropdown');
-        const inpSala = document.getElementById('modal-add-sala');
-        if (dropdown && dropdown.style.display !== 'none') {
-            if (!dropdown.contains(ev.target) && ev.target !== inpSala) {
-                dropdown.style.display = 'none';
-            }
+    list.innerHTML = '<div class="my-modal-select-message">Buscando docentes…</div>';
+    modalBusquedaProfesorTimeout = setTimeout(async () => {
+        try {
+            const response = await fetch('/api/search?q=' + encodeURIComponent(q));
+            if (!response.ok) throw new Error('No se pudo buscar');
+            const data = await response.json();
+            if (requestId !== modalProfesorRequestId) return;
+            const selectedInput = document.getElementById('modal-add-profesor');
+            const selected = selectedInput ? selectedInput.value : '';
+            const names = [...new Set((data.profesores || [])
+                .map(item => String(item.profe || '').trim())
+                .filter(Boolean))].slice(0, 12);
+            const options = names.map(name =>
+                '<button class="dropdown-item' + (name === selected ? ' active' : '') + '" data-val="' +
+                escapeHtml(name) + '" onclick="seleccionarProfesorModal(' + horarioJsArg(name) +
+                ')" role="option" type="button">' + escapeHtml(name) + '</button>'
+            );
+            options.unshift('<button class="dropdown-item' + (!selected ? ' active' : '') +
+                '" data-val="" onclick="seleccionarProfesorModal(\'\')" role="option" type="button">Sin profesor</button>');
+            list.innerHTML = options.length ? options.join('') :
+                '<button class="dropdown-item" data-val="" onclick="seleccionarProfesorModal(\'\')" role="option" type="button">Sin profesor</button>' +
+                '<div class="my-modal-select-message">No se encontraron docentes</div>';
+        } catch (_error) {
+            if (requestId !== modalProfesorRequestId) return;
+            list.innerHTML = '<div class="my-modal-select-message">No se pudieron cargar sugerencias</div>';
         }
-    });
+    }, 180);
 }
 
-function abrirModalAgregarClase(diaNum, bloqueNum, options = {}) {
+function seleccionarProfesorModal(nombre) {
+    setModalSelectValue('dd-modal-profesor', 'modal-add-profesor', 'label-modal-profesor', nombre, 'Sin profesor');
+    const search = document.getElementById('modal-profesor-search');
+    if (search) search.value = '';
+    const list = document.getElementById('modal-profesores-options');
+    if (list) list.innerHTML = '<div class="my-modal-select-message">Escribe al menos 2 letras para buscar</div>';
+}
+
+function abrirModalAgregarClase(diaNum, bloqueNum) {
     const bloque = BLOQUES_HORARIOS.find(b => b.num === bloqueNum);
     const diasNombres = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
     const diaNombre = diasNombres[diaNum] || 'Día';
@@ -579,40 +647,88 @@ function abrirModalAgregarClase(diaNum, bloqueNum, options = {}) {
     const inpSala = document.getElementById('modal-add-sala');
     const inpSec = document.getElementById('modal-add-seccion');
     const inpProf = document.getElementById('modal-add-profesor');
-    const inpSearchReal = document.getElementById('modal-input-real-search');
-    const dropdown = document.getElementById('modal-salas-dropdown');
+    const roomSelect = document.getElementById('dd-modal-sala');
+    const teacherSelect = document.getElementById('dd-modal-profesor');
+    const profesorSearch = document.getElementById('modal-profesor-search');
     const idInput = document.getElementById('modal-add-id');
     const modalTitle = document.getElementById('modal-titulo-bloque');
     const saveButton = document.getElementById('modal-save-class');
     const deleteButton = document.getElementById('modal-delete-class');
-    const salaInput = document.getElementById('modal-add-sala');
-
     if (idInput) idInput.value = '';
     if (modalTitle) modalTitle.textContent = 'Agregar Asignatura';
-    if (saveButton) saveButton.textContent = 'Guardar en tu horario';
+    if (saveButton) saveButton.setAttribute('aria-label', 'Guardar en tu horario');
     if (deleteButton) deleteButton.hidden = true;
-    if (salaInput) salaInput.required = true;
     if (inpCurso) inpCurso.value = '';
     if (inpSala) inpSala.value = '';
     if (inpSec) inpSec.value = ''; // Sin hardcodear Sec. 1
     if (inpProf) inpProf.value = '';
-    if (inpSearchReal) inpSearchReal.value = '';
-    if (dropdown) dropdown.style.display = 'none';
+    if (profesorSearch) profesorSearch.value = '';
+    if (roomSelect) roomSelect.classList.remove('open');
+    if (teacherSelect) teacherSelect.classList.remove('open');
+    setModalSelectValue('dd-modal-sala', 'modal-add-sala', 'label-modal-sala', '', '-');
+    setModalSelectValue('dd-modal-profesor', 'modal-add-profesor', 'label-modal-profesor', '', 'Seleccionar profesor...');
 
     setModalTipo('Cátedra');
     setModalRol('student');
 
-    // Cargar clases reales de este bloque desde data.json vía /api/search
-    if (!options.skipClassLookup) cargarClasesRealesBloque(diaNum, horaInicio);
-
     const modal = document.getElementById('modal-agregar-ramo');
     if (modal) {
+        bloquearScrollFondoHorario();
+        centrarEditorEnContenido();
+        if (!modalCenteringResizeHandler) {
+            modalCenteringResizeHandler = centrarEditorEnContenido;
+            window.addEventListener('resize', modalCenteringResizeHandler);
+        }
         modal.style.display = 'flex';
         setTimeout(() => {
-            const focusTarget = options.skipClassLookup ? inpCurso : inpSearchReal;
+            const focusTarget = inpCurso;
             if (focusTarget) focusTarget.focus();
         }, 60);
     }
+}
+
+function normalizarNumeroSeccion(valor) {
+    const digits = String(valor == null ? '' : valor).match(/\d+/);
+    if (!digits) return '';
+    const numero = Number.parseInt(digits[0], 10);
+    return Number.isSafeInteger(numero) && numero > 0 ? String(numero) : '';
+}
+
+function normalizarNombreRamoParaComparar(nombre) {
+    return String(nombre || '').trim().replace(/\s+/g, ' ')
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es');
+}
+
+function propagarSeccionMismoRamo(claseOrigen, seccion) {
+    const nombreRamo = normalizarNombreRamoParaComparar(claseOrigen && claseOrigen.curso);
+    if (!nombreRamo || !seccion || !MI_HORARIO_DATA || !Array.isArray(MI_HORARIO_DATA.clases)) return;
+    MI_HORARIO_DATA.clases.forEach(clase => {
+        if (clase !== claseOrigen && normalizarNombreRamoParaComparar(clase && clase.curso) === nombreRamo) {
+            clase.seccion = seccion;
+        }
+    });
+}
+
+function rellenarSeccionesMismoRamo(clases) {
+    if (!Array.isArray(clases)) return false;
+    const porRamo = new Map();
+    clases.forEach(clase => {
+        const nombre = normalizarNombreRamoParaComparar(clase && clase.curso);
+        const seccion = normalizarNumeroSeccion(clase && clase.seccion);
+        if (!nombre || !seccion) return;
+        if (!porRamo.has(nombre)) porRamo.set(nombre, new Set());
+        porRamo.get(nombre).add(seccion);
+    });
+
+    let changed = false;
+    clases.forEach(clase => {
+        const nombre = normalizarNombreRamoParaComparar(clase && clase.curso);
+        const secciones = porRamo.get(nombre);
+        if (!secciones || secciones.size !== 1 || normalizarNumeroSeccion(clase && clase.seccion)) return;
+        clase.seccion = secciones.values().next().value;
+        changed = true;
+    });
+    return changed;
 }
 
 function abrirModalEditarClase(id, ev) {
@@ -620,26 +736,30 @@ function abrirModalEditarClase(id, ev) {
     const clase = MI_HORARIO_DATA.clases.find(item => String(item.id) === String(id));
     if (!clase) return;
 
-    abrirModalAgregarClase(Number(clase.dia), Number(clase.bloqueNum), { skipClassLookup: true });
+    abrirModalAgregarClase(Number(clase.dia), Number(clase.bloqueNum));
     const values = {
         'modal-add-id': clase.id,
         'modal-add-curso': clase.curso || '',
         'modal-add-sala': clase.sala || '',
-        'modal-add-seccion': clase.seccion || '',
+        'modal-add-seccion': normalizarNumeroSeccion(clase.seccion),
         'modal-add-profesor': clase.profesor || ''
     };
     Object.keys(values).forEach(inputId => {
         const input = document.getElementById(inputId);
         if (input) input.value = values[inputId];
     });
+    if (document.getElementById('modal-add-curso')) {
+        document.getElementById('modal-add-curso').value = getCourseDisplay(clase);
+    }
+    setModalSelectValue('dd-modal-sala', 'modal-add-sala', 'label-modal-sala', clase.sala || '', '-');
+    setModalSelectValue('dd-modal-profesor', 'modal-add-profesor', 'label-modal-profesor', clase.profesor || '', 'Sin profesor');
     const title = document.getElementById('modal-titulo-bloque');
     const saveButton = document.getElementById('modal-save-class');
     const deleteButton = document.getElementById('modal-delete-class');
-    const salaInput = document.getElementById('modal-add-sala');
     if (title) title.textContent = 'Editar Asignatura';
-    if (saveButton) saveButton.textContent = 'Guardar cambios';
+    if (saveButton) saveButton.setAttribute('aria-label', 'Guardar cambios');
     if (deleteButton) deleteButton.hidden = false;
-    if (salaInput) salaInput.required = false;
+    setModalRol('student');
     setModalTipo(clase.tipo || 'Cátedra');
     setModalRol(clase.rol || 'student');
 }
@@ -654,169 +774,21 @@ function eliminarClaseDesdeEditor(ev) {
 function cerrarModalAgregarClase() {
     const modal = document.getElementById('modal-agregar-ramo');
     if (modal) modal.style.display = 'none';
-    const dropdown = document.getElementById('modal-salas-dropdown');
-    if (dropdown) dropdown.style.display = 'none';
-}
-
-async function cargarClasesRealesBloque(diaNum, horaInicio) {
-    const listEl = document.getElementById('modal-real-classes-list');
-    const badgeEl = document.getElementById('modal-real-badge');
-    if (!listEl) return;
-
-    listEl.innerHTML = `
-        <div style="padding: 16px; text-align: center; color: #94a3b8; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="spin"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
-            <span><svg class="spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right: 6px;"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> Obteniendo clases...</span>
-        </div>
-    `;
-
-    try {
-        const resp = await fetch(`/api/search?dia=${diaNum}&hora=${encodeURIComponent(horaInicio + ':00')}`);
-        if (!resp.ok) throw new Error('Error al cargar');
-        const data = await resp.json();
-        modalClasesRealesBloqueActual = data.cursos || [];
-        if (badgeEl) badgeEl.textContent = `${modalClasesRealesBloqueActual.length} clases en bloque`;
-        renderListaClasesRealesModal(modalClasesRealesBloqueActual, false);
-    } catch (err) {
-        console.error('Error cargando clases reales:', err);
-        listEl.innerHTML = `<div style="padding: 12px; text-align: center; color: #94a3b8; font-size: 12px;">No se pudieron cargar clases sugeridas para este bloque. Puedes ingresarlas manualmente abajo.</div>`;
-        if (badgeEl) badgeEl.textContent = '0 clases';
+    if (modalCenteringResizeHandler) {
+        window.removeEventListener('resize', modalCenteringResizeHandler);
+        modalCenteringResizeHandler = null;
     }
-}
-
-function renderListaClasesRealesModal(lista, esBusquedaGlobal) {
-    const listEl = document.getElementById('modal-real-classes-list');
-    if (!listEl) return;
-
-    if (!lista || lista.length === 0) {
-        listEl.innerHTML = `
-            <div style="padding: 14px; text-align: center; color: #94a3b8; font-size: 12px;">
-                No se encontraron clases coincidentes. Puedes completar los campos manualmente.
-            </div>
-        `;
-        return;
+    const dialog = modal ? modal.querySelector('.my-modal-dialog') : null;
+    if (dialog) {
+        dialog.style.left = '';
+        dialog.style.position = '';
+        dialog.style.width = '';
     }
-
-    listEl.innerHTML = lista.map(c => {
-        const cursoNombre = escapeHtml(c.curso || 'Asignatura');
-        const sala = escapeHtml(c.sala || 'Sin sala');
-        const sec = normalizarSeccionHorario(c.seccion);
-        const profe = escapeHtml(c.profe || '');
-        const codigo = escapeHtml(c.codigo || '');
-        const objSafe = horarioJsArg(JSON.stringify(c));
-
-        return `
-            <div class="my-real-class-item" onclick="seleccionarClaseRealPorObj(JSON.parse(${objSafe}))">
-                <div class="my-real-item-info">
-                    <div class="my-real-item-title">${cursoNombre}</div>
-                    <div class="my-real-item-meta">
-                        <span class="my-real-item-chip" style="color: #60a5fa; border-color: rgba(59,130,246,0.35); background: rgba(59,130,246,0.12);">${sala}</span>
-                        ${sec ? `<span class="my-real-item-chip">${escapeHtml(sec)}</span>` : ''}
-                        ${codigo ? `<span class="my-real-item-chip" style="opacity: 0.8;">${codigo}</span>` : ''}
-                        ${profe ? `<span style="font-size: 11.5px; opacity: 0.88; color: #cbd5e1;">${profe}</span>` : ''}
-                    </div>
-                </div>
-                <div class="my-real-select-btn">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                    <span>Elegir</span>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
-function filtrarClasesRealesModal(query) {
-    if (modalBusquedaRealTimeout) clearTimeout(modalBusquedaRealTimeout);
-
-    const q = (query || '').trim();
-    const diaNum = document.getElementById('modal-add-dia').value;
-    const horaInicio = document.getElementById('modal-add-hora-inicio').value;
-    const badgeEl = document.getElementById('modal-real-badge');
-
-    if (!q) {
-        if (badgeEl) badgeEl.textContent = `${modalClasesRealesBloqueActual.length} clases en bloque`;
-        renderListaClasesRealesModal(modalClasesRealesBloqueActual, false);
-        return;
-    }
-
-    modalBusquedaRealTimeout = setTimeout(async () => {
-        // 1. Filtrar primero dentro de las clases de este bloque en memoria
-        const normQ = normStr(q);
-        const matchesLocal = modalClasesRealesBloqueActual.filter(c => {
-            return normStr(c.curso || '').includes(normQ) ||
-                   normStr(c.codigo || '').includes(normQ) ||
-                   normStr(c.profe || '').includes(normQ) ||
-                   normStr(c.sala || '').includes(normQ);
-        });
-
-        if (matchesLocal.length > 0) {
-            if (badgeEl) badgeEl.textContent = `${matchesLocal.length} en este bloque`;
-            renderListaClasesRealesModal(matchesLocal, false);
-            return;
-        }
-
-        // 2. Si no hay en este bloque exacto, buscar en toda la base de cursos
-        const listEl = document.getElementById('modal-real-classes-list');
-        if (listEl) {
-            listEl.innerHTML = `<div style="padding: 12px; text-align:center; color:#94a3b8; font-size:12px;">Buscando en toda la base de datos...</div>`;
-        }
-
-        try {
-            const resp = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
-            if (!resp.ok) throw new Error('Error al buscar');
-            const data = await resp.json();
-            const cursos = data.cursos || [];
-            if (badgeEl) badgeEl.textContent = `${cursos.length} cursos disponibles`;
-            renderListaClasesRealesModal(cursos.slice(0, 30), true);
-        } catch (err) {
-            console.error('Error buscando clases:', err);
-        }
-    }, 200);
-}
-
-function seleccionarClaseRealPorObj(c) {
-    if (!c) return;
-
-    const inpCurso = document.getElementById('modal-add-curso');
-    const inpSala = document.getElementById('modal-add-sala');
-    const inpSec = document.getElementById('modal-add-seccion');
-    const inpProf = document.getElementById('modal-add-profesor');
-
-    if (inpCurso) {
-        inpCurso.value = c.curso || '';
-        inpCurso.classList.add('field-autofilled');
-        setTimeout(() => inpCurso.classList.remove('field-autofilled'), 1200);
-    }
-
-    if (inpSala) {
-        inpSala.value = (c.sala && c.sala !== '-') ? c.sala : '';
-        inpSala.classList.add('field-autofilled');
-        setTimeout(() => inpSala.classList.remove('field-autofilled'), 1200);
-    }
-
-    if (inpSec) {
-        inpSec.value = normalizarSeccionHorario(c.seccion);
-        inpSec.classList.add('field-autofilled');
-        setTimeout(() => inpSec.classList.remove('field-autofilled'), 1200);
-    }
-
-    if (inpProf) {
-        inpProf.value = c.profe || '';
-        inpProf.classList.add('field-autofilled');
-        setTimeout(() => inpProf.classList.remove('field-autofilled'), 1200);
-    }
-
-    // Detección automática de tipo
-    const lowerCurso = (c.curso || '').toLowerCase();
-    let tipoDetectado = 'Cátedra';
-    if (lowerCurso.includes('ayudant')) tipoDetectado = 'Ayudantía';
-    else if (lowerCurso.includes('laborat') || lowerCurso.includes('lab.')) tipoDetectado = 'Laboratorio';
-    else if (lowerCurso.includes('taller')) tipoDetectado = 'Taller';
-    else if (lowerCurso.includes('estudio')) tipoDetectado = 'Estudio';
-
-    setModalTipo(tipoDetectado);
-
-    mostrarToast(`¡Autocompletado con ${c.curso}!`);
+    const roomSelect = document.getElementById('dd-modal-sala');
+    const teacherSelect = document.getElementById('dd-modal-profesor');
+    if (roomSelect) roomSelect.classList.remove('open');
+    if (teacherSelect) teacherSelect.classList.remove('open');
+    restaurarScrollFondoHorario();
 }
 
 function guardarNuevaClaseModal(ev) {
@@ -825,37 +797,21 @@ function guardarNuevaClaseModal(ev) {
     const bloqueNum = parseInt(document.getElementById('modal-add-bloque').value, 10);
     const curso = (document.getElementById('modal-add-curso').value || '').trim();
     const sala = (document.getElementById('modal-add-sala').value || '').trim().toUpperCase();
-    const seccion = (document.getElementById('modal-add-seccion').value || '').trim();
+    const seccion = normalizarNumeroSeccion(document.getElementById('modal-add-seccion').value);
     const tipo = (document.getElementById('modal-add-tipo').value || 'Cátedra').trim();
     const profesor = (document.getElementById('modal-add-profesor').value || '').trim();
     const rol = modalRolSeleccionado;
     const idInput = document.getElementById('modal-add-id');
     const editId = idInput ? idInput.value || '' : '';
 
-    if (!curso) {
-        mostrarAlertaWeb('Por favor escribe el nombre de la asignatura.', 'Falta la asignatura', 'error');
-        document.getElementById('modal-add-curso').focus();
-        return;
-    }
-    if (!sala && !editId) {
-        mostrarAlertaWeb('Por favor ingresa la sala asignada (ej. E441.2.S201).', 'Falta la sala', 'error');
-        document.getElementById('modal-add-sala').focus();
-        return;
-    }
+    // El nombre del ramo es el único dato necesario; los detalles restantes son opcionales.
+    if (!curso) return;
 
     const bloque = BLOQUES_HORARIOS.find(b => b.num === bloqueNum);
     const diasNombres = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
 
     const editedIndex = editId ? MI_HORARIO_DATA.clases.findIndex(c => String(c.id) === String(editId)) : -1;
     if (editId && editedIndex === -1) return;
-
-    const blockIsOccupied = MI_HORARIO_DATA.clases.some((clase, index) =>
-        index !== editedIndex && Number(clase.dia) === diaNum && Number(clase.bloqueNum) === bloqueNum
-    );
-    if (blockIsOccupied) {
-        mostrarAlertaWeb('Solo puede haber una clase por bloque horario. Elige un bloque sin otra clase.', 'Bloque ocupado', 'error');
-        return;
-    }
 
     const nuevaClase = {
         ...(editedIndex >= 0 ? MI_HORARIO_DATA.clases[editedIndex] : {}),
@@ -866,6 +822,7 @@ function guardarNuevaClaseModal(ev) {
         horaInicio: bloque ? bloque.inicio : '08:30',
         horaFin: bloque ? bloque.fin : '09:50',
         curso: curso,
+        cursoDisplay: curso,
         tipo: tipo,
         seccion: seccion,
         sala: sala,
@@ -880,30 +837,12 @@ function guardarNuevaClaseModal(ev) {
         MI_HORARIO_DATA.clases = MI_HORARIO_DATA.clases.filter(c => !(c.dia === diaNum && c.bloqueNum === bloqueNum));
         MI_HORARIO_DATA.clases.push(nuevaClase);
     }
+    propagarSeccionMismoRamo(nuevaClase, seccion);
     guardarMiHorarioEnStorage();
     cerrarModalAgregarClase();
     renderMiHorario();
     actualizarHeroMiHorario();
-    mostrarToast(editId ? `Cambios guardados en "${curso}"` : `"${curso}" guardada en ${diasNombres[diaNum]} Bloque ${bloqueNum}`);
-}
-
-function mostrarToast(mensaje) {
-    let t = document.getElementById('my-toast');
-    if (!t) {
-        t = document.createElement('div');
-        t.id = 'my-toast';
-        t.className = 'my-toast';
-        document.body.appendChild(t);
-    }
-    t.innerHTML = `
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-        <span>${escapeHtml(mensaje)}</span>
-    `;
-    t.classList.add('show');
-    if (window._toastTimeout) clearTimeout(window._toastTimeout);
-    window._toastTimeout = setTimeout(() => {
-        t.classList.remove('show');
-    }, 2800);
+    autoSyncHorario();
 }
 
 const BLOQUES_NORMALES = [
@@ -913,7 +852,7 @@ const BLOQUES_NORMALES = [
     { num: 4, label: '13:00 - 14:20', inicio: '13:00', fin: '14:20' },
     { num: 5, label: '14:30 - 15:50', inicio: '14:30', fin: '15:50' },
     { num: 6, label: '16:00 - 17:20', inicio: '16:00', fin: '17:20' },
-    { num: 7, label: '17:30 - 18:50', inicio: '17:30', fin: '18:50' }
+    { num: 7, label: '17:25 - 18:45', inicio: '17:25', fin: '18:45' }
 ];
 const BLOQUES_SOLEMNES = [
     { num: 1, label: '08:30 - 10:30', inicio: '08:30', fin: '10:30' },
@@ -978,9 +917,16 @@ function renderMiHorario() {
 
                 if (slotItems.length) {
                     slotItems.forEach(c => {
-                    const tipoCls = 'tipo-' + (c.tipo || 'Cátedra').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
-                    const secText = `<span class="my-type-sec">• ${escapeHtml(normalizarSeccionHorario(c.seccion && !String(c.seccion).toLowerCase().includes('ayudantía que impartes') ? c.seccion : ''))}</span>`;
-                    const tipoHtml = `<span class="my-type-tag ${tipoCls}"><span>${escapeHtml(c.tipo || 'Cátedra')}</span>${secText}</span>`;
+                    const tipoClase = normalizarTipoClase(c.tipo);
+                    const tipoCls = 'tipo-' + tipoClase.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
+                    let cleanSec = (c.seccion || '').trim();
+                    const sectionValue = cleanSec && !cleanSec.toLowerCase().includes('ayudantía que impartes') && cleanSec !== '-'
+                        ? cleanSec.replace(/^(?:secci[oó]n|sec\.?)\s*/i, '').replace(/^s(?=\s*\d)\s*/i, '').trim()
+                        : '';
+                    const sectionLabel = sectionValue ? `Sección ${sectionValue}` : 'Sección -';
+                    const secText = `<span class="my-type-sec">• ${escapeHtml(sectionLabel)}</span>`;
+                    const tipoVisible = c.rol === 'assistant' ? 'Ayudante' : tipoClase;
+                    const tipoHtml = `<span class="my-type-tag ${tipoCls}"><span>${escapeHtml(tipoVisible)}</span>${secText}</span>`;
 
                     cardsHtml += `
                         <div class="my-class-card ${tipoCls} ${c.rol === 'assistant' ? 'is-assistant' : 'is-student'} ${isCurrent ? 'is-current-class' : ''}" id="card-${escapeHtml(c.id)}">
@@ -990,24 +936,27 @@ function renderMiHorario() {
                                     <span>${escapeHtml(etiquetaBloqueHorario(c))}</span>
                                 </span>
                                 ${c.isSharedProfile ? '' : `<button type="button" class="my-btn-edit" onclick="abrirModalEditarClase(${escapeHtml(JSON.stringify(String(c.id)))}, event)" title="Editar asignatura" aria-label="Editar ${escapeHtml(c.curso)}">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M12 20h9"></path>
+                                        <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"></path>
                                     </svg>
                                 </button>`}
                             </div>
-                            <div class="my-card-title">${escapeHtml(c.curso)}</div>
+                            <div class="my-card-title">${escapeHtml(getCourseDisplay(c))}</div>
                             <div class="my-card-meta">
                                 ${tipoHtml}
                                 <span class="my-prof-name" title="Docente: ${escapeHtml(c.profesor || '-')}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> <span>${escapeHtml(c.profesor || '-')}</span></span>
                             </div>
                             <div class="my-card-footer">
-                                ${(c.sala || '').split(/[,/]+/).map(s => s.trim()).filter(s => s).map(s => `
+                                ${String(c.sala || '').split(/[,/]+/).map(s => s.trim()).filter(s => s && s !== '-' && !/^sala no definida$/i.test(s)).map(s => `
                                 <span class="my-room-pill" onclick="verHorarioDirecto(${horarioJsArg(s)})" title="Sala ${escapeHtml(s)}">
                                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
                                     <span>${escapeHtml(s)}</span>
                                 </span>
-                                `).join('')}
+                                `).join('') || `<span class="my-room-pill is-unassigned-room" aria-label="Sala no asignada" title="Sin sala asignada">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+                                    <span>-</span>
+                                </span>`}
                                 <span class="my-card-bloque-num">Bloque ${escapeHtml(c.bloqueNum)}</span>
                             </div>
                         </div>
@@ -1078,34 +1027,105 @@ window.cerrarHorarioPerfilEnMiHorario = function () {
 };
 
 
-let horarioSincronizado = false;
+let horarioSyncInFlight = false;
+let horarioSyncPending = false;
+function horarioTieneDatosPendientes() {
+    if (!Array.isArray(MI_HORARIO_DATA.clases)) return false;
+    return MI_HORARIO_DATA.clases.some(clase => {
+        const block = BLOQUES_NORMALES.find(item => item.num === Number(clase.bloqueNum));
+        const start = String(clase.horaInicio || '').slice(0, 5);
+        const finish = String(clase.horaFin || '').slice(0, 5);
+        const canonicalTime = block && start === block.inicio && finish === block.fin;
+        const legacyLastBlock = Number(clase.bloqueNum) === 7 && start === '17:30' && finish === '18:50';
+        if (!canonicalTime && !legacyLastBlock) return false;
+        const room = String(clase.sala || '').trim();
+        return !room || room === '-' || !String(clase.seccion || '').trim() || !String(clase.profesor || '').trim();
+    });
+}
+
+function mergeEnrichedSchedule(originalClasses, enrichedClasses) {
+    if (!Array.isArray(originalClasses) || !Array.isArray(enrichedClasses)) return originalClasses;
+    const responseById = new Map(enrichedClasses.filter(item => item && item.id != null).map(item => [String(item.id), item]));
+    const fieldsToPreserve = ['curso', 'sala', 'seccion', 'profesor'];
+    return originalClasses.map((original, index) => {
+        if (!original || typeof original !== 'object') return original;
+        const enriched = original.id != null
+            ? responseById.get(String(original.id))
+            : enrichedClasses[index];
+        if (!enriched || typeof enriched !== 'object') return original;
+        const merged = { ...original, ...enriched };
+        fieldsToPreserve.forEach(field => {
+            const oldValue = original[field];
+            const newValue = enriched[field];
+            const oldText = String(oldValue == null ? '' : oldValue).trim();
+            const newText = String(newValue == null ? '' : newValue).trim();
+            const emptyMarkers = ['', '-'];
+            if (field === 'sala') emptyMarkers.push('sala no definida');
+            if (field === 'seccion') emptyMarkers.push('sección -', 'seccion -');
+            const oldTeacherNeedsReconciliation = field === 'profesor' && oldText &&
+                oldText !== oldText.toLocaleUpperCase('es');
+            if (oldTeacherNeedsReconciliation && !newText) return;
+            if (oldText && emptyMarkers.includes(newText)) merged[field] = oldValue;
+        });
+        return merged;
+    });
+}
+
 async function autoSyncHorario() {
-    if (horarioSincronizado || !MI_HORARIO_DATA.clases.length) return;
-    const targetObj = MI_HORARIO_DATA;
-    
+    if (!Array.isArray(MI_HORARIO_DATA.clases) || !MI_HORARIO_DATA.clases.length) return;
+    if (typeof fetch !== 'function') return;
+    if (horarioSyncInFlight) {
+        horarioSyncPending = true;
+        return;
+    }
+    const signature = JSON.stringify(MI_HORARIO_DATA.clases);
+
+    horarioSyncInFlight = true;
     try {
         const resp = await fetch('/api/sync_horario', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ clases: targetObj.clases })
+            body: JSON.stringify({ clases: MI_HORARIO_DATA.clases })
         });
         
         if (resp.ok) {
             const nuevasClases = await resp.json();
-            if (nuevasClases && nuevasClases.length > 0) {
-                targetObj.clases = nuevasClases;
-                horarioSincronizado = true;
-                guardarMiHorarioEnStorage();
-                renderMiHorario(); // Re-renderizar con salas actualizadas
+            if (Array.isArray(nuevasClases) && nuevasClases.length > 0) {
+                // Don't replace newer edits with a stale response.
+                if (JSON.stringify(MI_HORARIO_DATA.clases) !== signature) {
+                    horarioSyncPending = true;
+                    return;
+                }
+                const updatedSignature = JSON.stringify(nuevasClases);
+                if (updatedSignature !== signature) {
+                    MI_HORARIO_DATA.clases = mergeEnrichedSchedule(MI_HORARIO_DATA.clases, nuevasClases);
+                    renderMiHorario();
+                }
+                await guardarMiHorarioEnStorage();
             }
         }
     } catch(e) {
         console.error("Error sincronizando horario:", e);
+    } finally {
+        horarioSyncInFlight = false;
+        if (horarioSyncPending) {
+            horarioSyncPending = false;
+            setTimeout(autoSyncHorario, 0);
+        }
     }
 }
 
 // Auto-sync al cargar
 setTimeout(() => autoSyncHorario(), 1500);
+setInterval(() => {
+    if (document.visibilityState !== 'hidden' && horarioTieneDatosPendientes()) autoSyncHorario();
+}, 60 * 1000);
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'hidden' && horarioTieneDatosPendientes()) autoSyncHorario();
+});
+document.addEventListener('portal:section-entered', event => {
+    if (event.detail && event.detail.panelId === 'tab-mihorario') return autoSyncHorario();
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     if (window.PortalStore) window.PortalStore.register('schedule', 'mi_horario_custom_v1', MI_HORARIO_DEFAULT_DATA);
@@ -1113,8 +1133,11 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('portal:remote-state', event => {
     if (event.detail.module !== 'schedule') return;
     MI_HORARIO_DATA = event.detail.payload || JSON.parse(JSON.stringify(MI_HORARIO_DEFAULT_DATA));
-    if (quitarBloqueLabels(MI_HORARIO_DATA.clases)) guardarMiHorarioEnStorage();
+    const removedLabels = quitarBloqueLabels(MI_HORARIO_DATA.clases);
+    const filledSections = rellenarSeccionesMismoRamo(MI_HORARIO_DATA.clases);
+    if (removedLabels || filledSections) guardarMiHorarioEnStorage();
     renderMiHorario();
+    autoSyncHorario();
 });
 
 function seleccionarFotoHorario() {
@@ -1127,14 +1150,11 @@ function seleccionarFotoHorario() {
     input.click();
 }
 
-function mostrarEstadoImportacionHorario(message, isError = false, isBlockWarning = false) {
+function mostrarEstadoImportacionHorario(message, isError = false) {
     const status = document.getElementById('schedule-import-status');
-    const warning = document.getElementById('schedule-import-warning');
-    if (status) {
-        status.textContent = isBlockWarning ? '' : (message || '');
-        status.classList.toggle('is-error', Boolean(isError && !isBlockWarning));
-    }
-    if (warning) warning.textContent = isBlockWarning ? (message || '') : '';
+    if (!status) return;
+    status.textContent = message || '';
+    status.classList.toggle('is-error', Boolean(isError));
 }
 
 async function importarHorarioDesdeFoto(event) {
@@ -1203,82 +1223,72 @@ function bloqueHorarioMasCercano(hora) {
     , BLOQUES_HORARIOS[0]);
 }
 
-function bloquesHorarioDeClase(item) {
-    const inicio = timeToMinutes(item.horaInicio);
-    const fin = timeToMinutes(item.horaFin);
-    const primerBloque = bloqueHorarioMasCercano(item.horaInicio);
-    const bloquesOcupados = BLOQUES_HORARIOS.filter(block =>
-        block.num >= primerBloque.num && timeToMinutes(block.inicio) < fin && timeToMinutes(block.fin) > inicio
-    );
-    return bloquesOcupados.length ? bloquesOcupados : [primerBloque];
-}
-
-function claveClaseImportada(item) {
-    const normalizar = value => String(value || '')
-        .normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLocaleLowerCase('es');
-    return [
-        normalizar(item.curso),
-        normalizar(item.tipo || 'Cátedra'),
-        normalizar(item.seccion),
-        normalizar(item.sala || '-'),
-        normalizar(item.profesor)
-    ].join('|');
-}
-
 function cargarHorarioImportado(clasesDetectadas) {
     if (!Array.isArray(clasesDetectadas) || !clasesDetectadas.length) return;
     const days = [[], [], [], [], [], []];
-    const occupiedBlocks = new Map();
-    const entries = [];
     clasesDetectadas.forEach(item => {
         const day = Number(item.dia);
-        if (day < 1 || day > 5) return;
-        bloquesHorarioDeClase(item).forEach(bloque => {
-            const key = `${day}-${bloque.num}`;
-            const existing = occupiedBlocks.get(key);
-            if (existing) {
-                if (claveClaseImportada(existing.item) === claveClaseImportada(item)) return;
-                mostrarEstadoImportacionHorario(
-                    'No se pudo importar el horario. Solo se permite una clase por bloque horario. Revisa la foto e inténtalo de nuevo. Tu horario actual no se modificó.',
-                    true,
-                    true
-                );
-                entries.push({ conflict: true });
-                return;
-            }
-            occupiedBlocks.set(key, { item });
-            entries.push({ day, item, bloque });
-        });
+        if (day >= 1 && day <= 5) days[day].push(item);
     });
-    if (entries.some(entry => entry.conflict)) return false;
-    entries.forEach(entry => days[entry.day].push(entry));
     const imported = [];
-    const types = ['Cátedra', 'Ayudantía', 'Laboratorio', 'Taller', 'Estudio'];
+    const types = ['Cátedra', 'Ayudantía', 'Laboratorio', 'Taller'];
     days.forEach((items, day) => {
-        items.sort((a, b) => timeToMinutes(a.item.horaInicio) - timeToMinutes(b.item.horaInicio) || a.bloque.num - b.bloque.num);
-        items.forEach(({ item, bloque }, index) => {
+        items.sort((a, b) => a.horaInicio.localeCompare(b.horaInicio));
+        items.forEach((item, index) => {
             const sourceType = String(item.tipo || '').toLocaleLowerCase('es');
             const tipo = types.find(value => sourceType.includes(value.toLocaleLowerCase('es'))) || 'Cátedra';
-            imported.push({
-                id: 'import-' + Date.now() + '-' + day + '-' + index,
-                dia: day,
-                diaNombre: item.diaNombre,
-                bloqueNum: bloque.num,
-                horaInicio: bloque.inicio,
-                horaFin: bloque.fin,
-                curso: item.curso,
-                tipo: tipo,
-                seccion: normalizarSeccionHorario(item.seccion),
-                sala: item.sala || '',
-                profesor: item.profesor || '',
-                rol: 'student'
+            const bloques = bloquesCubiertosPorClaseImportada(item);
+            bloques.forEach((bloque, segmentIndex) => {
+                imported.push({
+                    id: 'import-' + Date.now() + '-' + day + '-' + index + '-' + segmentIndex,
+                    dia: day,
+                    diaNombre: item.diaNombre,
+                    bloqueNum: bloque.num,
+                    horaInicio: bloque.inicio,
+                    horaFin: bloque.fin,
+                    curso: item.curso,
+                    tipo: tipo,
+                    seccion: item.seccion || '',
+                    sala: item.sala || '',
+                    profesor: item.profesor || '',
+                    rol: 'student'
+                });
             });
         });
     });
+    const occupiedBlocks = new Set();
+    for (const item of imported) {
+        const key = item.dia + ':' + item.bloqueNum;
+        if (occupiedBlocks.has(key)) {
+            mostrarEstadoImportacionHorario('La imagen muestra más de una clase en un mismo bloque. Corrige el horario y vuelve a intentarlo.', true);
+            return false;
+        }
+        occupiedBlocks.add(key);
+    }
     MI_HORARIO_DATA = { ...MI_HORARIO_DATA, clases: imported };
     guardarMiHorarioEnStorage();
     renderMiHorario();
     actualizarHeroMiHorario();
-    mostrarEstadoImportacionHorario('Horario importado correctamente.');
+    autoSyncHorario();
+    const scheduleDisplay = document.getElementById('mihorario-display-container');
+    if (scheduleDisplay) scheduleDisplay.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    mostrarEstadoImportacionHorario('');
     return true;
+}
+
+function bloquesCubiertosPorClaseImportada(clase) {
+    const start = String(clase && clase.horaInicio || '').slice(0, 5);
+    const finish = String(clase && clase.horaFin || '').slice(0, 5);
+    const startIndex = BLOQUES_NORMALES.findIndex(block => block.inicio === start);
+    if (startIndex >= 0) {
+        const finishIndex = BLOQUES_NORMALES.findIndex((block, index) =>
+            index >= startIndex && block.fin === finish
+        );
+        const count = finishIndex >= startIndex ? finishIndex - startIndex + 1 : 0;
+        if (count > 0) {
+            const finalIndex = Math.min(BLOQUES_NORMALES.length, startIndex + count);
+            return BLOQUES_NORMALES.slice(startIndex, finalIndex);
+        }
+    }
+    return [bloqueHorarioMasCercano(start)];
 }

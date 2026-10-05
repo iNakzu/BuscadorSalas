@@ -34,7 +34,7 @@ context.window.mostrarHorarioPerfilEnMiHorario([
   { dia: 1, horaInicio: '17:30', horaFin: '18:50', curso: 'Tercera clase', tipo: 'Taller', sala: 'E204', profesor: 'Ana' }
 ]);
 assert.doesNotMatch(container.innerHTML, /Horario de Ana García|Ana García/);
-assert.match(container.innerHTML, /17:30 - 18:50/);
+assert.match(container.innerHTML, /17:25 - 18:45/);
 assert.doesNotMatch(container.innerHTML, /Mi clase/);
 assert.match(container.innerHTML, /Clase amiga/);
 assert.doesNotMatch(container.innerHTML, /my-btn-delete|abrirModalAgregarClase|Agregar ramo/);
@@ -51,7 +51,7 @@ assert.strictEqual(vm.runInContext('JSON.stringify(MI_HORARIO_DATA.clases)', con
 context.window.cerrarHorarioPerfilEnMiHorario();
 assert.match(container.innerHTML, /my-btn-edit/);
 assert.match(container.innerHTML, /M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7/);
-assert.match(container.innerHTML, /17:30 - 18:50/);
+assert.match(container.innerHTML, /17:25 - 18:45/);
 assert.match(hero.innerHTML, /Mi clase/);
 assert.strictEqual(vm.runInContext('JSON.stringify(MI_HORARIO_DATA.clases)', context), originalSchedule);
 

@@ -33,14 +33,30 @@ class PortalV1Test(unittest.TestCase):
         self.assertIn('<div id="agenda-container">', template)
         self.assertRegex(styles, r"@media \(max-width: 600px\)\s*\{[^}]*#agenda-container\s*\{\s*padding:\s*24px 0;",)
 
-    def test_schedule_editor_overlay_keeps_main_view_unshaded(self):
+    def test_schedule_editor_uses_compact_class_and_role_selectors(self):
         styles = Path("static/css/horario.css").read_text()
-        overlay = styles.split(".my-modal-overlay {", 1)[1].split("}", 1)[0]
-        self.assertIn("background: transparent", overlay)
-        self.assertNotIn("backdrop-filter", overlay)
-        for selector in (".my-tipo-pills", ".my-role-selector"):
-            control = styles.split(f"{selector} {{", 1)[1].split("}", 1)[0]
-            self.assertIn("background: rgba(15, 23, 42, 0.8)", control)
+        template = Path("templates/components/schedule_modal.html").read_text()
+        self.assertIn(".my-modal-choice-row", styles)
+        self.assertIn(".my-modal-select", styles)
+        self.assertIn(".my-modal-select .dropdown-item.active", styles)
+        self.assertNotIn('data-val="Taller"', template)
+        self.assertRegex(template, r'data-val="Laboratorio"[^>]*>Laboratorio</button>')
+        self.assertIn('oninput="buscarProfesoresModal(this.value)"', template)
+        self.assertIn('oninput="buscarCursosModal(this.value)"', template)
+        self.assertIn('id="modal-cursos-options"', template)
+        self.assertIn('#modal-cursos-options', styles)
+        self.assertIn('function buscarCursosModal(query)', Path('static/js/horario.js').read_text())
+        self.assertEqual(template.count("dropdown-trigger notas-course-trigger"), 5)
+        self.assertNotIn('modal-sala-search', template)
+        self.assertNotIn('.my-modal-select-group-label', styles)
+        self.assertIn('id="modal-salas-options"', template)
+        self.assertIn('id="modal-profesores-dropdown"', template)
+        self.assertIn('body.schedule-modal-open', styles)
+        self.assertIn('#modal-profesores-options', styles)
+        self.assertIn('width: min(96%, 1000px)', styles)
+        self.assertIn('getBoundingClientRect()', Path('static/js/horario.js').read_text())
+        self.assertIn('bloquearScrollFondoHorario();', Path('static/js/horario.js').read_text())
+        self.assertIn('restaurarScrollFondoHorario();', Path('static/js/horario.js').read_text())
 
     def test_removed_endpoints_are_gone(self):
         for path in ("/api/chat", "/api/tutor", "/api/transcribe", "/api/clima", "/api/transporte", "/api/metro-alertas"):
@@ -51,7 +67,13 @@ class PortalV1Test(unittest.TestCase):
         for panel in ("tab-salas", "tab-profes", "tab-ramos", "tab-malla", "tab-horario", "tab-mihorario", "tab-solemnes", "tab-notas", "tab-agenda", "tab-progreso", "tab-estudio", "tab-timer"):
             self.assertIn(f'id="{panel}"', html)
         self.assertIn('data-tab="tab-solemnes" data-private="true"', html)
-        self.assertIn('id="btn-clear-cache"', html)
+        self.assertNotIn('private-mark', html)
+        self.assertNotIn('<h1>Portal Estudiantil</h1>', html)
+        self.assertLess(html.index('class="brand-status-row"'), html.index('id="auth-card"'))
+        self.assertLess(html.index('id="auth-card"'), html.index('<nav class="tabs"'))
+        self.assertNotIn('label-sync-count', html)
+        self.assertNotIn('class="status-pill"', html)
+        self.assertNotIn('btn-clear-cache', html)
         for removed in ("ai-chat-window", "tab-reloj", "tab-cronometro", "tab-kanban", "tab-gastos", "tab-compras", "tab-notasvoz", "tab-habitos", "tab-riff", "tab-transporte", "tab-clima"):
             self.assertNotIn(removed, html)
 
@@ -104,11 +126,20 @@ class PortalV1Test(unittest.TestCase):
             self.assertEqual(room["curso"], "Probabilidades y Estadística")
             self.assertEqual(room["profe"], "Profesora Ejemplo")
 
-    def test_last_standard_block_uses_fixed_1730_to_1850_window(self):
-        last_normal = next(block for block in schedule.STANDARD_BLOCKS if block["id"] == "17:30:00")
-        self.assertEqual(last_normal["label"], "17:30 - 18:50")
-        self.assertEqual(last_normal["start"], "17:30:00")
-        self.assertEqual(last_normal["finish"], "18:50:00")
+    def test_free_room_until_label_uses_compact_time_and_duration(self):
+        classes = [{"node": {
+            "day": "1", "start": "11:30", "finish": "12:50", "place": "E441.1.S101",
+            "section": "1", "course": "Clase próxima", "teacher": "Profesora Ejemplo", "code": "ABC123",
+        }}]
+        with patch.object(schedule.dm, "get_classes", return_value=classes):
+            _, _, free_info = schedule.obtener_salas(1, "8:30:00", "INGENIERIA")
+        self.assertEqual(free_info["E441.1.S101"]["texto"], "11:30 · 3h")
+
+    def test_last_standard_block_uses_fixed_1725_to_1845_window(self):
+        last_normal = next(block for block in schedule.STANDARD_BLOCKS if block["id"] == "17:25:00")
+        self.assertEqual(last_normal["label"], "17:25 - 18:45")
+        self.assertEqual(last_normal["start"], "17:25:00")
+        self.assertEqual(last_normal["finish"], "18:45:00")
 
     def test_teacher_search_splits_each_room_and_section_into_its_own_result(self):
         classes = [
@@ -151,7 +182,7 @@ class PortalV1Test(unittest.TestCase):
         self.assertIn("url.pathname.startsWith('/api/')", worker)
         self.assertIn("url.pathname.includes('/auth/')", worker)
         self.assertIn("if (url.search)", worker)
-        self.assertIn("portal-estudiantil-v1-core-14", worker)
+        self.assertIn("portal-estudiantil-v1-core-16", worker)
         self.assertLess(worker.index("response.clone()"), worker.index("caches.open(CACHE_NAME).then(cache => cache.put"))
 
     def test_nginx_api_rate_limit_is_wired_before_validation(self):

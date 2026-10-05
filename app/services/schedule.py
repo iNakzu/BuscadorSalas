@@ -18,7 +18,7 @@ STANDARD_BLOCKS = [
     {"id": "13:00:00", "label": "13:00 - 14:20", "start": "13:00:00", "finish": "14:20:00", "start_min": 13 * 60, "end_min": 14 * 60 + 20},
     {"id": "14:30:00", "label": "14:30 - 15:50", "start": "14:30:00", "finish": "15:50:00", "start_min": 14 * 60 + 30, "end_min": 15 * 60 + 50},
     {"id": "16:00:00", "label": "16:00 - 17:20", "start": "16:00:00", "finish": "17:20:00", "start_min": 16 * 60, "end_min": 17 * 60 + 20},
-    {"id": "17:30:00", "label": "17:30 - 18:50", "start": "17:30:00", "finish": "18:50:00", "start_min": 17 * 60 + 30, "end_min": 18 * 60 + 50},
+    {"id": "17:25:00", "label": "17:25 - 18:45", "start": "17:25:00", "finish": "18:45:00", "start_min": 17 * 60 + 25, "end_min": 18 * 60 + 45},
     {"id": "08:30:00_S", "label": "08:30 - 10:30", "start": "08:30:00", "finish": "10:30:00", "start_min": 8 * 60 + 30, "end_min": 10 * 60 + 30},
     {"id": "10:45:00_S", "label": "10:45 - 12:45", "start": "10:45:00", "finish": "12:45:00", "start_min": 10 * 60 + 45, "end_min": 12 * 60 + 45},
     {"id": "13:00:00_S", "label": "13:00 - 15:00", "start": "13:00:00", "finish": "15:00:00", "start_min": 13 * 60, "end_min": 15 * 60},
@@ -325,7 +325,7 @@ def obtener_salas(dia_numero, hora_exacta, filtro_facultad):
             if diff >= 60:
                 hrs = diff // 60
                 mins = diff % 60
-                tiempo_str = f"{hrs}h{mins:02d}" if mins else f"{hrs}h"
+                tiempo_str = f"{hrs}h {mins}m" if mins else f"{hrs}h"
             else:
                 tiempo_str = f"{diff}m"
 
@@ -334,7 +334,7 @@ def obtener_salas(dia_numero, hora_exacta, filtro_facultad):
                 'proximo_curso': prox['course'],
                 'minutos_hasta_proxima': diff,
                 'libre_todo_el_dia': False,
-                'texto': f"Hasta las {prox['start']} ({tiempo_str})"
+                'texto': f"{prox['start']} · {tiempo_str}"
             }
         else:
             vacias_info[s] = {
@@ -394,11 +394,137 @@ def normalize_str(s):
     nfkd = unicodedata.normalize('NFD', str(s))
     return "".join(c for c in nfkd if not unicodedata.combining(c)).lower().strip()
 
+_TEACHER_TITLE_TOKENS = {"prof", "profesor", "profesora", "dr", "dra", "doctor", "doctora", "ing"}
+
+def _teacher_tokens(value):
+    return [
+        token for token in re.findall(r"[a-z0-9]+", normalize_str(value))
+        if token not in _TEACHER_TITLE_TOKENS
+    ]
+
+def _token_edit_distance(left, right, limit):
+    if abs(len(left) - len(right)) > limit:
+        return None
+    previous = list(range(len(right) + 1))
+    for left_index, left_char in enumerate(left, start=1):
+        current = [limit + 1] * (len(right) + 1)
+        current[0] = left_index
+        start = max(1, left_index - limit)
+        end = min(len(right), left_index + limit)
+        for right_index in range(start, end + 1):
+            current[right_index] = min(
+                previous[right_index] + 1,
+                current[right_index - 1] + 1,
+                previous[right_index - 1] + (left_char != right[right_index - 1]),
+            )
+        if min(current[start:end + 1] or [limit + 1]) > limit:
+            return None
+        previous = current
+    return previous[len(right)] if previous[len(right)] <= limit else None
+
+def distancia_nombre_profesor(left, right):
+    """Order-independent, bounded token distance for OCR errors in names."""
+    left_tokens = _teacher_tokens(left)
+    right_tokens = _teacher_tokens(right)
+    if not left_tokens or not right_tokens or len(str(left)) > 160 or len(str(right)) > 160:
+        return None
+    if len(left_tokens) > len(right_tokens) or len(left_tokens) > 10 or len(right_tokens) > 10:
+        return None
+    edges = []
+    for token in left_tokens:
+        choices = []
+        for index, candidate in enumerate(right_tokens):
+            if token == candidate:
+                distance = 0
+            else:
+                tolerance = min(2, max(1, len(token) // 6)) if len(token) >= 5 else 0
+                distance = _token_edit_distance(token, candidate, tolerance)
+            if distance is not None:
+                choices.append((distance, index))
+        if not choices:
+            return None
+        edges.append(sorted(choices))
+
+    # Assign every extracted name token to a different official name token.
+    # The small cap keeps this bounded even for malformed client input.
+    states = {0: 0}
+    for choices in edges:
+        next_states = {}
+        for used_mask, score in states.items():
+            for distance, index in choices:
+                bit = 1 << index
+                if used_mask & bit:
+                    continue
+                new_mask = used_mask | bit
+                total = score + distance
+                if total <= 4 and total < next_states.get(new_mask, 5):
+                    next_states[new_mask] = total
+        states = next_states
+        if not states:
+            return None
+    return min(states.values())
+
+def listar_profesores(clases=None):
+    """Return the unique teacher names available to the professor selector."""
+    if clases is None:
+        clases = dm.get_classes()
+    names = {}
+    for clase in clases:
+        nodo = clase.get("node", {}) if isinstance(clase, dict) else {}
+        if not isinstance(nodo, dict):
+            continue
+        name = str(nodo.get("teacher") or "").strip()
+        if len(name) > 160:
+            continue
+        normalized = normalize_str(name)
+        if normalized:
+            names.setdefault(normalized, name.upper())
+    return list(names.values())
+
+def buscar_nombres_profesores(query, clases=None):
+    """Filter the selector's official teacher-name list, allowing OCR typos."""
+    query = " ".join(str(query or "").split())
+    if not query or len(query) > 160:
+        return []
+    query_normalized = normalize_str(query)
+    tokens = query_normalized.split()
+    matches = []
+    for name in listar_profesores(clases):
+        normalized = normalize_str(name)
+        if all(token in normalized for token in tokens):
+            distance = 0
+        else:
+            distance = distancia_nombre_profesor(query, name)
+        if distance is not None:
+            matches.append((distance, normalized, name))
+    matches.sort(key=lambda item: (item[0], item[1]))
+    return [name for _distance, _normalized, name in matches]
+
+def mejor_coincidencia_profesor(query, clases=None):
+    """Return one official name only when it is the unique closest match."""
+    tokens = _teacher_tokens(query)
+    if not tokens:
+        return ""
+    matches = []
+    for name in listar_profesores(clases):
+        distance = distancia_nombre_profesor(query, name)
+        if distance is not None:
+            matches.append((distance, normalize_str(name), name))
+    if not matches:
+        return ""
+    best_distance = min(item[0] for item in matches)
+    best = [item for item in matches if item[0] == best_distance]
+    # A one-word OCR fragment is too weak to canonicalize unless it exactly
+    # identifies one official token (distance zero).
+    if len(tokens) == 1 and best_distance != 0:
+        return ""
+    return best[0][2] if len(best) == 1 else ""
+
 def buscar_profesor(nombre_buscado, dia_filtro=None, hora_filtro=None):
     clases = dm.get_classes()
     resultados = []
-    tokens = [t for t in normalize_str(nombre_buscado).split() if len(t) > 0]
-    if not tokens:
+    matched_names = {normalize_str(name) for name in buscar_nombres_profesores(nombre_buscado, clases)}
+    if not matched_names:
         return []
 
     dia_int = None
@@ -411,7 +537,7 @@ def buscar_profesor(nombre_buscado, dia_filtro=None, hora_filtro=None):
         nodo = clase.get('node', {})
         profe = nodo.get('teacher', "")
         norm_p = normalize_str(profe)
-        if all(t in norm_p for t in tokens):
+        if norm_p in matched_names:
             if dia_int is not None and nodo.get('day') != dia_int:
                 continue
             c_start = format_time(nodo.get('start', ''))
@@ -712,7 +838,7 @@ def calcular_bloque_actual(ref_datetime=None):
 
     es_fin_de_semana = dia_real > 5
     primer_bloque_min = STANDARD_BLOCKS[0]["start_min"]  # 08:30 (510 min)
-    ultimo_bloque_min = max(block["end_min"] for block in STANDARD_BLOCKS if not block["id"].endswith("_S"))  # 18:50
+    ultimo_bloque_min = max(block["end_min"] for block in STANDARD_BLOCKS if not block["id"].endswith("_S"))  # 18:45
     fuera_de_hora = current_min < primer_bloque_min or current_min > ultimo_bloque_min
 
     en_horario_valido = (not es_fin_de_semana) and (not fuera_de_hora)
@@ -729,10 +855,10 @@ def calcular_bloque_actual(ref_datetime=None):
 
     mensaje_horario = ""
     if es_fin_de_semana:
-        mensaje_horario = "Actualmente es fin de semana. Las clases se dictan de lunes a viernes (08:30 - 18:50)."
+        mensaje_horario = "Actualmente es fin de semana. Las clases se dictan de lunes a viernes (08:30 - 18:45)."
     elif current_min < primer_bloque_min:
         mensaje_horario = "Aún no inicia el horario de clases de hoy (el primer bloque inicia a las 08:30)."
     elif current_min > ultimo_bloque_min:
-        mensaje_horario = "La jornada de clases ya finalizó por hoy (el último bloque finalizó a las 18:50)."
+        mensaje_horario = "La jornada de clases ya finalizó por hoy (el último bloque finalizó a las 18:45)."
 
     return dia_seleccionado, bloque_seleccionado, en_horario_valido, mensaje_horario

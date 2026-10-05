@@ -188,6 +188,7 @@ const customStyles = `
             width: 100vw;
             max-width: none;
             margin-left: calc(-50vw + 50%);
+            padding-left: 32px;
         }
     }
     .solemnes-grid {
@@ -404,7 +405,7 @@ function renderSolemnes() {
         const isCurrent = (b.num === currentBlockNum);
         // Time column
         gridHtml += `
-            <div class="sol-time-cell" ${isCurrent ? 'style="background: rgba(255, 255, 255, 0.05); border-left: 2px solid #fff;"' : ''}>
+            <div class="sol-time-cell" ${isCurrent ? 'style="border-left: 2px solid #fff;"' : ''}>
                 ${isCurrent ? '<span class="pulse-dot-white" style="position: absolute; top: 12px; left: 12px;"></span>' : ''}
                 <span class="sol-time-num">Bloque ${b.num}</span>
                 <span class="sol-time-range">${b.label}</span>

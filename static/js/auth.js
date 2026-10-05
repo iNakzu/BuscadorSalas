@@ -12,6 +12,8 @@
     }) : null;
 
     const api = window.PortalAuth = { client, user: null, available };
+    let resolveInitialSession;
+    api.ready = new Promise(resolve => { resolveInitialSession = resolve; });
 
     function displayName(user) {
         const metadata = user && user.user_metadata || {};
@@ -36,15 +38,14 @@
         const name = document.getElementById('auth-name');
         const email = document.getElementById('auth-email');
         const login = document.getElementById('auth-login');
-        const logout = document.getElementById('auth-logout');
-        const reset = document.getElementById('btn-clear-cache');
-        if (!status || !profile || !avatar || !name || !email || !login || !logout) return;
-        if (reset) reset.hidden = !api.user;
+        if (!status || !profile || !avatar || !name || !email || !login) return;
         if (!available) {
             status.textContent = 'El acceso personal estará disponible al conectar Supabase.';
             login.disabled = true;
             profile.hidden = true;
         } else if (api.user) {
+            const gate = document.getElementById('auth-gate');
+            if (gate) gate.hidden = true;
             const fullName = displayName(api.user);
             status.hidden = true;
             profile.hidden = false;
@@ -52,14 +53,12 @@
             name.textContent = fullName;
             email.textContent = api.user.email || '';
             login.hidden = true;
-            logout.hidden = false;
         } else {
             status.hidden = false;
             status.textContent = 'Inicia sesión para sincronizar tus datos personales.';
             profile.hidden = true;
             login.hidden = false;
             login.disabled = false;
-            logout.hidden = true;
         }
     }
 
@@ -67,35 +66,90 @@
         const hadAuthenticatedUser = Boolean(api.user);
         api.user = session && session.user || null;
         render();
+        if (resolveInitialSession) {
+            resolveInitialSession(api.user);
+            resolveInitialSession = null;
+        }
         document.dispatchEvent(new CustomEvent('portal:auth-changed', { detail: { user: api.user } }));
         if (wasSignedOut && hadAuthenticatedUser && !api.user) window.location.reload();
     }
 
     api.signIn = async function () {
         if (!client) return;
-        const { error } = await client.auth.signInWithOAuth({
-            provider: 'google',
-            options: { redirectTo: `${config.publicOrigin || 'https://horarios.dev'}/` }
-        });
-        if (error) {
+        try {
+            const { error } = await client.auth.signInWithOAuth({
+                provider: 'google',
+                options: { redirectTo: `${config.publicOrigin || 'https://horarios.dev'}/` }
+            });
+            if (error) throw error;
+        } catch (error) {
+            console.error('No se pudo iniciar el acceso con Google', error);
             const status = document.getElementById('auth-status');
             if (status) {
                 status.hidden = false;
-                status.textContent = 'No se pudo iniciar sesión con Google. Revisa la configuración de Supabase.';
+                status.textContent = 'No se pudo conectar con el servicio de inicio de sesión. Inténtalo de nuevo en unos minutos.';
             }
         }
     };
 
     api.signOut = async function () {
+        if (window.PortalPush && typeof window.PortalPush.detachCurrentDevice === 'function') {
+            try { await window.PortalPush.detachCurrentDevice(); }
+            catch (error) { console.warn('No se pudo quitar el registro push de este dispositivo antes de cerrar sesión.'); }
+        }
         if (client) await client.auth.signOut();
         location.reload();
     };
 
+    api.updateUserMetadata = async function (attributes) {
+        if (!client || !api.user) throw new Error('Inicia sesión para editar tu perfil.');
+        const { data, error } = await client.auth.updateUser({ data: attributes });
+        if (error) throw error;
+        if (data && data.user) {
+            api.user = data.user;
+            render();
+            document.dispatchEvent(new CustomEvent('portal:auth-changed', { detail: { user: api.user } }));
+        }
+        return data && data.user;
+    };
+
+    api.resetPersonalData = async function () {
+        const button = document.getElementById('auth-reset-data');
+        const status = document.getElementById('profile-feedback') || document.getElementById('auth-status');
+        if (!client || !api.user || !window.PortalStore || !button) return;
+        button.disabled = true;
+        try {
+            await window.PortalStore.resetAll();
+            window.location.reload();
+        } catch (error) {
+            console.error('No se pudieron reiniciar los datos personales', error);
+            if (status) {
+                status.hidden = false;
+                if (error && error.localDataCleared) {
+                    status.textContent = 'Datos locales borrados. Actualizando…';
+                    window.location.reload();
+                    return;
+                }
+                const errorCode = error && error.code ? ` (${error.code})` : '';
+                status.textContent = `No se pudieron reiniciar los datos${errorCode || ' (error de conexión)'}. Inténtalo de nuevo.`;
+            }
+            button.disabled = false;
+        }
+    };
+
     document.addEventListener('DOMContentLoaded', async () => {
         render();
-        if (!client) return;
-        const { data } = await client.auth.getSession();
-        publish(data.session);
-        client.auth.onAuthStateChange((event, session) => publish(session, event === 'SIGNED_OUT'));
+        if (!client) {
+            publish(null);
+            return;
+        }
+        try {
+            const { data } = await client.auth.getSession();
+            publish(data && data.session);
+            client.auth.onAuthStateChange((event, session) => publish(session, event === 'SIGNED_OUT'));
+        } catch (error) {
+            console.error('No se pudo restaurar la sesión guardada', error);
+            publish(null);
+        }
     });
 })();

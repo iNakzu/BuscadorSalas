@@ -7,6 +7,13 @@ function notasJsArg(value) {
     return escapeHtml(JSON.stringify(String(value == null ? '' : value)));
 }
 
+function normalizarNota(value) {
+    if (value === null || value === undefined || String(value).trim() === '') return null;
+    const parsed = Number(String(value).trim().replace(',', '.'));
+    if (!Number.isFinite(parsed)) return null;
+    return Math.min(7, Math.max(1, parsed));
+}
+
 
 function initNotas() {
     try {
@@ -42,9 +49,13 @@ function limpiarRedundanciaNotas(payload) {
         delete course.eximGrade;
         if (Array.isArray(course.items)) {
             course.items.forEach(item => {
-                if (item && typeof item === 'object' && !Array.isArray(item)) delete item.id;
+                if (item && typeof item === 'object' && !Array.isArray(item)) {
+                    delete item.id;
+                    item.grade = normalizarNota(item.grade);
+                }
             });
         }
+        course.examGrade = normalizarNota(course.examGrade);
     });
     return payload;
 }
@@ -200,7 +211,7 @@ function renderNotasBuilder(options = {}) {
         data.items = data.items.map(item => ({
             name: item.name || "Evaluación",
             weight: item.weight || 0,
-            grade: item.grade || null
+            grade: normalizarNota(item.grade)
         }));
     } else {
         data.items = [];
@@ -553,7 +564,7 @@ window.renderNotasPublicas = function (container, payload) {
 
 function updateNotaItem(dbKey, index, field, value) {
     if (!NOTAS_DATA[dbKey]) return;
-    NOTAS_DATA[dbKey].items[index][field] = value;
+    NOTAS_DATA[dbKey].items[index][field] = field === 'grade' ? normalizarNota(value) : value;
     saveNotas();
     renderNotasBuilder();
 }
@@ -561,7 +572,9 @@ function updateNotaItem(dbKey, index, field, value) {
 window.updateGlobalNota = function(dbKey, field, value) {
     if (!NOTAS_DATA[dbKey]) return;
     
-    if (value === '') {
+    if (field === 'examGrade') {
+        NOTAS_DATA[dbKey][field] = normalizarNota(value);
+    } else if (value === '') {
         NOTAS_DATA[dbKey][field] = null;
     } else {
         let parsed = parseFloat(value);

@@ -10,7 +10,7 @@ sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 443 -j ACCEPT 2>/de
 
 # Instalar y guardar persistencia de iptables
 sudo apt-get update -y
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y iptables-persistent netfilter-persistent nginx
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y iptables-persistent netfilter-persistent nginx imagemagick
 sudo netfilter-persistent save
 
 # 2. Copiar servicio systemd si existe
@@ -49,4 +49,4 @@ echo "--- Estado de BuscadorSalas (Gunicorn) ---"
 sudo systemctl is-active buscadorsalas
 
 echo ""
-echo "=== ¡Listo! Tu página ya debería ser accesible públicamente en: http://144.22.33.41 ==="
+echo "=== ¡Listo! Tu página ya debería ser accesible públicamente en: https://horarios.dev ==="

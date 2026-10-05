@@ -1,7 +1,8 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" translate="no">
 <head>
   <meta charset="utf-8">
+  <meta name="google" content="notranslate">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Portal Estudiantil</title>
   <meta name="description" content="Salas, horarios y herramientas académicas para estudiantes.">
@@ -12,13 +13,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}?v=20260929-4">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/notas.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/agenda.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/horario.css') }}&amp;v=20261002-modal-transparent">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/v1.css') }}?v=20260929-9">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/community.css') }}?v=20261001-4">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.css" integrity="sha384-3rdsX6e5mueWyoweR9NIVmtEsUkokpBT/0ALqKKIBMr9j4qhHkaIkAcGgsE6uVlp" crossorigin="anonymous">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}&amp;v=20261002-timer-end-time">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}?v=20261002-free-room-pill">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/notas.css') }}&amp;v=20261002-notes-course-search-style">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/agenda.css') }}&amp;v=20261004-agenda-course-colors-1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/horario.css') }}&amp;v=20261005-room-select-dash-first-1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/v1.css') }}&amp;v=20261004-profile-page-1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/community.css') }}?v=20261004-profile-inline-1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/ai-assistant.css') }}?v=20261004-ai-chat-surface-gradient-3">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/push-notifications.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}&amp;v=20261004-profile-inline-2">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/highlight-github-dark.min.css') }}&amp;v=20261004-highlightjs-11.12.0-1">
 </head>
 <body class="{% if solemne_status.get(sel.dia|int, False) %}solemne-mode{% endif %}">
 <div class="container">
@@ -34,29 +40,37 @@
     {% include 'views/solemnes.html' %}
     {% include 'views/notas.html' %}
     {% include 'views/agenda.html' %}
-    {% include 'components/agenda_modal.html' %}
+    {% include 'views/perfil.html' %}
     {% include 'views/progreso.html' %}
     {% include 'views/estudio.html' %}
     {% include 'views/timer.html' %}
   </main>
 </div>
+{% include 'components/schedule_modal.html' %}
+{% include 'components/agenda_modal.html' %}
+{% include 'components/ai_assistant.html' %}
 <div class="auth-gate" id="auth-gate" hidden><div><h2>Tu espacio personal</h2><p>Inicia sesión con tu cuenta institucional para abrir este módulo y sincronizarlo entre dispositivos.</p><button type="button" class="auth-button" onclick="PortalAuth.signIn()">Continuar con Google</button></div></div>
-<script>window.PORTAL_CONFIG={{ client_config|tojson }}; const TODAS_LAS_SALAS={{ todas_las_salas|tojson }}; window.statusSolemnes={{ solemne_status|tojson }};</script>
+<script>window.PORTAL_CONFIG={{ client_config|tojson }}; window.PORTAL_CONFIG.personalDataResetGeneration="20261003-reset-academic-data"; (function(){try{const g="portal:personal-data-reset-generation",v=window.PORTAL_CONFIG.personalDataResetGeneration;if(localStorage.getItem(g)===v)return;["mi_horario_custom_v1","mi_notas_v1","mi_agenda_v1","mi_progreso_v1","portal:legacy-owner"].forEach(k=>localStorage.removeItem(k));for(let i=localStorage.length-1;i>=0;i--){const k=localStorage.key(i);if(k&&(/^portal:[^:]+:(schedule|grades|agenda|curriculum)(:updated-at)?$/.test(k)||/^portal:[^:]+:data-reset-at:(schedule|grades|agenda|curriculum)$/.test(k)))localStorage.removeItem(k)}localStorage.setItem(g,v)}catch(e){console.error("No se pudieron limpiar los datos locales",e)}})(); const TODAS_LAS_SALAS={{ todas_las_salas|tojson }}; window.statusSolemnes={{ solemne_status|tojson }};</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2" integrity="sha384-WgXwGL6fUsYJWNaKJgVbrJKGRQwc1vieh2oy4kw9nXqpNDz3tdSsqEYUgeHD/NuF" crossorigin="anonymous" defer></script>
 <script src="{{ url_for('static', filename='js/ui_feedback.js') }}" defer></script>
-<script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
-<script src="{{ url_for('static', filename='js/auth.js') }}" defer></script>
-<script src="{{ url_for('static', filename='js/community_schedules.js') }}?v=20261001-2" defer></script>
-<script src="{{ url_for('static', filename='js/personal_store.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/app.js') }}&amp;v=20261004-profile-inline-1" defer></script>
+<script src="{{ url_for('static', filename='js/auth.js') }}&amp;v=20261004-profile-page-1" defer></script>
+<script src="{{ url_for('static', filename='js/community_schedules.js') }}?v=20261004-profile-inline-1" defer></script>
+<script src="{{ url_for('static', filename='js/personal_store.js') }}&amp;v=20261003-reset-local-fallback-5" defer></script>
 <script src="{{ url_for('static', filename='js/user_schedule_data.js') }}" defer></script>
-<script src="{{ url_for('static', filename='js/horario.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/horario.js') }}&amp;v=20261005-existing-schedule-section-sync-1" defer></script>
 <script src="{{ url_for('static', filename='js/solemnes_data.js') }}" defer></script>
-<script src="{{ url_for('static', filename='js/solemnes.js') }}" defer></script>
-<script src="{{ url_for('static', filename='js/notas.js') }}" defer></script>
-<script src="{{ url_for('static', filename='js/agenda.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/solemnes.js') }}?v=20261004-solemnes-current-block-neutral-bg-1" defer></script>
+<script src="{{ url_for('static', filename='js/notas.js') }}&amp;v=20261004-grade-bounds-1" defer></script>
+<script src="{{ url_for('static', filename='js/agenda.js') }}&amp;v=20261004-agenda-course-colors-2" defer></script>
 <script src="{{ url_for('static', filename='js/progreso.js') }}?v=20260929-3" defer></script>
 <script src="{{ url_for('static', filename='js/estudio.js') }}" defer></script>
-<script src="{{ url_for('static', filename='js/timer.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/timer.js') }}&amp;v=20261002-timer-end-time" defer></script>
 <script src="{{ url_for('static', filename='js/pwa.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/push_notifications.js') }}&amp;v=20261004-push-enable-toggle-1" defer></script>
+<script src="{{ url_for('static', filename='js/profile.js') }}&amp;v=20261004-profile-page-1" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.js" integrity="sha384-QFFtAGzvvj+bfgCGxXJlNZZR1nXEZgvG8tDLCCY1F19xl20WlfTYgguB4VcNdxYk" crossorigin="anonymous" defer></script>
+<script src="{{ url_for('static', filename='js/vendor/highlight-full.min.js') }}&amp;v=20261004-highlightjs-11.12.0-1" defer></script>
+<script src="{{ url_for('static', filename='js/ai_assistant.js') }}&amp;v=20261004-chatgpt-code-blocks-1" defer></script>
 </body>
 </html>

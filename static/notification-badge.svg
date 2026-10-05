@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="96" height="96">
+  <g fill="#fff" stroke="#fff" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Silueta sólida para que el birrete de la app siga siendo reconocible al reducirse. -->
+    <path d="m2 9 10-5 10 5-10 5L2 9Z" stroke-width="1.4"/>
+    <path d="M6 11.2v4.6c3.2 2.8 8.8 2.8 12 0v-4.6" fill="none" stroke-width="2.8"/>
+    <path d="M21.3 9.3v5.5" fill="none" stroke-width="2.4"/>
+  </g>
+</svg>

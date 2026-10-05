@@ -26,7 +26,8 @@ const context = {
 const source = fs.readFileSync('static/js/solemnes.js', 'utf8');
 assert.match(source, /#tab-solemnes \{[\s\S]*?overflow: visible !important;/);
 assert.match(source, /\.solemnes-scroll-wrapper \{[\s\S]*?overflow-x: auto;/);
-assert.match(source, /@media \(max-width: 1023px\) \{\s*\.solemnes-scroll-wrapper \{\s*width: 100vw;\s*max-width: none;\s*margin-left: calc\(-50vw \+ 50%\);/);
+assert.match(source, /@media \(max-width: 1023px\) \{\s*\.solemnes-scroll-wrapper \{\s*width: 100vw;\s*max-width: none;\s*margin-left: calc\(-50vw \+ 50%\);\s*padding-left: 32px;/);
+assert.match(source, /\.solemnes-scroll-wrapper \{[\s\S]*?padding: 0 16px 20px 16px;/);
 assert.match(fs.readFileSync('static/css/community.css', 'utf8'), /#tab-solemnes\.public-profile-active > \.search-field \{ display: none !important; \}/);
 vm.createContext(context);
 vm.runInContext(source, context);

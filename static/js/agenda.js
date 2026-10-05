@@ -33,6 +33,75 @@ function agendaJsArg(value) {
 }
 
 const AGENDA_STORAGE_KEY = 'mi_agenda_v1';
+const AGENDA_COURSE_PALETTE = [
+    '0, 210, 255', '177, 92, 255', '255, 64, 156', '0, 232, 135',
+    '255, 208, 0', '61, 132, 255', '255, 79, 118', '184, 240, 0',
+    '0, 229, 197', '255, 122, 0', '124, 108, 255', '255, 73, 210',
+    '65, 245, 107', '255, 230, 0', '0, 239, 255', '255, 93, 93'
+];
+
+function claveRamoAgenda(ramo) {
+    return String(ramo || '').trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es');
+}
+
+function colorHslAgenda(hue) {
+    const saturation = 0.9;
+    const lightness = 0.62;
+    const chroma = (1 - Math.abs(2 * lightness - 1)) * saturation;
+    const section = hue / 60;
+    const x = chroma * (1 - Math.abs(section % 2 - 1));
+    const [red, green, blue] = section < 1 ? [chroma, x, 0]
+        : section < 2 ? [x, chroma, 0]
+        : section < 3 ? [0, chroma, x]
+        : section < 4 ? [0, x, chroma]
+        : section < 5 ? [x, 0, chroma]
+        : [chroma, 0, x];
+    const lightnessOffset = lightness - chroma / 2;
+    return [red, green, blue].map(value => Math.round((value + lightnessOffset) * 255)).join(', ');
+}
+
+function crearMapaColoresRamosAgenda(events) {
+    const courses = [...new Set((Array.isArray(events) ? events : [])
+        .map(event => claveRamoAgenda(event && event.ramo)).filter(Boolean))].sort();
+    const colors = new Map();
+    const used = new Set();
+    courses.forEach(course => {
+        let hash = 2166136261;
+        for (const char of course) hash = Math.imul(hash ^ char.charCodeAt(0), 16777619) >>> 0;
+        let color = '';
+        for (let offset = 0; offset < AGENDA_COURSE_PALETTE.length; offset++) {
+            const candidate = AGENDA_COURSE_PALETTE[(hash + offset) % AGENDA_COURSE_PALETTE.length];
+            if (!used.has(candidate)) { color = candidate; break; }
+        }
+        for (let attempt = 0; !color; attempt++) {
+            const candidate = colorHslAgenda((hash + attempt * 137.508) % 360);
+            if (!used.has(candidate)) color = candidate;
+        }
+        colors.set(course, color);
+        used.add(color);
+    });
+    return colors;
+}
+
+function colorRamoAgenda(event, colors) {
+    return colors.get(claveRamoAgenda(event && event.ramo)) || '148, 163, 184';
+}
+
+function actualizarValidacionRamoAgenda(mostrarError = false) {
+    const input = document.getElementById('agenda-ramo');
+    const error = document.getElementById('agenda-ramo-error');
+    const dropdown = document.getElementById('dd-agenda-ramo');
+    const trigger = dropdown && dropdown.querySelector('.dropdown-trigger');
+    const valido = Boolean(input && String(input.value || '').trim());
+    if (error) error.hidden = valido || !mostrarError;
+    if (trigger) trigger.setAttribute('aria-invalid', valido ? 'false' : (mostrarError ? 'true' : 'false'));
+    return valido;
+}
+
+function seleccionarRamoAgenda(value, label) {
+    selectDropdownItem('dd-agenda-ramo', value, label);
+    actualizarValidacionRamoAgenda(false);
+}
 
 const ICONS = {
     'Solemne': '<span class="agenda-type-dot" style="background:#ef4444"></span>',
@@ -63,7 +132,16 @@ function saveAgenda() {
         localStorage.setItem(AGENDA_STORAGE_KEY, JSON.stringify(AGENDA_DATA));
         if (window.PortalStore) window.PortalStore.save('agenda', AGENDA_DATA);
     } catch(e) { console.error(e); }
+    if (typeof CustomEvent === 'function') document.dispatchEvent(new CustomEvent('portal:agenda-updated'));
 }
+
+window.portalGetAgendaPushData = () => (Array.isArray(AGENDA_DATA) ? AGENDA_DATA : []).map(event => ({
+    key: String(event.id || ''),
+    date: String(event.fecha || '').slice(0, 10),
+    time: String(event.fecha || '').slice(11, 16),
+    hasTime: Boolean(event.hasTime),
+    completed: Boolean(event.completado)
+}));
 
 function renderCalendar(publicView = null) {
     const container = publicView ? publicView.daysContainer : document.getElementById('calendar-days-container');
@@ -75,6 +153,7 @@ function renderCalendar(publicView = null) {
     const events = publicView ? publicView.events : AGENDA_DATA;
     const query = publicView ? publicView.query : currentAgendaSearch;
     const readOnly = Boolean(publicView && publicView.readOnly);
+    const courseColors = crearMapaColoresRamosAgenda(events);
     
     const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
     titleEl.textContent = `${monthNames[month]} ${year}`;
@@ -107,18 +186,14 @@ function renderCalendar(publicView = null) {
         let dotsHtml = '';
         if (dayEvents.length > 0) {
             let desktopDots = '';
-            if (dayEvents.length <= 5) {
-                desktopDots = dayEvents.map(ev => `<div class="cal-dot ${escapeAgendaHtml(String(ev.tipo || '').toLowerCase())}"></div>`).join('');
+            if (dayEvents.length <= 6) {
+                desktopDots = dayEvents.map(ev => `<div class="cal-dot" style="--dot-rgb: ${colorRamoAgenda(ev, courseColors)}" title="${escapeAgendaHtml(ev.ramo || 'Otro')}"></div>`).join('');
             } else {
-                desktopDots = `<div class="cal-dot-multi">${dayEvents.length}</div>`;
+                desktopDots = dayEvents.slice(0, 6).map(ev => `<div class="cal-dot" style="--dot-rgb: ${colorRamoAgenda(ev, courseColors)}" title="${escapeAgendaHtml(ev.ramo || 'Otro')}"></div>`).join('') + `<span class="cal-dot-overflow">+${dayEvents.length - 6}</span>`;
             }
             
-            let mobileDots = '';
-            if (dayEvents.length === 1) {
-                mobileDots = `<div class="cal-dot ${escapeAgendaHtml(String(dayEvents[0].tipo || '').toLowerCase())}"></div>`;
-            } else {
-                mobileDots = `<div class="cal-dot-multi">${dayEvents.length}</div>`;
-            }
+            const mobileDots = dayEvents.slice(0, 6).map(ev => `<div class="cal-dot" style="--dot-rgb: ${colorRamoAgenda(ev, courseColors)}" title="${escapeAgendaHtml(ev.ramo || 'Otro')}"></div>`).join('')
+                + (dayEvents.length > 6 ? `<span class="cal-dot-overflow">+${dayEvents.length - 6}</span>` : '');
             
             dotsHtml = `<div class="cal-dots-container">
                             <div class="desktop-dots">${desktopDots}</div>
@@ -202,11 +277,11 @@ function abrirModalAgenda(id = null, clickedDate = null) {
         myRamos = [...new Set(validClasses.map(c => c.curso))].filter(Boolean).sort();
     }
     
-    let htmlMenu = `<div class="dropdown-item active" data-val="" onclick="selectDropdownItem('dd-agenda-ramo', '', 'Selecciona un Ramo...')">Selecciona un Ramo...</div>`;
+    let htmlMenu = `<div class="dropdown-item active" data-val="" onclick="seleccionarRamoAgenda('', 'Selecciona un Ramo...')">Selecciona un Ramo...</div>`;
     myRamos.forEach(r => {
-        htmlMenu += `<div class="dropdown-item" data-val="${escapeAgendaHtml(r)}" onclick="selectDropdownItem('dd-agenda-ramo', ${agendaJsArg(r)}, ${agendaJsArg(r)})">${escapeAgendaHtml(r)}</div>`;
+        htmlMenu += `<div class="dropdown-item" data-val="${escapeAgendaHtml(r)}" onclick="seleccionarRamoAgenda(${agendaJsArg(r)}, ${agendaJsArg(r)})">${escapeAgendaHtml(r)}</div>`;
     });
-    htmlMenu += `<div class="dropdown-item" data-val="Otro" onclick="selectDropdownItem('dd-agenda-ramo', 'Otro', 'Otro...')">Otro...</div>`;
+    htmlMenu += `<div class="dropdown-item" data-val="Otro" onclick="seleccionarRamoAgenda('Otro', 'Otro...')">Otro...</div>`;
     
     const menuEl = document.querySelector('#dd-agenda-ramo .dropdown-menu');
     if (menuEl) menuEl.innerHTML = htmlMenu;
@@ -217,10 +292,10 @@ function abrirModalAgenda(id = null, clickedDate = null) {
             document.getElementById('agenda-id').value = ev.id;
             
             if (ev.ramo && !myRamos.includes(ev.ramo) && ev.ramo !== 'Otro') {
-                htmlMenu += `<div class="dropdown-item" data-val="${escapeAgendaHtml(ev.ramo)}" onclick="selectDropdownItem('dd-agenda-ramo', ${agendaJsArg(ev.ramo)}, ${agendaJsArg(ev.ramo)})">${escapeAgendaHtml(ev.ramo)}</div>`;
+                htmlMenu += `<div class="dropdown-item" data-val="${escapeAgendaHtml(ev.ramo)}" onclick="seleccionarRamoAgenda(${agendaJsArg(ev.ramo)}, ${agendaJsArg(ev.ramo)})">${escapeAgendaHtml(ev.ramo)}</div>`;
                 if (menuEl) menuEl.innerHTML = htmlMenu;
             }
-            selectDropdownItem('dd-agenda-ramo', ev.ramo, ev.ramo);
+            seleccionarRamoAgenda(ev.ramo, ev.ramo);
             
             const tipoMap = {
                 'Solemne': 'Solemne / Prueba',
@@ -258,7 +333,7 @@ function abrirModalAgenda(id = null, clickedDate = null) {
         document.getElementById('agenda-fecha-base').value = targetDate;
         document.getElementById('agenda-modal-subtitle').textContent = formatearTituloFecha(targetDate);
         
-        selectDropdownItem('dd-agenda-ramo', '', 'Selecciona un Ramo...');
+        seleccionarRamoAgenda('', 'Selecciona un Ramo...');
         selectDropdownItem('dd-agenda-tipo', 'Solemne', 'Solemne / Prueba');
         toggleHoraOpcional(false);
     }
@@ -280,6 +355,13 @@ function guardarEventoAgenda(e) {
     const hasTime = document.getElementById('agenda-has-time').value === 'true';
     const hora = document.getElementById('agenda-hora').value;
     const notas = document.getElementById('agenda-notas').value;
+
+    if (!actualizarValidacionRamoAgenda(true)) {
+        const dropdown = document.getElementById('dd-agenda-ramo');
+        const assignmentTrigger = dropdown && dropdown.querySelector('.dropdown-trigger');
+        if (assignmentTrigger) assignmentTrigger.focus();
+        return;
+    }
     
     let fechaFinal = fechaBase;
     if (hasTime && hora) {
@@ -325,12 +407,10 @@ function toggleCompletado(id) {
 }
 
 function eliminarEventoAgenda(id) {
-    confirmarWeb('¿Estás seguro de que deseas eliminar este evento?', () => {
-        AGENDA_DATA = AGENDA_DATA.filter(x => x.id !== id);
-        saveAgenda();
-        renderAgenda();
-        renderCalendar();
-    }, 'Eliminar evento');
+    AGENDA_DATA = AGENDA_DATA.filter(x => x.id !== id);
+    saveAgenda();
+    renderAgenda();
+    renderCalendar();
 }
 
 function formatearFecha(isoStr, hasTime) {
@@ -352,6 +432,7 @@ function renderAgenda(publicView = null) {
     const events = publicView ? publicView.events : AGENDA_DATA;
     const query = publicView ? publicView.query : currentAgendaSearch;
     const readOnly = Boolean(publicView && publicView.readOnly);
+    const courseColors = crearMapaColoresRamosAgenda(events);
     const filtered = getFilteredAgenda(events, query);
     const displayText = escapeAgendaHtml;
     
@@ -411,11 +492,7 @@ function renderAgenda(publicView = null) {
 
         if (events.length === 1) {
             let ev = events[0];
-            let rgb = '56, 189, 248';
-            if (ev.tipo === 'Solemne') rgb = '244, 63, 94';
-            if (ev.tipo === 'Control') rgb = '251, 191, 36';
-            if (ev.tipo === 'Trabajo') rgb = '168, 85, 247';
-            if (ev.tipo === 'Presentacion') rgb = '34, 197, 94';
+            const rgb = colorRamoAgenda(ev, courseColors);
 
             let extraClass = ev.completado ? 'completed' : 'pulsing';
             
@@ -473,11 +550,7 @@ function renderAgenda(publicView = null) {
             }
         }
         
-        let iconHtml = '';
-        if (ev.tipo === 'Solemne') iconHtml = '<div class="cal-dot solemne"></div>';
-        if (ev.tipo === 'Control') iconHtml = '<div class="cal-dot control"></div>';
-        if (ev.tipo === 'Trabajo') iconHtml = '<div class="cal-dot trabajo"></div>';
-        if (ev.tipo === 'Presentacion') iconHtml = '<div class="cal-dot presentacion"></div>';
+        const iconHtml = `<div class="cal-dot" style="--dot-rgb: ${colorRamoAgenda(ev, courseColors)}"></div>`;
         
         html += `
             <div class="agenda-card ${ev.completado ? 'is-completed' : ''}${readOnly ? ' agenda-card-readonly' : ''}">

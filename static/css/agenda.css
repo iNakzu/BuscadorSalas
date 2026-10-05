@@ -242,6 +242,8 @@
     height: 10px;
     border-radius: 50%;
     flex-shrink: 0;
+    background: rgba(var(--dot-rgb, 148, 163, 184), 1);
+    box-shadow: 0 0 8px rgba(var(--dot-rgb, 148, 163, 184), .68);
 }
 .cal-dot-multi {
     width: 10px;
@@ -257,10 +259,7 @@
     flex-shrink: 0;
     box-shadow: 0 0 8px rgba(255,255,255,0.4);
 }
-.cal-dot.solemne { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
-.cal-dot.control { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
-.cal-dot.trabajo { background: #8b5cf6; box-shadow: 0 0 8px #8b5cf6; }
-.cal-dot.presentacion { background: #3b82f6; box-shadow: 0 0 8px #3b82f6; }
+.cal-dot-overflow { color: #cbd5e1; font-size: 8px; line-height: 10px; font-weight: 700; white-space: nowrap; }
 
 .cal-nav-btn {
     background: transparent;
@@ -282,16 +281,18 @@
 /* Responsive Dots Logic */
 .desktop-dots {
     display: none;
-    gap: 4px;
+    gap: 3px;
 }
 .mobile-dots {
     display: flex;
+    align-items: center;
+    gap: 2px;
 }
 
 @media (min-width: 600px) {
     .cal-dot, .cal-dot-multi {
-        width: 15px !important;
-        height: 15px !important;
+        width: 8px !important;
+        height: 8px !important;
     }
     .cal-dot-multi {
         font-size: 10.5px !important;
@@ -320,7 +321,10 @@
     .mobile-dots {
         display: none;
     }
-    
+}
+
+@media (min-width: 900px) {
+    .cal-dot, .cal-dot-multi { width: 12px !important; height: 12px !important; }
 }
 
 @media (max-width: 600px) {
@@ -328,8 +332,9 @@
         padding: 24px 0;
     }
     .cal-dots-container .cal-dot {
-        width: 8px !important;
-        height: 8px !important;
+        width: 5px !important;
+        height: 5px !important;
+        box-shadow: 0 0 4px rgba(var(--dot-rgb, 148, 163, 184), .68);
     }
     .cal-dots-container .cal-dot-multi {
         width: 8px !important;

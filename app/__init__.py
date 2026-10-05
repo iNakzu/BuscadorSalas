@@ -3,6 +3,7 @@ import os
 from flask import Flask, request, url_for
 
 from .blueprints.academic_api import academic_api
+from .blueprints.push_api import push_api
 from .blueprints.web import web
 
 
@@ -23,6 +24,10 @@ def create_app(test_config=None):
         PUBLIC_ORIGIN=os.getenv("PUBLIC_ORIGIN", "https://horarios.dev"),
         GEMINI_API_KEY=os.getenv("GEMINI_API_KEY", ""),
         GEMINI_MODEL=os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite"),
+        PUSH_DB_PATH=os.getenv("PUSH_DB_PATH", os.path.join(app.instance_path, "push_notifications.sqlite3")),
+        PUSH_VAPID_PRIVATE_KEY_FILE=os.getenv("PUSH_VAPID_PRIVATE_KEY_FILE", ""),
+        PUSH_VAPID_PUBLIC_KEY=os.getenv("PUSH_VAPID_PUBLIC_KEY", ""),
+        PUSH_VAPID_SUBJECT=os.getenv("PUSH_VAPID_SUBJECT", "https://horarios.dev"),
         RATE_LIMIT_DB=os.getenv("RATE_LIMIT_DB", os.path.join(app.instance_path, "rate_limits.sqlite3")),
         MAX_CONTENT_LENGTH=12 * 1024 * 1024,
     )
@@ -31,6 +36,7 @@ def create_app(test_config=None):
 
     app.register_blueprint(web)
     app.register_blueprint(academic_api, url_prefix="/api")
+    app.register_blueprint(push_api, url_prefix="/api/push")
 
     @app.context_processor
     def asset_helpers():

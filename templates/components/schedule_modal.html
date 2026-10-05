@@ -1,0 +1,93 @@
+<!-- MODAL AGREGAR ASIGNATURA A UN BLOQUE -->
+<div class="my-modal-overlay" id="modal-agregar-ramo" onclick="if(event.target === this) cerrarModalAgregarClase()" style="display: none;">
+<div aria-labelledby="modal-titulo-bloque" aria-modal="true" class="my-modal-dialog" role="dialog">
+<div class="my-modal-header">
+<div>
+<div class="my-modal-title" id="modal-titulo-bloque">Agregar Asignatura</div>
+<div class="my-modal-subtitle" id="modal-bloque-badge">Lunes • Bloque 1 (08:30 - 09:50)</div>
+</div>
+<button class="my-modal-close" onclick="cerrarModalAgregarClase()" title="Cerrar" type="button">×</button>
+</div>
+<form id="form-agregar-clase" onsubmit="guardarNuevaClaseModal(event)">
+<input id="modal-add-id" type="hidden" value=""/>
+<input id="modal-add-dia" type="hidden" value="1"/>
+<input id="modal-add-bloque" type="hidden" value="1"/>
+<input id="modal-add-hora-inicio" type="hidden" value="08:30"/>
+<div class="my-form-group">
+<label class="my-form-label" for="modal-add-curso">Nombre de la Asignatura / Actividad *</label>
+<input autocomplete="off" class="my-form-input" id="modal-add-curso" maxlength="160" placeholder="Escribe el nombre tal como quieras verlo" required type="text" value=""/>
+</div>
+<div class="my-form-row my-modal-choice-row">
+<div class="my-form-group">
+<label class="my-form-label" for="modal-label-tipo">Tipo de clase</label>
+<div class="custom-dropdown my-modal-select" id="dd-modal-tipo">
+<button aria-haspopup="listbox" class="dropdown-trigger notas-course-trigger" id="modal-label-tipo" onclick="toggleDropdown('dd-modal-tipo')" type="button">
+<span id="label-modal-tipo" style="color: #f8fafc; font-size: 14px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">Cátedra</span><svg class="dropdown-chevron" fill="none" height="16" stroke="currentColor" stroke-width="2.5" style="color: #94a3b8; margin-left: 8px;" viewbox="0 0 24 24" width="16"><polyline points="6 9 12 15 18 9"></polyline></svg><svg aria-label="Bloqueado mientras tu rol sea Ayudante" class="modal-type-lock" fill="none" height="15" id="modal-tipo-lock" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" hidden width="15"><rect height="11" rx="2" width="16" x="4" y="10"></rect><path d="M8 10V7a4 4 0 1 1 8 0v3"></path></svg>
+</button>
+<div class="dropdown-menu" role="listbox">
+<button class="dropdown-item active" data-val="Cátedra" onclick="setModalTipo('Cátedra')" role="option" type="button">Cátedra</button>
+<button class="dropdown-item" data-val="Ayudantía" onclick="setModalTipo('Ayudantía')" role="option" type="button">Ayudantía</button>
+<button class="dropdown-item" data-val="Laboratorio" onclick="setModalTipo('Laboratorio')" role="option" type="button">Laboratorio</button>
+</div>
+<input id="modal-add-tipo" type="hidden" value="Cátedra"/>
+</div>
+</div>
+<div class="my-form-group">
+<label class="my-form-label" for="modal-label-rol">Tu rol</label>
+<div class="custom-dropdown my-modal-select" id="dd-modal-rol">
+<button aria-haspopup="listbox" class="dropdown-trigger notas-course-trigger" id="modal-label-rol" onclick="toggleDropdown('dd-modal-rol')" type="button">
+<span id="label-modal-rol" style="color: #f8fafc; font-size: 14px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">Estudiante</span><svg class="dropdown-chevron" fill="none" height="16" stroke="currentColor" stroke-width="2.5" style="color: #94a3b8; margin-left: 8px;" viewbox="0 0 24 24" width="16"><polyline points="6 9 12 15 18 9"></polyline></svg>
+</button>
+<div class="dropdown-menu" role="listbox">
+<button class="dropdown-item active" data-val="student" onclick="setModalRol('student')" role="option" type="button">Estudiante</button>
+<button class="dropdown-item" data-val="assistant" onclick="setModalRol('assistant')" role="option" type="button">Ayudante</button>
+</div>
+<input id="modal-add-rol" type="hidden" value="student"/>
+</div>
+</div>
+</div>
+<div class="my-form-row">
+<div class="my-form-group" style="flex: 1.1; position: relative;">
+<label class="my-form-label" for="modal-label-sala">Sala asignada (opcional)</label>
+<div class="custom-dropdown my-modal-select" id="dd-modal-sala">
+<button aria-controls="modal-salas-dropdown" aria-haspopup="listbox" class="dropdown-trigger notas-course-trigger" id="modal-label-sala" onclick="toggleDropdown('dd-modal-sala'); abrirSalasDropdown()" type="button">
+<span id="label-modal-sala" style="color: #f8fafc; font-size: 14px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">-</span><svg class="dropdown-chevron" fill="none" height="16" stroke="currentColor" stroke-width="2.5" style="color: #94a3b8; margin-left: 8px;" viewbox="0 0 24 24" width="16"><polyline points="6 9 12 15 18 9"></polyline></svg>
+</button>
+<div class="dropdown-menu" id="modal-salas-dropdown" role="listbox">
+<div class="my-modal-select-options" id="modal-salas-options"></div>
+</div>
+<input id="modal-add-sala" type="hidden" value=""/>
+</div>
+</div>
+<div class="my-form-group" style="flex: 0.9;">
+<label class="my-form-label" for="modal-add-seccion">Sección (opcional)</label>
+<input autocomplete="off" class="my-form-input" id="modal-add-seccion" inputmode="numeric" min="1" placeholder="Ej. 1" step="1" type="number" value=""/>
+</div>
+</div>
+<div class="my-form-group">
+<label class="my-form-label" for="modal-label-profesor">Profesor (opcional)</label>
+<div class="custom-dropdown my-modal-select" id="dd-modal-profesor">
+<button aria-controls="modal-profesores-dropdown" aria-haspopup="listbox" class="dropdown-trigger notas-course-trigger" id="modal-label-profesor" onclick="toggleDropdown('dd-modal-profesor'); abrirProfesoresDropdown()" type="button">
+<span id="label-modal-profesor" style="color: #f8fafc; font-size: 14px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">Seleccionar profesor...</span><svg class="dropdown-chevron" fill="none" height="16" stroke="currentColor" stroke-width="2.5" style="color: #94a3b8; margin-left: 8px;" viewbox="0 0 24 24" width="16"><polyline points="6 9 12 15 18 9"></polyline></svg>
+</button>
+<div class="dropdown-menu my-modal-search-menu" id="modal-profesores-dropdown" role="listbox">
+<input aria-label="Buscar profesor" autocomplete="off" class="my-modal-select-search" id="modal-profesor-search" oninput="buscarProfesoresModal(this.value)" placeholder="Buscar profesor..." type="text"/>
+<div class="my-modal-select-options" id="modal-profesores-options"></div>
+</div>
+<input id="modal-add-profesor" type="hidden" value=""/>
+</div>
+</div>
+<div class="my-modal-actions">
+<button aria-label="Eliminar clase" class="my-btn-secondary my-btn-danger my-btn-icon" id="modal-delete-class" onclick="eliminarClaseDesdeEditor(event)" type="button" hidden>
+<svg aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6m4-6v6"/></svg>
+</button>
+<button aria-label="Cancelar" class="my-btn-secondary my-btn-icon" onclick="cerrarModalAgregarClase()" type="button">
+<svg aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg>
+</button>
+<button aria-label="Guardar en tu horario" class="my-btn-primary my-btn-icon" id="modal-save-class" type="submit">
+<svg aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24"><path d="M5 3h12l4 4v14H3V5a2 2 0 0 1 2-2Z"/><path d="M7 3v6h10V3M7 21v-8h10v8"/></svg>
+</button>
+</div>
+</form>
+</div>
+</div>

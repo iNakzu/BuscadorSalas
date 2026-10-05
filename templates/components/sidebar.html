@@ -1,25 +1,19 @@
 <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
 <aside class="tabs-wrapper" id="sidebar-menu">
   <div class="brand-meta">
-    <h1>Portal Estudiantil</h1>
-    <p class="brand-status-row">
-      <span class="status-pill"><span class="pulse-dot"></span><span id="label-sync-count">{{ status.total_classes }} clases</span></span>
-      <button type="button" class="btn-clear-cache" id="btn-clear-cache" onclick="borrarCacheApp()" title="Reiniciar caché de la aplicación" aria-label="Reiniciar caché de la aplicación" hidden>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
-      </button>
-    </p>
-  </div>
+    <div class="brand-status-row">
+    </div>
   <div class="auth-card" id="auth-card">
     <p id="auth-status">Inicia sesión para guardar tus datos personales.</p>
-    <div class="auth-profile" id="auth-profile" hidden>
+    <button type="button" class="auth-profile" id="auth-profile" onclick="abrirPerfil()" aria-label="Abrir mi perfil" hidden>
       <span class="auth-avatar" id="auth-avatar" aria-hidden="true"></span>
       <div class="auth-profile-copy">
         <strong id="auth-name"></strong>
         <span id="auth-email"></span>
       </div>
-    </div>
+    </button>
     <button type="button" id="auth-login" class="auth-button" onclick="PortalAuth.signIn()">Continuar con Google</button>
-    <button type="button" id="auth-logout" class="auth-button auth-button-secondary" onclick="PortalAuth.signOut()" hidden>Cerrar sesión</button>
+  </div>
   </div>
   <nav class="tabs" aria-label="Navegación principal">
   {% set tabs = [
@@ -39,7 +33,7 @@
   {% for id, label, private, icon in tabs %}
     <button type="button" class="tab-btn{% if loop.first %} active{% endif %}" data-tab="{{ id }}"{% if private %} data-private="true"{% endif %} onclick="cambiarTab('{{ id }}', this)">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{{ icon|safe }}</svg>
-      <span>{{ label }}</span>{% if private %}<span class="private-mark" aria-label="Requiere sesión">●</span>{% endif %}
+      <span>{{ label }}</span>
     </button>
   {% endfor %}
   </nav>

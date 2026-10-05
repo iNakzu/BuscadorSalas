@@ -104,6 +104,46 @@ function cambiarTab(panelId, btn) {
     }
 }
 
+let perfilPanelAnterior = 'tab-salas';
+
+function abrirPerfil() {
+    if (!window.PortalAuth || !window.PortalAuth.user) {
+        const gate = document.getElementById('auth-gate');
+        if (gate) gate.hidden = false;
+        return;
+    }
+    const current = document.querySelector('.panel.active');
+    if (current && current.id !== 'tab-perfil') perfilPanelAnterior = current.id;
+    document.querySelectorAll('.tab-btn').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
+    const profilePanel = document.getElementById('tab-perfil');
+    if (profilePanel) profilePanel.classList.add('active');
+    document.dispatchEvent(new CustomEvent('portal:section-entered', { detail: { panelId: 'tab-perfil' } }));
+    if (window.innerWidth < 1024) {
+        const sidebar = document.getElementById('sidebar-menu');
+        if (sidebar && sidebar.classList.contains('open')) toggleSidebar();
+    }
+    if (window.PortalProfile) window.PortalProfile.load();
+}
+
+function volverDePerfil() {
+    const previousTab = document.querySelector(`.tab-btn[data-tab="${perfilPanelAnterior}"]`);
+    if (previousTab) cambiarTab(perfilPanelAnterior, previousTab);
+    else {
+        const defaultTab = document.querySelector('.tab-btn[data-tab="tab-salas"]');
+        if (defaultTab) cambiarTab('tab-salas', defaultTab);
+    }
+}
+
+function abrirPerfilesComunidad() {
+    const directory = document.getElementById('profile-community-directory');
+    if (directory) directory.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+window.abrirPerfil = abrirPerfil;
+window.volverDePerfil = volverDePerfil;
+window.abrirPerfilesComunidad = abrirPerfilesComunidad;
+
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar-menu');
     const overlay = document.querySelector('.sidebar-overlay');
@@ -332,12 +372,8 @@ async function sincronizarDatos() {
     if (btn) btn.classList.add('spinning');
     try {
         const resp = await fetch('/api/sync', { method: 'POST' });
-        const data = await resp.json();
+        if (!resp.ok) throw new Error(`No se pudo sincronizar (${resp.status})`);
         if (btn) btn.classList.remove('spinning');
-        if (data.status) {
-            const lbl = document.getElementById('label-sync-count');
-            if (lbl) lbl.textContent = `${data.status.total_classes} Clases`;
-        }
         cargarSalas();
     } catch (e) {
         if (btn) btn.classList.remove('spinning');
@@ -749,7 +785,7 @@ async function renderizarHorarioSala(sala) {
             { start: "13:00", finish: "14:20" },
             { start: "14:30", finish: "15:50" },
             { start: "16:00", finish: "17:20" },
-            { start: "17:30", finish: "18:50" }
+            { start: "17:25", finish: "18:45" }
         ];
         
         const bloquesSolemnes = [
@@ -924,10 +960,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fetchSolemnesStatus();
     inicializarMiHorario();
-    const hash = window.location.hash.replace('#', '') || (new URLSearchParams(window.location.search)).get('tab');
-    if (hash) {
-        const btn = document.querySelector(`.tab-btn[onclick*="${hash}"]`);
-        if (btn) cambiarTab(hash, btn);
+    const requestedTab = window.location.hash.replace('#', '') || (new URLSearchParams(window.location.search)).get('tab');
+    if (requestedTab) {
+        const btn = Array.from(document.querySelectorAll('.tab-btn')).find(item => item.dataset.tab === requestedTab);
+        if (btn) {
+            const activateRequestedTab = () => cambiarTab(requestedTab, btn);
+            if (btn.dataset.private === 'true' && window.PortalAuth && window.PortalAuth.ready) {
+                window.PortalAuth.ready.then(activateRequestedTab, activateRequestedTab);
+            } else {
+                activateRequestedTab();
+            }
+        }
     }
 });
 
@@ -973,16 +1016,6 @@ document.addEventListener('click', function(e) {
         }
     });
 });
-
-window.borrarCacheApp = function() {
-    confirmarWeb("Se borrarán los archivos temporales de la aplicación y se recargará. Tu sesión y tus datos personales guardados no se eliminarán.", async () => {
-        if ('caches' in window) {
-            const cacheNames = await caches.keys();
-            await Promise.all(cacheNames.map(name => caches.delete(name)));
-        }
-        window.location.reload();
-    }, 'Reiniciar aplicación');
-};
 
 window.SOLEMNES_MODE = false;
 function toggleSolemnesMode(isSolemne) {

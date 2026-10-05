@@ -6,7 +6,7 @@ const source = fs.readFileSync('static/js/auth.js', 'utf8');
 
 function boot(session, signInError = null, publicOrigin = 'https://horarios.dev') {
   const elements = new Map();
-  for (const id of ['auth-status', 'auth-profile', 'auth-avatar', 'auth-name', 'auth-email', 'auth-login', 'auth-logout', 'btn-clear-cache']) {
+  for (const id of ['auth-status', 'auth-profile', 'auth-avatar', 'auth-name', 'auth-email', 'auth-login', 'auth-logout']) {
     elements.set(id, { hidden: false, disabled: false, textContent: '' });
   }
   const listeners = {};
@@ -51,13 +51,11 @@ function boot(session, signInError = null, publicOrigin = 'https://horarios.dev'
   assert.strictEqual(signedIn.elements.get('auth-avatar').textContent, 'AG');
   assert.strictEqual(signedIn.elements.get('auth-profile').hidden, false);
   assert.strictEqual(signedIn.elements.get('auth-status').hidden, true);
-  assert.strictEqual(signedIn.elements.get('btn-clear-cache').hidden, false);
   signedIn.authStateCallback()('SIGNED_OUT', null);
   assert.strictEqual(signedIn.calls.reload, 1, 'signed-out users should return to the public page');
 
   const failedLogin = boot(null, { message: 'provider disabled' });
   await failedLogin.listeners.DOMContentLoaded();
-  assert.strictEqual(failedLogin.elements.get('btn-clear-cache').hidden, true);
   await failedLogin.context.window.PortalAuth.signIn();
   assert.strictEqual(failedLogin.calls.oauth.options.redirectTo, 'https://horarios.dev/');
   assert.strictEqual(failedLogin.calls.clientOptions.auth.flowType, 'pkce');

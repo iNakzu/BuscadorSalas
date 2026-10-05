@@ -209,6 +209,29 @@
     align-items: center;
 }
 
+#dd-notas-curso {
+    width: 100%;
+    max-width: none;
+}
+
+#dd-notas-curso .notas-course-trigger {
+    min-height: 44px;
+    padding: 0 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: rgba(15, 23, 42, 0.85);
+    box-shadow: none;
+    backdrop-filter: none;
+    transition: all 0.2s ease;
+}
+
+#dd-notas-curso .notas-course-trigger:hover,
+#dd-notas-curso.open .notas-course-trigger {
+    border-color: var(--brand-from);
+    background: rgba(15, 23, 42, 0.98);
+    box-shadow: var(--shadow-glow);
+}
+
 @media (max-width: 500px) {
     .notas-controls-header {
         flex-direction: column;

@@ -517,6 +517,17 @@
     #grid-ocupadas .item-top { align-items: flex-start; }
 }
 
+#grid-vacias .item-card.free .item-top {
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
+#grid-vacias .item-card.free .time-pill {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    overflow-wrap: normal;
+}
+
 .item-card:hover .course-name {
     color: #ffffff;
     text-shadow: 0 0 10px rgba(251, 113, 133, 0.35);
