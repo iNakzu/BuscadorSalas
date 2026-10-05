@@ -1,7 +1,7 @@
 (function () {
     const panel = document.getElementById('push-settings-inline');
     if (!panel) return;
-    const enableButton = document.getElementById('push-enable-button');
+    const enableToggle = document.getElementById('push-enable-toggle');
     const status = document.getElementById('push-dialog-status');
     let supported = false;
     let subscribed = false;
@@ -37,10 +37,9 @@
         return result;
     }
 
-    function updateButtonState() {
-        enableButton.hidden = subscribed;
-        enableButton.textContent = 'Permitir notificaciones';
-        enableButton.removeAttribute('aria-pressed');
+    function updateToggleState() {
+        if (!changing) enableToggle.checked = subscribed;
+        enableToggle.disabled = changing || !supported;
     }
 
     async function syncReminders() {
@@ -57,13 +56,12 @@
             supported = Boolean(config.supported && 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window);
             if (!supported) {
                 setStatus('Las notificaciones push no están disponibles en este navegador o aún no están configuradas.', true);
-                enableButton.disabled = true;
+                updateToggleState();
                 return;
             }
-            enableButton.disabled = false;
             const prefs = await api('/subscribe');
             subscribed = prefs.subscribed;
-            updateButtonState();
+            updateToggleState();
             if (subscribed) {
                 await api('/settings', { method: 'PATCH', body: JSON.stringify({ classes: true, agenda: true }) });
                 await syncReminders();
@@ -83,7 +81,7 @@
     async function activate() {
         if (!supported || changing) return;
         changing = true;
-        enableButton.disabled = true;
+        updateToggleState();
         setStatus('');
         try {
             // Ask permission directly from the user gesture, before network work.
@@ -102,14 +100,32 @@
             subscribed = true;
             await api('/settings', { method: 'PATCH', body: JSON.stringify({ classes: true, agenda: true }) });
             await syncReminders();
-            updateButtonState();
+            updateToggleState();
             setStatus('Listo. Recibirás recordatorios 10 minutos antes.');
         } catch (error) {
             setStatus(error.message || 'No se pudieron activar las notificaciones.', true);
             await loadSettings();
         } finally {
             changing = false;
-            enableButton.disabled = false;
+            updateToggleState();
+        }
+    }
+
+    async function deactivate() {
+        if (!supported || changing) return;
+        changing = true;
+        updateToggleState();
+        setStatus('');
+        try {
+            await detachCurrentDevice();
+            subscribed = false;
+            setStatus('Notificaciones desactivadas en este dispositivo.');
+        } catch (error) {
+            setStatus(error.message || 'No se pudieron desactivar las notificaciones.', true);
+            await loadSettings();
+        } finally {
+            changing = false;
+            updateToggleState();
         }
     }
 
@@ -127,13 +143,16 @@
         if (removalError) throw removalError;
     }
 
-    enableButton.addEventListener('click', activate);
+    enableToggle.addEventListener('change', () => {
+        if (enableToggle.checked) activate();
+        else deactivate();
+    });
     document.addEventListener('portal:auth-changed', () => {
         const signedIn = Boolean(window.PortalAuth && window.PortalAuth.user);
         panel.hidden = !signedIn;
         subscribed = false;
         if (signedIn) loadSettings();
-        updateButtonState();
+        updateToggleState();
     });
     document.addEventListener('portal:schedule-updated', () => syncReminders().catch(() => {}));
     document.addEventListener('portal:agenda-updated', () => syncReminders().catch(() => {}));

@@ -28,7 +28,8 @@
         const words = String(name).trim().split(/\s+/).filter(Boolean);
         if (!words.length) return 'ES';
         if (words.length === 1) return Array.from(words[0]).slice(0, 2).join('').toLocaleUpperCase('es');
-        return `${Array.from(words[0])[0]}${Array.from(words[words.length - 1])[0]}`.toLocaleUpperCase('es');
+        const firstSurname = words.length >= 3 ? words[words.length - 2] : words[1];
+        return `${Array.from(words[0])[0]}${Array.from(firstSurname)[0]}`.toLocaleUpperCase('es');
     }
 
     function render() {

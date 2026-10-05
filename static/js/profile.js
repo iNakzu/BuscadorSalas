@@ -70,7 +70,10 @@
             const response = await fetch('/static/data/udp-careers.json', { cache: 'force-cache', credentials: 'same-origin' });
             if (!response.ok) throw new Error('No se pudo cargar el catálogo.');
             const result = await response.json();
-            careers = Array.isArray(result) ? result.filter(item => item && typeof item.name === 'string' && typeof item.faculty === 'string') : [];
+            careers = Array.isArray(result)
+                ? result.filter(item => item && typeof item.name === 'string' && typeof item.faculty === 'string'
+                    && normalize(item.name).startsWith('ingenieria civil'))
+                : [];
         } catch (_) {
             careers = [];
         }
@@ -84,8 +87,9 @@
         const name = [metadata.given_name, metadata.family_name].filter(Boolean).join(' ').trim()
             || String(metadata.full_name || metadata.name || user.email || 'Estudiante');
         const avatarWords = name.split(/\s+/).filter(Boolean);
+        const firstSurname = avatarWords.length >= 3 ? avatarWords[avatarWords.length - 2] : avatarWords[1];
         const initials = avatarWords.length > 1
-            ? `${Array.from(avatarWords[0])[0]}${Array.from(avatarWords[avatarWords.length - 1])[0]}`
+            ? `${Array.from(avatarWords[0])[0]}${Array.from(firstSurname)[0]}`
             : Array.from(avatarWords[0] || 'ES').slice(0, 2).join('');
         document.getElementById('profile-hero-name').textContent = name;
         document.getElementById('profile-hero-email').textContent = user.email || '';

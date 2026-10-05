@@ -19,7 +19,7 @@
         <div class="profile-combobox-control"><input id="profile-career-input" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="profile-career-options" autocomplete="off" placeholder="Busca o escribe tu carrera" maxlength="120"><button type="button" id="profile-career-toggle" aria-label="Mostrar carreras" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m7 10 5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
         <div class="profile-combobox-menu" id="profile-career-options" role="listbox" aria-label="Carreras disponibles" hidden></div>
       </div>
-      <p class="profile-field-hint">Puedes escribir el nombre si no aparece en las sugerencias. Tu carrera es privada.</p>
+      <p class="profile-field-hint">El catálogo muestra programas de Ingeniería Civil. Tu carrera es privada.</p>
       <button type="button" id="profile-career-save" class="profile-primary-button"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Guardar carrera</span></button>
     </section>
 
@@ -32,8 +32,8 @@
     <section class="profile-setting-card profile-notifications-card" aria-labelledby="profile-notifications-title">
       <div class="profile-card-heading"><span class="profile-card-icon profile-card-icon--community" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><h2 id="profile-notifications-title">Notificaciones</h2><p>Avisos de clases y agenda en este dispositivo.</p></div></div>
       <div id="push-settings-inline" class="push-settings-inline" aria-label="Notificaciones de este dispositivo">
+        <label class="profile-switch-row" for="push-enable-toggle"><span class="profile-switch-copy"><strong>Activar notificaciones</strong><small>Recibe recordatorios de clases y agenda en este dispositivo. El permiso se administra desde la configuración del navegador.</small></span><input id="push-enable-toggle" type="checkbox" disabled><span class="profile-switch" aria-hidden="true"></span></label>
         <p class="push-dialog-status" id="push-dialog-status" role="status" aria-live="polite">Comprobando este dispositivo…</p>
-        <button type="button" class="push-enable-button" id="push-enable-button">Permitir notificaciones</button>
       </div>
     </section>
 

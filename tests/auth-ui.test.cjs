@@ -44,11 +44,11 @@ function boot(session, signInError = null, publicOrigin = 'https://horarios.dev'
 (async () => {
   const signedIn = boot({ user: {
     email: 'ana.garcia@mail.udp.cl',
-    user_metadata: { given_name: 'Ana', family_name: 'García', picture: 'https://example.invalid/photo.jpg' }
+    user_metadata: { given_name: 'Benjamín Alezis', family_name: 'Guzmán Norambuena', picture: 'https://example.invalid/photo.jpg' }
   } });
   await signedIn.listeners.DOMContentLoaded();
-  assert.strictEqual(signedIn.elements.get('auth-name').textContent, 'Ana García');
-  assert.strictEqual(signedIn.elements.get('auth-avatar').textContent, 'AG');
+  assert.strictEqual(signedIn.elements.get('auth-name').textContent, 'Benjamín Alezis Guzmán Norambuena');
+  assert.strictEqual(signedIn.elements.get('auth-avatar').textContent, 'BG');
   assert.strictEqual(signedIn.elements.get('auth-profile').hidden, false);
   assert.strictEqual(signedIn.elements.get('auth-status').hidden, true);
   signedIn.authStateCallback()('SIGNED_OUT', null);
@@ -61,6 +61,6 @@ function boot(session, signInError = null, publicOrigin = 'https://horarios.dev'
   assert.strictEqual(failedLogin.calls.clientOptions.auth.flowType, 'pkce');
   assert.strictEqual(failedLogin.calls.clientOptions.auth.persistSession, true);
   assert.strictEqual(failedLogin.calls.clientOptions.auth.detectSessionInUrl, true);
-  assert.match(failedLogin.elements.get('auth-status').textContent, /No se pudo iniciar sesión con Google/);
+  assert.match(failedLogin.elements.get('auth-status').textContent, /No se pudo conectar con el servicio de inicio de sesión/);
   console.log('auth-ui: initials profile and OAuth error scenarios passed');
 })().catch(error => { console.error(error); process.exit(1); });

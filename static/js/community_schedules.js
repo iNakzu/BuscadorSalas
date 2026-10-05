@@ -36,7 +36,8 @@
     function initials(name) {
         const words = String(name || 'Estudiante').trim().split(/\s+/).filter(Boolean);
         if (words.length < 2) return Array.from(words[0] || 'ES').slice(0, 2).join('').toUpperCase();
-        return `${Array.from(words[0])[0]}${Array.from(words[words.length - 1])[0]}`.toUpperCase();
+        const firstSurname = words.length >= 3 ? words[words.length - 2] : words[1];
+        return `${Array.from(words[0])[0]}${Array.from(firstSurname)[0]}`.toUpperCase();
     }
 
     function cleanClasses(payload) {
