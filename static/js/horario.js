@@ -695,15 +695,19 @@ function normalizarNumeroSeccion(valor) {
 }
 
 function normalizarNombreRamoParaComparar(nombre) {
-    return String(nombre || '').trim().replace(/\s+/g, ' ')
-        .normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es');
+    return String(nombre || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .toLocaleLowerCase('es').replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
+}
+
+function nombreRamoParaComparar(clase) {
+    return clase && (clase.curso || clase.cursoDisplay || clase.curso_display) || '';
 }
 
 function propagarSeccionMismoRamo(claseOrigen, seccion) {
-    const nombreRamo = normalizarNombreRamoParaComparar(claseOrigen && claseOrigen.curso);
+    const nombreRamo = normalizarNombreRamoParaComparar(nombreRamoParaComparar(claseOrigen));
     if (!nombreRamo || !seccion || !MI_HORARIO_DATA || !Array.isArray(MI_HORARIO_DATA.clases)) return;
     MI_HORARIO_DATA.clases.forEach(clase => {
-        if (clase !== claseOrigen && normalizarNombreRamoParaComparar(clase && clase.curso) === nombreRamo) {
+        if (clase !== claseOrigen && normalizarNombreRamoParaComparar(nombreRamoParaComparar(clase)) === nombreRamo) {
             clase.seccion = seccion;
         }
     });
@@ -713,7 +717,7 @@ function rellenarSeccionesMismoRamo(clases) {
     if (!Array.isArray(clases)) return false;
     const porRamo = new Map();
     clases.forEach(clase => {
-        const nombre = normalizarNombreRamoParaComparar(clase && clase.curso);
+        const nombre = normalizarNombreRamoParaComparar(nombreRamoParaComparar(clase));
         const seccion = normalizarNumeroSeccion(clase && clase.seccion);
         if (!nombre || !seccion) return;
         if (!porRamo.has(nombre)) porRamo.set(nombre, new Set());
@@ -722,7 +726,7 @@ function rellenarSeccionesMismoRamo(clases) {
 
     let changed = false;
     clases.forEach(clase => {
-        const nombre = normalizarNombreRamoParaComparar(clase && clase.curso);
+        const nombre = normalizarNombreRamoParaComparar(nombreRamoParaComparar(clase));
         const secciones = porRamo.get(nombre);
         if (!secciones || secciones.size !== 1 || normalizarNumeroSeccion(clase && clase.seccion)) return;
         clase.seccion = secciones.values().next().value;
@@ -884,6 +888,12 @@ function normalizarClasesPerfil(clases) {
 }
 
 function renderMiHorario() {
+    // Reconciliar también al renderizar: algunos horarios ya están en localStorage
+    // antes de que llegue el estado remoto, así las secciones aparecen de inmediato.
+    if (!Array.isArray(horarioPerfilSeleccionado)
+        && rellenarSeccionesMismoRamo(MI_HORARIO_DATA && MI_HORARIO_DATA.clases)) {
+        guardarMiHorarioEnStorage();
+    }
     const container = document.getElementById('mihorario-display-container');
     if (!container) return;
 
