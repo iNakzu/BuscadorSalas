@@ -17,7 +17,7 @@ for (const id of ['tab-perfil', 'profile-account-type', 'profile-career-input', 
 }
 assert.match(profile, /id="auth-reset-data" class="profile-action-row is-danger"/);
 assert.match(script, /user.app_metadata && user.app_metadata.portal_role === 'admin'/);
-assert.ok(script.includes("accountType.textContent = isAdmin ? 'CUENTA DEV' : 'CUENTA PERSONAL'"));
+assert.ok(script.includes("accountType.textContent = isAdmin ? 'CUENTA ADMINISTRADORA' : 'CUENTA PERSONAL'"));
 assert.match(styles, /.profile-hero.is-admin-account .profile-hero-topline/);
 assert.match(profile, /id="profile-career-save"[^>]*aria-live="polite"[^>]*>[\s\S]*profile-career-save-icon[\s\S]*profile-primary-button-label/);
 assert.doesNotMatch(profile, /profile-career-save-(check|spinner|error)/);

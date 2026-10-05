@@ -131,7 +131,7 @@
         const hero = document.querySelector('.profile-hero');
         const accountType = document.getElementById('profile-account-type');
         if (hero) hero.classList.toggle('is-admin-account', isAdmin);
-        if (accountType) accountType.textContent = isAdmin ? 'CUENTA DEV' : 'CUENTA PERSONAL';
+        if (accountType) accountType.textContent = isAdmin ? 'CUENTA ADMINISTRADORA' : 'CUENTA PERSONAL';
         careerSearchOriginalValue = null;
         const metadata = user.user_metadata || {};
         const savedCareer = careers.find(item => item.id === metadata.careerId)
