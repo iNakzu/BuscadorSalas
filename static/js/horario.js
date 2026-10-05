@@ -398,6 +398,19 @@ function normalizarTipoClase(tipo) {
     return !value || value.toLocaleLowerCase('es') === 'estudio' ? 'Cátedra' : value;
 }
 
+function reemplazarGridHorarioConScroll(container, markup) {
+    const previousGrid = container.querySelector('.my-week-grid');
+    const previousScrollLeft = previousGrid ? previousGrid.scrollLeft : null;
+    container.innerHTML = markup;
+    if (previousScrollLeft === null) return;
+    const nextGrid = container.querySelector('.my-week-grid');
+    if (!nextGrid) return;
+    const previousBehavior = nextGrid.style.scrollBehavior;
+    nextGrid.style.scrollBehavior = 'auto';
+    nextGrid.scrollLeft = previousScrollLeft;
+    nextGrid.style.scrollBehavior = previousBehavior;
+}
+
 function actualizarContadoresFiltrosMiHorario() {
     const total = getHorarioActivo().length;
     const lunes = getHorarioActivo().filter(c => c.dia === 1).length;
@@ -1100,11 +1113,11 @@ function renderMiHorario() {
             `;
         });
 
-        container.innerHTML = `
+        reemplazarGridHorarioConScroll(container, `
             <div class="my-week-grid">
                 ${colsHtml}
             </div>
-        `;
+        `);
 //    }
 }
 
