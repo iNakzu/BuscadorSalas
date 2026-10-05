@@ -551,7 +551,10 @@ def _review_ambiguous_days(raw_classes, image_bytes, mime_type, api_key, model, 
 
     row_height = _estimate_block_row_height(raw_classes, boxes_by_id, image_height)
     if row_height is None:
-        raise GeminiScheduleError("No pude medir la escala de los bloques en la foto. Inténtalo con una imagen donde se vea más del horario.", 422)
+        # Custom timetable designs may have no regular grid spacing to calibrate.
+        # Keep Gemini's original start/end readings; normalization below still
+        # maps standard end times to one or more fixed class blocks.
+        return raw_classes
 
     replacements = {}
     for candidate in candidates:

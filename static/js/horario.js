@@ -1169,9 +1169,19 @@ function seleccionarFotoHorario() {
 
 function mostrarEstadoImportacionHorario(message, isError = false) {
     const status = document.getElementById('schedule-import-status');
-    if (!status) return;
-    status.textContent = message || '';
-    status.classList.toggle('is-error', Boolean(isError));
+    const warning = document.getElementById('schedule-import-warning');
+    if (status) {
+        status.textContent = '';
+        status.classList.remove('is-error');
+    }
+    if (warning) {
+        const warningText = warning.querySelector('span');
+        if (warningText) warningText.textContent = isError ? (message || '') : '';
+        warning.classList.toggle('show', Boolean(isError && message));
+    } else if (status) {
+        status.textContent = message || '';
+        status.classList.toggle('is-error', Boolean(isError));
+    }
 }
 
 async function importarHorarioDesdeFoto(event) {
@@ -1201,7 +1211,7 @@ async function importarHorarioDesdeFoto(event) {
         button.disabled = true;
         button.classList.add('is-loading');
     }
-    mostrarEstadoImportacionHorario('Leyendo la foto con Gemini…');
+    mostrarEstadoImportacionHorario('');
     try {
         const sessionResult = await auth.client.auth.getSession();
         const session = sessionResult.data && sessionResult.data.session;

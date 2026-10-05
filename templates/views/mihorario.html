@@ -1,14 +1,17 @@
 <section class="panel" id="tab-mihorario">
 <div class="schedule-import-control schedule-import-control-top">
 <button class="schedule-import-button" id="schedule-import-button" type="button" onclick="seleccionarFotoHorario()">
-<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+<span class="schedule-import-icon" aria-hidden="true">
+<svg class="schedule-upload-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+<svg class="schedule-loading-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="9" stroke-opacity=".25"></circle><path d="M21 12a9 9 0 0 0-9-9"></path></svg>
+</span>
 <span>Importar horario desde una foto</span>
 </button>
 <input id="schedule-import-file" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" hidden onchange="importarHorarioDesdeFoto(event)">
 <span id="schedule-import-status" class="schedule-import-status" role="status" aria-live="polite"></span>
 <p class="schedule-import-note">La foto se envía a Google Gemini para leerla y no se guarda en este portal. En el nivel gratuito, Google puede usar solicitudes para mejorar sus productos.</p>
 </div>
-<span id="schedule-import-warning" class="schedule-import-status is-block-warning" role="status" aria-live="polite"></span>
+<div id="schedule-import-warning" class="window-alert-banner schedule-import-warning" role="status" aria-live="polite"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v4m0 4h.01"></path></svg><span></span></div>
 <!-- WIDGET HERO EN TIEMPO REAL -->
 <div class="my-schedule-hero" id="my-schedule-hero">
 <!-- Renderizado dinámico desde JS -->

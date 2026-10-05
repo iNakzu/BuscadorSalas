@@ -8,10 +8,30 @@ from unittest.mock import Mock, patch
 os.environ.setdefault("SCHEDULE_CACHE_FILE", os.path.join(tempfile.gettempdir(), "buscadorsalas-import-test.json"))
 
 from app import create_app
-from app.services.gemini_schedule import GeminiScheduleError, _normalize_classes, extract_schedule_from_image
+from app.services.gemini_schedule import GeminiScheduleError, _normalize_classes, _review_ambiguous_days, extract_schedule_from_image
 
 
 class GeminiScheduleServiceTest(unittest.TestCase):
+    @patch("app.services.gemini_schedule._request_model")
+    def test_custom_layout_without_measurable_row_scale_keeps_gemini_times(self, request_model):
+        classes = [{
+            "day": 2, "start": "10:00", "end": "12:50", "course": "Climate Futures",
+            "section": "", "professor": "", "room": "", "kind": "Cátedra", "confidence": 0.9,
+        }]
+        request_model.return_value = Mock(ok=True, status_code=200, json=lambda: {
+            "candidates": [{"content": {"parts": [{"text": json.dumps([
+                {"id": 0, "box_2d": [100, 100, 300, 300]},
+            ])}]}}]
+        })
+
+        reviewed = _review_ambiguous_days(
+            classes, b"image-bytes", "image/jpeg", "private-test-key",
+            "gemini-3.5-flash-lite", 500, 650, b"",
+        )
+
+        self.assertEqual(reviewed, classes)
+        self.assertEqual(reviewed[0]["end"], "12:50")
+
     def test_normalizes_full_class_details_and_sorts_by_time(self):
         classes = _normalize_classes([
             {
