@@ -89,10 +89,30 @@
 #tab-agenda.public-profile-active > :not(.public-profile-toolbar):not(.public-profile-content),
 #tab-progreso.public-profile-active > :not(.public-profile-toolbar):not(.public-profile-content) { display: none !important; }
 #tab-notas.public-profile-active #notas-builder-container { display: none !important; }
+#tab-notas.public-profile-admin-edit .notas-controls-shell { display: none !important; }
 #tab-notas.public-profile-active > .public-profile-content[data-module="grades"] { box-sizing: border-box; padding-top: 16px; }
 #tab-progreso { overflow: visible !important; }
 #tab-mihorario.public-profile-active .schedule-import-control,
 #tab-mihorario.public-profile-active .my-modal-overlay { display: none !important; }
+#tab-mihorario.public-profile-admin-edit > :not(.public-profile-toolbar):not(.public-profile-content) { display: none !important; }
+#tab-mihorario.public-profile-admin-edit > .public-profile-content[data-module="schedule"] { display: block; padding-top: 16px; }
+.admin-profile-editor { display: grid; gap: 14px; max-width: 980px; margin: 0 auto; color: #e2e8f0; }
+.admin-profile-editor-heading { display: grid; gap: 4px; padding: 14px 16px; border: 1px solid rgba(56,189,248,.18); border-radius: 14px; background: rgba(15,23,42,.56); }
+.admin-profile-editor-heading strong { font-size: 15px; }
+.admin-profile-editor-heading span { color: #94a3b8; font-size: 12px; }
+.admin-profile-item { display: grid; gap: 12px; padding: 14px; border: 1px solid rgba(148,163,184,.13); border-radius: 14px; background: rgba(15,23,42,.4); }
+.admin-profile-item-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.admin-profile-item-heading strong { overflow: hidden; text-overflow: ellipsis; }
+.admin-profile-item button, .admin-profile-editor > button { justify-self: start; padding: 8px 12px; border: 1px solid rgba(56,189,248,.2); border-radius: 10px; background: rgba(14,165,233,.09); color: #bae6fd; font: inherit; font-size: 12px; cursor: pointer; }
+.admin-profile-fields { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,190px),1fr)); gap: 10px; }
+.admin-profile-field { display: grid; gap: 5px; min-width: 0; color: #94a3b8; font-size: 11px; }
+.admin-profile-field input { box-sizing: border-box; width: 100%; min-width: 0; min-height: 38px; padding: 8px 10px; border: 1px solid rgba(148,163,184,.18); border-radius: 9px; outline: 0; background: rgba(15,23,42,.8); color: #f8fafc; font: inherit; font-size: 13px; }
+.admin-profile-field input:focus { border-color: rgba(56,189,248,.55); }
+.admin-profile-grade-row { grid-template-columns: repeat(auto-fit,minmax(min(100%,140px),1fr)); padding: 9px 0; border-bottom: 1px solid rgba(148,163,184,.1); }
+.admin-profile-curriculum { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,220px),1fr)); gap: 8px; }
+.admin-profile-curriculum button { display: flex; justify-content: space-between; gap: 8px; padding: 11px; border: 1px solid rgba(148,163,184,.14); border-radius: 10px; background: rgba(15,23,42,.46); color: #e2e8f0; text-align: left; cursor: pointer; }
+.admin-profile-curriculum strong { color: #7dd3fc; font-size: 11px; white-space: nowrap; }
+.admin-profile-save { position: sticky; bottom: 12px; justify-self: end !important; border-color: rgba(56,189,248,.4) !important; background: linear-gradient(135deg,#0e7490,#0369a1) !important; color: #fff !important; font-weight: 700 !important; }
 #tab-solemnes.public-profile-active > .search-field { display: none !important; }
 
 @media (max-width: 600px) {

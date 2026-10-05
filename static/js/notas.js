@@ -91,6 +91,7 @@ function updateNotasDropdown() {
     const sharedProfile = window.PortalCommunity && typeof window.PortalCommunity.getSelected === 'function'
         ? window.PortalCommunity.getSelected() : null;
     if (sharedProfile) {
+        if (window.PortalCommunity.isAdmin && window.PortalCommunity.isAdmin()) return;
         const content = document.querySelector('#tab-notas .public-profile-content[data-module="grades"]');
         window.renderNotasPublicas(content, sharedProfile.modules && sharedProfile.modules.grades);
         return;

@@ -180,7 +180,7 @@ function toggleRamoEstado(id) {
     renderProgreso();
 }
 
-function buildProgresoHtml(progress, readOnly = false, curriculum = MALLA_MOCK) {
+function buildProgresoHtml(progress, readOnly = false, curriculum = MALLA_MOCK, adminEditable = false) {
     let totalRamos = 0;
     let aprobados = 0;
     let cursando = 0;
@@ -222,7 +222,7 @@ function buildProgresoHtml(progress, readOnly = false, curriculum = MALLA_MOCK) 
             const border = c.border ? ` --ramo-outline-color: rgba(${c.border}, .95);` : '';
 
             gridHtml += `
-                <div class="malla-ramo-card ${statusClass}${readOnly ? ' malla-ramo-readonly' : ''}"${readOnly ? '' : ` onclick="toggleRamoEstado('${safeId}')"`} style="--ramo-color: ${rgb};${border}">
+                <div class="malla-ramo-card ${statusClass}${readOnly && !adminEditable ? ' malla-ramo-readonly' : ''}"${readOnly && !adminEditable ? '' : ` onclick="${adminEditable ? `window.PortalCommunity.toggleCurriculum('${safeId}')` : `toggleRamoEstado('${safeId}')`}"`} style="--ramo-color: ${rgb};${border}">
                     <div class="ramo-top-right">${escapeProgresoHtml(upperLabel)}</div>
                     <span class="malla-ramo-name">${safeName}</span>
                     ${c.idVisible === false ? '' : `<div class="ramo-bottom-left">${safeId}</div>`}
@@ -304,7 +304,7 @@ async function renderProgreso() {
     }
 }
 
-window.renderMallaPublica = async function (container, progress) {
+window.renderMallaPublica = async function (container, progress, options = {}) {
     if (!container) return;
     const safeProgress = migrateProgressState(progress);
     const careerId = getProgressCareerId(safeProgress);
@@ -313,7 +313,14 @@ window.renderMallaPublica = async function (container, progress) {
         container.innerHTML = '<div class="empty-state">Esta persona todavía no tiene una malla curricular disponible.</div>';
         return;
     }
-    container.innerHTML = buildProgresoHtml(safeProgress, true, curriculum);
+    container.innerHTML = buildProgresoHtml(safeProgress, true, curriculum, Boolean(options.editable));
+    if (options.editable) {
+        const saveButton = document.createElement('button');
+        saveButton.type = 'button';
+        saveButton.className = 'admin-profile-save';
+        saveButton.textContent = 'Guardar cambios';
+        container.appendChild(saveButton);
+    }
 };
 
 // Inicializar al cargar

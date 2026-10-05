@@ -6,6 +6,7 @@
     let selectedUserId = '';
     let selectedProfileRecord = null;
     let serverDirectoryMode = false;
+    let adminDirectoryMode = false;
     let profileSearchHasMore = false;
     let profileSearchOffset = 0;
     let visibleProfilePage = 0;
@@ -55,6 +56,139 @@
     function selectedProfile() {
         if (selectedProfileRecord && String(selectedProfileRecord.user_id || '') === selectedUserId) return selectedProfileRecord;
         return loadedUsers.find(item => String(item.user_id || '') === selectedUserId) || null;
+    }
+
+    function hasAdminRole() {
+        const user = window.PortalAuth && window.PortalAuth.user;
+        return Boolean(user && user.app_metadata && user.app_metadata.portal_role === 'admin');
+    }
+
+    function saveAdminModule(module, payload) {
+        const profile = selectedProfile();
+        const auth = window.PortalAuth;
+        if (!hasAdminRole() || !profile || !auth || !auth.client) return;
+        const button = document.querySelector(`.public-profile-content[data-module="${module}"] .admin-profile-save`);
+        if (module === 'schedule') {
+            const occupied = new Set();
+            for (const item of payload && Array.isArray(payload.clases) ? payload.clases : []) {
+                if (item.dia == null || item.bloqueNum == null) continue;
+                const key = `${item.dia}:${item.bloqueNum}`;
+                if (occupied.has(key)) {
+                    if (button) button.textContent = 'Deja una sola clase por bloque';
+                    return;
+                }
+                occupied.add(key);
+            }
+        }
+        if (button) { button.disabled = true; button.dataset.originalText = button.textContent; button.textContent = 'Guardando…'; }
+        auth.client.rpc('admin_update_profile_module', {
+            p_user_id: String(profile.user_id), p_module_key: module, p_payload: payload
+        }).then(({ error }) => {
+            if (error) throw error;
+            profile.modules[module] = payload;
+            profileModulesCache.set(String(profile.user_id), profile.modules);
+            if (button) { button.textContent = 'Guardado'; setTimeout(() => { if (button.isConnected) button.textContent = 'Guardar cambios'; }, 1300); }
+        }).catch(error => {
+            console.error('No se pudieron guardar los cambios del perfil', error);
+            if (button) button.textContent = 'No se pudo guardar';
+        }).finally(() => { if (button) button.disabled = false; });
+    }
+
+    function adminInput(value, label, attrs = '') {
+        return `<label class="admin-profile-field"><span>${escapeHtml(label)}</span><input ${attrs} value="${escapeHtml(value == null ? '' : value)}"></label>`;
+    }
+
+    function adminEditorMarkup(module, payload) {
+        if (module === 'schedule') {
+            const classes = Array.isArray(payload && payload.clases) ? payload.clases : [];
+            const rows = classes.map((item, index) => `<article class="admin-profile-item"><div class="admin-profile-item-heading"><strong>${escapeHtml(item.curso || `Clase ${index + 1}`)}</strong><button type="button" data-admin-action="delete-class" data-index="${index}" aria-label="Eliminar clase">Eliminar</button></div><div class="admin-profile-fields">${adminInput(item.curso, 'Asignatura', `data-admin-field="schedule" data-index="${index}" data-field="curso"`)}${adminInput(item.dia, 'Día (1–5)', `type="number" min="1" max="5" data-admin-field="schedule" data-index="${index}" data-field="dia"`)}${adminInput(item.bloqueNum, 'Bloque (1–7)', `type="number" min="1" max="7" data-admin-field="schedule" data-index="${index}" data-field="bloqueNum"`)}${adminInput(item.tipo, 'Tipo', `data-admin-field="schedule" data-index="${index}" data-field="tipo"`)}${adminInput(item.rol, 'Rol', `data-admin-field="schedule" data-index="${index}" data-field="rol"`)}${adminInput(item.sala, 'Sala', `data-admin-field="schedule" data-index="${index}" data-field="sala"`)}${adminInput(item.seccion, 'Sección', `data-admin-field="schedule" data-index="${index}" data-field="seccion"`)}${adminInput(item.profesor, 'Profesor', `data-admin-field="schedule" data-index="${index}" data-field="profesor"`)}</div></article>`).join('');
+            return `${rows || '<p class="public-profile-empty">Este perfil no tiene clases registradas.</p>'}<button type="button" data-admin-action="add-class">Añadir clase</button>`;
+        }
+        if (module === 'agenda') {
+            const events = Array.isArray(payload) ? payload : [];
+            const rows = events.map((item, index) => `<article class="admin-profile-item"><div class="admin-profile-item-heading"><strong>${escapeHtml(item.ramo || item.titulo || `Evento ${index + 1}`)}</strong><button type="button" data-admin-action="delete-agenda" data-index="${index}">Eliminar</button></div><div class="admin-profile-fields">${adminInput(item.ramo || item.titulo, 'Asignatura o título', `data-admin-field="agenda" data-index="${index}" data-field="ramo"`)}${adminInput(item.tipo, 'Tipo', `data-admin-field="agenda" data-index="${index}" data-field="tipo"`)}${adminInput(item.fecha, 'Fecha y hora', `data-admin-field="agenda" data-index="${index}" data-field="fecha"`)}${adminInput(item.notas, 'Notas', `data-admin-field="agenda" data-index="${index}" data-field="notas"`)}</div></article>`).join('');
+            return `${rows || '<p class="public-profile-empty">Este perfil no tiene eventos registrados.</p>'}<button type="button" data-admin-action="add-agenda">Añadir evento</button>`;
+        }
+        if (module === 'grades') {
+            const data = payload && typeof payload === 'object' ? payload : {};
+            const courses = Object.entries(data).map(([course, grades]) => {
+                const items = Array.isArray(grades && grades.items) ? grades.items : [];
+                const entries = items.map((item, index) => `<div class="admin-profile-fields admin-profile-grade-row">${adminInput(item.name, 'Evaluación', `data-admin-field="grade-item" data-course="${escapeHtml(course)}" data-index="${index}" data-field="name"`)}${adminInput(item.weight, 'Peso %', `type="number" data-admin-field="grade-item" data-course="${escapeHtml(course)}" data-index="${index}" data-field="weight"`)}${adminInput(item.grade, 'Nota', `type="number" min="1" max="7" step="0.1" data-admin-field="grade-item" data-course="${escapeHtml(course)}" data-index="${index}" data-field="grade"`)}</div>`).join('');
+                return `<article class="admin-profile-item"><div class="admin-profile-item-heading">${adminInput(course.includes('|') ? course.split('|').slice(1).join('|') : course, 'Asignatura', `data-admin-field="grade-course-name" data-course="${escapeHtml(course)}"`)}<button type="button" data-admin-action="add-grade" data-course="${escapeHtml(course)}">Añadir nota</button></div>${entries}${adminInput(grades && grades.examGrade, 'Nota de examen', `type="number" min="1" max="7" step="0.1" data-admin-field="grade-course" data-course="${escapeHtml(course)}" data-field="examGrade"`)}${adminInput(grades && grades.examWeight, 'Peso del examen %', `type="number" data-admin-field="grade-course" data-course="${escapeHtml(course)}" data-field="examWeight"`)}</article>`;
+            }).join('');
+            return `${courses || '<p class="public-profile-empty">Este perfil no tiene notas registradas.</p>'}<button type="button" data-admin-action="add-grade-course">Añadir asignatura</button>`;
+        }
+        const progress = payload && typeof payload === 'object' ? payload : {};
+        const states = Object.entries(progress).filter(([key]) => !key.startsWith('__'));
+        return `<p>Selecciona el estado de cada ramo para actualizar su avance.</p><div class="admin-profile-curriculum">${states.map(([key, value]) => `<button type="button" data-admin-action="toggle-curriculum" data-course="${escapeHtml(key)}"><span>${escapeHtml(key)}</span><strong>${Number(value) === 2 ? 'Aprobado' : Number(value) === 1 ? 'Cursando' : 'Pendiente'} · Cambiar</strong></button>`).join('') || '<p class="public-profile-empty">Esta malla no tiene estados guardados.</p>'}</div>`;
+    }
+
+    function renderAdminModule(container, module, payload) {
+        if (!container) return;
+        container.innerHTML = `<div class="admin-profile-editor"><div class="admin-profile-editor-heading"><strong>Perfil de ${escapeHtml((selectedProfile() || {}).display_name || 'Estudiante')}</strong><span>Los cambios se guardan en su cuenta.</span></div>${adminEditorMarkup(module, payload)}<button type="button" class="admin-profile-save">Guardar cambios</button></div>`;
+    }
+
+    function updateAdminDraft(field) {
+        const profile = selectedProfile();
+        if (!profile || !profile.modules) return;
+        const { adminField, index, field: key, course } = field.dataset;
+        const value = field.type === 'number' ? (field.value === '' ? null : Number(field.value)) : field.value;
+        if (adminField === 'schedule') profile.modules.schedule.clases[Number(index)][key] = value;
+        if (adminField === 'schedule' && key === 'bloqueNum') {
+            const block = Number(value) - 1;
+            const starts = ['08:30', '10:00', '11:30', '13:00', '14:30', '16:00', '17:30'];
+            const ends = ['09:50', '11:20', '12:50', '14:20', '15:50', '17:20', '18:50'];
+            if (starts[block]) {
+                profile.modules.schedule.clases[Number(index)].horaInicio = starts[block];
+                profile.modules.schedule.clases[Number(index)].horaFin = ends[block];
+            }
+        }
+        if (adminField === 'schedule' && key === 'dia') {
+            const names = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
+            profile.modules.schedule.clases[Number(index)].diaNombre = names[Number(value)] || '';
+        }
+        if (adminField === 'agenda') profile.modules.agenda[Number(index)][key] = value;
+        if (adminField === 'grade-item') profile.modules.grades[course].items[Number(index)][key] = value;
+        if (adminField === 'grade-course') profile.modules.grades[course][key] = value;
+        if (adminField === 'grade-course-name' && value.trim()) {
+            const prefix = String(course).includes('|') ? String(course).split('|')[0] + '|' : '';
+            const nextCourse = prefix + value.trim();
+            if (nextCourse !== course) {
+                profile.modules.grades[nextCourse] = profile.modules.grades[course];
+                delete profile.modules.grades[course];
+                const content = field.closest('.public-profile-content');
+                if (content) content.querySelectorAll('[data-course]').forEach(element => {
+                    if (element.dataset.course === course) element.dataset.course = nextCourse;
+                });
+            }
+        }
+        const content = field.closest('.public-profile-content');
+        if (content) content.dataset.dirty = 'true';
+    }
+
+    function handleAdminContentAction(event) {
+        const button = event.target.closest('[data-admin-action], .admin-profile-save');
+        if (!button) return;
+        const content = button.closest('.public-profile-content');
+        const profile = selectedProfile();
+        if (!content || !profile || !hasAdminRole()) return;
+        const module = content.dataset.module;
+        const payload = profile.modules && profile.modules[module];
+        if (button.matches('.admin-profile-save')) { saveAdminModule(module, payload); return; }
+        const action = button.dataset.adminAction;
+        const index = Number(button.dataset.index);
+        if (action === 'add-class') payload.clases.push({ id: `admin-${Date.now()}`, dia: 1, bloqueNum: 1, horaInicio: '08:30', horaFin: '09:50', curso: '', tipo: 'Cátedra', sala: '', profesor: '', seccion: '', rol: 'student' });
+        if (action === 'delete-class') payload.clases.splice(index, 1);
+        if (action === 'add-agenda') payload.push({ id: `admin-${Date.now()}`, ramo: '', tipo: 'Solemne', fecha: '', notas: '', completado: false });
+        if (action === 'delete-agenda') payload.splice(index, 1);
+        if (action === 'add-grade-course') payload[`me|Nueva asignatura ${Object.keys(payload).length + 1}`] = { items: [], examGrade: null, examWeight: 30 };
+        if (action === 'add-grade') payload[button.dataset.course].items.push({ name: 'Nueva evaluación', weight: 0, grade: null });
+        if (action === 'toggle-curriculum') {
+            const key = button.dataset.course;
+            payload[key] = ((Number(payload[key]) || 0) + 1) % 3;
+        }
+        renderAdminModule(content, module, payload);
+        content.dataset.dirty = 'true';
     }
 
     function ownDisplayName() {
@@ -148,6 +282,7 @@
             const option = event.target.closest('.public-profile-option');
             if (option) applySelection(option.dataset.profileId || '');
         });
+        directory.addEventListener('change', event => { if (event.target.matches('[data-admin-field]')) updateAdminDraft(event.target); });
     }
 
     function pickerMarkup() {
@@ -195,6 +330,7 @@
             applySelection(option.dataset.profileId || '');
             closeProfileDialog();
         });
+        profileDialog.addEventListener('change', event => { if (event.target.matches('[data-admin-field]')) updateAdminDraft(event.target); });
         profileDialog.addEventListener('keydown', event => {
             if (event.key === 'ArrowDown' && event.target.matches('.public-profile-search-input')) {
                 event.preventDefault();
@@ -268,7 +404,7 @@
         profileSearchError = '';
         let response;
         try {
-            response = await auth.client.rpc('search_shared_profiles', {
+            response = await auth.client.rpc(adminDirectoryMode ? 'admin_search_profiles' : 'search_shared_profiles', {
                 p_query: String(query || '').trim(),
                 p_limit: MAX_VISIBLE_PROFILES + 1,
                 p_offset: offset
@@ -347,7 +483,7 @@
         if (!auth || !auth.client) return profile;
         let response;
         try {
-            response = await auth.client.rpc('get_shared_profile_information', { p_user_id: id });
+            response = await auth.client.rpc(hasAdminRole() ? 'admin_get_profile_information' : 'get_shared_profile_information', { p_user_id: id });
         } catch (error) {
             console.error('No se pudo cargar el perfil compartido', error);
             return null;
@@ -374,7 +510,7 @@
             toolbar.innerHTML = pickerMarkup();
             wirePicker(toolbar);
             section.insertBefore(toolbar, section.firstChild);
-            if (!config.native) {
+            if (!config.native || config.module === 'schedule') {
                 const content = document.createElement('div');
                 content.className = 'public-profile-content';
                 content.dataset.module = config.module;
@@ -385,6 +521,8 @@
                 } else {
                     section.insertBefore(content, toolbar.nextSibling);
                 }
+                content.addEventListener('change', event => { if (event.target.matches('[data-admin-field]')) updateAdminDraft(event.target); });
+                content.addEventListener('click', handleAdminContentAction);
             }
         });
         syncSelectors();
@@ -452,6 +590,15 @@
             const module = content.dataset.module;
             content.hidden = !profile;
             if (!profile) { content.innerHTML = ''; return; }
+            if (hasAdminRole()) {
+                if (module === 'curriculum' && typeof window.renderMallaPublica === 'function') {
+                    window.renderMallaPublica(content, modules.curriculum || {}, { editable: true });
+                    return;
+                }
+                renderAdminModule(content, module, modules[module] || (module === 'schedule' ? { clases: [] } : module === 'agenda' ? [] : {}));
+                return;
+            }
+            if (module === 'schedule') { content.hidden = true; return; }
             if (module === 'grades') {
                 if (typeof window.renderNotasPublicas === 'function') window.renderNotasPublicas(content, modules.grades);
                 else content.innerHTML = renderGrades(modules.grades);
@@ -487,7 +634,10 @@
         }
         sections.forEach(config => {
             const section = document.getElementById(config.id);
-            if (section) section.classList.toggle('public-profile-active', Boolean(profile));
+            if (section) {
+                section.classList.toggle('public-profile-active', Boolean(profile));
+                section.classList.toggle('public-profile-admin-edit', Boolean(profile && hasAdminRole()));
+            }
         });
         renderGenericViews(profile);
 
@@ -519,6 +669,7 @@
             return;
         }
         const authUserId = String(auth.user.id || '');
+        adminDirectoryMode = hasAdminRole();
         if (activeAuthUserId && activeAuthUserId !== authUserId) {
             loadedUsers = [];
             selectedUserId = '';
@@ -530,7 +681,7 @@
         if (loadInProgress) { reloadPending = true; return; }
         loadInProgress = true;
         try {
-            const directory = await auth.client.rpc('search_shared_profiles', {
+            const directory = await auth.client.rpc(adminDirectoryMode ? 'admin_search_profiles' : 'search_shared_profiles', {
                 p_query: '',
                 p_limit: MAX_VISIBLE_PROFILES + 1,
                 p_offset: 0
@@ -583,11 +734,26 @@
     window.PortalCommunity = {
         select: applySelection,
         getSelected: selectedProfile,
-        getUsers: () => loadedUsers.slice()
+        getUsers: () => loadedUsers.slice(),
+        isAdmin: hasAdminRole,
+        saveSelectedModule: module => {
+            const profile = selectedProfile();
+            if (profile && profile.modules && profile.modules[module]) saveAdminModule(module, profile.modules[module]);
+        },
+        toggleCurriculum: courseId => {
+            const profile = selectedProfile();
+            if (!hasAdminRole() || !profile || !profile.modules) return;
+            const progress = profile.modules.curriculum || (profile.modules.curriculum = {});
+            const careerId = progress.__careerId || 'ingenieria-civil-en-informatica-y-telecomunicaciones';
+            const key = `${careerId}:${String(courseId || '')}`;
+            progress[key] = ((Number(progress[key]) || 0) + 1) % 3;
+            const content = document.querySelector('#tab-progreso .public-profile-content[data-module="curriculum"]');
+            if (content && typeof window.renderMallaPublica === 'function') window.renderMallaPublica(content, progress, { editable: true });
+        }
     };
     window.cargarHorariosComunidad = loadSharedInformation;
     document.addEventListener('portal:section-entered', event => {
-        if (!sections.some(section => section.id === event.detail.panelId) || !selectedUserId) return;
+        if (!sections.some(section => section.id === event.detail.panelId) || !selectedUserId || hasAdminRole()) return;
         applySelection('');
     });
     document.addEventListener('portal:auth-changed', loadSharedInformation);

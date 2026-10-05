@@ -29,6 +29,7 @@ jobs:
           node tests/app-security.test.cjs
           node tests/auth-ui.test.cjs
           node tests/community-schedules.test.cjs
+          node tests/admin-profile-editing.test.cjs
           node tests/public-shared-views.test.cjs
           node tests/community-schedule-overlay.test.cjs
           node tests/community-solemnes.test.cjs
