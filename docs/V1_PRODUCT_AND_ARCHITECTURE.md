@@ -18,13 +18,14 @@ Funciones públicas, sin inicio de sesión:
 Funciones personales, con Google OAuth:
 
 - Horario personal, compartido por defecto con las cuentas autenticadas que pueden registrarse.
+- Importación del horario desde una imagen con Gemini y Asistente Inteligente.
 - Notas.
 - Agenda.
 - Malla interactiva y progreso.
 
 El directorio comunitario requiere iniciar sesión y, por diseño actual, otros usuarios autenticados pueden ver el horario, las notas, la agenda y el progreso de malla cuando `profiles.share_information` es `true` (valor predeterminado). El horario incluye asignatura, día, horas, tipo, sala, profesor, sección y rol; los otros módulos se comparten como sus documentos JSON. No se expone el correo del perfil ni existen controles separados por módulo. Para ocultar todo el perfil compartido se puede ejecutar `UPDATE public.profiles SET share_information = false WHERE id = '<auth-user-uuid>';`. Las tablas personales mantienen RLS por dueño; las funciones comunitarias validan que quien consulta y el perfil consultado sean miembros autorizados. El hook Before User Created debe estar habilitado para limitar el registro a cuentas permitidas.
 
-Quedan fuera de V1: chat o tutor de IA, perfiles de amigos, mensajería, reloj mundial, cronómetro, Kanban, gastos, compras, notas de voz, hábitos, guitarra, transporte, clima y corrector.
+Quedan fuera de V1: perfiles de amigos, mensajería entre usuarios, reloj mundial, cronómetro, Kanban, gastos, compras, notas de voz, hábitos, guitarra, transporte, clima y corrector. El Asistente Inteligente y la importación de horarios con Gemini sí forman parte de V1.
 
 ## Arquitectura
 
