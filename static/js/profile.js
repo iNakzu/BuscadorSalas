@@ -127,6 +127,11 @@
         const currentAuth = auth();
         const user = currentAuth && currentAuth.user;
         if (!user) { savedCareerId = null; return; }
+        const isAdmin = Boolean(user.app_metadata && user.app_metadata.portal_role === 'admin');
+        const hero = document.querySelector('.profile-hero');
+        const accountType = document.getElementById('profile-account-type');
+        if (hero) hero.classList.toggle('is-admin-account', isAdmin);
+        if (accountType) accountType.textContent = isAdmin ? 'CUENTA DEV' : 'CUENTA PERSONAL';
         careerSearchOriginalValue = null;
         const metadata = user.user_metadata || {};
         const savedCareer = careers.find(item => item.id === metadata.careerId)
