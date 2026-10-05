@@ -54,14 +54,23 @@ class CurriculumCatalogTests(unittest.TestCase):
         informatics = get_visual_curriculum("ingenieria-civil-en-informatica-y-telecomunicaciones")
         self.assertEqual([len(s["cursos"]) for s in industrial], [5, 5, 6, 7, 6, 5, 5, 5, 6, 5])
         self.assertEqual(sum(len(s["cursos"]) for s in obras), 56)
+        self.assertEqual([len(s["cursos"]) for s in obras], [5, 5, 6, 6, 6, 6, 5, 6, 5, 5, 1])
         self.assertEqual([len(s["cursos"]) for s in plan_comun], [5, 5])
         self.assertEqual(sum(len(s["cursos"]) for s in informatics), 57)
         industrial_courses = {course["id"]: course for sem in industrial for course in sem["cursos"]}
+        self.assertEqual((industrial_courses["9"]["codigo"], industrial_courses["9"]["nombre"],
+                          industrial_courses["9"]["requisitos"]),
+                         ("CIT-1010", "Programación Avanzada", ["4"]))
+        self.assertEqual(industrial_courses["5"]["color"], "238, 177, 124")
+        self.assertEqual(industrial_courses["45"]["color"], "255, 105, 97")
         self.assertEqual(industrial_courses["19"]["requisitos"], ["11", "12"])
         self.assertEqual(industrial_courses["55"]["codigo"], "CII-3102")
         obras_courses = {course["id"]: course for sem in obras for course in sem["cursos"]}
+        obras_semesters = {course["id"]: sem["numero"] for sem in obras for course in sem["cursos"]}
         self.assertEqual(obras_courses["25"]["codigo"], "COC-20012")
         self.assertEqual(obras_courses["45"]["requisitos"], ["40", "41", "42", "43", "44"])
+        self.assertEqual((obras_semesters["28"], obras_semesters["29"]), (5, 6))
+        self.assertEqual(obras_courses["48"]["color"], "255, 250, 148")
         cfg_courses = [course for sem in industrial + obras for course in sem["cursos"]
                        if course["codigo"].startswith("CFG-")]
         self.assertTrue(cfg_courses)

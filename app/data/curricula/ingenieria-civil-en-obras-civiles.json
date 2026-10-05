@@ -27,7 +27,7 @@
             "codigo": "CBQ-1000",
             "nombre": "Química",
             "requisitos": [],
-            "color": "212, 251, 202"
+            "color": "152, 206, 255"
           },
           {
             "id": "4",
@@ -55,7 +55,7 @@
             "requisitos": [
               "1"
             ],
-            "color": "152, 206, 255"
+            "color": "225, 241, 255"
           },
           {
             "id": "7",
@@ -64,7 +64,7 @@
             "requisitos": [
               "2"
             ],
-            "color": "152, 206, 255"
+            "color": "225, 241, 255"
           },
           {
             "id": "8",
@@ -73,7 +73,7 @@
             "requisitos": [
               "2"
             ],
-            "color": "212, 251, 202"
+            "color": "225, 241, 255"
           },
           {
             "id": "9",
@@ -82,7 +82,7 @@
             "requisitos": [
               "3"
             ],
-            "color": "212, 251, 202"
+            "color": "225, 241, 255"
           },
           {
             "id": "10",
@@ -104,7 +104,7 @@
               "6",
               "7"
             ],
-            "color": "152, 206, 255"
+            "color": "225, 241, 255"
           },
           {
             "id": "12",
@@ -113,7 +113,7 @@
             "requisitos": [
               "7"
             ],
-            "color": "152, 206, 255"
+            "color": "225, 241, 255"
           },
           {
             "id": "13",
@@ -123,7 +123,7 @@
               "7",
               "8"
             ],
-            "color": "212, 251, 202"
+            "color": "225, 241, 255"
           },
           {
             "id": "14",
@@ -133,7 +133,7 @@
               "7",
               "8"
             ],
-            "color": "255, 254, 224"
+            "color": "225, 241, 255"
           },
           {
             "id": "15",
@@ -147,7 +147,7 @@
             "codigo": "FIC-1001",
             "nombre": "Inglés I",
             "requisitos": [],
-            "color": "254, 240, 225"
+            "color": "253, 202, 151"
           }
         ]
       },
@@ -161,7 +161,7 @@
             "requisitos": [
               "7"
             ],
-            "color": "152, 206, 255"
+            "color": "243, 254, 240"
           },
           {
             "id": "18",
@@ -170,7 +170,7 @@
             "requisitos": [
               "14"
             ],
-            "color": "255, 254, 224"
+            "color": "243, 254, 240"
           },
           {
             "id": "19",
@@ -180,7 +180,7 @@
               "11",
               "12"
             ],
-            "color": "212, 251, 202"
+            "color": "225, 241, 255"
           },
           {
             "id": "20",
@@ -189,7 +189,7 @@
             "requisitos": [
               "14"
             ],
-            "color": "255, 254, 224"
+            "color": "243, 254, 240"
           },
           {
             "id": "21",
@@ -198,7 +198,7 @@
             "requisitos": [
               "9"
             ],
-            "color": "225, 241, 255"
+            "color": "255, 254, 224"
           },
           {
             "id": "22",
@@ -222,7 +222,7 @@
               "6",
               "12"
             ],
-            "color": "152, 206, 255"
+            "color": "255, 254, 224"
           },
           {
             "id": "24",
@@ -266,15 +266,6 @@
               "22"
             ],
             "color": "254, 240, 225"
-          },
-          {
-            "id": "29",
-            "codigo": "CII-2000",
-            "nombre": "Introducción a la Economía",
-            "requisitos": [
-              "12"
-            ],
-            "color": "225, 241, 255"
           }
         ]
       },
@@ -282,13 +273,22 @@
         "numero": 6,
         "cursos": [
           {
+            "id": "29",
+            "codigo": "CII-2000",
+            "nombre": "Introducción a la Economía",
+            "requisitos": [
+              "12"
+            ],
+            "color": "243, 254, 240"
+          },
+          {
             "id": "30",
             "codigo": "COC-2203",
             "nombre": "Ingeniería Ambiental",
             "requisitos": [
               "3"
             ],
-            "color": "225, 241, 255"
+            "color": "243, 254, 240"
           },
           {
             "id": "31",
@@ -298,7 +298,7 @@
               "17",
               "21"
             ],
-            "color": "225, 241, 255"
+            "color": "255, 254, 224"
           },
           {
             "id": "32",
@@ -314,7 +314,7 @@
             "codigo": "COC-2300",
             "nombre": "Seminario Cs. Ingeniería",
             "requisitos": [],
-            "color": "225, 241, 255"
+            "color": "212, 251, 202"
           },
           {
             "id": "34",
@@ -340,7 +340,7 @@
               "18",
               "26"
             ],
-            "color": "225, 241, 255"
+            "color": "255, 254, 224"
           },
           {
             "id": "36",
@@ -360,7 +360,7 @@
               "21",
               "29"
             ],
-            "color": "225, 241, 255"
+            "color": "255, 254, 224"
           },
           {
             "id": "38",
@@ -408,7 +408,7 @@
             "requisitos": [
               "37"
             ],
-            "color": "225, 241, 255"
+            "color": "255, 254, 224"
           },
           {
             "id": "43",
@@ -454,7 +454,7 @@
               "38",
               "41"
             ],
-            "color": "225, 241, 255"
+            "color": "255, 254, 224"
           },
           {
             "id": "47",
@@ -463,28 +463,28 @@
             "requisitos": [
               "42"
             ],
-            "color": "225, 241, 255"
+            "color": "255, 254, 224"
           },
           {
             "id": "48",
             "codigo": "COC-34XX",
             "nombre": "Electivo Profesional",
             "requisitos": [],
-            "color": "255, 105, 97"
+            "color": "255, 250, 148"
           },
           {
             "id": "49",
             "codigo": "COC-35XX",
             "nombre": "Electivo Profesional",
             "requisitos": [],
-            "color": "255, 105, 97"
+            "color": "255, 250, 148"
           },
           {
             "id": "50",
             "codigo": "COC-36XX",
             "nombre": "Electivo Profesional",
             "requisitos": [],
-            "color": "255, 105, 97"
+            "color": "255, 250, 148"
           }
         ]
       },
@@ -496,7 +496,7 @@
             "codigo": "COC-33XX",
             "nombre": "Taller de Proyectos",
             "requisitos": [],
-            "color": "225, 241, 255"
+            "color": "255, 250, 148"
           },
           {
             "id": "52",
@@ -506,28 +506,28 @@
               "35",
               "38"
             ],
-            "color": "225, 241, 255"
+            "color": "255, 254, 224"
           },
           {
             "id": "53",
             "codigo": "COC-34XY",
             "nombre": "Electivo Profesional",
             "requisitos": [],
-            "color": "255, 105, 97"
+            "color": "255, 250, 148"
           },
           {
             "id": "54",
             "codigo": "COC-35XY",
             "nombre": "Electivo Profesional",
             "requisitos": [],
-            "color": "255, 105, 97"
+            "color": "255, 250, 148"
           },
           {
             "id": "55",
             "codigo": "COC-36XY",
             "nombre": "Electivo Profesional",
             "requisitos": [],
-            "color": "255, 105, 97"
+            "color": "255, 250, 148"
           }
         ]
       },
@@ -539,7 +539,7 @@
             "codigo": "COC-END",
             "nombre": "Actividad de Titulación",
             "requisitos": [],
-            "color": "246, 167, 193"
+            "color": "253, 202, 151"
           }
         ]
       }
