@@ -255,7 +255,6 @@ function actualizarHeroMiHorario() {
                     </div>
                     <div class="my-hero-subtitle">
                         ${c.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${escapeHtml(c.sala)}</span></span>` : ''}
-                        <span class="hide-on-mobile" style="${pill_style}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg>${escapeHtml(etiquetaBloqueHorario(c))}</span>
                         <span style="${pill_style}">Quedan <strong>${quedan}m</strong></span>
                     </div>
                 </div>
