@@ -59,7 +59,7 @@ class PushNotificationTests(unittest.TestCase):
         response = client.post("/api/push/test", json={})
         self.assertEqual(response.status_code, 404)
 
-    def test_sync_keeps_only_class_times_and_agenda_dates(self):
+    def test_sync_keeps_class_names_and_times_and_agenda_dates(self):
         import sqlite3
         # Existing installations have the original start-only schema; sync must migrate it.
         with sqlite3.connect(self.db) as db:
@@ -74,14 +74,14 @@ class PushNotificationTests(unittest.TestCase):
             {"key": "far-future", "date": "2099-01-01", "time": "12:15", "hasTime": True, "completed": False},
         ])
         with sqlite3.connect(self.db) as db:
-            classes = db.execute("SELECT day,class_time,class_finish FROM push_classes WHERE user_id=?", ("user-a",)).fetchall()
+            classes = db.execute("SELECT day,class_time,class_finish,course_name FROM push_classes WHERE user_id=?", ("user-a",)).fetchall()
             agenda = db.execute("SELECT event_key,event_at FROM push_agenda WHERE user_id=?", ("user-a",)).fetchall()
             class_columns = [row[1] for row in db.execute("PRAGMA table_info(push_classes)")]
             agenda_columns = [row[1] for row in db.execute("PRAGMA table_info(push_agenda)")]
-        self.assertEqual(classes, [(1, "08:30", "09:50")])
+        self.assertEqual(classes, [(1, "08:30", "09:50", "PRIVATE COURSE NAME")])
         self.assertEqual(len(agenda), 1)
         self.assertEqual(len(agenda[0][0]), 64)  # Only a one-way event identifier is persisted.
-        self.assertEqual(class_columns, ["user_id", "day", "class_time", "class_finish"])
+        self.assertEqual(class_columns, ["user_id", "day", "class_time", "class_finish", "course_name"])
         self.assertEqual(agenda_columns, ["user_id", "event_key", "event_at"])
 
     def test_class_end_and_interclass_break_notifications(self):
@@ -92,8 +92,8 @@ class PushNotificationTests(unittest.TestCase):
             "keys": {"p256dh": b64url(b"p" * 65), "auth": b64url(b"a" * 16)},
         })
         sync_reminders(self.db, "user-a", [
-            {"day": 1, "time": "14:30", "finish": "15:50"},
-            {"day": 1, "time": "16:00", "finish": "17:20"},
+            {"day": 1, "time": "14:30", "finish": "15:50", "course": "Cálculo"},
+            {"day": 1, "time": "16:00", "finish": "17:20", "course": "Álgebra"},
             {"day": 1, "time": "17:25", "finish": "18:45"},
         ], [])
 
@@ -114,7 +114,8 @@ class PushNotificationTests(unittest.TestCase):
         at_ten_minute_gap = deliver_at(15, 50)
         self.assertIn("Comienza tu descanso de 10 minutos antes de tu próxima clase.", at_ten_minute_gap)
         self.assertIn("Tu próxima clase comienza en 10 minutos.", at_ten_minute_gap)
-        self.assertEqual(deliver_at(16, 0), ["Tu clase comienza ahora."])
+        self.assertEqual(deliver_at(16, 0), ["Tu clase de Álgebra ha comenzado."])
+        self.assertEqual(deliver_at(17, 25), ["Tu clase ha comenzado."])
         self.assertEqual(deliver_at(17, 20), ["Comienza tu descanso de 5 minutos antes de tu próxima clase."])
 
     @patch("app.blueprints.push_api.requests.get")

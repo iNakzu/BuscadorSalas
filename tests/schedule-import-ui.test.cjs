@@ -84,7 +84,7 @@ assert.strictEqual(schedule.clases[5].curso, 'Redes');
 assert.strictEqual(schedule.clases[5].bloqueNum, 6);
 assert.strictEqual(Object.prototype.hasOwnProperty.call(schedule.clases[5], 'bloqueLabel'), false);
 const pushSchedule = JSON.parse(JSON.stringify(context.window.portalGetSchedulePushData()));
-assert.deepStrictEqual(pushSchedule[0], { day: 1, time: '08:30', finish: '09:50' });
+assert.deepStrictEqual(pushSchedule[0], { day: 1, time: '08:30', finish: '09:50', course: 'Cálculo I' });
 assert.strictEqual(elements.get('schedule-import-status').textContent, '', 'successful import should clear progress without showing a success notification');
 assert(!/Horario cargado:/.test(fs.readFileSync('static/js/horario.js', 'utf8')), 'successful Gemini import must not create a toast notification');
 

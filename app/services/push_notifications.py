@@ -39,6 +39,7 @@ def _connect(path):
         CREATE TABLE IF NOT EXISTS push_classes (
           user_id TEXT NOT NULL, day INTEGER NOT NULL, class_time TEXT NOT NULL,
           class_finish TEXT NOT NULL DEFAULT '',
+          course_name TEXT NOT NULL DEFAULT '',
           PRIMARY KEY(user_id, day, class_time)
         );
         CREATE TABLE IF NOT EXISTS push_agenda (
@@ -53,6 +54,8 @@ def _connect(path):
     class_columns = {row[1] for row in connection.execute("PRAGMA table_info(push_classes)")}
     if "class_finish" not in class_columns:
         connection.execute("ALTER TABLE push_classes ADD COLUMN class_finish TEXT NOT NULL DEFAULT ''")
+    if "course_name" not in class_columns:
+        connection.execute("ALTER TABLE push_classes ADD COLUMN course_name TEXT NOT NULL DEFAULT ''")
     connection.commit()
     try:
         os.chmod(path, 0o600)
@@ -153,7 +156,11 @@ def sync_reminders(path, user_id, classes, agenda):
             class_finish = ""
         elif class_finish <= class_time:
             class_finish = ""
-        normalized_classes[(day, class_time)] = class_finish
+        course_name = item.get("course", "")
+        if not isinstance(course_name, str):
+            course_name = ""
+        course_name = "".join(char for char in course_name.strip() if char.isprintable())[:120]
+        normalized_classes[(day, class_time)] = (class_finish, course_name)
     normalized_agenda = {}
     today = datetime.now(CHILE).date()
     for item in agenda:
@@ -182,9 +189,9 @@ def sync_reminders(path, user_id, classes, agenda):
         normalized_agenda[key] = event_at
     with _connect(path) as db:
         db.execute("DELETE FROM push_classes WHERE user_id=?", (user_id,))
-        db.executemany("INSERT INTO push_classes(user_id,day,class_time,class_finish) VALUES(?,?,?,?)",
-                       [(user_id, day, class_time, class_finish)
-                        for (day, class_time), class_finish in normalized_classes.items()])
+        db.executemany("INSERT INTO push_classes(user_id,day,class_time,class_finish,course_name) VALUES(?,?,?,?,?)",
+                       [(user_id, day, class_time, class_finish, course_name)
+                        for (day, class_time), (class_finish, course_name) in normalized_classes.items()])
         db.execute("DELETE FROM push_agenda WHERE user_id=?", (user_id,))
         db.executemany("INSERT INTO push_agenda(user_id,event_key,event_at) VALUES(?,?,?)",
                        [(user_id, key, event_at) for key, event_at in normalized_agenda.items()])
@@ -218,7 +225,7 @@ def deliver_due(path, private_key_path, public_key, subject):
         for pref in prefs:
             uid = pref["user_id"]
             if pref["classes"]:
-                rows = db.execute("SELECT day,class_time,class_finish FROM push_classes WHERE user_id=?", (uid,)).fetchall()
+                rows = db.execute("SELECT day,class_time,class_finish,course_name FROM push_classes WHERE user_id=?", (uid,)).fetchall()
                 classes_by_day = {}
                 for row in rows:
                     class_day = int(row["day"])
@@ -233,14 +240,16 @@ def deliver_due(path, private_key_path, public_key, subject):
                         end_hh, end_mm = map(int, class_finish.split(":"))
                         finish_at = datetime(target_day.year, target_day.month, target_day.day,
                                              end_hh, end_mm, tzinfo=CHILE)
+                    course_name = str(row["course_name"] or "")
                     classes_by_day.setdefault(class_day, []).append((class_at, finish_at, row["class_time"], class_finish))
                     if start_minute < remind_at <= current_minute and class_at > now:
                         due.append((uid, f"class:{target_day.isoformat()}:{row['day']}:{row['class_time']}",
                                     "Tu próxima clase comienza en 10 minutos.", "tab-mihorario"))
                     class_start_at = int(class_at.timestamp())
                     if start_minute < class_start_at <= current_minute:
+                        start_message = f"Tu clase de {course_name} ha comenzado." if course_name else "Tu clase ha comenzado."
                         due.append((uid, f"class-start:{target_day.isoformat()}:{row['day']}:{row['class_time']}",
-                                    "Tu clase comienza ahora.", "tab-mihorario"))
+                                    start_message, "tab-mihorario"))
                     if finish_at:
                         finish_reminder = int((finish_at - timedelta(minutes=10)).timestamp())
                         if start_minute < finish_reminder <= current_minute and finish_at > now:
