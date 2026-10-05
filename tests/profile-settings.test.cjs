@@ -16,7 +16,8 @@ for (const id of ['tab-perfil', 'profile-career-input', 'profile-career-save', '
   assert.ok(profile.includes(`id="${id}"`), `profile view should contain ${id}`);
 }
 assert.match(profile, /id="auth-reset-data" class="profile-action-row is-danger"/);
-assert.match(profile, /id="profile-career-save"[^>]*aria-live="polite"[^>]*>[\s\S]*profile-career-save-spinner[\s\S]*profile-primary-button-label/);
+assert.match(profile, /id="profile-career-save"[^>]*aria-live="polite"[^>]*>[\s\S]*profile-career-save-icon[\s\S]*profile-primary-button-label/);
+assert.doesNotMatch(profile, /profile-career-save-(check|spinner|error)/);
 assert.match(profile, /class="profile-action-row is-signout"/);
 assert.doesNotMatch(profile, /Configurar notificaciones|Ver perfiles compartidos|push-settings-open|abrirPerfilesComunidad\(\)/);
 assert.doesNotMatch(profile, /id="push-(classes|agenda)-toggle"|class="push-option"/);
@@ -32,6 +33,9 @@ assert.match(script, /updateUserMetadata\(\{ career:/);
 assert.match(script, /setCareerSaveButton\('Guardando…', 'loading'\)/);
 assert.match(script, /setCareerSaveButton\('Carrera guardada', 'success', 2000\)/);
 assert.match(script, /setCareerSaveButton\('No se pudo guardar\. Revisa tu conexión e inténtalo de nuevo\.', 'error', 3200\)/);
+assert.match(script, /careerSaveIconPath\.setAttribute\('d', 'M12 3a9 9 0 1 0 9 9'\)/);
+assert.match(script, /careerSaveIconPath\.setAttribute\('d', 'M12 9v4m0 4h\.01M10\.3 3\.9/);
+assert.doesNotMatch(script, /careerSave(Check|Spinner|Error)/);
 assert.doesNotMatch(script, /setFeedback\('Carrera guardada en tu perfil\.'/);
 assert.match(script, /\.select\('share_information'\)\.eq\('id', user\.id\)/);
 assert.match(script, /\.update\(\{ share_information: nextValue \}\)\.eq\('id', currentAuth\.user\.id\)/);

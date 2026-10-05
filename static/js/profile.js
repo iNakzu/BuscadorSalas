@@ -4,9 +4,8 @@
     const careerToggle = document.getElementById('profile-career-toggle');
     const careerSave = document.getElementById('profile-career-save');
     const careerSaveLabel = careerSave && careerSave.querySelector('.profile-primary-button-label');
-    const careerSaveCheck = careerSave && careerSave.querySelector('.profile-career-save-check');
-    const careerSaveSpinner = careerSave && careerSave.querySelector('.profile-career-save-spinner');
-    const careerSaveError = careerSave && careerSave.querySelector('.profile-career-save-error');
+    const careerSaveIcon = careerSave && careerSave.querySelector('.profile-career-save-icon');
+    const careerSaveIconPath = careerSaveIcon && careerSaveIcon.querySelector('path');
     const sharingToggle = document.getElementById('profile-sharing-toggle');
     const sharingStatus = document.getElementById('profile-sharing-status');
     const feedback = document.getElementById('profile-feedback');
@@ -32,18 +31,26 @@
         careerSaveLabel.textContent = 'Guardar carrera';
         careerSave.dataset.state = '';
         careerSave.removeAttribute('aria-busy');
-        careerSaveCheck.hidden = false;
-        careerSaveSpinner.hidden = true;
-        careerSaveError.hidden = true;
+        careerSaveIcon.dataset.state = 'idle';
+        careerSaveIconPath.setAttribute('d', 'm5 12 4 4L19 6');
+        careerSaveIconPath.setAttribute('stroke-width', '2');
     }
     function setCareerSaveButton(message, state, resetAfter = 0) {
         if (careerSaveResetTimer) clearTimeout(careerSaveResetTimer);
         careerSaveLabel.textContent = message;
         careerSave.dataset.state = state;
         careerSave.setAttribute('aria-busy', String(state === 'loading'));
-        careerSaveCheck.hidden = state === 'loading' || state === 'error';
-        careerSaveSpinner.hidden = state !== 'loading';
-        careerSaveError.hidden = state !== 'error';
+        careerSaveIcon.dataset.state = state;
+        if (state === 'loading') {
+            careerSaveIconPath.setAttribute('d', 'M12 3a9 9 0 1 0 9 9');
+            careerSaveIconPath.setAttribute('stroke-width', '2.5');
+        } else if (state === 'error') {
+            careerSaveIconPath.setAttribute('d', 'M12 9v4m0 4h.01M10.3 3.9 2.6 17.2A2 2 0 0 0 4.3 20h15.4a2 2 0 0 0 1.7-2.8L13.7 3.9a2 2 0 0 0-3.4 0Z');
+            careerSaveIconPath.setAttribute('stroke-width', '1.8');
+        } else {
+            careerSaveIconPath.setAttribute('d', 'm5 12 4 4L19 6');
+            careerSaveIconPath.setAttribute('stroke-width', '2');
+        }
         if (resetAfter) careerSaveResetTimer = setTimeout(resetCareerSaveButton, resetAfter);
     }
     function setCareerMenuOpen(open) {
