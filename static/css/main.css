@@ -2640,6 +2640,53 @@ html {
     100% { transform: rotate(360deg); }
 }
 
+/* En notebook/tablet el contenido conserva su ancho de escritorio y la barra
+   pasa a ser un cajón que se abre con el botón de menú. */
+@media (min-width: 1024px) and (max-width: 1599px) {
+    body { padding-left: 16px; }
+
+    header {
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        z-index: 900;
+        padding: 0;
+        pointer-events: none;
+    }
+
+    .mobile-header-content { pointer-events: auto; }
+    .btn-sidebar-toggle { display: block; }
+
+    .tabs-wrapper {
+        position: fixed;
+        top: 0;
+        left: -320px;
+        width: 290px;
+        height: 100vh;
+        height: 100dvh;
+        padding: 20px 28px 30px;
+        background: rgba(15, 23, 42, .95);
+        backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(30px);
+        border-right: 1px solid rgba(255, 255, 255, .1);
+        transition: left .4s cubic-bezier(.16, 1, .3, 1);
+        z-index: 9998;
+        overflow-y: auto;
+        box-shadow: 10px 0 40px rgba(0, 0, 0, .8);
+        box-sizing: border-box;
+    }
+
+    .tabs-wrapper.open { left: 0; }
+    .tabs { display: flex; flex-direction: column; align-items: stretch; }
+
+    .malla-scroll-wrapper {
+        width: 100vw;
+        margin-left: calc(-50vw + 50%);
+        padding-left: max(50px, calc((100vw - 1400px) / 2));
+        padding-right: max(50px, calc((100vw - 1400px) / 2));
+    }
+}
+
 .focus-circle.lofi-active.pulsing {
     animation: glowPulseLofi 2s infinite alternate !important;
 }

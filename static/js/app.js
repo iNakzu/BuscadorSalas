@@ -152,14 +152,27 @@ window.abrirPerfilesComunidad = abrirPerfilesComunidad;
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar-menu');
     const overlay = document.querySelector('.sidebar-overlay');
-    if (sidebar) sidebar.classList.toggle('open');
-    if (overlay) overlay.classList.toggle('active');
+    const isOpen = sidebar && sidebar.classList.toggle('open');
+    if (overlay) overlay.classList.toggle('active', Boolean(isOpen));
+    const menuButton = document.querySelector('.btn-sidebar-toggle');
+    if (menuButton) menuButton.setAttribute('aria-expanded', String(Boolean(isOpen)));
 }
 
 document.addEventListener('click', event => {
     const gate = document.getElementById('auth-gate');
     if (gate && event.target === gate) gate.hidden = true;
-    if (event.target.closest('.tab-btn') && window.innerWidth < 1024) toggleSidebar();
+    if (event.target.closest('.tab-btn') && window.innerWidth < 1600) toggleSidebar();
+});
+
+window.addEventListener('resize', () => {
+    if (window.innerWidth >= 1600) {
+        const sidebar = document.getElementById('sidebar-menu');
+        const overlay = document.querySelector('.sidebar-overlay');
+        const menuButton = document.querySelector('.btn-sidebar-toggle');
+        if (sidebar) sidebar.classList.remove('open');
+        if (overlay) overlay.classList.remove('active');
+        if (menuButton) menuButton.setAttribute('aria-expanded', 'false');
+    }
 });
 function setFacultadPill(val, btn) {
     document.querySelectorAll('#bar-facultad .pill-btn').forEach(b => b.classList.remove('active'));
