@@ -25,6 +25,7 @@ assert.ok(profile.indexOf('profile-career-card') < profile.indexOf('profile-comm
 assert.match(styles, /grid-template-areas: "community career" "community privacy" "community notifications" "data signout"/);
 assert.match(styles, /grid-template-areas: "career" "community" "privacy" "notifications" "data" "signout"/);
 assert.match(styles, /@media \(min-width: 761px\) \{ \.profile-settings-grid \{ align-items: start; \} \.profile-community-card \{ align-self: stretch; \} \}/);
+assert.match(styles, /\.profile-page \.push-dialog-status \{[^}]*font-family: inherit; font-size: 9px; line-height: 1\.4;/);
 assert.doesNotMatch(profile, /push-test|push-example|push-remove-button/);
 assert.match(script, /updateUserMetadata\(\{ career:/);
 assert.match(script, /\.select\('share_information'\)\.eq\('id', user\.id\)/);
