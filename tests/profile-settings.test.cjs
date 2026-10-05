@@ -32,5 +32,8 @@ assert.match(fs.readFileSync('static/js/push_notifications.js', 'utf8'), /getEle
 assert.doesNotMatch(fs.readFileSync('static/js/push_notifications.js', 'utf8'), /push-settings-open|push-settings-dialog/);
 assert.match(fs.readFileSync('static/js/push_notifications.js', 'utf8'), /JSON\.stringify\(\{ classes: true, agenda: true \}\)/);
 assert.doesNotMatch(fs.readFileSync('static/js/push_notifications.js', 'utf8'), /\/test|sendTestNotification|TEST_EXAMPLES/);
+assert.match(fs.readFileSync('static/js/push_notifications.js', 'utf8'), /enableButton\.hidden = subscribed/);
+assert.doesNotMatch(fs.readFileSync('static/js/push_notifications.js', 'utf8'), /Desactivar notificaciones|async function deactivate/);
+assert.match(fs.readFileSync('app/services/push_notifications.py', 'utf8'), /VALUES\(\?,1,1,\?\)/);
 assert.match(fs.readFileSync('static/js/community_schedules.js', 'utf8'), /renderInlineDirectory\(directory/);
 console.log(`profile-settings: compact sidebar, personal controls, scoped privacy, and ${careers.length} career suggestions verified`);

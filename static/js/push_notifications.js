@@ -38,9 +38,9 @@
     }
 
     function updateButtonState() {
-        enableButton.hidden = false;
-        enableButton.textContent = subscribed ? 'Desactivar notificaciones' : 'Activar notificaciones';
-        enableButton.setAttribute('aria-pressed', String(subscribed));
+        enableButton.hidden = subscribed;
+        enableButton.textContent = 'Permitir notificaciones';
+        enableButton.removeAttribute('aria-pressed');
     }
 
     async function syncReminders() {
@@ -71,9 +71,9 @@
             if (Notification.permission === 'denied' && !subscribed) {
                 setStatus('Las notificaciones están bloqueadas en el navegador. Actívalas en la configuración del sitio.', true);
             } else if (subscribed) {
-                setStatus('Este dispositivo está listo para recibir tus avisos.');
+                setStatus('Avisos de clases y agenda activados.');
             } else {
-                setStatus('Activa los avisos de clases y agenda en este dispositivo.');
+                setStatus('Permite las notificaciones del dispositivo para recibir avisos automáticos.');
             }
         } catch (error) {
             setStatus(error.message, true);
@@ -113,23 +113,6 @@
         }
     }
 
-    async function deactivate() {
-        if (changing) return;
-        changing = true;
-        enableButton.disabled = true;
-        try {
-            await detachCurrentDevice();
-            subscribed = false;
-            updateButtonState();
-            setStatus('Notificaciones desactivadas en este dispositivo.');
-        } catch (error) {
-            setStatus(error.message, true);
-        } finally {
-            changing = false;
-            enableButton.disabled = false;
-        }
-    }
-
     async function detachCurrentDevice() {
         const registration = await navigator.serviceWorker.ready;
         const subscription = await registration.pushManager.getSubscription();
@@ -144,7 +127,7 @@
         if (removalError) throw removalError;
     }
 
-    enableButton.addEventListener('click', () => subscribed ? deactivate() : activate());
+    enableButton.addEventListener('click', activate);
     document.addEventListener('portal:auth-changed', () => {
         const signedIn = Boolean(window.PortalAuth && window.PortalAuth.user);
         panel.hidden = !signedIn;

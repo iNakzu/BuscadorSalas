@@ -44,6 +44,16 @@ class PushNotificationTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             set_preferences(self.db, "user-a", True, False)
 
+    def test_new_device_has_class_and_agenda_notifications_enabled_by_default(self):
+        subscription = {
+            "endpoint": "https://fcm.googleapis.com/fcm/send/test-token",
+            "keys": {"p256dh": b64url(b"p" * 65), "auth": b64url(b"a" * 16)},
+        }
+        save_subscription(self.db, "user-a", subscription)
+        self.assertEqual(get_preferences(self.db, "user-a"), {
+            "classes": True, "agenda": True, "subscribed": True,
+        })
+
     def test_notification_test_endpoint_is_removed(self):
         client = create_app({"TESTING": True}).test_client()
         response = client.post("/api/push/test", json={})

@@ -27,8 +27,8 @@ def _connect(path):
     connection.execute("PRAGMA journal_mode=WAL")
     connection.executescript("""
         CREATE TABLE IF NOT EXISTS push_preferences (
-          user_id TEXT PRIMARY KEY, classes INTEGER NOT NULL DEFAULT 0,
-          agenda INTEGER NOT NULL DEFAULT 0, updated_at INTEGER NOT NULL
+          user_id TEXT PRIMARY KEY, classes INTEGER NOT NULL DEFAULT 1,
+          agenda INTEGER NOT NULL DEFAULT 1, updated_at INTEGER NOT NULL
         );
         CREATE TABLE IF NOT EXISTS push_subscriptions (
           id INTEGER PRIMARY KEY, user_id TEXT NOT NULL, endpoint TEXT NOT NULL,
@@ -95,7 +95,7 @@ def save_subscription(path, user_id, subscription):
         db.execute("INSERT INTO push_subscriptions(user_id,endpoint,p256dh,auth,created_at) VALUES(?,?,?,?,?) "
                    "ON CONFLICT(user_id,endpoint) DO UPDATE SET p256dh=excluded.p256dh,auth=excluded.auth",
                    (user_id, endpoint, p256dh, auth, now))
-        db.execute("INSERT INTO push_preferences(user_id,classes,agenda,updated_at) VALUES(?,0,0,?) "
+        db.execute("INSERT INTO push_preferences(user_id,classes,agenda,updated_at) VALUES(?,1,1,?) "
                    "ON CONFLICT(user_id) DO NOTHING", (user_id, now))
 
 
@@ -118,8 +118,8 @@ def get_preferences(path, user_id):
     with _connect(path) as db:
         row = db.execute("SELECT classes,agenda FROM push_preferences WHERE user_id=?", (user_id,)).fetchone()
         count = db.execute("SELECT COUNT(*) FROM push_subscriptions WHERE user_id=?", (user_id,)).fetchone()[0]
-    return {"classes": bool(row["classes"]) if row else False,
-            "agenda": bool(row["agenda"]) if row else False, "subscribed": count > 0}
+    return {"classes": bool(row["classes"]) if row else True,
+            "agenda": bool(row["agenda"]) if row else True, "subscribed": count > 0}
 
 
 def set_preferences(path, user_id, classes, agenda):

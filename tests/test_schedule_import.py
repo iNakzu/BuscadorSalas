@@ -336,6 +336,39 @@ class ScheduleImportEndpointTest(unittest.TestCase):
         get_classes.assert_called_once()
 
     @patch("app.blueprints.academic_api.dm.get_classes")
+    def test_schedule_sync_matches_architecture_organiz_abbreviation_only_for_that_course(self, get_classes):
+        from app.blueprints.academic_api import _course_name_distance
+
+        full_name = "Arquitectura y Organización de Computadores"
+        official_name = "ARQUITECTURA Y ORGANIZ DE COMPUTADORES"
+        get_classes.return_value = [
+            {"node": {
+                "course": official_name, "day": 3, "start": "13:00:00", "finish": "14:20:00",
+                "place": "E441.2.S201", "teacher": "DOCENTE OFICIAL", "section": 3, "code": "CIT3101",
+            }},
+            {"node": {
+                "course": "ARQUITECTURA Y ORGANIZACIÓN DE SISTEMAS", "day": 3, "start": "13:00:00", "finish": "14:20:00",
+                "place": "E441.2.S205", "teacher": "OTRO DOCENTE", "section": 3, "code": "CIT3999",
+            }},
+        ]
+        original = {
+            "curso": full_name, "dia": 3, "horaInicio": "13:00", "horaFin": "14:20",
+            "bloqueNum": 4, "seccion": "Sección 3", "sala": "", "profesor": "",
+        }
+
+        self.assertEqual(_course_name_distance(full_name, official_name), 0)
+        self.assertIsNone(_course_name_distance(full_name, "ARQUITECTURA Y ORGANIZACIÓN DE SISTEMAS"))
+        response = self.client.post("/api/sync_horario", json={"clases": [original]})
+
+        self.assertEqual(response.status_code, 200)
+        matched = response.get_json()[0]
+        self.assertEqual(matched["curso"], full_name, "matching the JSON abbreviation must preserve the user's full course title")
+        self.assertEqual(matched["sala"], "E441.2.S201")
+        self.assertEqual(matched["profesor"], "DOCENTE OFICIAL")
+        self.assertEqual(matched["seccion"], "Sección 3")
+        get_classes.assert_called_once()
+
+    @patch("app.blueprints.academic_api.dm.get_classes")
     def test_schedule_sync_preserves_known_course_acronyms_in_official_name(self, get_classes):
         get_classes.return_value = [{"node": {
             "course": "EVALUACIÓN DE PROYECTOS TIC", "day": 1, "start": "08:30:00", "finish": "09:50:00",

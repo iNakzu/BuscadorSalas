@@ -32,11 +32,20 @@ def _normalized_match_text(value):
 
 
 _COURSE_NAME_MAX_DISTANCE = 4
+_COURSE_NAME_EQUIVALENCES = frozenset((
+    "arquitectura y organizacion de computadores",
+    "arquitectura y organiz de computadores",
+))
+
+
+def _normalized_course_name(value):
+    normalized = _normalized_match_text(value)
+    return "arquitectura y organizacion de computadores" if normalized in _COURSE_NAME_EQUIVALENCES else normalized
 
 
 def _course_name_distance(left, right):
-    left = _normalized_match_text(left)
-    right = _normalized_match_text(right)
+    left = _normalized_course_name(left)
+    right = _normalized_course_name(right)
     if left == right:
         return 0
     left_tokens = left.split()
@@ -580,7 +589,14 @@ def api_sync_horario():
         matched_node, room, section, teacher, _score = next(iter(best_candidates.values()))
         official_course = str(matched_node.get("course") or "").strip()
         if official_course and course:
-            user_class["curso"] = fallback_course_display(official_course)
+            normalized_user_course = _normalized_match_text(course)
+            normalized_official_course = _normalized_match_text(official_course)
+            equivalently_named_course = (
+                normalized_user_course != normalized_official_course
+                and _normalized_course_name(course) == _normalized_course_name(official_course)
+            )
+            if not equivalently_named_course:
+                user_class["curso"] = fallback_course_display(official_course)
         if room and room != "-" and not _normalized_room(user_class.get("sala", "")):
             user_class["sala"] = room
         if teacher and (not wanted_teacher or _normalized_match_text(teacher) in selector_matches):
