@@ -14,7 +14,7 @@
 .auth-card { display: flex; flex-direction: column; align-items: center; text-align: center; }
 .auth-card > p { align-self: stretch; }
 .auth-card .auth-button, .auth-card .auth-profile { box-sizing: border-box; width: 100%; }
-.auth-card .auth-profile { justify-content: flex-start; width: calc(100% + 24px); margin: 0 -12px; padding: 8px 17px; border: 0; border-radius: 10px; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; transition: background .18s ease; }
+.auth-card .auth-profile { justify-content: flex-start; width: calc(100% + 24px); margin: -12px; padding: 20px 17px; border: 0; border-radius: 10px; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; transition: background .18s ease; }
 .auth-card .auth-profile:hover,.auth-card .auth-profile:active { background: rgba(255,255,255,.06); }
 .auth-card .auth-profile:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
 .auth-card .auth-profile-copy { text-align: left; }
