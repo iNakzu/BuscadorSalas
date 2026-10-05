@@ -67,6 +67,12 @@ function cambiarTab(panelId, btn) {
         if (gate) gate.hidden = false;
         return;
     }
+    if (panelId === 'tab-malla' && window.PortalAuth && window.PortalAuth.user
+        && (!window.PortalProfile || !window.PortalProfile.getCareerId())) {
+        abrirPerfil();
+        if (window.PortalProfile) window.PortalProfile.requireCareer();
+        return;
+    }
     document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
@@ -516,6 +522,13 @@ function ejecutarBusquedaRamo() {
 
 let mallaRamosCache = [];
 
+document.addEventListener('portal:career-changed', () => {
+    mallaLoadedOnce = false;
+    mallaRamosCache = [];
+    state.mallaSemestre = '1';
+    state.mallaRamo = '';
+});
+
 function toggleSemestreDropdown(event) {
     event.stopPropagation();
     const dd = document.getElementById('dropdown-semestre');
@@ -618,6 +631,13 @@ async function cargarClasesMalla(refrescarChips = false) {
     mallaLoadedOnce = true;
     const container = document.getElementById('malla-results-grid');
     if (!container) return;
+
+    const careerId = window.PortalProfile && window.PortalProfile.getCareerId();
+    if (!careerId) {
+        mallaLoadedOnce = false;
+        container.textContent = 'Selecciona tu carrera en Mi perfil para abrir su malla.';
+        return;
+    }
     
     container.innerHTML = '<div class="empty-state"><svg class="spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right: 6px;"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> Obteniendo secciones...</div>';
 
@@ -626,8 +646,32 @@ async function cargarClasesMalla(refrescarChips = false) {
         const diaParam = state.mallaDia ? `&dia=${encodeURIComponent(state.mallaDia)}` : '';
         const ramoParam = state.mallaRamo ? `&ramo=${encodeURIComponent(state.mallaRamo)}` : '';
         const horaParam = state.mallaHora ? `&hora=${encodeURIComponent(state.mallaHora)}` : '';
-        const resp = await fetch(`/api/malla?${semParam}${diaParam}${ramoParam}${horaParam}`);
+        const resp = await fetch(`/api/malla?${semParam}&carrera=${encodeURIComponent(careerId)}${diaParam}${ramoParam}${horaParam}`);
         const data = await resp.json();
+
+        const controls = document.getElementById('malla-controls');
+        if (!data.disponible) {
+            if (controls) controls.hidden = true;
+            mallaRamosCache = [];
+            container.textContent = `La malla de ${data.carrera || 'esta carrera'} todavía no está incorporada. Cuando agreguemos su plan de estudios, aparecerá aquí.`;
+            return;
+        }
+        if (controls) controls.hidden = false;
+        state.mallaSemestre = String(data.semestre);
+        const semesterBar = document.getElementById('bar-malla-semestre');
+        if (semesterBar && (refrescarChips || semesterBar.dataset.careerId !== careerId)) {
+            semesterBar.dataset.careerId = careerId;
+            const roman = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
+            semesterBar.replaceChildren(...(data.semestres_disponibles || []).map(item => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = `pill-btn${String(item.numero) === state.mallaSemestre ? ' active' : ''}`;
+                button.dataset.sem = String(item.numero);
+                button.textContent = roman[item.numero - 1] || String(item.numero);
+                button.addEventListener('click', () => setMallaSemestre(String(item.numero)));
+                return button;
+            }));
+        }
 
         // Actualizar chips de ramos del semestre si se requiere
         if (refrescarChips || !mallaRamosCache.length) {
@@ -677,6 +721,11 @@ async function cargarClasesMalla(refrescarChips = false) {
         console.error(e);
     }
 }
+
+document.addEventListener('portal:career-changed', () => {
+    const mallaPanel = document.getElementById('tab-malla');
+    if (mallaPanel && mallaPanel.classList.contains('active')) cargarClasesMalla(true);
+});
 
 function filtrarSalasLista(val) {
     const input = document.getElementById('input-sala-search');

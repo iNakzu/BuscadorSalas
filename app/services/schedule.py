@@ -6,6 +6,8 @@ import unicodedata
 from pathlib import Path
 from urllib.request import Request, urlopen
 
+from app.services.curricula import get_curriculum
+
 REMOTE_URL = os.getenv("SCHEDULE_DATA_URL", "https://salas.docencia-eit.cl/data.json")
 PACKAGE_FALLBACK_FILE = Path(__file__).resolve().parents[2] / "data.json"
 RUNTIME_DATA_FILE = Path(os.getenv("SCHEDULE_CACHE_FILE", "/var/lib/buscadorsalas/data.json"))
@@ -614,123 +616,11 @@ def buscar_curso(query, dia_filtro=None, hora_filtro=None):
     resultados.sort(key=lambda x: (x['curso'], x['dia_numero'], to_minutes(x['hora_inicio'])))
     return resultados
 
-MALLA_ICIT = {
-    1: {
-        'nombre': 'Semestre I',
-        'ramos': [
-            {'nombre': 'Álgebra y Geometría', 'keywords': ['algebra y geometria']},
-            {'nombre': 'Cálculo I', 'keywords': ['calculo i']},
-            {'nombre': 'Química', 'keywords': ['quimica']},
-            {'nombre': 'Programación', 'keywords': ['programacion']},
-            {'nombre': 'Comunicación para la Ingeniería', 'keywords': ['comunicacion para la ingenieria']},
-        ]
-    },
-    2: {
-        'nombre': 'Semestre II',
-        'ramos': [
-            {'nombre': 'Álgebra Lineal', 'keywords': ['algebra lineal']},
-            {'nombre': 'Cálculo II', 'keywords': ['calculo ii']},
-            {'nombre': 'Mecánica', 'keywords': ['mecanica']},
-            {'nombre': 'Programación Avanzada', 'keywords': ['programacion avanzada']},
-            {'nombre': 'Curso de Formación General (II)', 'keywords': ['curso de formacion general (ii)']},
-        ]
-    },
-    3: {
-        'nombre': 'Semestre III',
-        'ramos': [
-            {'nombre': 'Ecuaciones Diferenciales', 'keywords': ['ecuaciones diferenciales']},
-            {'nombre': 'Cálculo III', 'keywords': ['calculo iii']},
-            {'nombre': 'Calor y Ondas', 'keywords': ['calor y ondas']},
-            {'nombre': 'Estructuras de Datos y Algoritmos', 'keywords': ['estructuras de datos y algoritmos']},
-            {'nombre': 'Redes de Datos', 'keywords': ['redes de datos']},
-        ]
-    },
-    4: {
-        'nombre': 'Semestre IV',
-        'ramos': [
-            {'nombre': 'Probabilidades y Estadísticas', 'keywords': ['probabilidades y estadisticas']},
-            {'nombre': 'Electrónica y Electrotecnia', 'keywords': ['electronica y electrotecnia']},
-            {'nombre': 'Electricidad y Magnetismo', 'keywords': ['electricidad y magnetismo']},
-            {'nombre': 'Bases de Datos', 'keywords': ['bases de datos']},
-            {'nombre': 'Desarrollo Web y Móvil', 'keywords': ['desarrollo web y movil']},
-            {'nombre': 'Inglés I', 'keywords': ['ingles i']},
-        ]
-    },
-    5: {
-        'nombre': 'Semestre V',
-        'ramos': [
-            {'nombre': 'Optimización', 'keywords': ['optimizacion']},
-            {'nombre': 'Taller de Redes y Servicios', 'keywords': ['taller de redes y servicios']},
-            {'nombre': 'Proyecto en TICs I', 'keywords': ['proyecto en tics i']},
-            {'nombre': 'Bases de Datos Avanzadas', 'keywords': ['bases de datos avanzadas']},
-            {'nombre': 'Curso de Formación General (V)', 'keywords': ['curso de formacion general (v)']},
-            {'nombre': 'Inglés II', 'keywords': ['ingles ii']},
-            {'nombre': 'Práctica Profesional I', 'keywords': ['practica profesional i']},
-        ]
-    },
-    6: {
-        'nombre': 'Semestre VI',
-        'ramos': [
-            {'nombre': 'Contabilidad y Costos', 'keywords': ['contabilidad y costos']},
-            {'nombre': 'Arquitectura y Organización de Computadores', 'keywords': ['arquitectura y organizacion de computadores']},
-            {'nombre': 'Señales y Sistemas', 'keywords': ['señales y sistemas']},
-            {'nombre': 'Sistemas Operativos', 'keywords': ['sistemas operativos']},
-            {'nombre': 'Curso de Formación General (VI)', 'keywords': ['curso de formacion general (vi)']},
-            {'nombre': 'Inglés III', 'keywords': ['ingles iii']},
-        ]
-    },
-    7: {
-        'nombre': 'Semestre VII',
-        'ramos': [
-            {'nombre': 'Gestión Organizacional', 'keywords': ['gestion organizacional']},
-            {'nombre': 'Sistemas Distribuidos', 'keywords': ['sistemas distribuidos']},
-            {'nombre': 'Comunicaciones Digitales', 'keywords': ['comunicaciones digitales']},
-            {'nombre': 'Ingeniería de Software', 'keywords': ['ingenieria de software']},
-            {'nombre': 'Curso de Formación General (VII)', 'keywords': ['curso de formacion general (vii)']},
-        ]
-    },
-    8: {
-        'nombre': 'Semestre VIII',
-        'ramos': [
-            {'nombre': 'Introducción a la Economía', 'keywords': ['introduccion a la economia']},
-            {'nombre': 'Tecnologías Inalámbricas', 'keywords': ['tecnologias inalambricas']},
-            {'nombre': 'Criptografía y Seguridad en Redes', 'keywords': ['criptografia y seguridad en redes']},
-            {'nombre': 'Inteligencia Artificial', 'keywords': ['inteligencia artificial']},
-            {'nombre': 'Evaluación de Proyectos TIC', 'keywords': ['evaluacion de proyectos tic']},
-            {'nombre': 'Práctica Profesional II', 'keywords': ['practica profesional ii']},
-        ]
-    },
-    9: {
-        'nombre': 'Semestre IX',
-        'ramos': [
-            {'nombre': 'Electivo Profesional', 'keywords': ['electivo profesional (1)']},
-            {'nombre': 'Arquitecturas Emergentes', 'keywords': ['arquitecturas emergentes']},
-            {'nombre': 'Electivo Profesional', 'keywords': ['electivo profesional (2)']},
-            {'nombre': 'Arquitectura de Software', 'keywords': ['arquitectura de software']},
-            {'nombre': 'Data Science', 'keywords': ['data science']},
-        ]
-    },
-    10: {
-        'nombre': 'Semestre X',
-        'ramos': [
-            {'nombre': 'Electivo Profesional', 'keywords': ['electivo profesional (3)']},
-            {'nombre': 'Electivo Profesional', 'keywords': ['electivo profesional (4)']},
-            {'nombre': 'Electivo Profesional', 'keywords': ['electivo profesional (5)']},
-            {'nombre': 'Electivo Profesional', 'keywords': ['electivo profesional (6)']},
-            {'nombre': 'Proyecto en TICs II', 'keywords': ['proyecto en tics ii']},
-        ]
-    },
-    11: {
-        'nombre': 'Semestre XI',
-        'ramos': [
-            {'nombre': 'Actividad de Titulación', 'keywords': ['actividad de titulacion']},
-            {'nombre': 'Opción Magíster', 'keywords': ['opcion magister']},
-        ]
-    },
-}
+MALLA_ICIT = get_curriculum("ingenieria-civil-en-informatica-y-telecomunicaciones") or {}
 
-def obtener_clases_malla(semestre=8, dia_filtro=None, ramo_filtro=None, hora_filtro=None):
-    sem_info = MALLA_ICIT.get(int(semestre))
+def obtener_clases_malla(semestre=8, dia_filtro=None, ramo_filtro=None, hora_filtro=None, curriculum=None):
+    curriculum = curriculum if curriculum is not None else MALLA_ICIT
+    sem_info = curriculum.get(int(semestre))
     if not sem_info:
         return []
     

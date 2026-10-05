@@ -35,7 +35,12 @@ const civilEngineeringCareers = careers.filter(item => item.name.normalize('NFD'
 assert.strictEqual(careers.length, 5, 'the catalog itself should contain only Civil Engineering programs');
 assert.strictEqual(civilEngineeringCareers.length, 5, 'the profile selector should offer only Civil Engineering programs');
 assert.ok(civilEngineeringCareers.some(item => item.name === 'Ingeniería Civil en Ciencia de Datos e Inteligencia Artificial'));
-assert.match(script, /normalize\(item\.name\)\.startsWith\('ingenieria civil'\)/);
+assert.match(script, /careerId: career\.id/);
+assert.match(script, /portal:career-changed/);
+assert.strictEqual(careers.find(item => item.id === 'ingenieria-civil-industrial').school, 'EII');
+assert.strictEqual(careers.find(item => item.id === 'ingenieria-civil-en-obras-civiles').school, 'EOC');
+assert.strictEqual(careers.find(item => item.id === 'ingenieria-civil-plan-comun').school, null);
+assert.strictEqual(careers.find(item => item.id === 'ingenieria-civil-plan-comun').durationYears, 1);
 assert.match(script, /avatarWords\[avatarWords\.length - 2\]/);
 assert.match(fs.readFileSync('static/js/auth.js', 'utf8'), /words\[words\.length - 2\]/);
 assert.match(fs.readFileSync('static/js/community_schedules.js', 'utf8'), /words\[words\.length - 2\]/);

@@ -1,22 +1,42 @@
 [
   {
-    "name": "Ingeniería Civil en Ciencia de Datos e Inteligencia Artificial",
-    "faculty": "Ingeniería y Ciencias"
-  },
-  {
-    "name": "Ingeniería Civil en Informática y Telecomunicaciones",
-    "faculty": "Ingeniería y Ciencias"
-  },
-  {
-    "name": "Ingeniería Civil en Obras Civiles",
-    "faculty": "Ingeniería y Ciencias"
-  },
-  {
+    "id": "ingenieria-civil-industrial",
     "name": "Ingeniería Civil Industrial",
-    "faculty": "Ingeniería y Ciencias"
+    "school": "EII",
+    "faculty": "Escuela de Ingeniería Industrial",
+    "durationYears": null,
+    "curriculumFile": "ingenieria-civil-industrial.json"
   },
   {
+    "id": "ingenieria-civil-en-obras-civiles",
+    "name": "Ingeniería Civil en Obras Civiles",
+    "school": "EOC",
+    "faculty": "Escuela de Obras Civiles",
+    "durationYears": null,
+    "curriculumFile": "ingenieria-civil-en-obras-civiles.json"
+  },
+  {
+    "id": "ingenieria-civil-en-ciencia-de-datos-e-inteligencia-artificial",
+    "name": "Ingeniería Civil en Ciencia de Datos e Inteligencia Artificial",
+    "school": "EIT",
+    "faculty": "Escuela de Informática y Telecomunicaciones",
+    "durationYears": null,
+    "curriculumFile": "ingenieria-civil-en-ciencia-de-datos-e-inteligencia-artificial.json"
+  },
+  {
+    "id": "ingenieria-civil-en-informatica-y-telecomunicaciones",
+    "name": "Ingeniería Civil en Informática y Telecomunicaciones",
+    "school": "EIT",
+    "faculty": "Escuela de Informática y Telecomunicaciones",
+    "durationYears": null,
+    "curriculumFile": "ingenieria-civil-en-informatica-y-telecomunicaciones.json"
+  },
+  {
+    "id": "ingenieria-civil-plan-comun",
     "name": "Ingeniería Civil Plan Común",
-    "faculty": "Ingeniería y Ciencias"
+    "school": null,
+    "faculty": null,
+    "durationYears": 1,
+    "curriculumFile": "ingenieria-civil-plan-comun.json"
   }
 ]

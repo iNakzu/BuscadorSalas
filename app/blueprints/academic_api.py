@@ -13,9 +13,10 @@ from app.services.gemini_schedule import (
     GeminiScheduleError, extract_schedule_from_image, validate_imported_schedule_blocks,
 )
 from app.services.course_display import fallback_course_display, format_course_names
+from app.services.curricula import get_curriculum, get_program
 
 from app.services.schedule import (
-    DIAS_SEMANA, MESES_ES, MALLA_ICIT, STANDARD_BLOCKS, calcular_bloque_actual, dm,
+    DIAS_SEMANA, MESES_ES, STANDARD_BLOCKS, calcular_bloque_actual, dm,
     format_time, get_chile_now, horario_de_sala, nombre_dia, normalize_str,
     obtener_clases_malla, obtener_salas, buscar_curso, buscar_profesor,
     buscar_nombres_profesores, listar_profesores, distancia_nombre_profesor,
@@ -688,6 +689,27 @@ def api_horario_sala(nombre_sala):
 
 @academic_api.route("/malla", methods=["GET"])
 def api_malla():
+    career_id = request.args.get("carrera", "").strip()
+    program = get_program(career_id)
+    if not program:
+        return jsonify({"error": "career_required"}), 400
+
+    curriculum = get_curriculum(career_id)
+    semestres_disponibles = ([{"numero": number, "nombre": value["nombre"]}
+                              for number, value in sorted(curriculum.items())]
+                             if curriculum else [])
+    has_courses = any(value.get("ramos") for value in curriculum.values()) if curriculum else False
+    if not has_courses:
+        return jsonify({
+            "carrera": program["name"],
+            "escuela": program.get("school"),
+            "duracion_anios": program.get("durationYears"),
+            "disponible": False,
+            "semestres_disponibles": [],
+            "ramos_del_semestre": [],
+            "clases": [],
+        })
+
     semestre = request.args.get("semestre", "8")
     dia = request.args.get("dia", "").strip()
     ramo = request.args.get("ramo", "").strip()
@@ -698,14 +720,19 @@ def api_malla():
     except ValueError:
         sem_num = 8
 
-    sem_info = MALLA_ICIT.get(sem_num, MALLA_ICIT[8])
-    clases_malla = obtener_clases_malla(sem_num, dia_filtro=dia, ramo_filtro=ramo, hora_filtro=hora)
-    semestres_disponibles = [{"numero": k, "nombre": v["nombre"]} for k, v in sorted(MALLA_ICIT.items())]
+    if sem_num not in curriculum:
+        sem_num = semestres_disponibles[0]["numero"]
+    sem_info = curriculum[sem_num]
+    clases_malla = obtener_clases_malla(sem_num, dia_filtro=dia, ramo_filtro=ramo, hora_filtro=hora,
+                                        curriculum=curriculum)
 
     return jsonify({
         "semestre": sem_num,
         "semestre_nombre": sem_info["nombre"],
-        "carrera": "Ingeniería Civil en Informática y Telecomunicaciones",
+        "carrera": program["name"],
+        "escuela": program.get("school"),
+        "duracion_anios": program.get("durationYears"),
+        "disponible": True,
         "semestres_disponibles": semestres_disponibles,
         "ramos_del_semestre": [r["nombre"] for r in sem_info["ramos"]],
         "dia_filtro": dia,

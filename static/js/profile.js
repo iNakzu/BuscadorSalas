@@ -34,7 +34,7 @@
     }
     function renderCareerOptions() {
         const query = normalize(careerInput.value);
-        const matches = careers.filter(item => !query || normalize(`${item.name} ${item.faculty}`).includes(query)).slice(0, MAX_OPTIONS);
+        const matches = careers.filter(item => !query || normalize(`${item.name} ${item.faculty || ''} ${item.school || ''}`).includes(query)).slice(0, MAX_OPTIONS);
         careerMenu.replaceChildren();
         menuOptions = [];
         activeOption = -1;
@@ -48,7 +48,9 @@
             const name = document.createElement('strong');
             name.textContent = item.name;
             const faculty = document.createElement('small');
-            faculty.textContent = item.faculty;
+            faculty.textContent = item.school
+                ? `${item.faculty} · ${item.school}`
+                : `Plan de ${item.durationYears || 1} año · sin escuela`;
             option.append(name, faculty);
             option.addEventListener('click', () => {
                 careerInput.value = item.name;
@@ -61,19 +63,17 @@
         if (!matches.length) {
             const empty = document.createElement('p');
             empty.className = 'profile-combobox-empty';
-            empty.textContent = careerInput.value.trim() ? 'No aparece en la lista. Puedes guardar el texto que escribiste.' : 'Escribe para buscar una carrera.';
+            empty.textContent = careerInput.value.trim() ? 'Selecciona una de las carreras disponibles.' : 'Escribe para buscar una carrera.';
             careerMenu.appendChild(empty);
         }
     }
     async function loadCareers() {
         try {
-            const response = await fetch('/static/data/udp-careers.json?v=20261005-civil-engineering-only-1', { cache: 'force-cache', credentials: 'same-origin' });
+            const response = await fetch('/static/data/udp-careers.json?v=20261005-career-curriculum-catalog-1', { cache: 'force-cache', credentials: 'same-origin' });
             if (!response.ok) throw new Error('No se pudo cargar el catálogo.');
             const result = await response.json();
-            careers = Array.isArray(result)
-                ? result.filter(item => item && typeof item.name === 'string' && typeof item.faculty === 'string'
-                    && normalize(item.name).startsWith('ingenieria civil'))
-                : [];
+            careers = Array.isArray(result) ? result.filter(item => item && typeof item.id === 'string'
+                && typeof item.name === 'string' && typeof item.curriculumFile === 'string') : [];
         } catch (_) {
             careers = [];
         }
@@ -83,7 +83,9 @@
         const user = currentAuth && currentAuth.user;
         if (!user) return;
         const metadata = user.user_metadata || {};
-        careerInput.value = typeof metadata.career === 'string' ? metadata.career : '';
+        const savedCareer = careers.find(item => item.id === metadata.careerId)
+            || careers.find(item => item.name === metadata.career);
+        careerInput.value = savedCareer ? savedCareer.name : (typeof metadata.career === 'string' ? metadata.career : '');
         const name = [metadata.given_name, metadata.family_name].filter(Boolean).join(' ').trim()
             || String(metadata.full_name || metadata.name || user.email || 'Estudiante');
         const avatarWords = name.split(/\s+/).filter(Boolean);
@@ -116,18 +118,30 @@
     async function saveCareer() {
         const currentAuth = auth();
         if (!currentAuth || !currentAuth.user) return;
-        const career = careerInput.value.trim().slice(0, 120);
+        const career = careers.find(item => item.name === careerInput.value.trim());
+        if (!career) {
+            setFeedback('Selecciona una de las carreras disponibles antes de guardar.', 'error');
+            return;
+        }
         careerSave.disabled = true;
         setFeedback('Guardando carrera…');
         try {
-            await currentAuth.updateUserMetadata({ career: career || null });
-            setFeedback(career ? 'Carrera guardada en tu perfil.' : 'Carrera eliminada de tu perfil.', 'success');
+            await currentAuth.updateUserMetadata({ career: career.name, careerId: career.id });
+            setFeedback('Carrera guardada en tu perfil.', 'success');
+            document.dispatchEvent(new CustomEvent('portal:career-changed', { detail: { careerId: career.id } }));
         } catch (error) {
             console.error('No se pudo guardar la carrera del perfil.', error);
             setFeedback('No se pudo guardar. Revisa tu conexión e inténtalo de nuevo.', 'error');
         } finally {
             careerSave.disabled = false;
         }
+    }
+
+    function getCareerId() {
+        const metadata = auth() && auth().user && auth().user.user_metadata || {};
+        if (typeof metadata.careerId === 'string' && metadata.careerId) return metadata.careerId;
+        const saved = careers.find(item => item.name === metadata.career);
+        return saved ? saved.id : null;
     }
     async function saveSharing() {
         const currentAuth = auth();
@@ -189,5 +203,5 @@
     });
     document.addEventListener('portal:auth-changed', () => load());
     document.addEventListener('DOMContentLoaded', async () => { await loadCareers(); await load(); });
-    window.PortalProfile = { load };
+    window.PortalProfile = { load, getCareerId, requireCareer: () => setFeedback('Selecciona y guarda tu carrera para abrir su malla.', 'error') };
 })();
