@@ -52,550 +52,84 @@ const RAMO_COLORS = {
     "Opción Magíster": "248, 250, 252",
 };
 
-const MALLA_MOCK = [
-    {
-        "sem": 1,
-        "cursos": [
-            {
-                "id": "1",
-                "name": "Álgebra y Geometría",
-                "cred": "7",
-                "reqs": []
-            },
-            {
-                "id": "2",
-                "name": "Cálculo I",
-                "cred": "7",
-                "reqs": []
-            },
-            {
-                "id": "3",
-                "name": "Química",
-                "cred": "6",
-                "reqs": []
-            },
-            {
-                "id": "4",
-                "name": "Programación",
-                "cred": "6",
-                "reqs": []
-            },
-            {
-                "id": "5",
-                "name": "Comunicación para la Ingeniería",
-                "cred": "5",
-                "reqs": []
-            }
-        ]
-    },
-    {
-        "sem": 2,
-        "cursos": [
-            {
-                "id": "6",
-                "name": "Álgebra Lineal",
-                "cred": "6",
-                "reqs": [
-                    "1"
-                ]
-            },
-            {
-                "id": "7",
-                "name": "Cálculo II",
-                "cred": "7",
-                "reqs": [
-                    "2"
-                ]
-            },
-            {
-                "id": "8",
-                "name": "Mecánica",
-                "cred": "7",
-                "reqs": [
-                    "2"
-                ]
-            },
-            {
-                "id": "9",
-                "name": "Programación Avanzada",
-                "cred": "6",
-                "reqs": [
-                    "4"
-                ]
-            },
-            {
-                "id": "10",
-                "name": "Curso de Formación General",
-                "cred": "5",
-                "reqs": [
-                    "SC"
-                ]
-            }
-        ]
-    },
-    {
-        "sem": 3,
-        "cursos": [
-            {
-                "id": "11",
-                "name": "Ecuaciones Diferenciales",
-                "cred": "6",
-                "reqs": [
-                    "6",
-                    "7"
-                ]
-            },
-            {
-                "id": "12",
-                "name": "Cálculo III",
-                "cred": "6",
-                "reqs": [
-                    "7"
-                ]
-            },
-            {
-                "id": "13",
-                "name": "Calor y Ondas",
-                "cred": "7",
-                "reqs": [
-                    "7",
-                    "8"
-                ]
-            },
-            {
-                "id": "14",
-                "name": "Estructura de Datos y Algoritmos",
-                "cred": "6",
-                "reqs": [
-                    "9"
-                ]
-            },
-            {
-                "id": "15",
-                "name": "Redes de Datos",
-                "cred": "6",
-                "reqs": [
-                    "9"
-                ]
-            }
-        ]
-    },
-    {
-        "sem": 4,
-        "cursos": [
-            {
-                "id": "16",
-                "name": "Probabilidades y Estadísticas",
-                "cred": "6",
-                "reqs": [
-                    "7"
-                ]
-            },
-            {
-                "id": "17",
-                "name": "Electrónica y Electrotecnia",
-                "cred": "6",
-                "reqs": [
-                    "8",
-                    "11",
-                    "12"
-                ]
-            },
-            {
-                "id": "18",
-                "name": "Electricidad y Magnetismo",
-                "cred": "7",
-                "reqs": [
-                    "11",
-                    "12"
-                ]
-            },
-            {
-                "id": "19",
-                "name": "Bases de Datos",
-                "cred": "6",
-                "reqs": [
-                    "14"
-                ]
-            },
-            {
-                "id": "20",
-                "name": "Desarrollo Web y Móvil",
-                "cred": "6",
-                "reqs": [
-                    "9"
-                ]
-            },
-            {
-                "id": "21",
-                "name": "Inglés I",
-                "cred": "5",
-                "reqs": []
-            }
-        ]
-    },
-    {
-        "sem": 5,
-        "cursos": [
-            {
-                "id": "22",
-                "name": "Optimización",
-                "cred": "6",
-                "reqs": [
-                    "6",
-                    "12"
-                ]
-            },
-            {
-                "id": "23",
-                "name": "Taller de Redes y Servicios",
-                "cred": "6",
-                "reqs": [
-                    "15",
-                    "16"
-                ]
-            },
-            {
-                "id": "24",
-                "name": "Proyecto en TICs I",
-                "cred": "6",
-                "reqs": [
-                    "15",
-                    "20"
-                ]
-            },
-            {
-                "id": "25",
-                "name": "Bases de Datos Avanzadas",
-                "cred": "6",
-                "reqs": [
-                    "19"
-                ]
-            },
-            {
-                "id": "26",
-                "name": "Curso de Formación General",
-                "cred": "5",
-                "reqs": [
-                    "SC"
-                ]
-            },
-            {
-                "id": "27",
-                "name": "Inglés II",
-                "cred": "5",
-                "reqs": [
-                    "21"
-                ]
-            },
-            {
-                "id": "54",
-                "name": "Práctica Profesional I",
-                "cred": "7",
-                "reqs": [
-                    "4S"
-                ]
-            }
-        ]
-    },
-    {
-        "sem": 6,
-        "cursos": [
-            {
-                "id": "28",
-                "name": "Contabilidad y Costos",
-                "cred": "6",
-                "reqs": [
-                    "2"
-                ]
-            },
-            {
-                "id": "29",
-                "name": "Arquitectura y Organización de Computadores",
-                "cred": "6",
-                "reqs": [
-                    "15",
-                    "17"
-                ]
-            },
-            {
-                "id": "30",
-                "name": "Señales y Sistemas",
-                "cred": "6",
-                "reqs": [
-                    "13",
-                    "17"
-                ]
-            },
-            {
-                "id": "31",
-                "name": "Sistemas Operativos",
-                "cred": "6",
-                "reqs": [
-                    "14",
-                    "23"
-                ]
-            },
-            {
-                "id": "32",
-                "name": "Curso de Formación General",
-                "cred": "5",
-                "reqs": [
-                    "SC"
-                ]
-            },
-            {
-                "id": "33",
-                "name": "Inglés III",
-                "cred": "5",
-                "reqs": [
-                    "27"
-                ]
-            }
-        ]
-    },
-    {
-        "sem": 7,
-        "cursos": [
-            {
-                "id": "34",
-                "name": "Gestión Organizacional",
-                "cred": "6",
-                "reqs": [
-                    "54"
-                ]
-            },
-            {
-                "id": "35",
-                "name": "Sistemas Distribuidos",
-                "cred": "6",
-                "reqs": [
-                    "15",
-                    "31"
-                ]
-            },
-            {
-                "id": "36",
-                "name": "Comunicaciones Digitales",
-                "cred": "6",
-                "reqs": [
-                    "18",
-                    "30"
-                ]
-            },
-            {
-                "id": "37",
-                "name": "Ingeniería de Software",
-                "cred": "6",
-                "reqs": [
-                    "19",
-                    "24"
-                ]
-            },
-            {
-                "id": "38",
-                "name": "Curso de Formación General",
-                "cred": "5",
-                "reqs": [
-                    "SC"
-                ]
-            }
-        ]
-    },
-    {
-        "sem": 8,
-        "cursos": [
-            {
-                "id": "39",
-                "name": "Introducción a la Economía",
-                "cred": "6",
-                "reqs": [
-                    "7"
-                ]
-            },
-            {
-                "id": "40",
-                "name": "Tecnologías Inalámbricas",
-                "cred": "6",
-                "reqs": [
-                    "36"
-                ]
-            },
-            {
-                "id": "41",
-                "name": "Criptografía y Seguridad en Redes",
-                "cred": "6",
-                "reqs": [
-                    "23"
-                ]
-            },
-            {
-                "id": "42",
-                "name": "Inteligencia Artificial",
-                "cred": "6",
-                "reqs": [
-                    "16",
-                    "19",
-                    "22"
-                ]
-            },
-            {
-                "id": "43",
-                "name": "Evaluación de Proyectos TIC",
-                "cred": "6",
-                "reqs": [
-                    "28",
-                    "34",
-                    "37"
-                ]
-            },
-            {
-                "id": "55",
-                "name": "Práctica Profesional II",
-                "cred": "7",
-                "reqs": [
-                    "8S"
-                ]
-            }
-        ]
-    },
-    {
-        "sem": 9,
-        "cursos": [
-            {
-                "id": "44",
-                "name": "Electivo Profesional",
-                "cred": "6",
-                "reqs": [
-                    "SC"
-                ]
-            },
-            {
-                "id": "45",
-                "name": "Arquitecturas Emergentes",
-                "cred": "6",
-                "reqs": [
-                    "35"
-                ]
-            },
-            {
-                "id": "46",
-                "name": "Electivo Profesional",
-                "cred": "6",
-                "reqs": [
-                    "SC"
-                ]
-            },
-            {
-                "id": "47",
-                "name": "Arquitectura de Software",
-                "cred": "6",
-                "reqs": [
-                    "37"
-                ]
-            },
-            {
-                "id": "48",
-                "name": "Data Science",
-                "cred": "6",
-                "reqs": [
-                    "25",
-                    "42"
-                ]
-            }
-        ]
-    },
-    {
-        "sem": 10,
-        "cursos": [
-            {
-                "id": "49",
-                "name": "Electivo Profesional",
-                "cred": "7",
-                "reqs": [
-                    "SC"
-                ]
-            },
-            {
-                "id": "50",
-                "name": "Electivo Profesional",
-                "cred": "6",
-                "reqs": [
-                    "SC"
-                ]
-            },
-            {
-                "id": "51",
-                "name": "Electivo Profesional",
-                "cred": "6",
-                "reqs": [
-                    "SC"
-                ]
-            },
-            {
-                "id": "52",
-                "name": "Electivo Profesional",
-                "cred": "6",
-                "reqs": [
-                    "SC"
-                ]
-            },
-            {
-                "id": "53",
-                "name": "Proyecto en TICs II",
-                "cred": "6",
-                "reqs": [
-                    "43"
-                ]
-            }
-        ]
-    },
-    {
-        "sem": 11,
-        "cursos": [
-            {
-                "id": "56",
-                "name": "Actividad de Titulación",
-                "cred": "-",
-                "reqs": [
-                    "SC"
-                ]
-            },
-            {
-                "id": "57",
-                "name": "Opción Magíster",
-                "cred": "-",
-                "reqs": [
-                    "SC"
-                ]
-            }
-        ]
-    }
-]
-;
+let MALLA_MOCK = [];
 
 let progresoState = {};
+const CURRICULUM_CACHE = new Map();
+const DEFAULT_CURRICULUM_ID = 'ingenieria-civil-en-informatica-y-telecomunicaciones';
+let loadedCurriculumId = '';
+
+function getProgressCareerId(progress = progresoState, preferProfile = false) {
+    const configured = preferProfile && window.PortalProfile && window.PortalProfile.getCareerId();
+    return configured || (progress && typeof progress.__careerId === 'string' ? progress.__careerId : DEFAULT_CURRICULUM_ID);
+}
+
+function progressKey(careerId, courseId) { return `${careerId}:${courseId}`; }
+
+function migrateProgressState(value) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+    const result = { ...value };
+    const careerId = typeof result.__careerId === 'string' ? result.__careerId : DEFAULT_CURRICULUM_ID;
+    for (const [key, status] of Object.entries(value)) {
+        if (key === '__careerId' || key.includes(':')) continue;
+        if (/^\d+$/.test(key)) {
+            result[progressKey(DEFAULT_CURRICULUM_ID, key)] = status;
+            delete result[key];
+        }
+    }
+    result.__careerId = careerId;
+    return result;
+}
+
+async function loadCurriculum(careerId) {
+    if (CURRICULUM_CACHE.has(careerId)) return CURRICULUM_CACHE.get(careerId);
+    const promise = fetch(`/api/malla/progreso/${encodeURIComponent(careerId)}`, { credentials: 'same-origin' })
+        .then(response => response.ok ? response.json() : null)
+        .then(data => {
+            const semesters = data && Array.isArray(data.semestres) ? data.semestres : [];
+            return semesters.map(semester => ({
+                sem: semester.numero,
+                cursos: (semester.cursos || []).map(course => ({
+                    id: String(course.id),
+                    name: course.nombre,
+                    cred: course.creditos || '',
+                    code: course.codigo || '',
+                    color: course.color || '',
+                    border: course.border || '',
+                    idVisible: course.idVisible !== false,
+                    reqs: Array.isArray(course.requisitos) ? course.requisitos.map(String) : []
+                }))
+            }));
+        })
+        .catch(() => []);
+    CURRICULUM_CACHE.set(careerId, promise);
+    return promise;
+}
 
 function initProgreso() {
     const saved = localStorage.getItem('mi_progreso_v1');
     if (saved) {
-        try { progresoState = JSON.parse(saved); } catch(e) { progresoState = {}; }
+        try { progresoState = migrateProgressState(JSON.parse(saved)); } catch(e) { progresoState = {}; }
     }
+    const careerId = getProgressCareerId(progresoState, true);
+    progresoState.__careerId = careerId;
     renderProgreso();
 }
 
-function revertDependents(id) {
+function revertDependents(id, careerId) {
     for (let s of MALLA_MOCK) {
         for (let c of s.cursos) {
-            if (progresoState[c.id] && c.reqs.includes(id)) {
-                delete progresoState[c.id];
-                revertDependents(c.id);
+            const key = progressKey(careerId, c.id);
+            if (progresoState[key] && c.reqs.includes(id)) {
+                delete progresoState[key];
+                revertDependents(c.id, careerId);
             }
         }
     }
 }
 
 function toggleRamoEstado(id) {
+    const careerId = getProgressCareerId(progresoState, true);
     let course = null;
     for (let s of MALLA_MOCK) {
         for (let c of s.cursos) {
@@ -609,13 +143,14 @@ function toggleRamoEstado(id) {
     let missingReqs = [];
     for (let reqId of course.reqs) {
         if (reqId === "SC" || reqId === "4S" || reqId === "8S") continue;
-        if (progresoState[reqId] !== 2) {
+        if (progresoState[progressKey(careerId, reqId)] !== 2) {
             reqsMet = false;
             missingReqs.push(reqId);
         }
     }
     
-    let estado = progresoState[id] || 0;
+    const stateKey = progressKey(careerId, id);
+    let estado = progresoState[stateKey] || 0;
     
     if (estado === 0 && !reqsMet) {
         // Find names of missing reqs for alert
@@ -634,31 +169,32 @@ function toggleRamoEstado(id) {
     
     estado = (estado + 1) % 3;
     if (estado === 0) {
-        delete progresoState[id];
-        revertDependents(id);
+        delete progresoState[stateKey];
+        revertDependents(id, careerId);
     } else {
-        progresoState[id] = estado;
+        progresoState[stateKey] = estado;
     }
-    
+    progresoState.__careerId = careerId;
     localStorage.setItem('mi_progreso_v1', JSON.stringify(progresoState));
     if (window.PortalStore) window.PortalStore.save('curriculum', progresoState);
     renderProgreso();
 }
 
-function buildProgresoHtml(progress, readOnly = false) {
+function buildProgresoHtml(progress, readOnly = false, curriculum = MALLA_MOCK) {
     let totalRamos = 0;
     let aprobados = 0;
     let cursando = 0;
 
     let gridHtml = '<div class="malla-scroll-wrapper"><div class="malla-grid">';
     
-    MALLA_MOCK.forEach(s => {
+    const careerId = getProgressCareerId(progress);
+    curriculum.forEach(s => {
         gridHtml += `<div class="malla-columna"><div class="malla-sem-title">Semestre ${s.sem}</div>`;
         
         s.cursos.forEach((c) => {
             totalRamos++;
             
-            const stateKey = c.id;
+            const stateKey = progressKey(careerId, c.id);
             const est = Number(progress[stateKey]) || 0;
             if (est === 2) aprobados++;
             if (est === 1) cursando++;
@@ -667,7 +203,7 @@ function buildProgresoHtml(progress, readOnly = false) {
             let icon = '';
             
             const cleanName = c.name.replace(/\s\([IVX]+\)$/, '');
-            const rgb = RAMO_COLORS[cleanName] || "200, 200, 200";
+            const rgb = c.color || RAMO_COLORS[cleanName] || "200, 200, 200";
 
             if (est === 1) { 
                 statusClass = 'estado-cursando'; 
@@ -680,13 +216,17 @@ function buildProgresoHtml(progress, readOnly = false) {
 
             let reqStr = c.reqs.join(',');
             if (!reqStr) reqStr = '-';
+            const safeName = escapeProgresoHtml(cleanName);
+            const safeId = escapeProgresoHtml(c.id);
+            const upperLabel = c.code || c.cred || '';
+            const border = c.border ? ` --ramo-outline-color: rgba(${c.border}, .95);` : '';
 
             gridHtml += `
-                <div class="malla-ramo-card ${statusClass}${readOnly ? ' malla-ramo-readonly' : ''}"${readOnly ? '' : ` onclick="toggleRamoEstado('${stateKey}')"`} style="--ramo-color: ${rgb};">
-                    <div class="ramo-top-right">${c.cred}</div>
-                    <span class="malla-ramo-name">${cleanName}</span>
-                    <div class="ramo-bottom-left">${c.id}</div>
-                    <div class="ramo-bottom-right">${reqStr}</div>
+                <div class="malla-ramo-card ${statusClass}${readOnly ? ' malla-ramo-readonly' : ''}"${readOnly ? '' : ` onclick="toggleRamoEstado('${safeId}')"`} style="--ramo-color: ${rgb};${border}">
+                    <div class="ramo-top-right">${escapeProgresoHtml(upperLabel)}</div>
+                    <span class="malla-ramo-name">${safeName}</span>
+                    ${c.idVisible === false ? '' : `<div class="ramo-bottom-left">${safeId}</div>`}
+                    <div class="ramo-bottom-right">${escapeProgresoHtml(reqStr)}</div>
                     ${icon ? `<span class="malla-ramo-icon">${icon}</span>` : ''}
                 </div>
             `;
@@ -724,9 +264,29 @@ function buildProgresoHtml(progress, readOnly = false) {
     `;
 }
 
-function renderProgreso() {
+function escapeProgresoHtml(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[char]);
+}
+
+async function renderProgreso() {
     const container = document.getElementById('progreso-container');
     if (!container) return;
+
+    const careerId = getProgressCareerId(progresoState, true);
+    const requestCareerId = careerId;
+    if (loadedCurriculumId !== careerId) {
+        container.innerHTML = '<div class="empty-state">Cargando malla curricular…</div>';
+        const curriculum = await loadCurriculum(careerId);
+        if (getProgressCareerId(progresoState, true) !== requestCareerId) return;
+        if (!curriculum.length) {
+            container.innerHTML = '<div class="empty-state">Todavía no hay una malla curricular disponible para esta carrera.</div>';
+            return;
+        }
+        MALLA_MOCK = curriculum;
+        loadedCurriculumId = careerId;
+    }
 
     // Save scroll position
     const scrollWrapper = container.querySelector('.malla-scroll-wrapper');
@@ -744,12 +304,16 @@ function renderProgreso() {
     }
 }
 
-window.renderMallaPublica = function (container, progress) {
+window.renderMallaPublica = async function (container, progress) {
     if (!container) return;
-    container.innerHTML = buildProgresoHtml(
-        progress && typeof progress === 'object' && !Array.isArray(progress) ? progress : {},
-        true
-    );
+    const safeProgress = migrateProgressState(progress);
+    const careerId = getProgressCareerId(safeProgress);
+    const curriculum = await loadCurriculum(careerId);
+    if (!curriculum.length) {
+        container.innerHTML = '<div class="empty-state">Esta persona todavía no tiene una malla curricular disponible.</div>';
+        return;
+    }
+    container.innerHTML = buildProgresoHtml(safeProgress, true, curriculum);
 };
 
 // Inicializar al cargar
@@ -759,6 +323,23 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 document.addEventListener('portal:remote-state', event => {
     if (event.detail.module !== 'curriculum') return;
-    progresoState = event.detail.payload || {};
+    const activeCareerId = getProgressCareerId(progresoState, true);
+    progresoState = migrateProgressState(event.detail.payload);
+    if (activeCareerId) progresoState.__careerId = activeCareerId;
+    renderProgreso();
+});
+document.addEventListener('portal:career-changed', event => {
+    const careerId = event.detail && event.detail.careerId;
+    if (!careerId) return;
+    progresoState.__careerId = careerId;
+    localStorage.setItem('mi_progreso_v1', JSON.stringify(progresoState));
+    if (window.PortalStore) window.PortalStore.save('curriculum', progresoState);
+    loadedCurriculumId = '';
+    renderProgreso();
+});
+document.addEventListener('portal:auth-changed', () => {
+    const careerId = window.PortalProfile && window.PortalProfile.getCareerId();
+    if (careerId) progresoState.__careerId = careerId;
+    loadedCurriculumId = '';
     renderProgreso();
 });

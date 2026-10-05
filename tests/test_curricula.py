@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 
 from app import create_app
-from app.services.curricula import get_curriculum, get_program, get_programs
+from app.services.curricula import get_curriculum, get_program, get_programs, get_visual_curriculum
 
 
 class CurriculumCatalogTests(unittest.TestCase):
@@ -46,6 +46,38 @@ class CurriculumCatalogTests(unittest.TestCase):
         self.assertTrue(informatics.json["disponible"])
         self.assertEqual(informatics.json["carrera"], "Ingeniería Civil en Informática y Telecomunicaciones")
         self.assertEqual(informatics.json["ramos_del_semestre"][0], "Introducción a la Economía")
+
+    def test_progress_curricula_preserve_source_course_counts_and_prerequisites(self):
+        industrial = get_visual_curriculum("ingenieria-civil-industrial")
+        obras = get_visual_curriculum("ingenieria-civil-en-obras-civiles")
+        plan_comun = get_visual_curriculum("ingenieria-civil-plan-comun")
+        informatics = get_visual_curriculum("ingenieria-civil-en-informatica-y-telecomunicaciones")
+        self.assertEqual([len(s["cursos"]) for s in industrial], [5, 5, 6, 7, 6, 5, 5, 5, 6, 5])
+        self.assertEqual(sum(len(s["cursos"]) for s in obras), 56)
+        self.assertEqual([len(s["cursos"]) for s in plan_comun], [5, 5])
+        self.assertEqual(sum(len(s["cursos"]) for s in informatics), 57)
+        industrial_courses = {course["id"]: course for sem in industrial for course in sem["cursos"]}
+        self.assertEqual(industrial_courses["19"]["requisitos"], ["11", "12"])
+        self.assertEqual(industrial_courses["55"]["codigo"], "CII-3102")
+        obras_courses = {course["id"]: course for sem in obras for course in sem["cursos"]}
+        self.assertEqual(obras_courses["25"]["codigo"], "COC-20012")
+        self.assertEqual(obras_courses["45"]["requisitos"], ["40", "41", "42", "43", "44"])
+        cfg_courses = [course for sem in industrial + obras for course in sem["cursos"]
+                       if course["codigo"].startswith("CFG-")]
+        self.assertTrue(cfg_courses)
+        self.assertTrue(all(course["nombre"] == "Curso de Formación General" for course in cfg_courses))
+        self.assertTrue(all("creditos" not in course for sem in industrial + obras for course in sem["cursos"]))
+
+    def test_progress_malla_endpoint_is_separate_from_schedule_search_catalog(self):
+        client = create_app({"TESTING": True}).test_client()
+        result = client.get("/api/malla/progreso/ingenieria-civil-plan-comun")
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(result.json["carrera"], "Ingeniería Civil Plan Común")
+        self.assertEqual(len(result.json["semestres"]), 2)
+        self.assertEqual(result.json["semestres"][0]["cursos"][0]["nombre"], "Álgebra y Geometría")
+        self.assertEqual(result.json["semestres"][1]["cursos"][3]["nombre"],
+                         "Programación Avanzada o Ingeniería de los Materiales")
+        self.assertEqual(client.get("/api/malla/progreso/not-a-career").status_code, 404)
 
 
 if __name__ == "__main__":

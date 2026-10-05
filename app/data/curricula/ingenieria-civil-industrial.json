@@ -2,5 +2,528 @@
   "version": 1,
   "careerId": "ingenieria-civil-industrial",
   "school": "EII",
-  "semestres": {}
+  "semestres": {},
+  "mallaVisual": {
+    "semestres": [
+      {
+        "numero": 1,
+        "cursos": [
+          {
+            "id": "1",
+            "codigo": "CBM-1000",
+            "nombre": "Álgebra y Geometría",
+            "requisitos": [],
+            "color": "124, 238, 238"
+          },
+          {
+            "id": "2",
+            "codigo": "CBM-1001",
+            "nombre": "Cálculo I",
+            "requisitos": [],
+            "color": "124, 238, 238"
+          },
+          {
+            "id": "3",
+            "codigo": "CBQ-1000",
+            "nombre": "Química",
+            "requisitos": [],
+            "color": "217, 250, 230"
+          },
+          {
+            "id": "4",
+            "codigo": "CIT-1000",
+            "nombre": "Programación",
+            "requisitos": [],
+            "color": "124, 238, 168"
+          },
+          {
+            "id": "5",
+            "codigo": "FIC-1000",
+            "nombre": "Comunicación para la Ingeniería",
+            "requisitos": [],
+            "color": "238, 177, 124"
+          }
+        ]
+      },
+      {
+        "numero": 2,
+        "cursos": [
+          {
+            "id": "6",
+            "codigo": "CBM-1002",
+            "nombre": "Álgebra Lineal",
+            "requisitos": [
+              "1"
+            ],
+            "color": "124, 238, 238"
+          },
+          {
+            "id": "7",
+            "codigo": "CBM-1003",
+            "nombre": "Cálculo II",
+            "requisitos": [
+              "2"
+            ],
+            "color": "124, 238, 238"
+          },
+          {
+            "id": "8",
+            "codigo": "CBF-1000",
+            "nombre": "Mecánica",
+            "requisitos": [
+              "2"
+            ],
+            "color": "217, 250, 230"
+          },
+          {
+            "id": "9",
+            "codigo": "COC-2001",
+            "nombre": "Ingeniería de Materiales",
+            "requisitos": [
+              "3"
+            ],
+            "color": "217, 250, 230"
+          },
+          {
+            "id": "10",
+            "codigo": "CFG-1",
+            "nombre": "Curso de Formación General",
+            "requisitos": [],
+            "color": "238, 177, 124"
+          }
+        ]
+      },
+      {
+        "numero": 3,
+        "cursos": [
+          {
+            "id": "11",
+            "codigo": "CBM-1005",
+            "nombre": "Ecuaciones Diferenciales",
+            "requisitos": [
+              "6",
+              "7"
+            ],
+            "color": "124, 238, 238"
+          },
+          {
+            "id": "12",
+            "codigo": "CBM-1006",
+            "nombre": "Cálculo III",
+            "requisitos": [
+              "7"
+            ],
+            "color": "124, 238, 238"
+          },
+          {
+            "id": "13",
+            "codigo": "CBF-1001",
+            "nombre": "Calor y Ondas",
+            "requisitos": [
+              "7",
+              "8"
+            ],
+            "color": "217, 250, 230"
+          },
+          {
+            "id": "14",
+            "codigo": "CII-1000",
+            "nombre": "Contabilidad y Costos",
+            "requisitos": [
+              "2"
+            ],
+            "color": "217, 250, 250"
+          },
+          {
+            "id": "15",
+            "codigo": "CFG-2",
+            "nombre": "Curso de Formación General",
+            "requisitos": [],
+            "color": "238, 177, 124"
+          },
+          {
+            "id": "16",
+            "codigo": "CIG-1012",
+            "nombre": "Inglés I",
+            "requisitos": [],
+            "color": "254, 240, 225"
+          }
+        ]
+      },
+      {
+        "numero": 4,
+        "cursos": [
+          {
+            "id": "17",
+            "codigo": "CBE-2000",
+            "nombre": "Probabilidad y Estadística",
+            "requisitos": [
+              "7"
+            ],
+            "color": "124, 238, 238"
+          },
+          {
+            "id": "18",
+            "codigo": "CII-2250",
+            "nombre": "Estática",
+            "requisitos": [
+              "8"
+            ],
+            "color": "255, 254, 224"
+          },
+          {
+            "id": "19",
+            "codigo": "CBF-1002",
+            "nombre": "Electricidad y Magnetismo",
+            "requisitos": [
+              "11",
+              "12"
+            ],
+            "color": "217, 250, 230"
+          },
+          {
+            "id": "20",
+            "codigo": "CII-2100",
+            "nombre": "Introducción a la Economía",
+            "requisitos": [
+              "7"
+            ],
+            "color": "217, 250, 250"
+          },
+          {
+            "id": "21",
+            "codigo": "CFG-3",
+            "nombre": "Curso de Formación General",
+            "requisitos": [],
+            "color": "238, 177, 124"
+          },
+          {
+            "id": "22",
+            "codigo": "CIG-1013",
+            "nombre": "Inglés II",
+            "requisitos": [
+              "16"
+            ],
+            "color": "254, 240, 225"
+          },
+          {
+            "id": "23",
+            "codigo": "ICI-5011",
+            "nombre": "Práctica Profesional I",
+            "requisitos": [],
+            "color": "246, 167, 193"
+          }
+        ]
+      },
+      {
+        "numero": 5,
+        "cursos": [
+          {
+            "id": "24",
+            "codigo": "CII-2751",
+            "nombre": "Inferencia Estadística",
+            "requisitos": [
+              "17"
+            ],
+            "color": "124, 238, 238"
+          },
+          {
+            "id": "25",
+            "codigo": "CII-2401",
+            "nombre": "Mecánica de Fluidos",
+            "requisitos": [
+              "18",
+              "19"
+            ],
+            "color": "255, 254, 224"
+          },
+          {
+            "id": "26",
+            "codigo": "CII-2750",
+            "nombre": "Optimización",
+            "requisitos": [
+              "6",
+              "12"
+            ],
+            "color": "124, 238, 238"
+          },
+          {
+            "id": "27",
+            "codigo": "CII-1001",
+            "nombre": "Teoría Organizacional",
+            "requisitos": [
+              "5"
+            ],
+            "color": "217, 250, 250"
+          },
+          {
+            "id": "28",
+            "codigo": "CFG-4",
+            "nombre": "Curso de Formación General",
+            "requisitos": [],
+            "color": "238, 177, 124"
+          },
+          {
+            "id": "29",
+            "codigo": "CIG-1014",
+            "nombre": "Inglés III",
+            "requisitos": [
+              "22"
+            ],
+            "color": "254, 240, 225"
+          }
+        ]
+      },
+      {
+        "numero": 6,
+        "cursos": [
+          {
+            "id": "30",
+            "codigo": "CII-2501",
+            "nombre": "Bases de Datos",
+            "requisitos": [
+              "9"
+            ],
+            "color": "217, 250, 250"
+          },
+          {
+            "id": "31",
+            "codigo": "CII-2402",
+            "nombre": "Termodinámica",
+            "requisitos": [
+              "25",
+              "13"
+            ],
+            "color": "217, 250, 250"
+          },
+          {
+            "id": "32",
+            "codigo": "CII-2755",
+            "nombre": "Modelos Estocásticos",
+            "requisitos": [
+              "17",
+              "26"
+            ],
+            "color": "217, 250, 250"
+          },
+          {
+            "id": "33",
+            "codigo": "CII-2101",
+            "nombre": "Microeconomía",
+            "requisitos": [
+              "20",
+              "26"
+            ],
+            "color": "217, 250, 250"
+          },
+          {
+            "id": "34",
+            "codigo": "CII-2002",
+            "nombre": "Ingeniería Económica",
+            "requisitos": [
+              "14"
+            ],
+            "color": "217, 250, 250"
+          }
+        ]
+      },
+      {
+        "numero": 7,
+        "cursos": [
+          {
+            "id": "35",
+            "codigo": "CII-2656",
+            "nombre": "Econometría",
+            "requisitos": [
+              "24",
+              "33"
+            ],
+            "color": "217, 250, 250"
+          },
+          {
+            "id": "36",
+            "codigo": "CII-2403",
+            "nombre": "Proyectos Energéticos",
+            "requisitos": [
+              "31"
+            ],
+            "color": "217, 250, 250"
+          },
+          {
+            "id": "37",
+            "codigo": "CII-2253",
+            "nombre": "Producción",
+            "requisitos": [
+              "26"
+            ],
+            "color": "217, 250, 250"
+          },
+          {
+            "id": "38",
+            "codigo": "CII-2102",
+            "nombre": "Marketing",
+            "requisitos": [
+              "20",
+              "27"
+            ],
+            "color": "217, 250, 250"
+          },
+          {
+            "id": "39",
+            "codigo": "CII-2003",
+            "nombre": "Finanzas",
+            "requisitos": [
+              "34"
+            ],
+            "color": "217, 250, 250"
+          }
+        ]
+      },
+      {
+        "numero": 8,
+        "cursos": [
+          {
+            "id": "40",
+            "codigo": "CII-2504",
+            "nombre": "Data Science",
+            "requisitos": [
+              "24",
+              "26"
+            ],
+            "color": "217, 250, 250"
+          },
+          {
+            "id": "41",
+            "codigo": "CII-2757",
+            "nombre": "Simulación",
+            "requisitos": [
+              "32"
+            ],
+            "color": "217, 250, 250"
+          },
+          {
+            "id": "42",
+            "codigo": "CII-2254",
+            "nombre": "Logística",
+            "requisitos": [
+              "37"
+            ],
+            "color": "217, 250, 250"
+          },
+          {
+            "id": "43",
+            "codigo": "CII-2103",
+            "nombre": "Gestión Estratégica",
+            "requisitos": [
+              "38"
+            ],
+            "color": "217, 250, 250"
+          },
+          {
+            "id": "44",
+            "codigo": "CII-2004",
+            "nombre": "Evaluación de Proyectos",
+            "requisitos": [
+              "39"
+            ],
+            "color": "217, 250, 250"
+          }
+        ]
+      },
+      {
+        "numero": 9,
+        "cursos": [
+          {
+            "id": "45",
+            "codigo": "CII-33XX",
+            "nombre": "Electivo Profesional",
+            "requisitos": [],
+            "color": "255, 105, 97"
+          },
+          {
+            "id": "46",
+            "codigo": "CII-34XX",
+            "nombre": "Electivo Profesional",
+            "requisitos": [],
+            "color": "255, 105, 97"
+          },
+          {
+            "id": "47",
+            "codigo": "CII-35XX",
+            "nombre": "Electivo Profesional",
+            "requisitos": [],
+            "color": "255, 105, 97"
+          },
+          {
+            "id": "48",
+            "codigo": "CII-36XX",
+            "nombre": "Electivo Profesional",
+            "requisitos": [],
+            "color": "255, 105, 97"
+          },
+          {
+            "id": "49",
+            "codigo": "CII-3101",
+            "nombre": "Liderazgo y Emprendimiento",
+            "requisitos": [
+              "43",
+              "44"
+            ],
+            "color": "217, 250, 250"
+          },
+          {
+            "id": "50",
+            "codigo": "ICI-5022",
+            "nombre": "Práctica Profesional II",
+            "requisitos": [
+              "23"
+            ],
+            "color": "246, 167, 193"
+          }
+        ]
+      },
+      {
+        "numero": 10,
+        "cursos": [
+          {
+            "id": "51",
+            "codigo": "CII-33XY",
+            "nombre": "Electivo Profesional",
+            "requisitos": [],
+            "color": "255, 105, 97"
+          },
+          {
+            "id": "52",
+            "codigo": "CII-34XY",
+            "nombre": "Electivo Profesional",
+            "requisitos": [],
+            "color": "255, 105, 97"
+          },
+          {
+            "id": "53",
+            "codigo": "CII-35XY",
+            "nombre": "Electivo Profesional",
+            "requisitos": [],
+            "color": "255, 105, 97"
+          },
+          {
+            "id": "54",
+            "codigo": "CII-36XY",
+            "nombre": "Electivo Profesional",
+            "requisitos": [],
+            "color": "255, 105, 97"
+          },
+          {
+            "id": "55",
+            "codigo": "CII-3102",
+            "nombre": "Taller de Ingeniería Industrial",
+            "requisitos": [
+              "44"
+            ],
+            "color": "217, 250, 250"
+          }
+        ]
+      }
+    ]
+  }
 }

@@ -13,7 +13,7 @@ from app.services.gemini_schedule import (
     GeminiScheduleError, extract_schedule_from_image, validate_imported_schedule_blocks,
 )
 from app.services.course_display import fallback_course_display, format_course_names
-from app.services.curricula import get_curriculum, get_program
+from app.services.curricula import get_curriculum, get_program, get_visual_curriculum
 
 from app.services.schedule import (
     DIAS_SEMANA, MESES_ES, STANDARD_BLOCKS, calcular_bloque_actual, dm,
@@ -740,6 +740,20 @@ def api_malla():
         "hora_filtro": hora,
         "total_clases": len(clases_malla),
         "clases": clases_malla
+    })
+
+
+@academic_api.get("/malla/progreso/<career_id>")
+def api_malla_progreso(career_id):
+    program = get_program(career_id)
+    if not program:
+        return jsonify({"error": "career_not_found"}), 404
+    semesters = get_visual_curriculum(career_id)
+    return jsonify({
+        "carrera": program["name"],
+        "escuela": program.get("school"),
+        "disponible": bool(semesters),
+        "semestres": semesters or [],
     })
 
 

@@ -400,5 +400,527 @@
         }
       ]
     }
+  },
+  "mallaVisual": {
+    "semestres": [
+      {
+        "numero": 1,
+        "cursos": [
+          {
+            "id": "1",
+            "nombre": "Álgebra y Geometría",
+            "creditos": "7",
+            "requisitos": []
+          },
+          {
+            "id": "2",
+            "nombre": "Cálculo I",
+            "creditos": "7",
+            "requisitos": []
+          },
+          {
+            "id": "3",
+            "nombre": "Química",
+            "creditos": "6",
+            "requisitos": []
+          },
+          {
+            "id": "4",
+            "nombre": "Programación",
+            "creditos": "6",
+            "requisitos": []
+          },
+          {
+            "id": "5",
+            "nombre": "Comunicación para la Ingeniería",
+            "creditos": "5",
+            "requisitos": []
+          }
+        ]
+      },
+      {
+        "numero": 2,
+        "cursos": [
+          {
+            "id": "6",
+            "nombre": "Álgebra Lineal",
+            "creditos": "6",
+            "requisitos": [
+              "1"
+            ]
+          },
+          {
+            "id": "7",
+            "nombre": "Cálculo II",
+            "creditos": "7",
+            "requisitos": [
+              "2"
+            ]
+          },
+          {
+            "id": "8",
+            "nombre": "Mecánica",
+            "creditos": "7",
+            "requisitos": [
+              "2"
+            ]
+          },
+          {
+            "id": "9",
+            "nombre": "Programación Avanzada",
+            "creditos": "6",
+            "requisitos": [
+              "4"
+            ]
+          },
+          {
+            "id": "10",
+            "nombre": "Curso de Formación General",
+            "creditos": "5",
+            "requisitos": [
+              "SC"
+            ]
+          }
+        ]
+      },
+      {
+        "numero": 3,
+        "cursos": [
+          {
+            "id": "11",
+            "nombre": "Ecuaciones Diferenciales",
+            "creditos": "6",
+            "requisitos": [
+              "6",
+              "7"
+            ]
+          },
+          {
+            "id": "12",
+            "nombre": "Cálculo III",
+            "creditos": "6",
+            "requisitos": [
+              "7"
+            ]
+          },
+          {
+            "id": "13",
+            "nombre": "Calor y Ondas",
+            "creditos": "7",
+            "requisitos": [
+              "7",
+              "8"
+            ]
+          },
+          {
+            "id": "14",
+            "nombre": "Estructura de Datos y Algoritmos",
+            "creditos": "6",
+            "requisitos": [
+              "9"
+            ]
+          },
+          {
+            "id": "15",
+            "nombre": "Redes de Datos",
+            "creditos": "6",
+            "requisitos": [
+              "9"
+            ]
+          }
+        ]
+      },
+      {
+        "numero": 4,
+        "cursos": [
+          {
+            "id": "16",
+            "nombre": "Probabilidades y Estadísticas",
+            "creditos": "6",
+            "requisitos": [
+              "7"
+            ]
+          },
+          {
+            "id": "17",
+            "nombre": "Electrónica y Electrotecnia",
+            "creditos": "6",
+            "requisitos": [
+              "8",
+              "11",
+              "12"
+            ]
+          },
+          {
+            "id": "18",
+            "nombre": "Electricidad y Magnetismo",
+            "creditos": "7",
+            "requisitos": [
+              "11",
+              "12"
+            ]
+          },
+          {
+            "id": "19",
+            "nombre": "Bases de Datos",
+            "creditos": "6",
+            "requisitos": [
+              "14"
+            ]
+          },
+          {
+            "id": "20",
+            "nombre": "Desarrollo Web y Móvil",
+            "creditos": "6",
+            "requisitos": [
+              "9"
+            ]
+          },
+          {
+            "id": "21",
+            "nombre": "Inglés I",
+            "creditos": "5",
+            "requisitos": []
+          }
+        ]
+      },
+      {
+        "numero": 5,
+        "cursos": [
+          {
+            "id": "22",
+            "nombre": "Optimización",
+            "creditos": "6",
+            "requisitos": [
+              "6",
+              "12"
+            ]
+          },
+          {
+            "id": "23",
+            "nombre": "Taller de Redes y Servicios",
+            "creditos": "6",
+            "requisitos": [
+              "15",
+              "16"
+            ]
+          },
+          {
+            "id": "24",
+            "nombre": "Proyecto en TICs I",
+            "creditos": "6",
+            "requisitos": [
+              "15",
+              "20"
+            ]
+          },
+          {
+            "id": "25",
+            "nombre": "Bases de Datos Avanzadas",
+            "creditos": "6",
+            "requisitos": [
+              "19"
+            ]
+          },
+          {
+            "id": "26",
+            "nombre": "Curso de Formación General",
+            "creditos": "5",
+            "requisitos": [
+              "SC"
+            ]
+          },
+          {
+            "id": "27",
+            "nombre": "Inglés II",
+            "creditos": "5",
+            "requisitos": [
+              "21"
+            ]
+          },
+          {
+            "id": "54",
+            "nombre": "Práctica Profesional I",
+            "creditos": "7",
+            "requisitos": [
+              "4S"
+            ]
+          }
+        ]
+      },
+      {
+        "numero": 6,
+        "cursos": [
+          {
+            "id": "28",
+            "nombre": "Contabilidad y Costos",
+            "creditos": "6",
+            "requisitos": [
+              "2"
+            ]
+          },
+          {
+            "id": "29",
+            "nombre": "Arquitectura y Organización de Computadores",
+            "creditos": "6",
+            "requisitos": [
+              "15",
+              "17"
+            ]
+          },
+          {
+            "id": "30",
+            "nombre": "Señales y Sistemas",
+            "creditos": "6",
+            "requisitos": [
+              "13",
+              "17"
+            ]
+          },
+          {
+            "id": "31",
+            "nombre": "Sistemas Operativos",
+            "creditos": "6",
+            "requisitos": [
+              "14",
+              "23"
+            ]
+          },
+          {
+            "id": "32",
+            "nombre": "Curso de Formación General",
+            "creditos": "5",
+            "requisitos": [
+              "SC"
+            ]
+          },
+          {
+            "id": "33",
+            "nombre": "Inglés III",
+            "creditos": "5",
+            "requisitos": [
+              "27"
+            ]
+          }
+        ]
+      },
+      {
+        "numero": 7,
+        "cursos": [
+          {
+            "id": "34",
+            "nombre": "Gestión Organizacional",
+            "creditos": "6",
+            "requisitos": [
+              "54"
+            ]
+          },
+          {
+            "id": "35",
+            "nombre": "Sistemas Distribuidos",
+            "creditos": "6",
+            "requisitos": [
+              "15",
+              "31"
+            ]
+          },
+          {
+            "id": "36",
+            "nombre": "Comunicaciones Digitales",
+            "creditos": "6",
+            "requisitos": [
+              "18",
+              "30"
+            ]
+          },
+          {
+            "id": "37",
+            "nombre": "Ingeniería de Software",
+            "creditos": "6",
+            "requisitos": [
+              "19",
+              "24"
+            ]
+          },
+          {
+            "id": "38",
+            "nombre": "Curso de Formación General",
+            "creditos": "5",
+            "requisitos": [
+              "SC"
+            ]
+          }
+        ]
+      },
+      {
+        "numero": 8,
+        "cursos": [
+          {
+            "id": "39",
+            "nombre": "Introducción a la Economía",
+            "creditos": "6",
+            "requisitos": [
+              "7"
+            ]
+          },
+          {
+            "id": "40",
+            "nombre": "Tecnologías Inalámbricas",
+            "creditos": "6",
+            "requisitos": [
+              "36"
+            ]
+          },
+          {
+            "id": "41",
+            "nombre": "Criptografía y Seguridad en Redes",
+            "creditos": "6",
+            "requisitos": [
+              "23"
+            ]
+          },
+          {
+            "id": "42",
+            "nombre": "Inteligencia Artificial",
+            "creditos": "6",
+            "requisitos": [
+              "16",
+              "19",
+              "22"
+            ]
+          },
+          {
+            "id": "43",
+            "nombre": "Evaluación de Proyectos TIC",
+            "creditos": "6",
+            "requisitos": [
+              "28",
+              "34",
+              "37"
+            ]
+          },
+          {
+            "id": "55",
+            "nombre": "Práctica Profesional II",
+            "creditos": "7",
+            "requisitos": [
+              "8S"
+            ]
+          }
+        ]
+      },
+      {
+        "numero": 9,
+        "cursos": [
+          {
+            "id": "44",
+            "nombre": "Electivo Profesional",
+            "creditos": "6",
+            "requisitos": [
+              "SC"
+            ]
+          },
+          {
+            "id": "45",
+            "nombre": "Arquitecturas Emergentes",
+            "creditos": "6",
+            "requisitos": [
+              "35"
+            ]
+          },
+          {
+            "id": "46",
+            "nombre": "Electivo Profesional",
+            "creditos": "6",
+            "requisitos": [
+              "SC"
+            ]
+          },
+          {
+            "id": "47",
+            "nombre": "Arquitectura de Software",
+            "creditos": "6",
+            "requisitos": [
+              "37"
+            ]
+          },
+          {
+            "id": "48",
+            "nombre": "Data Science",
+            "creditos": "6",
+            "requisitos": [
+              "25",
+              "42"
+            ]
+          }
+        ]
+      },
+      {
+        "numero": 10,
+        "cursos": [
+          {
+            "id": "49",
+            "nombre": "Electivo Profesional",
+            "creditos": "7",
+            "requisitos": [
+              "SC"
+            ]
+          },
+          {
+            "id": "50",
+            "nombre": "Electivo Profesional",
+            "creditos": "6",
+            "requisitos": [
+              "SC"
+            ]
+          },
+          {
+            "id": "51",
+            "nombre": "Electivo Profesional",
+            "creditos": "6",
+            "requisitos": [
+              "SC"
+            ]
+          },
+          {
+            "id": "52",
+            "nombre": "Electivo Profesional",
+            "creditos": "6",
+            "requisitos": [
+              "SC"
+            ]
+          },
+          {
+            "id": "53",
+            "nombre": "Proyecto en TICs II",
+            "creditos": "6",
+            "requisitos": [
+              "43"
+            ]
+          }
+        ]
+      },
+      {
+        "numero": 11,
+        "cursos": [
+          {
+            "id": "56",
+            "nombre": "Actividad de Titulación",
+            "creditos": "-",
+            "requisitos": [
+              "SC"
+            ]
+          },
+          {
+            "id": "57",
+            "nombre": "Opción Magíster",
+            "creditos": "-",
+            "requisitos": [
+              "SC"
+            ]
+          }
+        ]
+      }
+    ]
   }
 }

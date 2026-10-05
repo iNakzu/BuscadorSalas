@@ -5,7 +5,8 @@ Este archivo contiene las reglas y el contexto general del proyecto para que la 
 ## 1. Datos Hardcodeados (Fijos)
 Actualmente, las siguientes estructuras están escritas a mano (hardcodeadas) en el código y no provienen de una base de datos externa ni de una API:
 
-- **La Malla Curricular (MALLA_ICIT):** Definida en `app/services/schedule.py` y en `static/js/progreso.js` (frontend, a través de `MALLA_MOCK`). Si se modifica la malla, hay que actualizar ambos archivos manualmente.
+- **Malla para la búsqueda de cursos:** Sus equivalencias se mantienen en `app/data/curricula/` y se consultan por carrera mediante `app/services/curricula.py`.
+- **Vista personal de Malla:** Sus cursos, numeraciones, requisitos y colores se cargan desde `mallaVisual` en esos mismos archivos JSON a través de `/api/malla/progreso/<career_id>`. No volver a introducir los cursos en `static/js/progreso.js`.
 - **Calendario de Solemnes:** Definido estáticamente en `static/js/solemnes_data.js`.
 - **Mapeo de Edificios:** La traducción de letras a nombres reales (ej. "V" a "Vergara 432") está hardcodeada en `app/services/schedule.py`.
 

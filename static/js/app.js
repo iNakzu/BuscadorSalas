@@ -67,7 +67,7 @@ function cambiarTab(panelId, btn) {
         if (gate) gate.hidden = false;
         return;
     }
-    if (panelId === 'tab-malla' && window.PortalAuth && window.PortalAuth.user
+    if ((panelId === 'tab-malla' || panelId === 'tab-progreso') && window.PortalAuth && window.PortalAuth.user
         && (!window.PortalProfile || !window.PortalProfile.getCareerId())) {
         abrirPerfil();
         if (window.PortalProfile) window.PortalProfile.requireCareer();

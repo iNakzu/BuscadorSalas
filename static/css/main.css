@@ -606,7 +606,7 @@ html {
 }
 .malla-ramo-card {
     background: rgba(30, 41, 59, 0.7);
-    border: 1px solid rgba(var(--ramo-color), 0.1);
+    border: 1px solid var(--ramo-outline-color, rgba(var(--ramo-color), 0.1));
     border-left: 3px solid rgba(var(--ramo-color), 0.8);
     border-radius: 12px;
     backdrop-filter: blur(12px);
