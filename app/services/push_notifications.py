@@ -237,6 +237,10 @@ def deliver_due(path, private_key_path, public_key, subject):
                     if start_minute < remind_at <= current_minute and class_at > now:
                         due.append((uid, f"class:{target_day.isoformat()}:{row['day']}:{row['class_time']}",
                                     "Tu próxima clase comienza en 10 minutos.", "tab-mihorario"))
+                    class_start_at = int(class_at.timestamp())
+                    if start_minute < class_start_at <= current_minute:
+                        due.append((uid, f"class-start:{target_day.isoformat()}:{row['day']}:{row['class_time']}",
+                                    "Tu clase comienza ahora.", "tab-mihorario"))
                     if finish_at:
                         finish_reminder = int((finish_at - timedelta(minutes=10)).timestamp())
                         if start_minute < finish_reminder <= current_minute and finish_at > now:

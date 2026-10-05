@@ -101,7 +101,7 @@
             await api('/settings', { method: 'PATCH', body: JSON.stringify({ classes: true, agenda: true }) });
             await syncReminders();
             updateToggleState();
-            setStatus('Listo. Avisos 10 min antes del inicio y término de clase, y al comenzar descansos.');
+            setStatus('Listo. Avisos antes del inicio, al comenzar y al terminar clases, y al empezar descansos.');
         } catch (error) {
             setStatus(error.message || 'No se pudieron activar las notificaciones.', true);
             await loadSettings();

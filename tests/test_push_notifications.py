@@ -114,6 +114,7 @@ class PushNotificationTests(unittest.TestCase):
         at_ten_minute_gap = deliver_at(15, 50)
         self.assertIn("Comienza tu descanso de 10 minutos antes de tu próxima clase.", at_ten_minute_gap)
         self.assertIn("Tu próxima clase comienza en 10 minutos.", at_ten_minute_gap)
+        self.assertEqual(deliver_at(16, 0), ["Tu clase comienza ahora."])
         self.assertEqual(deliver_at(17, 20), ["Comienza tu descanso de 5 minutos antes de tu próxima clase."])
 
     @patch("app.blueprints.push_api.requests.get")
