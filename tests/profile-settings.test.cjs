@@ -42,6 +42,10 @@ assert.strictEqual(civilEngineeringCareers.length, 5, 'the profile selector shou
 assert.ok(civilEngineeringCareers.some(item => item.name === 'Ingeniería Civil en Ciencia de Datos e Inteligencia Artificial'));
 assert.match(script, /careerId: career\.id/);
 assert.match(script, /portal:career-changed/);
+assert.match(script, /function clearSavedCareerForSearch\(\)/);
+assert.match(script, /careerInput\.addEventListener\('focus',[\s\S]*clearSavedCareerForSearch\(\)[\s\S]*setCareerMenuOpen\(true\)/);
+assert.match(script, /careerInput\.addEventListener\('click',[\s\S]*clearSavedCareerForSearch\(\)[\s\S]*renderCareerOptions\(\)/);
+assert.match(script, /savedCareerId = savedCareer \? savedCareer\.id : null/);
 assert.strictEqual(careers.find(item => item.id === 'ingenieria-civil-industrial').school, 'EII');
 assert.strictEqual(careers.find(item => item.id === 'ingenieria-civil-en-obras-civiles').school, 'EOC');
 assert.strictEqual(careers.find(item => item.id === 'ingenieria-civil-plan-comun').school, null);

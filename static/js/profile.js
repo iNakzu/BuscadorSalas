@@ -12,6 +12,8 @@
     const feedback = document.getElementById('profile-feedback');
     const MAX_OPTIONS = 30;
     let careerSaveResetTimer = 0;
+    let savedCareerId = null;
+    let suppressCareerFocusOpen = false;
     let careers = [];
     let menuOptions = [];
     let activeOption = -1;
@@ -55,6 +57,10 @@
             careerInput.removeAttribute('aria-activedescendant');
         }
     }
+    function clearSavedCareerForSearch() {
+        const savedCareer = careers.find(item => item.id === savedCareerId);
+        if (savedCareer && careerInput.value.trim() === savedCareer.name) careerInput.value = '';
+    }
     function renderCareerOptions() {
         const query = normalize(careerInput.value);
         const matches = careers.filter(item => !query || normalize(`${item.name} ${item.faculty || ''} ${item.school || ''}`).includes(query)).slice(0, MAX_OPTIONS);
@@ -78,7 +84,9 @@
             option.addEventListener('click', () => {
                 careerInput.value = item.name;
                 setCareerMenuOpen(false);
+                suppressCareerFocusOpen = true;
                 careerInput.focus();
+                queueMicrotask(() => { suppressCareerFocusOpen = false; });
             });
             careerMenu.appendChild(option);
             menuOptions.push(option);
@@ -104,10 +112,11 @@
     async function load() {
         const currentAuth = auth();
         const user = currentAuth && currentAuth.user;
-        if (!user) return;
+        if (!user) { savedCareerId = null; return; }
         const metadata = user.user_metadata || {};
         const savedCareer = careers.find(item => item.id === metadata.careerId)
             || careers.find(item => item.name === metadata.career);
+        savedCareerId = savedCareer ? savedCareer.id : null;
         careerInput.value = savedCareer ? savedCareer.name : (typeof metadata.career === 'string' ? metadata.career : '');
         const name = [metadata.given_name, metadata.family_name].filter(Boolean).join(' ').trim()
             || String(metadata.full_name || metadata.name || user.email || 'Estudiante');
@@ -150,6 +159,7 @@
         setCareerSaveButton('Guardando…', 'loading');
         try {
             await currentAuth.updateUserMetadata({ career: career.name, careerId: career.id });
+            savedCareerId = career.id;
             setCareerSaveButton('Carrera guardada', 'success', 2000);
             document.dispatchEvent(new CustomEvent('portal:career-changed', { detail: { careerId: career.id } }));
         } catch (error) {
@@ -192,7 +202,17 @@
         }
     }
 
-    careerInput.addEventListener('focus', () => { renderCareerOptions(); setCareerMenuOpen(true); });
+    careerInput.addEventListener('focus', () => {
+        if (suppressCareerFocusOpen) return;
+        clearSavedCareerForSearch();
+        renderCareerOptions();
+        setCareerMenuOpen(true);
+    });
+    careerInput.addEventListener('click', () => {
+        clearSavedCareerForSearch();
+        renderCareerOptions();
+        setCareerMenuOpen(true);
+    });
     careerInput.addEventListener('input', () => { renderCareerOptions(); setCareerMenuOpen(true); });
     careerInput.addEventListener('keydown', event => {
         if (event.key === 'Escape') { setCareerMenuOpen(false); return; }
@@ -216,7 +236,11 @@
     });
     careerToggle.addEventListener('click', () => {
         const opening = careerMenu.hidden;
-        if (opening) { renderCareerOptions(); careerInput.focus(); }
+        if (opening) {
+            clearSavedCareerForSearch();
+            renderCareerOptions();
+            careerInput.focus();
+        }
         setCareerMenuOpen(opening);
     });
     careerSave.addEventListener('click', saveCareer);
