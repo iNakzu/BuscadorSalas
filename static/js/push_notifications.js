@@ -69,7 +69,7 @@
             if (Notification.permission === 'denied' && !subscribed) {
                 setStatus('Las notificaciones están bloqueadas en el navegador. Actívalas en la configuración del sitio.', true);
             } else if (subscribed) {
-                setStatus('Avisos de clases y agenda activados.');
+                setStatus('Avisos de clases, descansos y agenda activados.');
             } else {
                 setStatus('Permite las notificaciones del dispositivo para recibir avisos automáticos.');
             }
@@ -101,7 +101,7 @@
             await api('/settings', { method: 'PATCH', body: JSON.stringify({ classes: true, agenda: true }) });
             await syncReminders();
             updateToggleState();
-            setStatus('Listo. Recibirás recordatorios 10 minutos antes.');
+            setStatus('Listo. Avisos 10 min antes del inicio y término de clase, y al comenzar descansos.');
         } catch (error) {
             setStatus(error.message || 'No se pudieron activar las notificaciones.', true);
             await loadSettings();

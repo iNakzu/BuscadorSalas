@@ -1,7 +1,7 @@
 import base64
 import tempfile
 import unittest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import patch
 
@@ -60,8 +60,12 @@ class PushNotificationTests(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_sync_keeps_only_class_times_and_agenda_dates(self):
+        import sqlite3
+        # Existing installations have the original start-only schema; sync must migrate it.
+        with sqlite3.connect(self.db) as db:
+            db.execute("CREATE TABLE push_classes (user_id TEXT NOT NULL, day INTEGER NOT NULL, class_time TEXT NOT NULL, PRIMARY KEY(user_id, day, class_time))")
         sync_reminders(self.db, "user-a", [
-            {"day": 1, "time": "08:30", "course": "PRIVATE COURSE NAME"},
+            {"day": 1, "time": "08:30", "finish": "09:50", "course": "PRIVATE COURSE NAME"},
             {"day": 8, "time": "08:30"},
             {"day": 2, "time": "bad"},
         ], [
@@ -69,17 +73,48 @@ class PushNotificationTests(unittest.TestCase):
              "time": "12:15", "hasTime": True, "completed": False, "notes": "private notes"},
             {"key": "far-future", "date": "2099-01-01", "time": "12:15", "hasTime": True, "completed": False},
         ])
-        import sqlite3
         with sqlite3.connect(self.db) as db:
-            classes = db.execute("SELECT day,class_time FROM push_classes WHERE user_id=?", ("user-a",)).fetchall()
+            classes = db.execute("SELECT day,class_time,class_finish FROM push_classes WHERE user_id=?", ("user-a",)).fetchall()
             agenda = db.execute("SELECT event_key,event_at FROM push_agenda WHERE user_id=?", ("user-a",)).fetchall()
             class_columns = [row[1] for row in db.execute("PRAGMA table_info(push_classes)")]
             agenda_columns = [row[1] for row in db.execute("PRAGMA table_info(push_agenda)")]
-        self.assertEqual(classes, [(1, "08:30")])
+        self.assertEqual(classes, [(1, "08:30", "09:50")])
         self.assertEqual(len(agenda), 1)
         self.assertEqual(len(agenda[0][0]), 64)  # Only a one-way event identifier is persisted.
-        self.assertEqual(class_columns, ["user_id", "day", "class_time"])
+        self.assertEqual(class_columns, ["user_id", "day", "class_time", "class_finish"])
         self.assertEqual(agenda_columns, ["user_id", "event_key", "event_at"])
+
+    def test_class_end_and_interclass_break_notifications(self):
+        import json
+
+        save_subscription(self.db, "user-a", {
+            "endpoint": "https://fcm.googleapis.com/fcm/send/test-token",
+            "keys": {"p256dh": b64url(b"p" * 65), "auth": b64url(b"a" * 16)},
+        })
+        sync_reminders(self.db, "user-a", [
+            {"day": 1, "time": "14:30", "finish": "15:50"},
+            {"day": 1, "time": "16:00", "finish": "17:20"},
+            {"day": 1, "time": "17:25", "finish": "18:45"},
+        ], [])
+
+        def deliver_at(local_hour, local_minute):
+            instant = datetime(2026, 10, 5, local_hour, local_minute, tzinfo=CHILE).astimezone(timezone.utc)
+
+            class FrozenDateTime(datetime):
+                @classmethod
+                def now(cls, tz=None):
+                    return instant.astimezone(tz) if tz else instant.replace(tzinfo=None)
+
+            with patch("app.services.push_notifications.datetime", FrozenDateTime), \
+                 patch("app.services.push_notifications._send_push", return_value="sent") as sender:
+                deliver_due(self.db, "/unused", "public-key", "https://horarios.dev/")
+            return [json.loads(call.args[3])["body"] for call in sender.call_args_list]
+
+        self.assertEqual(deliver_at(15, 40), ["Tu clase termina en 10 minutos."])
+        at_ten_minute_gap = deliver_at(15, 50)
+        self.assertIn("Comienza tu descanso de 10 minutos antes de tu próxima clase.", at_ten_minute_gap)
+        self.assertIn("Tu próxima clase comienza en 10 minutos.", at_ten_minute_gap)
+        self.assertEqual(deliver_at(17, 20), ["Comienza tu descanso de 5 minutos antes de tu próxima clase."])
 
     @patch("app.blueprints.push_api.requests.get")
     def test_api_derives_user_from_validated_supabase_token(self, auth_get):

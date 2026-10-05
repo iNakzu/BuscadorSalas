@@ -38,6 +38,7 @@ def _connect(path):
         CREATE INDEX IF NOT EXISTS push_subscriptions_user ON push_subscriptions(user_id);
         CREATE TABLE IF NOT EXISTS push_classes (
           user_id TEXT NOT NULL, day INTEGER NOT NULL, class_time TEXT NOT NULL,
+          class_finish TEXT NOT NULL DEFAULT '',
           PRIMARY KEY(user_id, day, class_time)
         );
         CREATE TABLE IF NOT EXISTS push_agenda (
@@ -49,6 +50,9 @@ def _connect(path):
           sent_at INTEGER NOT NULL, PRIMARY KEY(subscription_id, notification_key)
         );
     """)
+    class_columns = {row[1] for row in connection.execute("PRAGMA table_info(push_classes)")}
+    if "class_finish" not in class_columns:
+        connection.execute("ALTER TABLE push_classes ADD COLUMN class_finish TEXT NOT NULL DEFAULT ''")
     connection.commit()
     try:
         os.chmod(path, 0o600)
@@ -135,7 +139,7 @@ def set_preferences(path, user_id, classes, agenda):
 def sync_reminders(path, user_id, classes, agenda):
     if not isinstance(classes, list) or len(classes) > 80 or not isinstance(agenda, list) or len(agenda) > 500:
         raise ValueError("invalid schedule")
-    normalized_classes = set()
+    normalized_classes = {}
     for item in classes:
         if not isinstance(item, dict):
             raise ValueError("invalid schedule")
@@ -144,7 +148,12 @@ def sync_reminders(path, user_id, classes, agenda):
             continue
         if not isinstance(class_time, str) or not re.fullmatch(r"(?:[01]\d|2[0-3]):[0-5]\d", class_time):
             continue
-        normalized_classes.add((day, class_time))
+        class_finish = item.get("finish", "")
+        if not isinstance(class_finish, str) or not re.fullmatch(r"(?:[01]\d|2[0-3]):[0-5]\d", class_finish):
+            class_finish = ""
+        elif class_finish <= class_time:
+            class_finish = ""
+        normalized_classes[(day, class_time)] = class_finish
     normalized_agenda = {}
     today = datetime.now(CHILE).date()
     for item in agenda:
@@ -173,8 +182,9 @@ def sync_reminders(path, user_id, classes, agenda):
         normalized_agenda[key] = event_at
     with _connect(path) as db:
         db.execute("DELETE FROM push_classes WHERE user_id=?", (user_id,))
-        db.executemany("INSERT INTO push_classes(user_id,day,class_time) VALUES(?,?,?)",
-                       [(user_id, day, class_time) for day, class_time in normalized_classes])
+        db.executemany("INSERT INTO push_classes(user_id,day,class_time,class_finish) VALUES(?,?,?,?)",
+                       [(user_id, day, class_time, class_finish)
+                        for (day, class_time), class_finish in normalized_classes.items()])
         db.execute("DELETE FROM push_agenda WHERE user_id=?", (user_id,))
         db.executemany("INSERT INTO push_agenda(user_id,event_key,event_at) VALUES(?,?,?)",
                        [(user_id, key, event_at) for key, event_at in normalized_agenda.items()])
@@ -208,7 +218,8 @@ def deliver_due(path, private_key_path, public_key, subject):
         for pref in prefs:
             uid = pref["user_id"]
             if pref["classes"]:
-                rows = db.execute("SELECT day,class_time FROM push_classes WHERE user_id=?", (uid,)).fetchall()
+                rows = db.execute("SELECT day,class_time,class_finish FROM push_classes WHERE user_id=?", (uid,)).fetchall()
+                classes_by_day = {}
                 for row in rows:
                     class_day = int(row["day"])
                     days_ahead = (class_day - local_now.isoweekday()) % 7
@@ -216,9 +227,38 @@ def deliver_due(path, private_key_path, public_key, subject):
                     hh, mm = map(int, row["class_time"].split(":"))
                     class_at = datetime(target_day.year, target_day.month, target_day.day, hh, mm, tzinfo=CHILE)
                     remind_at = int((class_at - timedelta(minutes=10)).timestamp())
+                    class_finish = str(row["class_finish"] or "")
+                    finish_at = None
+                    if re.fullmatch(r"(?:[01]\d|2[0-3]):[0-5]\d", class_finish) and class_finish > row["class_time"]:
+                        end_hh, end_mm = map(int, class_finish.split(":"))
+                        finish_at = datetime(target_day.year, target_day.month, target_day.day,
+                                             end_hh, end_mm, tzinfo=CHILE)
+                    classes_by_day.setdefault(class_day, []).append((class_at, finish_at, row["class_time"], class_finish))
                     if start_minute < remind_at <= current_minute and class_at > now:
                         due.append((uid, f"class:{target_day.isoformat()}:{row['day']}:{row['class_time']}",
                                     "Tu próxima clase comienza en 10 minutos.", "tab-mihorario"))
+                    if finish_at:
+                        finish_reminder = int((finish_at - timedelta(minutes=10)).timestamp())
+                        if start_minute < finish_reminder <= current_minute and finish_at > now:
+                            due.append((uid, f"class-end:{target_day.isoformat()}:{row['day']}:{row['class_time']}:{class_finish}",
+                                        "Tu clase termina en 10 minutos.", "tab-mihorario"))
+                for class_day, day_classes in classes_by_day.items():
+                    day_classes.sort(key=lambda item: item[0])
+                    for current_class, next_class in zip(day_classes, day_classes[1:]):
+                        class_at, finish_at, class_time, class_finish = current_class
+                        next_start = next_class[0]
+                        if not finish_at or next_start <= finish_at or next_start <= now:
+                            continue
+                        break_at = int(finish_at.timestamp())
+                        if start_minute < break_at <= current_minute and finish_at >= now:
+                            gap_minutes = int((next_start - finish_at).total_seconds() // 60)
+                            if gap_minutes < 60:
+                                duration = f"{gap_minutes} minutos"
+                            else:
+                                hours, minutes = divmod(gap_minutes, 60)
+                                duration = f"{hours} h" + (f" {minutes} min" if minutes else "")
+                            due.append((uid, f"break:{finish_at.date().isoformat()}:{class_day}:{class_time}:{class_finish}:{next_class[2]}",
+                                        f"Comienza tu descanso de {duration} antes de tu próxima clase.", "tab-mihorario"))
             if pref["agenda"]:
                 rows = db.execute("SELECT event_key,event_at FROM push_agenda WHERE user_id=?", (uid,)).fetchall()
                 for row in rows:

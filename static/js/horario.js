@@ -82,7 +82,11 @@ function guardarMiHorarioEnStorage() {
 }
 
 window.portalGetSchedulePushData = () => (MI_HORARIO_DATA && Array.isArray(MI_HORARIO_DATA.clases) ? MI_HORARIO_DATA.clases : [])
-    .map(clase => ({ day: Number(clase.dia), time: String(clase.horaInicio || '').slice(0, 5) }));
+    .map(clase => ({
+        day: Number(clase.dia),
+        time: String(clase.horaInicio || '').slice(0, 5),
+        finish: String(clase.horaFin || '').slice(0, 5)
+    }));
 
 
 let miHorarioInitialized = false;
