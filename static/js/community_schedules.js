@@ -96,6 +96,87 @@
         return JSON.parse(JSON.stringify(value == null ? {} : value));
     }
 
+    function normalizeCourseName(value) {
+        return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+            .toLocaleLowerCase('es').replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
+    }
+
+    function normalizeSection(value) {
+        const match = String(value || '').match(/\d+/);
+        return match ? String(Number.parseInt(match[0], 10)) : '';
+    }
+
+    function propagateScheduleSections(classes) {
+        const sectionsByCourse = new Map();
+        classes.forEach(item => {
+            const course = normalizeCourseName(item && (item.cursoDisplay || item.curso));
+            const section = normalizeSection(item && item.seccion);
+            if (!course || !section) return;
+            if (!sectionsByCourse.has(course)) sectionsByCourse.set(course, new Map());
+            sectionsByCourse.get(course).set(section, item.seccion);
+        });
+        classes.forEach(item => {
+            const course = normalizeCourseName(item && (item.cursoDisplay || item.curso));
+            const current = normalizeSection(item && item.seccion);
+            const candidates = sectionsByCourse.get(course);
+            if (!current && candidates && candidates.size === 1) item.seccion = candidates.values().next().value;
+        });
+    }
+
+    async function enrichAdminSchedule(profile, snapshot) {
+        if (typeof fetch !== 'function' || !profile || !profile.modules) return;
+        const savedPayload = clonePayload(snapshot);
+        const classes = Array.isArray(savedPayload) ? savedPayload : savedPayload.clases;
+        if (!Array.isArray(classes) || !classes.length) return;
+        let response;
+        try {
+            response = await fetch('/api/sync_horario', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ clases: classes })
+            });
+            if (!response.ok) return;
+            const enrichedClasses = await response.json();
+            if (!Array.isArray(enrichedClasses)) return;
+            const enrichedById = new Map(enrichedClasses.filter(item => item && item.id != null).map(item => [String(item.id), item]));
+            const mergedClasses = classes.map((original, index) => {
+                const enriched = original && original.id != null
+                    ? enrichedById.get(String(original.id))
+                    : enrichedClasses[index];
+                if (!enriched || typeof enriched !== 'object') return original;
+                const merged = { ...original, ...enriched };
+                ['curso', 'cursoDisplay', 'sala', 'seccion', 'profesor'].forEach(field => {
+                    const before = String(original[field] == null ? '' : original[field]).trim();
+                    const after = String(enriched[field] == null ? '' : enriched[field]).trim();
+                    if (before && (!after || ['-', 'sala no definida', 'sección -', 'seccion -'].includes(after.toLocaleLowerCase('es')))) {
+                        merged[field] = original[field];
+                    }
+                });
+                return merged;
+            });
+            const nextPayload = Array.isArray(savedPayload) ? mergedClasses : { ...savedPayload, clases: mergedClasses };
+            const currentProfile = selectedProfile();
+            if (!currentProfile || String(currentProfile.user_id) !== String(profile.user_id)
+                || JSON.stringify(profile.modules.schedule) !== JSON.stringify(snapshot)) return;
+            if (JSON.stringify(nextPayload) === JSON.stringify(snapshot)) return;
+            profile.modules.schedule = nextPayload;
+            try {
+                await saveAdminModule('schedule', nextPayload);
+                if (typeof window.mostrarHorarioPerfilEnMiHorario === 'function') {
+                    window.mostrarHorarioPerfilEnMiHorario(scheduleClasses(nextPayload));
+                }
+            } catch (_) {
+                profile.modules.schedule = clonePayload(snapshot);
+                profileModulesCache.set(String(profile.user_id), profile.modules);
+                if (typeof window.mostrarHorarioPerfilEnMiHorario === 'function') {
+                    window.mostrarHorarioPerfilEnMiHorario(scheduleClasses(snapshot));
+                }
+            }
+        } catch (error) {
+            console.warn('No se pudo completar el horario del perfil desde el JSON oficial.', error);
+        }
+    }
+
     function saveAdminMutation(profile, module, previous) {
         const saved = saveAdminModule(module, profile.modules[module]);
         if (!saved || typeof saved.catch !== 'function') return saved;
@@ -703,6 +784,7 @@
             const target = profile.modules.schedule;
             target.clases = Array.isArray(target.clases) ? target.clases : [];
             mutator(target.clases);
+            propagateScheduleSections(target.clases);
             const seen = new Set();
             const hasDuplicate = target.clases.some(item => {
                 if (item.dia == null || item.bloqueNum == null) return false;
@@ -718,7 +800,11 @@
             }
             const saved = saveAdminMutation(profile, 'schedule', previous);
             if (typeof window.mostrarHorarioPerfilEnMiHorario === 'function') window.mostrarHorarioPerfilEnMiHorario(scheduleClasses(target));
-            return saved;
+            const snapshot = clonePayload(target);
+            return Promise.resolve(saved).then(result => {
+                if (result === false) return false;
+                return enrichAdminSchedule(profile, snapshot).then(() => true);
+            });
         },
         updateSelectedAgenda: mutator => {
             const profile = selectedProfile();
