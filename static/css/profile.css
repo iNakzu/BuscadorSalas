@@ -54,6 +54,12 @@
 .profile-primary-button:hover,.profile-action-button:hover { transform: translateY(-1px); border-color: rgba(96,165,250,.45); background: linear-gradient(135deg,rgba(59,130,246,.3),rgba(37,99,235,.16)); }
 .profile-primary-button svg,.profile-danger-button svg,.profile-logout-button svg { flex: 0 0 16px; width: 16px; height: 16px; }
 .profile-primary-button:disabled,.profile-danger-button:disabled { opacity: .55; cursor: wait; }
+.profile-primary-button-label { min-width: 0; text-align: center; line-height: 1.35; }
+.profile-primary-button[data-state="loading"]:disabled { opacity: .9; }
+.profile-primary-button[data-state="success"] { border-color: rgba(52,211,153,.34); background: linear-gradient(135deg,rgba(16,185,129,.2),rgba(5,150,105,.11)); color: #a7f3d0; }
+.profile-primary-button[data-state="error"] { border-color: rgba(251,113,133,.35); background: linear-gradient(135deg,rgba(244,63,94,.16),rgba(190,24,93,.08)); color: #fecdd3; }
+.profile-career-save-spinner { animation: profile-career-spin .8s linear infinite; }
+@keyframes profile-career-spin { to { transform: rotate(360deg); } }
 .profile-feedback { min-height: 0; margin: 0; color: #9bb0ca; font-size: 11px; line-height: 1.4; }
 .profile-feedback:not(:empty) { margin: -5px 2px 12px; }
 .profile-feedback[data-state="success"] { color: #6ee7b7; }

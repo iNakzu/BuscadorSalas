@@ -3,10 +3,15 @@
     const careerMenu = document.getElementById('profile-career-options');
     const careerToggle = document.getElementById('profile-career-toggle');
     const careerSave = document.getElementById('profile-career-save');
+    const careerSaveLabel = careerSave && careerSave.querySelector('.profile-primary-button-label');
+    const careerSaveCheck = careerSave && careerSave.querySelector('.profile-career-save-check');
+    const careerSaveSpinner = careerSave && careerSave.querySelector('.profile-career-save-spinner');
+    const careerSaveError = careerSave && careerSave.querySelector('.profile-career-save-error');
     const sharingToggle = document.getElementById('profile-sharing-toggle');
     const sharingStatus = document.getElementById('profile-sharing-status');
     const feedback = document.getElementById('profile-feedback');
     const MAX_OPTIONS = 30;
+    let careerSaveResetTimer = 0;
     let careers = [];
     let menuOptions = [];
     let activeOption = -1;
@@ -20,6 +25,24 @@
     function setFeedback(message, state = '') {
         feedback.textContent = message || '';
         feedback.dataset.state = state;
+    }
+    function resetCareerSaveButton() {
+        careerSaveLabel.textContent = 'Guardar carrera';
+        careerSave.dataset.state = '';
+        careerSave.removeAttribute('aria-busy');
+        careerSaveCheck.hidden = false;
+        careerSaveSpinner.hidden = true;
+        careerSaveError.hidden = true;
+    }
+    function setCareerSaveButton(message, state, resetAfter = 0) {
+        if (careerSaveResetTimer) clearTimeout(careerSaveResetTimer);
+        careerSaveLabel.textContent = message;
+        careerSave.dataset.state = state;
+        careerSave.setAttribute('aria-busy', String(state === 'loading'));
+        careerSaveCheck.hidden = state === 'loading' || state === 'error';
+        careerSaveSpinner.hidden = state !== 'loading';
+        careerSaveError.hidden = state !== 'error';
+        if (resetAfter) careerSaveResetTimer = setTimeout(resetCareerSaveButton, resetAfter);
     }
     function setCareerMenuOpen(open) {
         careerMenu.hidden = !open;
@@ -120,18 +143,18 @@
         if (!currentAuth || !currentAuth.user) return;
         const career = careers.find(item => item.name === careerInput.value.trim());
         if (!career) {
-            setFeedback('Selecciona una de las carreras disponibles antes de guardar.', 'error');
+            setCareerSaveButton('Selecciona una carrera válida', 'error', 2400);
             return;
         }
         careerSave.disabled = true;
-        setFeedback('Guardando carrera…');
+        setCareerSaveButton('Guardando…', 'loading');
         try {
             await currentAuth.updateUserMetadata({ career: career.name, careerId: career.id });
-            setFeedback('Carrera guardada en tu perfil.', 'success');
+            setCareerSaveButton('Carrera guardada', 'success', 2000);
             document.dispatchEvent(new CustomEvent('portal:career-changed', { detail: { careerId: career.id } }));
         } catch (error) {
             console.error('No se pudo guardar la carrera del perfil.', error);
-            setFeedback('No se pudo guardar. Revisa tu conexión e inténtalo de nuevo.', 'error');
+            setCareerSaveButton('No se pudo guardar. Revisa tu conexión e inténtalo de nuevo.', 'error', 3200);
         } finally {
             careerSave.disabled = false;
         }
