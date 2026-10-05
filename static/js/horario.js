@@ -700,7 +700,7 @@ function normalizarNombreRamoParaComparar(nombre) {
 }
 
 function nombreRamoParaComparar(clase) {
-    return clase && (clase.curso || clase.cursoDisplay || clase.curso_display) || '';
+    return clase ? getCourseDisplay(clase) : '';
 }
 
 function propagarSeccionMismoRamo(claseOrigen, seccion) {
