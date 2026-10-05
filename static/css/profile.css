@@ -11,7 +11,13 @@
 .profile-hero-copy strong { overflow: hidden; color: #e5edf8; font-size: 13px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
 .profile-hero-copy span { overflow: hidden; color: #91a1b8; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
 .profile-hero > p { margin: 17px 0 0; color: #91a1b8; font-size: 12px; line-height: 1.55; }
-.profile-settings-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); align-items: stretch; gap: 13px; }
+.profile-settings-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); grid-template-areas: "career privacy" "community notifications" "data signout"; align-items: stretch; gap: 13px; }
+.profile-career-card { grid-area: career; }
+.profile-community-card { grid-area: community; }
+.profile-privacy-card { grid-area: privacy; }
+.profile-notifications-card { grid-area: notifications; }
+.profile-data-card { grid-area: data; }
+.profile-signout-card { grid-area: signout; }
 .profile-setting-card { min-width: 0; padding: 18px; border: 1px solid rgba(148,163,184,.15); border-radius: 18px; background: radial-gradient(130% 140% at 0% 0%,rgba(96,165,250,.055),transparent 53%),linear-gradient(145deg,rgba(17,27,45,.93),rgba(10,16,29,.94)); box-shadow: inset 0 1px 0 rgba(255,255,255,.035); }
 .profile-card-heading { display: flex; align-items: center; gap: 11px; min-width: 0; margin-bottom: 16px; }
 .profile-card-heading > div { min-width: 0; }
@@ -83,7 +89,7 @@
 .profile-logout-button:hover { border-color: rgba(251,113,133,.36); background: rgba(244,63,94,.1); }
 .profile-page .push-settings-indicator { width: 7px; height: 7px; border-radius: 50%; background: #64748b; box-shadow: 0 0 0 3px rgba(100,116,139,.12); }
 .profile-page .push-settings-indicator.is-active { background: #60a5fa; }
-@media (max-width: 760px) { .profile-settings-grid { grid-template-columns: minmax(0,1fr); gap: 10px; } }
+@media (max-width: 760px) { .profile-settings-grid { grid-template-columns: minmax(0,1fr); grid-template-areas: "career" "community" "privacy" "notifications" "data" "signout"; gap: 10px; } }
 @media (max-width: 600px) {
   .profile-page { padding: 0 0 calc(24px + env(safe-area-inset-bottom)); }
   .profile-hero { padding: 14px 14px 13px; border-radius: 21px; }

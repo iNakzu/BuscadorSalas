@@ -23,6 +23,11 @@
       <button type="button" id="profile-career-save" class="profile-primary-button"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Guardar carrera</span></button>
     </section>
 
+    <section class="profile-setting-card profile-community-card" aria-labelledby="profile-community-title">
+      <div class="profile-card-heading"><span class="profile-card-icon profile-card-icon--community" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM20 8v6M23 11h-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><h2 id="profile-community-title">Comunidad</h2><p>Consulta horarios y otra información que las personas registradas comparten.</p></div></div>
+      <div id="profile-community-directory" class="profile-community-directory" aria-label="Perfiles compartidos"></div>
+    </section>
+
     <section class="profile-setting-card profile-privacy-card" aria-labelledby="profile-privacy-title">
       <div class="profile-card-heading"><span class="profile-card-icon profile-card-icon--privacy" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><h2 id="profile-privacy-title">Privacidad en la comunidad</h2><p>Controla lo que pueden consultar otras personas registradas.</p></div></div>
       <label class="profile-switch-row" for="profile-sharing-toggle"><span class="profile-switch-copy"><strong>Compartir mi información académica</strong><small>Incluye horario, notas, agenda y avance de malla. Puedes cambiarlo cuando quieras.</small></span><input id="profile-sharing-toggle" type="checkbox"><span class="profile-switch" aria-hidden="true"></span></label>
@@ -35,11 +40,6 @@
         <label class="profile-switch-row" for="push-enable-toggle"><span class="profile-switch-copy"><strong>Activar notificaciones</strong><small>Recibe recordatorios de clases y agenda en este dispositivo. El permiso se administra desde la configuración del navegador.</small></span><input id="push-enable-toggle" type="checkbox" disabled><span class="profile-switch" aria-hidden="true"></span></label>
         <p class="push-dialog-status" id="push-dialog-status" role="status" aria-live="polite">Comprobando este dispositivo…</p>
       </div>
-    </section>
-
-    <section class="profile-setting-card profile-community-card" aria-labelledby="profile-community-title">
-      <div class="profile-card-heading"><span class="profile-card-icon profile-card-icon--community" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM20 8v6M23 11h-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><h2 id="profile-community-title">Comunidad</h2><p>Consulta horarios y otra información que las personas registradas comparten.</p></div></div>
-      <div id="profile-community-directory" class="profile-community-directory" aria-label="Perfiles compartidos"></div>
     </section>
 
     <section class="profile-setting-card profile-data-card" aria-labelledby="profile-data-title">
