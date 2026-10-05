@@ -464,6 +464,23 @@ class ScheduleImportEndpointTest(unittest.TestCase):
         self.assertEqual(response.get_json()[0]["sala"], "E441.3.S302")
 
     @patch("app.blueprints.academic_api.dm.get_classes")
+    def test_schedule_sync_preserves_explicit_empty_section(self, get_classes):
+        get_classes.return_value = [{"node": {
+            "course": "INTRODUCCIÓN A LA ECONOMÍA", "day": 2, "start": "11:30:00", "finish": "12:50:00",
+            "place": "E441.2.S201", "teacher": "CALCAGNO JAIME ALBERTO", "section": 1, "code": "CII2100",
+        }}]
+        original = {
+            "curso": "Introduccion a la economia", "dia": 2, "horaInicio": "11:30", "horaFin": "12:50",
+            "bloqueNum": 3, "seccion": "Sección -", "sala": "", "profesor": "",
+        }
+        response = self.client.post("/api/sync_horario", json={"clases": [original]})
+        self.assertEqual(response.status_code, 200)
+        matched = response.get_json()[0]
+        self.assertEqual(matched["seccion"], "Sección -")
+        self.assertEqual(matched["sala"], "E441.2.S201")
+        self.assertEqual(matched["profesor"], "CALCAGNO JAIME ALBERTO")
+
+    @patch("app.blueprints.academic_api.dm.get_classes")
     def test_schedule_sync_can_use_a_unique_section_when_course_and_teacher_are_missing(self, get_classes):
         get_classes.return_value = [{"node": {
             "course": "EVALUACIÓN DE PROYECTOS TIC", "day": 1, "start": "16:00:00", "finish": "17:20:00",

@@ -89,6 +89,10 @@ def _normalized_section(value):
     return "" if section in {"", "-"} else section
 
 
+def _section_explicitly_cleared(value):
+    return _normalized_match_text(value) in {"-", "seccion -"}
+
+
 def _normalized_room(value):
     room = _normalized_match_text(value)
     return "" if room in {"", "-", "sala no definida"} else room
@@ -616,7 +620,7 @@ def api_sync_horario():
             )
         display_section = _display_section(section)
         current_section = _normalized_section(user_class.get("seccion", ""))
-        if display_section and (not current_section or current_section == _normalized_section(section)):
+        if display_section and not _section_explicitly_cleared(user_class.get("seccion")) and (not current_section or current_section == _normalized_section(section)):
             user_class["seccion"] = display_section
         user_class["horaInicio"] = format_time(matched_node.get("start", ""))
         user_class["horaFin"] = format_time(matched_node.get("finish", ""))

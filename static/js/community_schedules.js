@@ -106,9 +106,16 @@
         return match ? String(Number.parseInt(match[0], 10)) : '';
     }
 
+    function isExplicitlyClearedSection(value) {
+        const normalized = String(value == null ? '' : value).normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+            .trim().toLocaleLowerCase('es').replace(/\s+/g, ' ');
+        return normalized === '-' || normalized === 'seccion -';
+    }
+
     function propagateScheduleSections(classes) {
         const sectionsByCourse = new Map();
         classes.forEach(item => {
+            if (isExplicitlyClearedSection(item && item.seccion)) return;
             const course = normalizeCourseName(item && (item.cursoDisplay || item.curso));
             const section = normalizeSection(item && item.seccion);
             if (!course || !section) return;
@@ -116,6 +123,7 @@
             sectionsByCourse.get(course).set(section, item.seccion);
         });
         classes.forEach(item => {
+            if (isExplicitlyClearedSection(item && item.seccion)) return;
             const course = normalizeCourseName(item && (item.cursoDisplay || item.curso));
             const current = normalizeSection(item && item.seccion);
             const candidates = sectionsByCourse.get(course);
@@ -148,6 +156,10 @@
                 ['curso', 'cursoDisplay', 'sala', 'seccion', 'profesor'].forEach(field => {
                     const before = String(original[field] == null ? '' : original[field]).trim();
                     const after = String(enriched[field] == null ? '' : enriched[field]).trim();
+                    if (field === 'seccion' && isExplicitlyClearedSection(original[field])) {
+                        merged[field] = original[field];
+                        return;
+                    }
                     if (before && (!after || ['-', 'sala no definida', 'sección -', 'seccion -'].includes(after.toLocaleLowerCase('es')))) {
                         merged[field] = original[field];
                     }

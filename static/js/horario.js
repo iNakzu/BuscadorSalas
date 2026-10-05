@@ -712,6 +712,12 @@ function normalizarNumeroSeccion(valor) {
     return Number.isSafeInteger(numero) && numero > 0 ? String(numero) : '';
 }
 
+function seccionMarcadaSinNumero(valor) {
+    const normalizada = String(valor == null ? '' : valor).normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .trim().toLocaleLowerCase('es').replace(/\s+/g, ' ');
+    return normalizada === '-' || normalizada === 'seccion -';
+}
+
 function normalizarNombreRamoParaComparar(nombre) {
     return String(nombre || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
         .toLocaleLowerCase('es').replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
@@ -723,9 +729,9 @@ function nombreRamoParaComparar(clase) {
 
 function propagarSeccionMismoRamo(claseOrigen, seccion) {
     const nombreRamo = normalizarNombreRamoParaComparar(nombreRamoParaComparar(claseOrigen));
-    if (!nombreRamo || !seccion || !MI_HORARIO_DATA || !Array.isArray(MI_HORARIO_DATA.clases)) return;
+    if (!nombreRamo || !seccion || seccionMarcadaSinNumero(seccion) || !MI_HORARIO_DATA || !Array.isArray(MI_HORARIO_DATA.clases)) return;
     MI_HORARIO_DATA.clases.forEach(clase => {
-        if (clase !== claseOrigen && normalizarNombreRamoParaComparar(nombreRamoParaComparar(clase)) === nombreRamo) {
+        if (clase !== claseOrigen && !seccionMarcadaSinNumero(clase.seccion) && normalizarNombreRamoParaComparar(nombreRamoParaComparar(clase)) === nombreRamo) {
             clase.seccion = seccion;
         }
     });
@@ -748,6 +754,7 @@ function rellenarSeccionesMismoRamo(clases) {
 
     let changed = false;
     clases.forEach(clase => {
+        if (seccionMarcadaSinNumero(clase && clase.seccion)) return;
         const nombre = normalizarNombreRamoParaComparar(nombreRamoParaComparar(clase));
         const candidatas = porRamo.get(nombre);
         if (!candidatas || !candidatas.length) return;
@@ -890,6 +897,11 @@ function guardarNuevaClaseModal(ev) {
     const selectedClasses = Array.isArray(selectedSchedule) ? selectedSchedule : selectedSchedule && Array.isArray(selectedSchedule.clases) ? selectedSchedule.clases : [];
     const adminExistingClass = horarioAdminProfileContext && horarioAdminProfileContext.index != null
         ? selectedClasses[horarioAdminProfileContext.index] : null;
+    const ownExistingClass = editedIndex >= 0 ? MI_HORARIO_DATA.clases[editedIndex] : null;
+    const existingClass = adminExistingClass || ownExistingClass;
+    const sectionWasSet = Boolean(existingClass && normalizarNumeroSeccion(existingClass.seccion));
+    const sectionWasExplicitlyCleared = Boolean(existingClass && seccionMarcadaSinNumero(existingClass.seccion));
+    const sectionToSave = seccion || (sectionWasSet || sectionWasExplicitlyCleared ? 'Sección -' : '');
 
     const nuevaClase = {
         ...(horarioAdminProfileContext ? (adminExistingClass || {}) : editedIndex >= 0 ? MI_HORARIO_DATA.clases[editedIndex] : {}),
@@ -902,7 +914,7 @@ function guardarNuevaClaseModal(ev) {
         curso: curso,
         cursoDisplay: curso,
         tipo: tipo,
-        seccion: seccion,
+        seccion: sectionToSave,
         sala: sala,
         profesor: profesor,
         rol: rol
@@ -918,8 +930,8 @@ function guardarNuevaClaseModal(ev) {
                 if (clases.some((item, itemIndex) => itemIndex !== index && Number(item.dia) === diaNum && Number(item.bloqueNum) === bloqueNum)) return;
                 clases[index] = nuevaClase;
                 const normalizedName = normalizarNombreRamoParaComparar(getCourseDisplay(nuevaClase));
-                if (seccion && normalizedName) clases.forEach((item, itemIndex) => {
-                    if (itemIndex !== index && normalizarNombreRamoParaComparar(getCourseDisplay(item)) === normalizedName) item.seccion = seccion;
+                if (sectionToSave && !seccionMarcadaSinNumero(sectionToSave) && normalizedName) clases.forEach((item, itemIndex) => {
+                    if (itemIndex !== index && !seccionMarcadaSinNumero(item.seccion) && normalizarNombreRamoParaComparar(getCourseDisplay(item)) === normalizedName) item.seccion = sectionToSave;
                 });
             }
         });
@@ -935,7 +947,7 @@ function guardarNuevaClaseModal(ev) {
         MI_HORARIO_DATA.clases = MI_HORARIO_DATA.clases.filter(c => !(c.dia === diaNum && c.bloqueNum === bloqueNum));
         MI_HORARIO_DATA.clases.push(nuevaClase);
     }
-    propagarSeccionMismoRamo(nuevaClase, seccion);
+    propagarSeccionMismoRamo(nuevaClase, sectionToSave);
     guardarMiHorarioEnStorage();
     cerrarModalAgregarClase();
     renderMiHorario();
@@ -1170,6 +1182,10 @@ function mergeEnrichedSchedule(originalClasses, enrichedClasses) {
             const emptyMarkers = ['', '-'];
             if (field === 'sala') emptyMarkers.push('sala no definida');
             if (field === 'seccion') emptyMarkers.push('sección -', 'seccion -');
+            if (field === 'seccion' && seccionMarcadaSinNumero(oldValue)) {
+                merged[field] = oldValue;
+                return;
+            }
             const oldTeacherNeedsReconciliation = field === 'profesor' && oldText &&
                 oldText !== oldText.toLocaleUpperCase('es');
             if (oldTeacherNeedsReconciliation && !newText) return;

@@ -49,7 +49,7 @@ const context = {
       scheduleSyncRequests.push(body);
       return { ok: true, json: async () => body.clases.map(item => item.id === 'teacher-only'
         ? { ...item, sala: 'E441.3.S302', seccion: 'Sección 4', profesor: 'FAIVOVICH EDUARDO JAIME' }
-        : item) };
+        : item.id === 'section-cleared' ? { ...item, seccion: 'Sección 7' } : item) };
     }
     return { ok: true, json: async () => ({ semestres: [] }) };
   },
@@ -76,6 +76,7 @@ vm.runInContext(source, context);
   await context.window.PortalCommunity.updateSelectedSchedule(classes => {
     classes[0].curso = 'Álgebra';
     classes.push({ id: 'same-course', curso: 'Algebra', dia: 1, bloqueNum: 2, horaInicio: '10:00', horaFin: '11:20', seccion: '', sala: '', profesor: '' });
+    classes.push({ id: 'section-cleared', curso: 'Álgebra', dia: 1, bloqueNum: 3, horaInicio: '11:30', horaFin: '12:50', seccion: 'Sección -', sala: '', profesor: '' });
     classes.push({ id: 'teacher-only', curso: 'Evaluación de Proyectos TIC', dia: 1, bloqueNum: 6, horaInicio: '16:00', horaFin: '17:20', seccion: '', sala: '', profesor: 'FAIVOVICH EDUARDO JAIME' });
   });
   await context.window.PortalCommunity.updateSelectedGradeCourse('me|Álgebra', 'examGrade', 6.2);
@@ -87,6 +88,7 @@ vm.runInContext(source, context);
   const selected = context.window.PortalCommunity.getSelected().modules;
   assert.equal(selected.schedule.clases[0].curso, 'Álgebra');
   assert.equal(selected.schedule.clases.find(item => item.id === 'same-course').seccion, 'Sección 7', 'same-course classes inherit the profile section');
+  assert.equal(selected.schedule.clases.find(item => item.id === 'section-cleared').seccion, 'Sección -', 'an explicitly cleared section remains empty after sync and propagation');
   assert.equal(selected.schedule.clases.find(item => item.id === 'teacher-only').sala, 'E441.3.S302', 'a unique teacher/day/time JSON match fills the room');
   assert.equal(selected.schedule.clases.find(item => item.id === 'teacher-only').seccion, 'Sección 4');
   assert.equal(selected.grades['me|Álgebra'].examGrade, 6.2);
