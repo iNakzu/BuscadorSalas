@@ -720,16 +720,23 @@ function rellenarSeccionesMismoRamo(clases) {
         const nombre = normalizarNombreRamoParaComparar(nombreRamoParaComparar(clase));
         const seccion = normalizarNumeroSeccion(clase && clase.seccion);
         if (!nombre || !seccion) return;
-        if (!porRamo.has(nombre)) porRamo.set(nombre, new Set());
-        porRamo.get(nombre).add(seccion);
+        if (!porRamo.has(nombre)) porRamo.set(nombre, []);
+        const tipo = normalizarTipoClase(clase.tipo).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es');
+        const profesor = String(clase.profesor || '').trim();
+        const tieneProfesor = profesor && !['-', 'sin profesor', 'no definido'].includes(profesor.toLocaleLowerCase('es'));
+        const prioridad = (tieneProfesor ? 2 : 0) + (tipo === 'catedra' ? 1 : 0);
+        porRamo.get(nombre).push({ clase, seccion, prioridad });
     });
 
     let changed = false;
     clases.forEach(clase => {
         const nombre = normalizarNombreRamoParaComparar(nombreRamoParaComparar(clase));
-        const secciones = porRamo.get(nombre);
-        if (!secciones || secciones.size !== 1 || normalizarNumeroSeccion(clase && clase.seccion)) return;
-        clase.seccion = secciones.values().next().value;
+        const candidatas = porRamo.get(nombre);
+        if (!candidatas || !candidatas.length) return;
+        const prioritaria = candidatas.reduce((best, candidate) => candidate.prioridad > best.prioridad ? candidate : best);
+        const seccionActual = normalizarNumeroSeccion(clase && clase.seccion);
+        if (seccionActual === prioritaria.seccion) return;
+        clase.seccion = prioritaria.clase.seccion;
         changed = true;
     });
     return changed;
