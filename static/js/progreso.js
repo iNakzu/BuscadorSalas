@@ -314,13 +314,6 @@ window.renderMallaPublica = async function (container, progress, options = {}) {
         return;
     }
     container.innerHTML = buildProgresoHtml(safeProgress, true, curriculum, Boolean(options.editable));
-    if (options.editable) {
-        const saveButton = document.createElement('button');
-        saveButton.type = 'button';
-        saveButton.className = 'admin-profile-save';
-        saveButton.textContent = 'Guardar cambios';
-        container.appendChild(saveButton);
-    }
 };
 
 // Inicializar al cargar

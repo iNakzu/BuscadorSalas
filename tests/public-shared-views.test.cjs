@@ -68,6 +68,17 @@ assert.match(notesRoot.innerHTML, /disabled/);
 assert.doesNotMatch(notesRoot.innerHTML, /updateNotaItem|updateGlobalNota|deleteNotaItem|addNotaItem/);
 assert.strictEqual(notesLabel.textContent, 'Cálculo <I>');
 assert.deepStrictEqual(JSON.parse(JSON.stringify(vm.runInContext('Object.keys(NOTAS_DATA)', notesContext))), []);
+notesContext.window.PortalCommunity.isAdminSelected = () => true;
+notesContext.window.PortalCommunity.updateSelectedGradeItem = () => {};
+notesContext.window.PortalCommunity.updateSelectedGradeCourse = () => {};
+notesContext.window.PortalCommunity.addSelectedGradeItem = () => {};
+notesContext.window.renderNotasPublicas(notesRoot, {
+  'me|Cálculo <I>': { items: [{ name: 'Solemne 1', weight: 100, grade: 6.2 }], examGrade: null, examWeight: 30 }
+}, { editable: true });
+notesContext.window.selectNotasPerfilCourse('Cálculo <I>');
+assert.match(notesRoot.innerHTML, /onchange="PortalCommunity\.updateSelectedGradeItem/);
+assert.doesNotMatch(notesRoot.innerHTML, /notas-readonly|disabled/);
+assert.doesNotMatch(notesRoot.innerHTML, /updateNotaItem|updateGlobalNota|deleteNotaItem|addNotaItem/);
 currentNotesProfile = null;
 notesListeners['portal:public-profile-changed']({ detail: { profile: null } });
 assert.match(notesMenu.innerHTML, /data-val="Mi ramo"/);
@@ -105,4 +116,17 @@ assert.match(list.innerHTML, /&lt;img src=x onerror=alert\(1\)&gt;/);
 assert.doesNotMatch(list.innerHTML, /abrirModalAgenda|eliminarEventoAgenda|toggleCompletado/);
 assert.doesNotMatch(days.innerHTML, /abrirModalAgenda/);
 assert.deepStrictEqual(JSON.parse(JSON.stringify(vm.runInContext('AGENDA_DATA.slice()', agendaContext))), []);
-console.log('public-shared-views: shared renderers preserve personal UI and remain read-only');
+agendaContext.window.PortalCommunity = {
+  isAdminSelected: () => true,
+  getSelected: () => ({ modules: { schedule: { clases: [{ curso: 'Cálculo', rol: 'student' }] } } }),
+  updateSelectedAgenda() {}
+};
+agendaContext.window.renderAgendaPublica(agendaRoot, [{
+  id: 'event-1', ramo: 'Cálculo', tipo: 'Solemne', fecha: `${currentDateString}T10:00:00`, hasTime: true, notas: '', completado: false
+}], { editable: true });
+assert.match(list.innerHTML, /abrirModalAgenda/);
+assert.match(list.innerHTML, /eliminarEventoAgenda/);
+assert.match(list.innerHTML, /toggleCompletado/);
+assert.doesNotMatch(list.innerHTML, /agenda-card-readonly/);
+assert.match(days.innerHTML, /abrirModalAgenda/);
+console.log('public-shared-views: same shared components remain read-only for users and expose native controls to admins');

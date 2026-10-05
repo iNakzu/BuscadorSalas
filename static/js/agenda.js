@@ -1,5 +1,16 @@
 let AGENDA_DATA = [];
 let currentAgendaSearch = '';
+let publicAgendaEditable = false;
+
+function selectedAdminAgenda() {
+    return publicAgendaEditable && window.PortalCommunity && window.PortalCommunity.isAdminSelected && window.PortalCommunity.isAdminSelected();
+}
+
+function selectedAdminAgendaEvents() {
+    const profile = selectedAdminAgenda() && window.PortalCommunity.getSelected();
+    const events = profile && profile.modules && profile.modules.agenda;
+    return Array.isArray(events) ? events : [];
+}
 
 window.triggerAgendaSearch = function() {
     const input = document.getElementById('input-agenda-search');
@@ -272,8 +283,11 @@ function abrirModalAgenda(id = null, clickedDate = null) {
     
     let scheduleObj = typeof MI_HORARIO_DATA !== 'undefined' ? MI_HORARIO_DATA : null;
     let myRamos = [];
-    if (scheduleObj && scheduleObj.clases) {
-        const validClasses = scheduleObj.clases.filter(c => c.rol !== 'assistant');
+    const selectedProfile = selectedAdminAgenda() && window.PortalCommunity.getSelected();
+    const profileSchedule = selectedProfile && selectedProfile.modules && selectedProfile.modules.schedule;
+    const activeSchedule = selectedProfile ? (Array.isArray(profileSchedule) ? profileSchedule : profileSchedule && profileSchedule.clases) : scheduleObj && scheduleObj.clases;
+    if (Array.isArray(activeSchedule)) {
+        const validClasses = activeSchedule.filter(c => c.rol !== 'assistant');
         myRamos = [...new Set(validClasses.map(c => c.curso))].filter(Boolean).sort();
     }
     
@@ -287,7 +301,8 @@ function abrirModalAgenda(id = null, clickedDate = null) {
     if (menuEl) menuEl.innerHTML = htmlMenu;
     
     if (id) {
-        const ev = AGENDA_DATA.find(e => e.id === id);
+        const sourceEvents = selectedAdminAgenda() ? selectedAdminAgendaEvents() : AGENDA_DATA;
+        const ev = sourceEvents.find(e => String(e.id) === String(id));
         if (ev) {
             document.getElementById('agenda-id').value = ev.id;
             
@@ -369,6 +384,16 @@ function guardarEventoAgenda(e) {
     } else {
         fechaFinal += `T23:59:59`; // Final del día por defecto si no hay hora
     }
+
+    if (selectedAdminAgenda()) {
+        window.PortalCommunity.updateSelectedAgenda(events => {
+            const existing = id ? events.find(item => String(item.id) === String(id)) : null;
+            if (existing) Object.assign(existing, { ramo, tipo, fecha: fechaFinal, hasTime, notas });
+            else events.push({ id: 'ag-' + Date.now(), ramo, tipo, fecha: fechaFinal, hasTime, notas, completado: false });
+        });
+        cerrarModalAgenda();
+        return;
+    }
     
     if (id) {
         const ev = AGENDA_DATA.find(x => x.id === id);
@@ -398,6 +423,13 @@ function guardarEventoAgenda(e) {
 }
 
 function toggleCompletado(id) {
+    if (selectedAdminAgenda()) {
+        window.PortalCommunity.updateSelectedAgenda(events => {
+            const event = events.find(item => String(item.id) === String(id));
+            if (event) event.completado = !event.completado;
+        });
+        return;
+    }
     const ev = AGENDA_DATA.find(x => x.id === id);
     if (ev) {
         ev.completado = !ev.completado;
@@ -407,6 +439,13 @@ function toggleCompletado(id) {
 }
 
 function eliminarEventoAgenda(id) {
+    if (selectedAdminAgenda()) {
+        window.PortalCommunity.updateSelectedAgenda(events => {
+            const index = events.findIndex(item => String(item.id) === String(id));
+            if (index >= 0) events.splice(index, 1);
+        });
+        return;
+    }
     AGENDA_DATA = AGENDA_DATA.filter(x => x.id !== id);
     saveAgenda();
     renderAgenda();
@@ -606,15 +645,17 @@ function renderAgenda(publicView = null) {
     container.innerHTML = html;
 }
 
-window.renderAgendaPublica = function (container, payload) {
+window.renderAgendaPublica = function (container, payload, options = {}) {
     if (!container) return;
+    publicAgendaEditable = Boolean(options.editable);
+    const editable = selectedAdminAgenda();
     const state = {
         events: Array.isArray(payload) ? payload : [],
         year: currentCalYear,
         month: currentCalMonth,
         query: ''
     };
-    container.innerHTML = `<div class="public-agenda-view">
+    container.innerHTML = `<div class="public-agenda-view${editable ? ' is-admin-editable' : ''}">
         <div class="control-card" style="margin-bottom: 24px; padding: 16px; position: relative; z-index: 2;">
             <div style="position: relative; width: 100%;">
                 <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #64748b;" viewBox="0 0 24 24" width="18"><circle cx="11" cy="11" r="8"></circle><line x1="21" x2="16.65" y1="21" y2="16.65"></line></svg>
@@ -636,8 +677,8 @@ window.renderAgendaPublica = function (container, payload) {
     const title = container.querySelector('.public-agenda-month');
     const events = container.querySelector('.public-agenda-events');
     const draw = () => {
-        renderCalendar({ daysContainer: days, titleEl: title, events: state.events, year: state.year, month: state.month, query: state.query, readOnly: true });
-        renderAgenda({ container: events, events: state.events, query: state.query, readOnly: true });
+        renderCalendar({ daysContainer: days, titleEl: title, events: state.events, year: state.year, month: state.month, query: state.query, readOnly: !editable });
+        renderAgenda({ container: events, events: state.events, query: state.query, readOnly: !editable });
     };
     container.querySelector('.public-agenda-search').addEventListener('input', event => {
         state.query = event.target.value;
@@ -647,7 +688,7 @@ window.renderAgendaPublica = function (container, payload) {
         state.month += Number(button.dataset.monthStep);
         if (state.month < 0) { state.month = 11; state.year--; }
         if (state.month > 11) { state.month = 0; state.year++; }
-        renderCalendar({ daysContainer: days, titleEl: title, events: state.events, year: state.year, month: state.month, query: state.query, readOnly: true });
+        renderCalendar({ daysContainer: days, titleEl: title, events: state.events, year: state.year, month: state.month, query: state.query, readOnly: !editable });
     }));
     draw();
 };

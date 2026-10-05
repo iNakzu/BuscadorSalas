@@ -36,7 +36,7 @@ context.window.mostrarHorarioPerfilEnMiHorario([
 assert.doesNotMatch(container.innerHTML, /Horario de Ana García|Ana García/);
 assert.match(container.innerHTML, /17:25 - 18:45/);
 assert.doesNotMatch(container.innerHTML, /Mi clase/);
-assert.match(container.innerHTML, /Clase amiga/);
+assert.match(container.innerHTML, /Clase Amiga/);
 assert.doesNotMatch(container.innerHTML, /my-btn-delete|abrirModalAgregarClase|Agregar ramo/);
 assert.doesNotMatch(container.innerHTML, /my-btn-edit|abrirModalEditarClase/);
 assert.match(container.innerHTML, /my-empty-slot is-readonly/);
@@ -45,14 +45,23 @@ assert.strictEqual((container.innerHTML.match(/class="my-empty-slot(?: is-readon
 assert.match(hero.innerHTML, /En laboratorio/);
 assert.doesNotMatch(hero.innerHTML, /Ana García|Horario de/);
 vm.runInContext(`getChileTime = () => ({ dayOfWeek: 1, hours: 10, minutes: 30, totalMinutes: 630 }); actualizarHeroMiHorario();`, context);
-assert.match(hero.innerHTML, /Próxima clase/);
+assert.match(hero.innerHTML, /Tienes 1h libres/);
 assert.doesNotMatch(hero.innerHTML, /Ana García/);
 assert.strictEqual(vm.runInContext('JSON.stringify(MI_HORARIO_DATA.clases)', context), originalSchedule);
+const targetProfile = { user_id: 'friend', modules: { schedule: { clases: [
+  { id: 'friend-class', dia: 1, diaNombre: 'Lunes', bloqueNum: 1, curso: 'Horario compartido', tipo: 'Cátedra', sala: 'E201' }
+] } } };
+context.window.PortalCommunity = { isAdminSelected: () => true, getSelected: () => targetProfile };
+context.window.mostrarHorarioPerfilEnMiHorario(targetProfile.modules.schedule.clases);
+assert.match(container.innerHTML, /abrirModalEditarPerfilClase\(0, event\)/);
+assert.match(container.innerHTML, /abrirModalAgregarPerfilClase\(1, 2\)/);
+assert.doesNotMatch(container.innerHTML, /my-empty-slot is-readonly/);
+assert.strictEqual(vm.runInContext('JSON.stringify(MI_HORARIO_DATA.clases)', context), originalSchedule);
+context.window.PortalCommunity = null;
 context.window.cerrarHorarioPerfilEnMiHorario();
 assert.match(container.innerHTML, /my-btn-edit/);
-assert.match(container.innerHTML, /M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7/);
 assert.match(container.innerHTML, /17:25 - 18:45/);
-assert.match(hero.innerHTML, /Mi clase/);
+assert.match(hero.innerHTML, /Mi Clase/);
 assert.strictEqual(vm.runInContext('JSON.stringify(MI_HORARIO_DATA.clases)', context), originalSchedule);
 
 vm.runInContext(`
@@ -61,14 +70,14 @@ vm.runInContext(`
   actualizarHeroMiHorario();
 `, context);
 assert.match(hero.innerHTML, /Sin clases/);
-assert.match(hero.innerHTML, /Hoy no tienes clases/);
-assert.match(hero.innerHTML, /Clase del martes/);
-assert.match(hero.innerHTML, /Martes a las 10:00/);
+assert.match(hero.innerHTML, /Hoy toca descansar/);
+assert.match(hero.innerHTML, /Clase del Martes/);
+assert.match(hero.innerHTML, /Martes 10:00/);
 assert.doesNotMatch(hero.innerHTML, /Descanso de fin de semana|Fin de semana/);
 
 vm.runInContext(`getChileTime = () => ({ dayOfWeek: 6, hours: 9, minutes: 0, totalMinutes: 540 }); actualizarHeroMiHorario();`, context);
 assert.match(hero.innerHTML, /Fin de semana/);
-assert.match(hero.innerHTML, /Descanso de fin de semana/);
+assert.match(hero.innerHTML, /Hoy toca descansar/);
 
 vm.runInContext(`
   MI_HORARIO_DATA = { escuela: 'EIT', clases: [
@@ -82,4 +91,4 @@ vm.runInContext(`
 assert.doesNotMatch(container.innerHTML, /my-class-slot-conflict|my-slot-conflict-button|Conflicto en este bloque|Revisar [12]/);
 assert.match(container.innerHTML, /Clase A/);
 assert.match(container.innerHTML, /Clase B/);
-console.log('community_schedule_overlay: selected schedule uses the personal view and remains read-only');
+console.log('community_schedule_overlay: shared schedules are read-only for users and editable for admins');

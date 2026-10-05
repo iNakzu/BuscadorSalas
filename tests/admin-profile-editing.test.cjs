@@ -4,6 +4,7 @@ const vm = require('vm');
 
 const source = fs.readFileSync('static/js/community_schedules.js', 'utf8');
 const calls = [];
+const publicRenderCalls = [];
 const contentModules = ['schedule', 'grades', 'agenda', 'curriculum'].map(module => ({
   dataset: { module },
   hidden: true,
@@ -19,6 +20,7 @@ const client = { rpc: async (name, args) => {
     agenda: [{ ramo: 'Álgebra', fecha: '2026-10-05', tipo: 'Control' }],
     curriculum: { __careerId: 'ingenieria-civil-en-informatica-y-telecomunicaciones' }
   }, error: null };
+  if (name === 'admin_update_profile_module') return { data: true, error: null };
   throw new Error(`Unexpected RPC: ${name}`);
 } };
 const sections = new Map(['tab-mihorario', 'tab-solemnes', 'tab-notas', 'tab-agenda', 'tab-progreso'].map(id => [id, { classList: { toggle() {} } }]));
@@ -30,9 +32,17 @@ const document = {
   dispatchEvent() {}
 };
 const context = {
-  window: { PortalAuth: { user: { id: 'admin', app_metadata: { portal_role: 'admin' } }, client } },
+  window: {
+    PortalAuth: { user: { id: 'admin', app_metadata: { portal_role: 'admin' } }, client },
+    renderNotasPublicas: (element, payload, options) => { publicRenderCalls.push(['grades', options]); element.innerHTML = 'shared-grades-view'; },
+    renderAgendaPublica: (element, payload, options) => { publicRenderCalls.push(['agenda', options]); element.innerHTML = 'shared-agenda-view'; },
+    renderMallaPublica: (element, payload, options) => { publicRenderCalls.push(['curriculum', options]); element.innerHTML = 'shared-curriculum-view'; },
+    mostrarHorarioPerfilEnMiHorario: classes => { contentModules[0].innerHTML = `shared-schedule-view:${classes.length}`; },
+    renderSolemnes() {}
+  },
   document,
   CustomEvent: class CustomEvent {},
+  fetch: async () => ({ ok: true, json: async () => ({ semestres: [] }) }),
   console
 };
 vm.createContext(context);
@@ -44,7 +54,24 @@ vm.runInContext(source, context);
   assert.ok(calls.includes('admin_search_profiles'));
   assert.ok(calls.includes('admin_get_profile_information'));
   assert.ok(!calls.includes('search_shared_profiles'));
-  assert.ok(contentModules.every(content => content.innerHTML.includes('admin-profile-editor')));
+  assert.equal(contentModules[0].innerHTML, 'shared-schedule-view:1');
+  assert.equal(contentModules[1].innerHTML, 'shared-grades-view');
+  assert.equal(contentModules[2].innerHTML, 'shared-agenda-view');
+  assert.equal(contentModules[3].innerHTML, 'shared-curriculum-view');
+  assert.deepEqual(publicRenderCalls.map(([module]) => module), ['grades', 'agenda', 'curriculum']);
+  assert.ok(publicRenderCalls.every(([, options]) => options && options.editable === true));
+  assert.ok(contentModules.every(content => !content.innerHTML.includes('admin-profile-editor')));
   assert.equal(context.window.PortalCommunity.getSelected().modules.schedule.clases[0].curso, 'Álgebra');
-  console.log('admin-profile-editing: selected profiles load editable content through admin RPCs');
+  await context.window.PortalCommunity.updateSelectedSchedule(classes => { classes[0].curso = 'Álgebra corregida'; });
+  await context.window.PortalCommunity.updateSelectedGradeCourse('me|Álgebra', 'examGrade', 6.2);
+  await context.window.PortalCommunity.updateSelectedAgenda(events => { events[0].notas = 'Revisar'; });
+  context.window.PortalCommunity.toggleCurriculum('1');
+  await new Promise(resolve => setImmediate(resolve));
+  assert.ok(calls.includes('admin_update_profile_module'));
+  const selected = context.window.PortalCommunity.getSelected().modules;
+  assert.equal(selected.schedule.clases[0].curso, 'Álgebra corregida');
+  assert.equal(selected.grades['me|Álgebra'].examGrade, 6.2);
+  assert.equal(selected.agenda[0].notas, 'Revisar');
+  assert.equal(selected.curriculum['ingenieria-civil-en-informatica-y-telecomunicaciones:1'], 1);
+  console.log('admin-profile-editing: shared views stay in place and changes persist through admin RPCs');
 })().catch(error => { console.error(error); process.exit(1); });

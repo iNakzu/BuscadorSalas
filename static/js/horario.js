@@ -58,6 +58,7 @@ function quitarBloqueLabels(clases) {
 
 let MI_HORARIO_DATA = cargarMiHorarioDesdeStorage();
 let horarioPerfilSeleccionado = null;
+let horarioAdminProfileContext = null;
 
 function etiquetaBloqueHorario(clase) {
     const block = BLOQUES_HORARIOS && BLOQUES_HORARIOS.find(item => item.num === Number(clase.bloqueNum));
@@ -631,6 +632,7 @@ function seleccionarProfesorModal(nombre) {
 }
 
 function abrirModalAgregarClase(diaNum, bloqueNum) {
+    horarioAdminProfileContext = null;
     const bloque = BLOQUES_HORARIOS.find(b => b.num === bloqueNum);
     const diasNombres = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
     const diaNombre = diasNombres[diaNum] || 'Día';
@@ -778,10 +780,53 @@ function abrirModalEditarClase(id, ev) {
     setModalRol(clase.rol || 'student');
 }
 
+function abrirModalEditarPerfilClase(index, ev) {
+    if (ev) ev.stopPropagation();
+    const profile = window.PortalCommunity && window.PortalCommunity.getSelected && window.PortalCommunity.getSelected();
+    const schedule = profile && profile.modules && profile.modules.schedule;
+    const classes = Array.isArray(schedule) ? schedule : schedule && Array.isArray(schedule.clases) ? schedule.clases : [];
+    const clase = classes[index];
+    if (!clase || !window.PortalCommunity.isAdminSelected()) return;
+    abrirModalAgregarClase(Number(clase.dia), Number(clase.bloqueNum));
+    horarioAdminProfileContext = { index };
+    const values = {
+        'modal-add-id': `profile:${index}`,
+        'modal-add-curso': clase.cursoDisplay || clase.curso || '',
+        'modal-add-sala': clase.sala || '',
+        'modal-add-seccion': normalizarNumeroSeccion(clase.seccion),
+        'modal-add-profesor': clase.profesor || ''
+    };
+    Object.entries(values).forEach(([id, value]) => { const input = document.getElementById(id); if (input) input.value = value; });
+    setModalSelectValue('dd-modal-sala', 'modal-add-sala', 'label-modal-sala', clase.sala || '', '-');
+    setModalSelectValue('dd-modal-profesor', 'modal-add-profesor', 'label-modal-profesor', clase.profesor || '', 'Sin profesor');
+    const title = document.getElementById('modal-titulo-bloque');
+    const saveButton = document.getElementById('modal-save-class');
+    const deleteButton = document.getElementById('modal-delete-class');
+    if (title) title.textContent = 'Editar Asignatura';
+    if (saveButton) saveButton.setAttribute('aria-label', 'Guardar cambios');
+    if (deleteButton) deleteButton.hidden = false;
+    setModalTipo(clase.tipo || 'Cátedra');
+    setModalRol(clase.rol || 'student');
+}
+
+function abrirModalAgregarPerfilClase(diaNum, bloqueNum) {
+    if (!window.PortalCommunity || !window.PortalCommunity.isAdminSelected()) return;
+    abrirModalAgregarClase(diaNum, bloqueNum);
+    horarioAdminProfileContext = { index: null };
+}
+
 function eliminarClaseDesdeEditor(ev) {
     if (ev) ev.preventDefault();
     const idInput = document.getElementById('modal-add-id');
     if (!idInput || !idInput.value) return;
+    if (horarioAdminProfileContext && window.PortalCommunity && window.PortalCommunity.isAdminSelected()) {
+        const index = horarioAdminProfileContext.index;
+        const save = window.PortalCommunity.updateSelectedSchedule(clases => { if (clases[index]) clases.splice(index, 1); });
+        if (save && typeof save.catch === 'function') save.catch(() => {});
+        cerrarModalAgregarClase();
+        horarioAdminProfileContext = null;
+        return;
+    }
     eliminarClaseMiHorario(idInput.value, ev, cerrarModalAgregarClase);
 }
 
@@ -803,6 +848,7 @@ function cerrarModalAgregarClase() {
     if (roomSelect) roomSelect.classList.remove('open');
     if (teacherSelect) teacherSelect.classList.remove('open');
     restaurarScrollFondoHorario();
+    horarioAdminProfileContext = null;
 }
 
 function guardarNuevaClaseModal(ev) {
@@ -825,11 +871,16 @@ function guardarNuevaClaseModal(ev) {
     const diasNombres = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
 
     const editedIndex = editId ? MI_HORARIO_DATA.clases.findIndex(c => String(c.id) === String(editId)) : -1;
-    if (editId && editedIndex === -1) return;
+    if (editId && editedIndex === -1 && !horarioAdminProfileContext) return;
+    const selectedProfile = horarioAdminProfileContext && window.PortalCommunity && window.PortalCommunity.getSelected();
+    const selectedSchedule = selectedProfile && selectedProfile.modules && selectedProfile.modules.schedule;
+    const selectedClasses = Array.isArray(selectedSchedule) ? selectedSchedule : selectedSchedule && Array.isArray(selectedSchedule.clases) ? selectedSchedule.clases : [];
+    const adminExistingClass = horarioAdminProfileContext && horarioAdminProfileContext.index != null
+        ? selectedClasses[horarioAdminProfileContext.index] : null;
 
     const nuevaClase = {
-        ...(editedIndex >= 0 ? MI_HORARIO_DATA.clases[editedIndex] : {}),
-        id: editId || 'custom-' + Date.now(),
+        ...(horarioAdminProfileContext ? (adminExistingClass || {}) : editedIndex >= 0 ? MI_HORARIO_DATA.clases[editedIndex] : {}),
+        id: adminExistingClass && adminExistingClass.id || (horarioAdminProfileContext && horarioAdminProfileContext.index != null ? `profile-${horarioAdminProfileContext.index}` : editId) || 'custom-' + Date.now(),
         dia: diaNum,
         diaNombre: diasNombres[diaNum] || 'Día',
         bloqueNum: bloqueNum,
@@ -843,6 +894,26 @@ function guardarNuevaClaseModal(ev) {
         profesor: profesor,
         rol: rol
     };
+
+    if (horarioAdminProfileContext && window.PortalCommunity && window.PortalCommunity.isAdminSelected()) {
+        const index = horarioAdminProfileContext.index;
+        const save = window.PortalCommunity.updateSelectedSchedule(clases => {
+            if (index == null) {
+                if (clases.some(item => Number(item.dia) === diaNum && Number(item.bloqueNum) === bloqueNum)) return;
+                clases.push(nuevaClase);
+            } else if (clases[index]) {
+                if (clases.some((item, itemIndex) => itemIndex !== index && Number(item.dia) === diaNum && Number(item.bloqueNum) === bloqueNum)) return;
+                clases[index] = nuevaClase;
+                const normalizedName = normalizarNombreRamoParaComparar(getCourseDisplay(nuevaClase));
+                if (seccion && normalizedName) clases.forEach((item, itemIndex) => {
+                    if (itemIndex !== index && normalizarNombreRamoParaComparar(getCourseDisplay(item)) === normalizedName) item.seccion = seccion;
+                });
+            }
+        });
+        if (save && typeof save.catch === 'function') save.catch(() => {});
+        cerrarModalAgregarClase();
+        return;
+    }
 
     if (editedIndex >= 0) {
         MI_HORARIO_DATA.clases[editedIndex] = nuevaClase;
@@ -888,6 +959,7 @@ function normalizarClasesPerfil(clases) {
         delete normalizedItem.bloqueLabel;
         return {
             ...normalizedItem,
+            _profileIndex: item._profileIndex,
             dia: Number(item.dia),
             diaNombre: item.diaNombre || days[Number(item.dia)] || '',
             bloqueNum: block.num,
@@ -910,7 +982,8 @@ function renderMiHorario() {
     const { dayOfWeek, totalMinutes } = getChileTime();
 
     const sharedProfileView = Array.isArray(horarioPerfilSeleccionado);
-    const items = sharedProfileView ? normalizarClasesPerfil(horarioPerfilSeleccionado).map((item, index) => ({ ...item, isSharedProfile: true, id: `shared-${index}` })) : getHorarioActivo().filter(c =>
+    const adminCanEditShared = sharedProfileView && Boolean(window.PortalCommunity && window.PortalCommunity.isAdminSelected && window.PortalCommunity.isAdminSelected());
+    const items = sharedProfileView ? normalizarClasesPerfil(horarioPerfilSeleccionado).map((item, index) => ({ ...item, isSharedProfile: true, _profileIndex: item._profileIndex == null ? index : item._profileIndex, id: `shared-${item._profileIndex == null ? index : item._profileIndex}` })) : getHorarioActivo().filter(c =>
         state.miHorarioRol === 'ALL' || c.rol === state.miHorarioRol
     );
 
@@ -955,7 +1028,9 @@ function renderMiHorario() {
                                     ${isCurrent ? '<span class="pulse-dot-white"></span>' : '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>'}
                                     <span>${escapeHtml(etiquetaBloqueHorario(c))}</span>
                                 </span>
-                                ${c.isSharedProfile ? '' : `<button type="button" class="my-btn-edit" onclick="abrirModalEditarClase(${escapeHtml(JSON.stringify(String(c.id)))}, event)" title="Editar asignatura" aria-label="Editar ${escapeHtml(c.curso)}">
+                                ${c.isSharedProfile ? (adminCanEditShared ? `<button type="button" class="my-btn-edit" onclick="abrirModalEditarPerfilClase(${c._profileIndex}, event)" title="Editar asignatura" aria-label="Editar ${escapeHtml(c.curso)}">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"></path></svg>
+                                </button>` : '') : `<button type="button" class="my-btn-edit" onclick="abrirModalEditarClase(${escapeHtml(JSON.stringify(String(c.id)))}, event)" title="Editar asignatura" aria-label="Editar ${escapeHtml(c.curso)}">
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                         <path d="M12 20h9"></path>
                                         <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"></path>
@@ -983,13 +1058,13 @@ function renderMiHorario() {
                     `;
                     });
                 } else {
-                    cardsHtml += sharedProfileView ? `
+                    cardsHtml += sharedProfileView && !adminCanEditShared ? `
                         <div class="my-empty-slot is-readonly">
                             <div class="my-empty-header"><span class="my-empty-time"><span>${b.label}</span></span><span class="my-card-bloque-num">Bloque ${b.num}</span></div>
                             <div class="my-empty-body"><span class="my-empty-text">Sin clases</span></div>
                         </div>
                     ` : `
-                        <div class="my-empty-slot ${isCurrent ? 'is-current-empty' : ''}" onclick="abrirModalAgregarClase(${d.num}, ${b.num})" title="Haz clic para agregar una asignatura en este bloque (${b.label})">
+                        <div class="my-empty-slot ${isCurrent ? 'is-current-empty' : ''}" onclick="${sharedProfileView ? `abrirModalAgregarPerfilClase(${d.num}, ${b.num})` : `abrirModalAgregarClase(${d.num}, ${b.num})`}" title="Haz clic para agregar una asignatura en este bloque (${b.label})">
                             <div class="my-empty-header">
                                 <span class="my-empty-time">
                                     ${isCurrent ? '<span class="pulse-dot-white"></span>' : '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>'}

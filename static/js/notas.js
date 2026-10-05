@@ -2,6 +2,7 @@ let NOTAS_DATA = {};
 let PUBLIC_NOTAS_PROFILE_ID = '';
 let PUBLIC_NOTAS_COURSES = [];
 let PUBLIC_NOTAS_PAYLOAD = {};
+let PUBLIC_NOTAS_ADMIN_EDITABLE = false;
 
 function notasJsArg(value) {
     return escapeHtml(JSON.stringify(String(value == null ? '' : value)));
@@ -91,7 +92,6 @@ function updateNotasDropdown() {
     const sharedProfile = window.PortalCommunity && typeof window.PortalCommunity.getSelected === 'function'
         ? window.PortalCommunity.getSelected() : null;
     if (sharedProfile) {
-        if (window.PortalCommunity.isAdmin && window.PortalCommunity.isAdmin()) return;
         const content = document.querySelector('#tab-notas .public-profile-content[data-module="grades"]');
         window.renderNotasPublicas(content, sharedProfile.modules && sharedProfile.modules.grades);
         return;
@@ -172,6 +172,8 @@ function updateNotasDropdown() {
 
 function renderNotasBuilder(options = {}) {
     const readOnly = Boolean(options.readOnly);
+    const adminEditable = Boolean(options.adminEditable);
+    const locked = readOnly && !adminEditable;
     const select = readOnly ? { value: options.course || '' } : document.getElementById('notas-curso-select');
     const container = options.container || (readOnly ? { innerHTML: '' } : document.getElementById('notas-builder-container'));
     if (!select || !container) return;
@@ -237,13 +239,13 @@ function renderNotasBuilder(options = {}) {
         
         itemsHtml += `
             <div class="notas-item-row">
-                <input type="text" class="notas-input-name" value="${escapeHtml(item.name)}" ${readOnly ? 'disabled' : `onchange="updateNotaItem(${notasJsArg(dbKey)}, ${index}, 'name', this.value)"`} placeholder="Nombre (ej: Controles)">
+                <input type="text" class="notas-input-name" value="${escapeHtml(item.name)}" ${locked ? 'disabled' : adminEditable ? `onchange="PortalCommunity.updateSelectedGradeItem(${notasJsArg(options.courseKey)}, ${index}, 'name', this.value)"` : `onchange="updateNotaItem(${notasJsArg(dbKey)}, ${index}, 'name', this.value)"`} placeholder="Nombre (ej: Controles)">
                 <div style="display:flex; align-items:center; gap: 6px;">
                     <div class="notas-input-wrapper" style="width: 60px;">
-                        <input type="number" class="notas-input-weight" value="${escapeHtml(item.weight)}" ${readOnly ? 'disabled' : `onchange="updateNotaItem(${notasJsArg(dbKey)}, ${index}, 'weight', this.value)"`} placeholder="%">
+                        <input type="number" class="notas-input-weight" value="${escapeHtml(item.weight)}" ${locked ? 'disabled' : adminEditable ? `onchange="PortalCommunity.updateSelectedGradeItem(${notasJsArg(options.courseKey)}, ${index}, 'weight', this.value)"` : `onchange="updateNotaItem(${notasJsArg(dbKey)}, ${index}, 'weight', this.value)"`} placeholder="%">
                         <span class="notas-percent-symbol">%</span>
                     </div>
-                    <input type="number" step="0.1" min="1.0" max="7.0" class="notas-input-grade" style="width: 80px;" value="${escapeHtml(item.grade !== null ? item.grade : '')}" ${readOnly ? 'disabled' : `onchange="updateNotaItem(${notasJsArg(dbKey)}, ${index}, 'grade', this.value)"`} placeholder="Nota">
+                    <input type="number" step="0.1" min="1.0" max="7.0" class="notas-input-grade" style="width: 80px;" value="${escapeHtml(item.grade !== null ? item.grade : '')}" ${locked ? 'disabled' : adminEditable ? `onchange="PortalCommunity.updateSelectedGradeItem(${notasJsArg(options.courseKey)}, ${index}, 'grade', this.value)"` : `onchange="updateNotaItem(${notasJsArg(dbKey)}, ${index}, 'grade', this.value)"`} placeholder="Nota">
                 </div>
             </div>
         `;
@@ -358,10 +360,10 @@ function renderNotasBuilder(options = {}) {
                 <div style="display:flex; align-items:center; gap: 6px;">
 
                     <div class="notas-input-wrapper" style="width: 60px;">
-                        <input type="number" class="notas-input-weight" value="${escapeHtml(data.examWeight !== undefined ? data.examWeight : 30)}" ${readOnly ? 'disabled' : `onchange="updateGlobalNota(${notasJsArg(dbKey)}, 'examWeight', this.value)"`} placeholder="%">
+                        <input type="number" class="notas-input-weight" value="${escapeHtml(data.examWeight !== undefined ? data.examWeight : 30)}" ${locked ? 'disabled' : adminEditable ? `onchange="PortalCommunity.updateSelectedGradeCourse(${notasJsArg(options.courseKey)}, 'examWeight', this.value)"` : `onchange="updateGlobalNota(${notasJsArg(dbKey)}, 'examWeight', this.value)"`} placeholder="%">
                         <span class="notas-percent-symbol">%</span>
                     </div>
-                    <input type="number" step="0.1" min="1.0" max="7.0" class="notas-input-grade" style="width: 80px;" value="${escapeHtml(data.examGrade !== null ? data.examGrade : '')}" ${readOnly ? 'disabled' : `onchange="updateGlobalNota(${notasJsArg(dbKey)}, 'examGrade', this.value)"`} placeholder="Nota">
+                    <input type="number" step="0.1" min="1.0" max="7.0" class="notas-input-grade" style="width: 80px;" value="${escapeHtml(data.examGrade !== null ? data.examGrade : '')}" ${locked ? 'disabled' : adminEditable ? `onchange="PortalCommunity.updateSelectedGradeCourse(${notasJsArg(options.courseKey)}, 'examGrade', this.value)"` : `onchange="updateGlobalNota(${notasJsArg(dbKey)}, 'examGrade', this.value)"`} placeholder="Nota">
                 </div>
         </div>
     `;
@@ -414,7 +416,7 @@ function renderNotasBuilder(options = {}) {
     let summaryBg = "";
     
     const cardHtml = `
-        <div class="notas-card ${statusClass}${readOnly ? ' notas-readonly' : ''}">
+        <div class="notas-card ${statusClass}${locked ? ' notas-readonly' : ''}">
             <div class="notas-header-row" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">
                 <div class="notas-summary" style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; width: 100%; padding: 16px 20px; box-sizing: border-box; ${summaryBg} transition: all 0.3s;">
                     <!-- Columna Izquierda (Vacía para balancear) -->
@@ -461,8 +463,8 @@ function renderNotasBuilder(options = {}) {
             <div class="notas-items-list" style="max-width: 800px; margin: 0 auto;">
                 ${itemsHtml}
                 
-                ${readOnly ? '' : `<div class="notas-add-row" style="display: flex; gap: 12px; justify-content: center; margin-bottom: 16px; margin-top: 8px;">
-                    <button class="notas-btn-add" onclick="addNotaItem(${notasJsArg(dbKey)})">
+                ${locked ? '' : `<div class="notas-add-row" style="display: flex; gap: 12px; justify-content: center; margin-bottom: 16px; margin-top: 8px;">
+                    <button class="notas-btn-add" onclick="${adminEditable ? `PortalCommunity.addSelectedGradeItem(${notasJsArg(options.courseKey)})` : `addNotaItem(${notasJsArg(dbKey)})`}">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                         Añadir Evaluación Parcial
                     </button>
@@ -478,7 +480,7 @@ function renderNotasBuilder(options = {}) {
 
         </div>
     `;
-    if (readOnly) return cardHtml;
+    if (locked) return cardHtml;
     container.innerHTML = cardHtml;
 }
 
@@ -495,12 +497,17 @@ function renderPublicNotasCourse() {
         const name = String(key).includes('|') ? String(key).split('|').slice(1).join('|') : String(key);
         return name.trim().toLocaleLowerCase() === course.trim().toLocaleLowerCase();
     });
-    container.innerHTML = renderNotasBuilder({
+    const adminEditable = PUBLIC_NOTAS_ADMIN_EDITABLE && Boolean(window.PortalCommunity && window.PortalCommunity.isAdminSelected && window.PortalCommunity.isAdminSelected());
+    const courseKey = entry ? entry[0] : `me|${course}`;
+    const rendered = renderNotasBuilder({
         readOnly: true,
+        adminEditable,
+        courseKey,
         course,
         data: entry ? entry[1] : emptyPublicNotasData(),
-        container: { innerHTML: '' }
+        container
     });
+    if (typeof rendered === 'string') container.innerHTML = rendered;
 }
 
 window.selectNotasPerfilCourse = function (course) {
@@ -517,8 +524,9 @@ window.selectNotasPerfilCourse = function (course) {
     renderPublicNotasCourse();
 };
 
-window.renderNotasPublicas = function (container, payload) {
+window.renderNotasPublicas = function (container, payload, options = {}) {
     if (!container) return;
+    PUBLIC_NOTAS_ADMIN_EDITABLE = Boolean(options.editable);
     PUBLIC_NOTAS_PAYLOAD = limpiarRedundanciaNotas(payload);
     const profile = window.PortalCommunity && typeof window.PortalCommunity.getSelected === 'function'
         ? window.PortalCommunity.getSelected() : null;
