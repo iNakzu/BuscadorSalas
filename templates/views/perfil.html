@@ -43,14 +43,13 @@
     </section>
 
     <section class="profile-setting-card profile-data-card" aria-labelledby="profile-data-title">
-      <div class="profile-card-heading"><span class="profile-card-icon profile-card-icon--data" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 1 0 2.64-6.36L3 8M3 3v5h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><h2 id="profile-data-title">Tus datos</h2><p>Borra únicamente tus horarios, notas, agenda y progreso guardado.</p></div></div>
-      <button type="button" id="auth-reset-data" class="profile-danger-button" onclick="PortalAuth.resetPersonalData()"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.64-6.36L3 8M3 3v5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Reiniciar datos personales</span></button>
-      <p class="profile-field-hint">Esta acción conserva tu cuenta y perfil.</p>
+      <div class="profile-card-heading"><span class="profile-card-icon profile-card-icon--data" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 1 0 2.64-6.36L3 8M3 3v5h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><h2 id="profile-data-title">Tus datos</h2><p>Restablece la información académica guardada en tu perfil.</p></div></div>
+      <button type="button" id="auth-reset-data" class="profile-action-row is-danger" onclick="PortalAuth.resetPersonalData()"><span class="profile-switch-copy"><strong>Reiniciar datos personales</strong><small>Elimina horario, notas, agenda y malla. Conserva tu cuenta.</small></span><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.64-6.36L3 8M3 3v5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     </section>
 
     <section class="profile-setting-card profile-signout-card" aria-labelledby="profile-signout-title">
-      <div class="profile-card-heading"><span class="profile-card-icon profile-card-icon--signout" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><h2 id="profile-signout-title">Sesión</h2><p>Cierra el acceso de esta cuenta en el dispositivo.</p></div></div>
-      <button type="button" class="profile-logout-button" onclick="PortalAuth.signOut()"><span>Cerrar sesión</span><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="profile-card-heading"><span class="profile-card-icon profile-card-icon--signout" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><h2 id="profile-signout-title">Sesión</h2><p>Administra el acceso de tu cuenta en este dispositivo.</p></div></div>
+      <button type="button" class="profile-action-row is-signout" onclick="PortalAuth.signOut()"><span class="profile-switch-copy"><strong>Cerrar sesión</strong><small>Salir de tu cuenta en este dispositivo.</small></span><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     </section>
   </div>
 </section>

@@ -62,6 +62,15 @@
 .profile-switch-row input:checked + .profile-switch::after { transform: translateX(16px); background: #fff; }
 .profile-switch-row input:focus-visible + .profile-switch { outline: 2px solid #a7f3d0; outline-offset: 3px; }
 .profile-switch-row input:disabled + .profile-switch { opacity: .58; cursor: wait; }
+.profile-action-row { box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; gap: 15px; width: 100%; min-height: 59px; padding: 11px 12px; border: 1px solid rgba(148,163,184,.12); border-radius: 14px; background: rgba(255,255,255,.025); color: #e6edf8; text-align: left; cursor: pointer; transition: border-color .18s,background .18s,transform .18s; }
+.profile-action-row:hover { transform: translateY(-1px); }
+.profile-action-row > svg { flex: 0 0 18px; width: 18px; height: 18px; color: #a8bbd5; }
+.profile-action-row.is-danger { border-color: rgba(251,191,36,.17); background: rgba(245,158,11,.045); }
+.profile-action-row.is-danger > svg { color: #fbbf24; }
+.profile-action-row.is-danger:hover { border-color: rgba(251,191,36,.34); background: rgba(245,158,11,.075); }
+.profile-action-row.is-signout { border-color: rgba(251,113,133,.16); background: rgba(244,63,94,.035); }
+.profile-action-row.is-signout > svg { color: #fda4af; }
+.profile-action-row.is-signout:hover { border-color: rgba(251,113,133,.32); background: rgba(244,63,94,.07); }
 .profile-inline-status { min-height: 14px; margin: 8px 2px 0; color: #74849b; font-size: 9px; line-height: 1.4; }
 .profile-inline-status[data-state="ready"] { color: #8193aa; }
 .profile-inline-status[data-state="error"] { color: #fda4af; }
@@ -94,4 +103,4 @@
 @media (max-width: 380px) {
   .profile-hero-identity { gap: 9px; }
 }
-@media (prefers-reduced-motion: reduce) { .profile-combobox-control,.profile-combobox-control > button svg,.profile-switch,.profile-switch::after,.profile-primary-button,.profile-action-button { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .profile-combobox-control,.profile-combobox-control > button svg,.profile-switch,.profile-switch::after,.profile-primary-button,.profile-action-button,.profile-action-row { transition: none; } }

@@ -15,6 +15,8 @@ assert.doesNotMatch(sidebar, /auth-reset-data|auth-logout|push-settings-open/);
 for (const id of ['tab-perfil', 'profile-career-input', 'profile-career-save', 'profile-sharing-toggle', 'push-settings-inline', 'profile-community-directory', 'auth-reset-data']) {
   assert.ok(profile.includes(`id="${id}"`), `profile view should contain ${id}`);
 }
+assert.match(profile, /id="auth-reset-data" class="profile-action-row is-danger"/);
+assert.match(profile, /class="profile-action-row is-signout"/);
 assert.doesNotMatch(profile, /Configurar notificaciones|Ver perfiles compartidos|push-settings-open|abrirPerfilesComunidad\(\)/);
 assert.doesNotMatch(profile, /id="push-(classes|agenda)-toggle"|class="push-option"/);
 assert.doesNotMatch(profile, /push-test-example|<select[^>]*push-/);
