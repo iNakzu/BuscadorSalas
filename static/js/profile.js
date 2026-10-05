@@ -12,6 +12,7 @@
     const MAX_OPTIONS = 30;
     let careerSaveResetTimer = 0;
     let savedCareerId = null;
+    let careerSearchOriginalValue = null;
     let suppressCareerFocusOpen = false;
     let careers = [];
     let menuOptions = [];
@@ -54,6 +55,10 @@
         if (resetAfter) careerSaveResetTimer = setTimeout(resetCareerSaveButton, resetAfter);
     }
     function setCareerMenuOpen(open) {
+        if (!open && careerSearchOriginalValue !== null) {
+            careerInput.value = careerSearchOriginalValue;
+            careerSearchOriginalValue = null;
+        }
         careerMenu.hidden = !open;
         careerInput.setAttribute('aria-expanded', String(open));
         careerToggle.setAttribute('aria-expanded', String(open));
@@ -65,6 +70,7 @@
         }
     }
     function clearSavedCareerForSearch() {
+        if (careerMenu.hidden && careerSearchOriginalValue === null) careerSearchOriginalValue = careerInput.value;
         const savedCareer = careers.find(item => item.id === savedCareerId);
         if (savedCareer && careerInput.value.trim() === savedCareer.name) careerInput.value = '';
     }
@@ -90,6 +96,7 @@
             option.append(name, faculty);
             option.addEventListener('click', () => {
                 careerInput.value = item.name;
+                careerSearchOriginalValue = null;
                 setCareerMenuOpen(false);
                 suppressCareerFocusOpen = true;
                 careerInput.focus();
@@ -120,6 +127,7 @@
         const currentAuth = auth();
         const user = currentAuth && currentAuth.user;
         if (!user) { savedCareerId = null; return; }
+        careerSearchOriginalValue = null;
         const metadata = user.user_metadata || {};
         const savedCareer = careers.find(item => item.id === metadata.careerId)
             || careers.find(item => item.name === metadata.career);

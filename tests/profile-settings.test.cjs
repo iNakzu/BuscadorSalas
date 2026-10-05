@@ -47,6 +47,9 @@ assert.ok(civilEngineeringCareers.some(item => item.name === 'Ingeniería Civil 
 assert.match(script, /careerId: career\.id/);
 assert.match(script, /portal:career-changed/);
 assert.match(script, /function clearSavedCareerForSearch\(\)/);
+assert.match(script, /let careerSearchOriginalValue = null/);
+assert.match(script, /if \(!open && careerSearchOriginalValue !== null\) \{[\s\S]*careerInput\.value = careerSearchOriginalValue;[\s\S]*careerSearchOriginalValue = null/);
+assert.match(script, /careerSearchOriginalValue = null;\s*setCareerMenuOpen\(false\)/);
 assert.match(script, /careerInput\.addEventListener\('focus',[\s\S]*clearSavedCareerForSearch\(\)[\s\S]*setCareerMenuOpen\(true\)/);
 assert.match(script, /careerInput\.addEventListener\('click',[\s\S]*clearSavedCareerForSearch\(\)[\s\S]*renderCareerOptions\(\)/);
 assert.match(script, /savedCareerId = savedCareer \? savedCareer\.id : null/);
