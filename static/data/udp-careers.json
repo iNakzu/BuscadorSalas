@@ -1,44 +1,22 @@
 [
-  {"name":"Administración Pública","faculty":"Administración y Economía / Ciencias Sociales y Humanidades"},
-  {"name":"Antropología","faculty":"Ciencias Sociales y Humanidades"},
-  {"name":"Arquitectura","faculty":"Arquitectura, Arte y Diseño"},
-  {"name":"Artes Visuales","faculty":"Arquitectura, Arte y Diseño"},
-  {"name":"Bachillerato en Administración y Economía","faculty":"Administración y Economía"},
-  {"name":"Bachillerato en Ciencias Sociales y Humanidades","faculty":"Ciencias Sociales y Humanidades"},
-  {"name":"Ciencia Política","faculty":"Ciencias Sociales y Humanidades"},
-  {"name":"Cine de Animación","faculty":"Comunicación y Letras"},
-  {"name":"Cine y Realización Audiovisual","faculty":"Comunicación y Letras"},
-  {"name":"Contador Auditor","faculty":"Carreras Vespertinas"},
-  {"name":"Contador Auditor – Contador Público","faculty":"Administración y Economía"},
-  {"name":"Derecho","faculty":"Derecho"},
-  {"name":"Diseño","faculty":"Arquitectura, Arte y Diseño"},
-  {"name":"Enfermería","faculty":"Salud y Odontología"},
-  {"name":"Ingeniería Civil en Ciencia de Datos e Inteligencia Artificial","faculty":"Ingeniería y Ciencias"},
-  {"name":"Ingeniería Civil en Informática y Telecomunicaciones","faculty":"Ingeniería y Ciencias"},
-  {"name":"Ingeniería Civil en Obras Civiles","faculty":"Ingeniería y Ciencias"},
-  {"name":"Ingeniería Civil Industrial","faculty":"Ingeniería y Ciencias"},
-  {"name":"Ingeniería Civil Plan Común","faculty":"Ingeniería y Ciencias"},
-  {"name":"Ingeniería Comercial","faculty":"Administración y Economía"},
-  {"name":"Ingeniería en Administración de Empresas","faculty":"Carreras Vespertinas"},
-  {"name":"Ingeniería en Control de Gestión","faculty":"Administración y Economía"},
-  {"name":"Ingeniería en Industria y Logística","faculty":"Carreras Vespertinas"},
-  {"name":"Ingeniería en Informática y Gestión","faculty":"Carreras Vespertinas"},
-  {"name":"Kinesiología","faculty":"Salud y Odontología"},
-  {"name":"Licenciatura en Historia","faculty":"Ciencias Sociales y Humanidades"},
-  {"name":"Literatura Creativa","faculty":"Comunicación y Letras"},
-  {"name":"Medicina","faculty":"Medicina"},
-  {"name":"Obstetricia y Neonatología","faculty":"Salud y Odontología"},
-  {"name":"Odontología","faculty":"Salud y Odontología"},
-  {"name":"Pedagogía en Educación Diferencial con mención en Desarrollo Cognitivo","faculty":"Educación"},
-  {"name":"Pedagogía en Educación General Básica","faculty":"Educación"},
-  {"name":"Pedagogía en Educación Parvularia","faculty":"Educación"},
-  {"name":"Pedagogía en Historia y Ciencias Sociales","faculty":"Educación"},
-  {"name":"Pedagogía en Inglés","faculty":"Educación"},
-  {"name":"Pedagogía en Lengua Castellana y Comunicación","faculty":"Educación"},
-  {"name":"Pedagogía Media en Matemática","faculty":"Educación"},
-  {"name":"Periodismo","faculty":"Comunicación y Letras"},
-  {"name":"Psicología","faculty":"Psicología"},
-  {"name":"Publicidad","faculty":"Comunicación y Letras"},
-  {"name":"Sociología","faculty":"Ciencias Sociales y Humanidades"},
-  {"name":"Tecnología Médica","faculty":"Salud y Odontología"}
+  {
+    "name": "Ingeniería Civil en Ciencia de Datos e Inteligencia Artificial",
+    "faculty": "Ingeniería y Ciencias"
+  },
+  {
+    "name": "Ingeniería Civil en Informática y Telecomunicaciones",
+    "faculty": "Ingeniería y Ciencias"
+  },
+  {
+    "name": "Ingeniería Civil en Obras Civiles",
+    "faculty": "Ingeniería y Ciencias"
+  },
+  {
+    "name": "Ingeniería Civil Industrial",
+    "faculty": "Ingeniería y Ciencias"
+  },
+  {
+    "name": "Ingeniería Civil Plan Común",
+    "faculty": "Ingeniería y Ciencias"
+  }
 ]

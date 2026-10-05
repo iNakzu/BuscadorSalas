@@ -67,7 +67,7 @@
     }
     async function loadCareers() {
         try {
-            const response = await fetch('/static/data/udp-careers.json', { cache: 'force-cache', credentials: 'same-origin' });
+            const response = await fetch('/static/data/udp-careers.json?v=20261005-civil-engineering-only-1', { cache: 'force-cache', credentials: 'same-origin' });
             if (!response.ok) throw new Error('No se pudo cargar el catálogo.');
             const result = await response.json();
             careers = Array.isArray(result)

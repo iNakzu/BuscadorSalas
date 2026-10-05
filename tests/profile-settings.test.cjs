@@ -25,6 +25,7 @@ assert.match(script, /\.select\('share_information'\)\.eq\('id', user\.id\)/);
 assert.match(script, /\.update\(\{ share_information: nextValue \}\)\.eq\('id', currentAuth\.user\.id\)/);
 assert.match(script, /textContent = item\.name/);
 const civilEngineeringCareers = careers.filter(item => item.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es').startsWith('ingenieria civil'));
+assert.strictEqual(careers.length, 5, 'the catalog itself should contain only Civil Engineering programs');
 assert.strictEqual(civilEngineeringCareers.length, 5, 'the profile selector should offer only Civil Engineering programs');
 assert.ok(civilEngineeringCareers.some(item => item.name === 'Ingeniería Civil en Ciencia de Datos e Inteligencia Artificial'));
 assert.match(script, /normalize\(item\.name\)\.startsWith\('ingenieria civil'\)/);
