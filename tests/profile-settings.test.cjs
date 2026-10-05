@@ -22,9 +22,9 @@ assert.doesNotMatch(profile, /id="push-(classes|agenda)-toggle"|class="push-opti
 assert.doesNotMatch(profile, /push-test-example|<select[^>]*push-/);
 assert.match(profile, /id="push-enable-toggle"/);
 assert.ok(profile.indexOf('profile-career-card') < profile.indexOf('profile-community-card'), 'community card should follow career in the mobile document flow');
-assert.match(styles, /grid-template-areas: "career privacy" "community notifications" "data signout"/);
+assert.match(styles, /grid-template-areas: "community career" "community privacy" "community notifications" "data signout"/);
 assert.match(styles, /grid-template-areas: "career" "community" "privacy" "notifications" "data" "signout"/);
-assert.match(styles, /@media \(min-width: 761px\) \{ \.profile-settings-grid \{ align-items: start; \} \}/);
+assert.match(styles, /@media \(min-width: 761px\) \{ \.profile-settings-grid \{ align-items: start; \} \.profile-community-card \{ align-self: stretch; \} \}/);
 assert.doesNotMatch(profile, /push-test|push-example|push-remove-button/);
 assert.match(script, /updateUserMetadata\(\{ career:/);
 assert.match(script, /\.select\('share_information'\)\.eq\('id', user\.id\)/);
