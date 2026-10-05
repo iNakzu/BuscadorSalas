@@ -4,8 +4,8 @@
 .profile-hero-topline { display: flex; align-items: center; gap: 9px; color: #92c4ff; font-size: 9px; font-weight: 800; letter-spacing: .15em; }
 .profile-hero-mark { display: grid; width: 35px; height: 35px; place-items: center; border: 1px solid rgba(96,165,250,.26); border-radius: 12px; background: linear-gradient(145deg,rgba(96,165,250,.22),rgba(37,99,235,.1)); color: #a9ceff; }
 .profile-hero-mark svg { width: 19px; height: 19px; }
-.profile-hero.is-admin-account .profile-hero-topline { color: #a7f3d0; }
-.profile-hero.is-admin-account .profile-hero-mark { border-color: rgba(52,211,153,.34); background: linear-gradient(145deg,rgba(52,211,153,.22),rgba(13,148,136,.1)); color: #a7f3d0; }
+.profile-hero.is-admin-account .profile-hero-topline { color: #fcd34d; }
+.profile-hero.is-admin-account .profile-hero-mark { border-color: rgba(251,191,36,.38); background: linear-gradient(145deg,rgba(251,191,36,.24),rgba(180,83,9,.12)); color: #fcd34d; }
 .profile-hero-identity { display: flex; align-items: center; gap: 15px; margin-top: 18px; }
 .profile-hero-avatar { display: grid; flex: 0 0 58px; width: 58px; height: 58px; place-items: center; border: 1px solid rgba(255,255,255,.3); border-radius: 19px; background: linear-gradient(140deg,#7c3aed,#0284c7); box-shadow: 0 8px 24px rgba(37,99,235,.24); color: #fff; font-size: 17px; font-weight: 800; letter-spacing: .04em; }
 .profile-hero-copy { display: grid; min-width: 0; gap: 3px; }
