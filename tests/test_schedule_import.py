@@ -8,10 +8,18 @@ from unittest.mock import Mock, patch
 os.environ.setdefault("SCHEDULE_CACHE_FILE", os.path.join(tempfile.gettempdir(), "buscadorsalas-import-test.json"))
 
 from app import create_app
-from app.services.gemini_schedule import GeminiScheduleError, _normalize_classes, _review_ambiguous_days, extract_schedule_from_image
+from app.services.gemini_schedule import GeminiScheduleError, PROMPT, SCHEDULE_SCHEMA, _normalize_classes, _review_ambiguous_days, extract_schedule_from_image
 
 
 class GeminiScheduleServiceTest(unittest.TestCase):
+    def test_prompt_and_schema_require_real_rooms_and_numeric_sections(self):
+        fields = SCHEDULE_SCHEMA["properties"]["classes"]["items"]["properties"]
+        self.assertIn("Solo el número", fields["section"]["description"])
+        self.assertIn("Nunca inventes valores", fields["room"]["description"])
+        self.assertIn('deja el campo vacío', PROMPT)
+        self.assertIn('"SALA NO"', PROMPT)
+        self.assertIn('"obligatoria"', PROMPT)
+
     @patch("app.services.gemini_schedule._request_model")
     def test_custom_layout_without_measurable_row_scale_keeps_gemini_times(self, request_model):
         classes = [{
@@ -84,7 +92,7 @@ class GeminiScheduleServiceTest(unittest.TestCase):
 
     def test_missing_or_undefined_room_is_normalized_to_dash(self):
         base = {"day": 1, "start": "08:30", "end": "09:50", "course": "Cálculo"}
-        for room in ("", "SALA NO DEFINIDA", "Sala no definida.", "Sin sala", "BLOQUE", "Bloque 1", "BLOQUE A", "AULA"):
+        for room in ("", "NO", "SALA NO", "SALA NO DEFINIDA", "Sala no definida.", "SALA NO ASIGNADA", "NO DEFINIDA", "Sin sala", "BLOQUE", "Bloque 1", "BLOQUE A", "AULA"):
             with self.subTest(room=room):
                 classes = _normalize_classes([{**base, "room": room}])
                 self.assertEqual(classes[0]["sala"], "-")
@@ -93,7 +101,7 @@ class GeminiScheduleServiceTest(unittest.TestCase):
 
     def test_sections_are_labeled_and_s4_is_expanded(self):
         base = {"day": 1, "start": "08:30", "end": "09:50", "course": "Cálculo"}
-        for section, expected in (("S4", "Sección 4"), ("Sec. 2", "Sección 2"), ("4", "Sección 4"), ("", "Sección -")):
+        for section, expected in (("S4", "Sección 4"), ("Sec. 2", "Sección 2"), ("4", "Sección 4"), (4, "Sección 4"), ("Sección: 04", "Sección 4"), ("", "Sección -"), ("OBLIGATORIA", "Sección -"), ("Sección OBLIGATORIA", "Sección -"), ("Obligatoria 2", "Sección -"), ("No visible", "Sección -")):
             with self.subTest(section=section):
                 classes = _normalize_classes([{**base, "section": section}])
                 self.assertEqual(classes[0]["seccion"], expected)
