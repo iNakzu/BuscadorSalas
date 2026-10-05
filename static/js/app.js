@@ -47,13 +47,17 @@ let state = {
     mallaDia: __dia_inicial,
     mallaHora: '',
     mallaRamo: '',
-    salaDia: '1',
+    salaDia: String(obtenerDiaActualNumero()),
     salaActiva: '',
     miHorarioDia: 'ALL',
     miHorarioRol: 'ALL',
     filtros: {}
 };
 
+function obtenerDiaActualNumero() {
+    const d = new Date().getDay();
+    return (d >= 1 && d <= 5) ? d : 1;
+}
 
 let mallaLoadedOnce = false;
 
@@ -350,12 +354,6 @@ async function irABloqueActual(tipo = 'salas') {
 //                b.classList.toggle('active', b.dataset.dia === state.miHorarioDia);
 //            });
             renderMiHorario();
-            setTimeout(() => {
-                const activeCard = document.querySelector('.my-class-card.is-current-class') || document.querySelector('.my-timeline-card.is-current-class');
-                if (activeCard) {
-                    activeCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-            }, 100);
         }
     } catch (e) {
         console.error(e);
@@ -936,7 +934,7 @@ function verHorarioDirecto(sala) {
 filtrarSalasLista('');
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Sincronizar pills con el día inicial seleccionado en el estado global.
+    // Sincronizar pills de día con el día actual (estado global)
     const syncPillBar = (barId, val) => {
         const bar = document.getElementById(barId);
         if (bar) {

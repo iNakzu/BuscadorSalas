@@ -53,7 +53,7 @@
 <script>window.PORTAL_CONFIG={{ client_config|tojson }}; window.PORTAL_CONFIG.personalDataResetGeneration="20261003-reset-academic-data"; (function(){try{const g="portal:personal-data-reset-generation",v=window.PORTAL_CONFIG.personalDataResetGeneration;if(localStorage.getItem(g)===v)return;["mi_horario_custom_v1","mi_notas_v1","mi_agenda_v1","mi_progreso_v1","portal:legacy-owner"].forEach(k=>localStorage.removeItem(k));for(let i=localStorage.length-1;i>=0;i--){const k=localStorage.key(i);if(k&&(/^portal:[^:]+:(schedule|grades|agenda|curriculum)(:updated-at)?$/.test(k)||/^portal:[^:]+:data-reset-at:(schedule|grades|agenda|curriculum)$/.test(k)))localStorage.removeItem(k)}localStorage.setItem(g,v)}catch(e){console.error("No se pudieron limpiar los datos locales",e)}})(); const TODAS_LAS_SALAS={{ todas_las_salas|tojson }}; window.statusSolemnes={{ solemne_status|tojson }};</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2" integrity="sha384-WgXwGL6fUsYJWNaKJgVbrJKGRQwc1vieh2oy4kw9nXqpNDz3tdSsqEYUgeHD/NuF" crossorigin="anonymous" defer></script>
 <script src="{{ url_for('static', filename='js/ui_feedback.js') }}" defer></script>
-<script src="{{ url_for('static', filename='js/app.js') }}&amp;v=20261005-sala-dia-start-monday-1" defer></script>
+<script src="{{ url_for('static', filename='js/app.js') }}&amp;v=20261005-my-schedule-no-auto-scroll-1" defer></script>
 <script src="{{ url_for('static', filename='js/auth.js') }}&amp;v=20261004-profile-page-1" defer></script>
 <script src="{{ url_for('static', filename='js/community_schedules.js') }}?v=20261004-profile-inline-1" defer></script>
 <script src="{{ url_for('static', filename='js/personal_store.js') }}&amp;v=20261003-reset-local-fallback-5" defer></script>
