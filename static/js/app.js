@@ -47,18 +47,13 @@ let state = {
     mallaDia: __dia_inicial,
     mallaHora: '',
     mallaRamo: '',
-    salaDia: String(obtenerDiaActualNumero()),
+    salaDia: '1',
     salaActiva: '',
     miHorarioDia: 'ALL',
     miHorarioRol: 'ALL',
     filtros: {}
 };
 
-
-function obtenerDiaActualNumero() {
-    const d = new Date().getDay();
-    return (d >= 1 && d <= 5) ? d : 1;
-}
 
 let mallaLoadedOnce = false;
 
@@ -941,7 +936,7 @@ function verHorarioDirecto(sala) {
 filtrarSalasLista('');
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Sincronizar pills de día con el día actual (estado global)
+    // Sincronizar pills con el día inicial seleccionado en el estado global.
     const syncPillBar = (barId, val) => {
         const bar = document.getElementById(barId);
         if (bar) {
