@@ -176,7 +176,12 @@ function toggleRamoEstado(id) {
             }
         }
         if ('vibrate' in navigator) navigator.vibrate(200);
-        mostrarAlertaWeb(`Requisitos pendientes:\nNo puedes tomar este ramo porque no has aprobado:\n- ${missingNames.join('\n- ')}`, 'Requisitos pendientes', 'error');
+        mostrarUiFeedback({
+            title: 'Requisito pendiente',
+            message: 'Para tomar este ramo, primero debes aprobar:',
+            tone: 'info',
+            items: missingNames
+        });
         return;
     }
     
