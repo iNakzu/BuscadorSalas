@@ -380,7 +380,6 @@ function renderSolemnes() {
             const courseNames = comparableNames(course && course.curso);
             return courseNames.some(courseName => examNames.some(exam =>
                 courseName === exam ||
-                (Math.min(courseName.length, exam.length) >= 8 && (courseName.includes(exam) || exam.includes(courseName))) ||
                 isFuzzyMatch(courseName, exam)
             ));
         });
