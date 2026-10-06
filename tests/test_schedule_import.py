@@ -8,7 +8,7 @@ from unittest.mock import Mock, patch
 os.environ.setdefault("SCHEDULE_CACHE_FILE", os.path.join(tempfile.gettempdir(), "buscadorsalas-import-test.json"))
 
 from app import create_app
-from app.services.gemini_schedule import GeminiScheduleError, PROMPT, SCHEDULE_SCHEMA, _normalize_classes, _review_ambiguous_days, extract_schedule_from_image
+from app.services.gemini_schedule import FALLBACK_GEMINI_MODEL, GeminiScheduleError, PROMPT, SCHEDULE_SCHEMA, _normalize_classes, _review_ambiguous_days, extract_schedule_from_image
 
 
 class GeminiScheduleServiceTest(unittest.TestCase):
@@ -16,9 +16,13 @@ class GeminiScheduleServiceTest(unittest.TestCase):
         fields = SCHEDULE_SCHEMA["properties"]["classes"]["items"]["properties"]
         self.assertIn("Solo el número", fields["section"]["description"])
         self.assertIn("Nunca inventes valores", fields["room"]["description"])
+        self.assertIn("block_count", fields)
+        self.assertIn("block_count", SCHEDULE_SCHEMA["properties"]["classes"]["items"]["required"])
         self.assertIn('deja el campo vacío', PROMPT)
         self.assertIn('"SALA NO"', PROMPT)
         self.assertIn('"obligatoria"', PROMPT)
+        self.assertIn("no exijas líneas de cuadrícula perfectas", PROMPT)
+        self.assertIn("La altura del texto envuelto no significa que dure más", PROMPT)
 
     @patch("app.services.gemini_schedule._request_model")
     def test_custom_layout_without_measurable_row_scale_keeps_gemini_times(self, request_model):
@@ -39,6 +43,53 @@ class GeminiScheduleServiceTest(unittest.TestCase):
 
         self.assertEqual(reviewed, classes)
         self.assertEqual(reviewed[0]["end"], "12:50")
+        request_model.assert_not_called()
+
+    def test_explicit_two_block_card_uses_fixed_schedule_end(self):
+        classes = _normalize_classes([{
+            "day": 2, "start": "10:00", "end": "11:20", "block_count": 2,
+            "course": "Climate Futures", "kind": "Cátedra", "confidence": 0.9,
+        }])
+
+        self.assertEqual(classes[0]["horaInicio"], "10:00")
+        self.assertEqual(classes[0]["horaFin"], "12:50")
+        self.assertEqual(classes[0]["bloques"], 2)
+
+    @patch("app.services.gemini_schedule._request_model", side_effect=GeminiScheduleError("geometry unavailable", 503))
+    def test_visual_duration_review_failure_keeps_recognized_classes(self, request_model):
+        classes = [
+            {"day": 2, "start": "10:00", "end": "11:20", "block_count": 2, "course": "Climate Futures"},
+            {"day": 2, "start": "13:00", "end": "14:20", "block_count": 1, "course": "Otra asignatura"},
+        ]
+
+        reviewed = _review_ambiguous_days(
+            classes, b"image-bytes", "image/jpeg", "private-test-key",
+            FALLBACK_GEMINI_MODEL, 500, 650, b"",
+        )
+
+        self.assertEqual(reviewed, classes)
+        request_model.assert_called_once()
+
+    @patch("app.services.gemini_schedule._prepare_schedule_image", return_value=(b"jpeg", "image/jpeg", 500, 650, b""))
+    @patch("app.services.gemini_schedule._request_model")
+    def test_import_succeeds_and_keeps_double_block_when_visual_review_fails(self, request_model, _prepare_image):
+        payload = {"classes": [
+            {"day": 2, "start": "10:00", "end": "11:20", "block_count": 2,
+             "course": "Climate Futures", "section": "", "professor": "", "room": "", "kind": "Cátedra", "confidence": 0.9},
+            {"day": 2, "start": "13:00", "end": "14:20", "block_count": 1,
+             "course": "Otra asignatura", "section": "", "professor": "", "room": "", "kind": "Cátedra", "confidence": 0.9},
+        ]}
+        extracted = Mock(ok=True, status_code=200, json=lambda: {
+            "candidates": [{"content": {"parts": [{"text": json.dumps(payload)}]}}]
+        })
+        request_model.side_effect = [extracted, GeminiScheduleError("geometry unavailable", 503)]
+
+        classes = extract_schedule_from_image(b"image-bytes", "image/png", "private-test-key", FALLBACK_GEMINI_MODEL)
+
+        self.assertEqual(classes[0]["curso"], "Climate Futures")
+        self.assertEqual(classes[0]["horaFin"], "12:50")
+        self.assertEqual(classes[0]["bloques"], 2)
+        self.assertEqual(len(classes), 2)
 
     def test_normalizes_full_class_details_and_sorts_by_time(self):
         classes = _normalize_classes([
@@ -80,7 +131,7 @@ class GeminiScheduleServiceTest(unittest.TestCase):
         ])
 
         self.assertEqual([item["curso"] for item in classes], [
-            "Bioética y Sociedad Actual", "Física", "Robótica",
+            "Bioética y Sociedad Actual", "Física", "Taller de Robótica",
         ])
         self.assertEqual([item["tipo"] for item in classes], [
             "Ayudantía", "Laboratorio", "Ayudantía",
@@ -106,8 +157,9 @@ class GeminiScheduleServiceTest(unittest.TestCase):
                 classes = _normalize_classes([{**base, "section": section}])
                 self.assertEqual(classes[0]["seccion"], expected)
 
+    @patch("app.services.gemini_schedule._prepare_schedule_image", return_value=(b"prepared-image", "image/jpeg", 500, 650, b""))
     @patch("app.services.gemini_schedule.requests.post")
-    def test_sends_inline_image_and_parses_gemini_response(self, post):
+    def test_sends_inline_image_and_parses_gemini_response(self, post, _prepare_image):
         post.return_value = Mock(
             ok=True,
             status_code=200,
@@ -122,18 +174,19 @@ class GeminiScheduleServiceTest(unittest.TestCase):
         args, kwargs = post.call_args
         self.assertTrue(args[0].endswith("/gemini-2.5-flash:generateContent"))
         self.assertEqual(kwargs["headers"]["x-goog-api-key"], "do-not-log-key")
-        self.assertEqual(kwargs["json"]["contents"][0]["parts"][1]["inline_data"]["mime_type"], "image/png")
+        self.assertEqual(kwargs["json"]["contents"][0]["parts"][1]["inline_data"]["mime_type"], "image/jpeg")
+        self.assertEqual(kwargs["json"]["contents"][0]["parts"][1]["inline_data"]["data"], "cHJlcGFyZWQtaW1hZ2U=")
         prompt = kwargs["json"]["contents"][0]["parts"][0]["text"]
-        self.assertIn('no pongas etiquetas como "BLOQUE"', prompt)
-        prompt = kwargs["json"]["contents"][0]["parts"][0]["text"]
+        self.assertIn('etiquetas genéricas como "BLOQUE"', prompt)
         self.assertIn("Ayudantía Obligatoria", prompt)
         self.assertIn("No consultes ni dependas de una malla curricular", prompt)
         self.assertIn('si en la imagen aparece "S4", devuelve "Sección 4"', prompt)
         self.assertIn('devuelve exactamente "Sección -"', prompt)
 
+    @patch("app.services.gemini_schedule._prepare_schedule_image", return_value=(b"prepared-image", "image/jpeg", 500, 650, b""))
     @patch("app.services.gemini_schedule.time.sleep")
     @patch("app.services.gemini_schedule.requests.post")
-    def test_retries_temporary_gemini_unavailability(self, post, _sleep):
+    def test_retries_temporary_gemini_unavailability(self, post, _sleep, _prepare_image):
         unavailable = Mock(ok=False, status_code=503, headers={})
         success_payload = {"classes": [{
             "day": 1, "start": "08:30", "end": "09:50", "course": "Cálculo",
@@ -148,9 +201,10 @@ class GeminiScheduleServiceTest(unittest.TestCase):
         self.assertEqual(post.call_count, 3)
         self.assertIn("gemini-3.5-flash-lite", post.call_args_list[0].args[0])
 
+    @patch("app.services.gemini_schedule._prepare_schedule_image", return_value=(b"prepared-image", "image/jpeg", 500, 650, b""))
     @patch("app.services.gemini_schedule.time.sleep")
     @patch("app.services.gemini_schedule.requests.post")
-    def test_falls_back_to_flash_after_flash_lite_stays_overloaded(self, post, _sleep):
+    def test_falls_back_to_flash_after_flash_lite_stays_overloaded(self, post, _sleep, _prepare_image):
         unavailable = Mock(ok=False, status_code=503, headers={})
         success_payload = {"classes": [{
             "day": 1, "start": "08:30", "end": "09:50", "course": "Cálculo",
