@@ -323,7 +323,7 @@ function actualizarHeroMiHorario() {
                     <div class="my-hero-title">No tienes más clases hoy</div>
                     <div class="my-hero-subtitle">
                         <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-top: 4px;">
-                            <span>Tu próxima clase es <strong class="my-course-display">${escapeHtml(getCourseDisplay(c))}</strong></span>
+                            <span>Tu siguiente clase es <strong class="my-course-display">${escapeHtml(getCourseDisplay(c))}</strong></span>
                             <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>${escapeHtml(c.diaNombre)} ${escapeHtml(c.horaInicio)}</span></span>
                             <span style="${pill_style}">${escapeHtml(getShortClassRole(c))}</span>
                             ${c.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${escapeHtml(c.sala)}</span></span>` : ''}
@@ -347,7 +347,7 @@ function actualizarHeroMiHorario() {
                     <div class="my-hero-title">Hoy toca descansar</div>
                     <div class="my-hero-subtitle">
                         <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-top: 4px;">
-                            <span>Tu próxima clase es <strong class="my-course-display">${escapeHtml(getCourseDisplay(c))}</strong></span>
+                            <span>Tu siguiente clase es <strong class="my-course-display">${escapeHtml(getCourseDisplay(c))}</strong></span>
                             <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>${escapeHtml(c.diaNombre)} ${escapeHtml(c.horaInicio)}</span></span>
                             <span style="${pill_style}">${escapeHtml(getShortClassRole(c))}</span>
                             ${c.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${escapeHtml(c.sala)}</span></span>` : ''}
