@@ -399,7 +399,7 @@ function getCourseDisplay(clase) {
 
 function normalizarTipoClase(tipo) {
     const value = String(tipo || '').trim();
-    return !value || value.toLocaleLowerCase('es') === 'estudio' ? 'Cátedra' : value;
+    return value || 'Cátedra';
 }
 
 function reemplazarGridHorarioConScroll(container, markup) {
