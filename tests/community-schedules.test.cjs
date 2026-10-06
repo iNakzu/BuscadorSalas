@@ -25,6 +25,9 @@ for (const sectionId of ['tab-mihorario', 'tab-solemnes', 'tab-notas', 'tab-agen
 }
 assert.match(source, /public-profile-trigger-copy small'\)\.textContent = 'Mi perfil'/);
 assert.match(styles, /\.public-profile-toolbar--unified \.public-profile-picker \{ width: 100%; \}/);
+assert.match(styles, /\.profile-community-card \{ display: flex; flex-direction: column; min-height: 0; \}/);
+assert.match(styles, /\.profile-community-directory \{ display: grid; flex: 1 1 auto; grid-template-rows: auto auto minmax\(0,1fr\) auto;/);
+assert.match(styles, /\.profile-community-directory \.public-profile-dialog-results \{ grid-template-rows: auto minmax\(0,1fr\); justify-items: stretch; min-height: 0; max-height: none; overflow-y: auto; \}/);
 assert.match(styles.split('@media (max-width: 600px) {').pop(), /\.public-profile-toolbar--unified \{ padding: 0; \}/);
 assert.doesNotMatch(styles, /\.public-profile-trigger-chevron \{[^}]*border(?:\s|:)/);
 assert.match(styles, /\.public-profile-dialog-close \{[^}]*border: 0;[^}]*background: transparent;/);
