@@ -218,7 +218,9 @@ function buildProgresoHtml(progress, readOnly = false, curriculum = MALLA_MOCK, 
             if (!reqStr) reqStr = '-';
             const safeName = escapeProgresoHtml(cleanName);
             const safeId = escapeProgresoHtml(c.id);
-            const upperLabel = c.code || c.cred || '';
+            const upperLabel = careerId === 'ingenieria-civil-industrial'
+                ? c.cred
+                : c.code || c.cred || '';
             const border = c.border ? ` --ramo-outline-color: rgba(${c.border}, .95);` : '';
 
             gridHtml += `
