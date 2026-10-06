@@ -26,13 +26,14 @@ class GeminiScheduleServiceTest(unittest.TestCase):
 
     @patch("app.services.gemini_schedule._request_model")
     def test_custom_layout_without_measurable_row_scale_keeps_gemini_times(self, request_model):
-        classes = [{
-            "day": 2, "start": "10:00", "end": "12:50", "course": "Climate Futures",
-            "section": "", "professor": "", "room": "", "kind": "Cátedra", "confidence": 0.9,
-        }]
+        classes = [
+            {"day": 2, "start": "08:30", "end": "09:50", "course": "Cálculo"},
+            {"day": 2, "start": "10:00", "end": "12:50", "course": "Climate Futures"},
+        ]
         request_model.return_value = Mock(ok=True, status_code=200, json=lambda: {
             "candidates": [{"content": {"parts": [{"text": json.dumps([
-                {"id": 0, "box_2d": [100, 100, 300, 300]},
+                {"id": 0, "box_2d": [100, 100, 250, 300]},
+                {"id": 1, "box_2d": [300, 100, 500, 300]},
             ])}]}}]
         })
 
@@ -42,8 +43,8 @@ class GeminiScheduleServiceTest(unittest.TestCase):
         )
 
         self.assertEqual(reviewed, classes)
-        self.assertEqual(reviewed[0]["end"], "12:50")
-        request_model.assert_not_called()
+        self.assertEqual(reviewed[1]["end"], "12:50")
+        request_model.assert_called_once()
 
     def test_explicit_two_block_card_uses_fixed_schedule_end(self):
         classes = _normalize_classes([{
