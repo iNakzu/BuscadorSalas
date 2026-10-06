@@ -71,6 +71,8 @@ class PushNotificationTests(unittest.TestCase):
         ], [
             {"key": "event-1", "date": (datetime.now(CHILE).date() + timedelta(days=2)).isoformat(),
              "time": "12:15", "hasTime": True, "completed": False, "notes": "private notes"},
+            {"key": "all-day", "date": (datetime.now(CHILE).date() + timedelta(days=3)).isoformat(),
+             "hasTime": False, "completed": False},
             {"key": "far-future", "date": "2099-01-01", "time": "12:15", "hasTime": True, "completed": False},
         ])
         with sqlite3.connect(self.db) as db:
@@ -79,8 +81,12 @@ class PushNotificationTests(unittest.TestCase):
             class_columns = [row[1] for row in db.execute("PRAGMA table_info(push_classes)")]
             agenda_columns = [row[1] for row in db.execute("PRAGMA table_info(push_agenda)")]
         self.assertEqual(classes, [(1, "08:30", "09:50", "PRIVATE COURSE NAME")])
-        self.assertEqual(len(agenda), 1)
-        self.assertEqual(len(agenda[0][0]), 64)  # Only a one-way event identifier is persisted.
+        self.assertEqual(len(agenda), 2)
+        self.assertTrue(all(len(row[0]) == 64 for row in agenda))  # Only one-way event identifiers are persisted.
+        all_day_date = datetime.now(CHILE).date() + timedelta(days=3)
+        expected_all_day_at = int(datetime(all_day_date.year, all_day_date.month, all_day_date.day,
+                                            8, 0, tzinfo=CHILE).timestamp())
+        self.assertIn(expected_all_day_at, {row[1] for row in agenda})
         self.assertEqual(class_columns, ["user_id", "day", "class_time", "class_finish", "course_name"])
         self.assertEqual(agenda_columns, ["user_id", "event_key", "event_at"])
 

@@ -180,7 +180,7 @@ def sync_reminders(path, user_id, classes, agenda):
                 continue
             hour, minute = map(int, local_time.split(":"))
         else:
-            hour, minute = 9, 0
+            hour, minute = 8, 0
         event_at = int(datetime(event_date.year, event_date.month, event_date.day, hour, minute, tzinfo=CHILE).timestamp())
         raw_key = item.get("key")
         if not isinstance(raw_key, str) or not raw_key or len(raw_key) > 128:
