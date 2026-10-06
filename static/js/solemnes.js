@@ -395,17 +395,15 @@ function renderSolemnes() {
 
     const status = document.getElementById('solemnes-highlight-status');
     if (status) {
-        status.hidden = false;
-        if (!highlightEnabled) status.textContent = 'El resaltado personal está desactivado.';
-        else if (!careerId) status.textContent = 'Este perfil no tiene una carrera configurada; el calendario se muestra sin resaltados.';
-        else if (isPublicProfile && !personalCourses.length) status.textContent = 'Este perfil no tiene un horario compartido para comparar sus ramos.';
-        else if (isPublicProfile && school) {
-            status.textContent = '';
-            status.hidden = true;
+        status.textContent = '';
+        status.hidden = true;
+        if (highlightEnabled) {
+            if (!careerId) status.textContent = 'Este perfil no tiene una carrera configurada; el calendario se muestra sin resaltados.';
+            else if (isPublicProfile && !personalCourses.length) status.textContent = 'Este perfil no tiene un horario compartido para comparar sus ramos.';
+            else if (!personalCourses.length) status.textContent = 'Agrega tu horario para comparar tus ramos.';
+            else if (!school) status.textContent = 'No se pudo determinar la escuela de esta carrera; solo se resaltarán coincidencias sin ambigüedad.';
+            if (status.textContent) status.hidden = false;
         }
-        else if (!personalCourses.length) status.textContent = 'Agrega tu horario para comparar tus ramos.';
-        else if (!school) status.textContent = 'No se pudo determinar la escuela de esta carrera; solo se resaltarán coincidencias sin ambigüedad.';
-        else status.textContent = 'El calendario destaca las solemnes que coinciden con tu horario y carrera.';
     }
 
     const mapDias = {

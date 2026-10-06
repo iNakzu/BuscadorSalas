@@ -44,6 +44,8 @@ vm.runInContext(source, context);
 vm.runInContext('renderSolemnes()', context);
 
 assert.match(container.innerHTML, /<div class="sol-ramo-pill matched" style="[^"]*border-left-color: [^;]+;/);
+assert.strictEqual(status.textContent, '');
+assert.strictEqual(status.hidden, true);
 assert.doesNotMatch(container.innerHTML, /<div class="solemnes-profile-note"/);
 assert.match(container.innerHTML, /Bases de Datos \(EIT\)/);
 toggle.checked = true;
