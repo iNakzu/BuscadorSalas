@@ -9,7 +9,6 @@
 .profile-hero-identity { display: flex; align-items: center; gap: 15px; margin-top: 18px; }
 .profile-hero-avatar { display: grid; flex: 0 0 58px; width: 58px; height: 58px; place-items: center; border: 1px solid rgba(255,255,255,.3); border-radius: 19px; background: linear-gradient(140deg,#7c3aed,#0284c7); box-shadow: 0 8px 24px rgba(37,99,235,.24); color: #fff; font-size: 17px; font-weight: 800; letter-spacing: .04em; }
 .profile-hero-copy { display: grid; min-width: 0; gap: 3px; }
-.profile-hero-copy h1 { margin: 0 0 3px; color: #f8fafc; font-size: clamp(22px,3vw,30px); font-weight: 780; letter-spacing: -.04em; }
 .profile-hero-copy strong { overflow: hidden; color: #e5edf8; font-size: 13px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
 .profile-hero-copy span { overflow: hidden; color: #91a1b8; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
 .profile-hero > p { margin: 17px 0 0; color: #91a1b8; font-size: 12px; line-height: 1.55; }
@@ -109,7 +108,6 @@
   .profile-hero-identity { gap: 10px; margin-top: 10px; }
   .profile-hero-avatar { flex-basis: 40px; width: 40px; height: 40px; border-radius: 13px; font-size: 13px; }
   .profile-hero-copy { gap: 2px; }
-  .profile-hero-copy h1 { margin-bottom: 1px; font-size: 18px; }
   .profile-hero-copy strong { font-size: 12px; }
   .profile-hero-copy span { font-size: 10px; }
   .profile-hero > p { margin-top: 9px; font-size: 10px; }

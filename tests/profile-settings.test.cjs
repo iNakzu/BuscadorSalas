@@ -12,6 +12,8 @@ assert.match(sidebar, /id="auth-avatar"/);
 assert.match(sidebar, /id="auth-name"/);
 assert.match(sidebar, /id="auth-email"/);
 assert.doesNotMatch(sidebar, /auth-reset-data|auth-logout|push-settings-open/);
+assert.match(profile, /id="tab-perfil" class="panel profile-page" aria-label="Mi perfil"/);
+assert.doesNotMatch(profile, /<h1 id="profile-page-title">Mi perfil<\/h1>/);
 for (const id of ['tab-perfil', 'profile-account-type', 'profile-career-input', 'profile-career-save', 'profile-sharing-toggle', 'push-settings-inline', 'profile-community-directory', 'auth-reset-data']) {
   assert.ok(profile.includes(`id="${id}"`), `profile view should contain ${id}`);
 }
