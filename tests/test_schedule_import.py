@@ -701,6 +701,47 @@ class ScheduleImportEndpointTest(unittest.TestCase):
 
     @patch("app.blueprints.academic_api.extract_schedule_from_image")
     @patch("app.blueprints.academic_api.requests.get")
+    def test_import_rejects_target_profile_for_non_admin(self, auth_get, extract):
+        auth_get.return_value = Mock(ok=True, json=lambda: {
+            "id": "ordinary-user", "app_metadata": {"portal_role": "user"}
+        })
+        response = self.client.post(
+            "/api/import_schedule",
+            headers={"Authorization": "Bearer valid-test-session"},
+            data={
+                "target_user_id": "11111111-1111-4111-8111-111111111111",
+                "image": (io.BytesIO(b"\x89PNG\r\n\x1a\nimage"), "horario.png", "image/png"),
+            },
+            content_type="multipart/form-data",
+        )
+        self.assertEqual(response.status_code, 403)
+        extract.assert_not_called()
+
+    @patch("app.blueprints.academic_api.extract_schedule_from_image")
+    @patch("app.blueprints.academic_api.requests.get")
+    def test_admin_can_import_schedule_for_a_target_profile(self, auth_get, extract):
+        auth_get.return_value = Mock(ok=True, json=lambda: {
+            "id": "admin-user", "app_metadata": {"portal_role": "admin"}
+        })
+        extract.return_value = [{
+            "dia": 1, "diaNombre": "Lunes", "horaInicio": "08:30", "horaFin": "09:50",
+            "curso": "Cálculo II", "tipo": "Cátedra", "seccion": "2", "sala": "E201", "profesor": "",
+        }]
+        response = self.client.post(
+            "/api/import_schedule",
+            headers={"Authorization": "Bearer valid-test-session"},
+            data={
+                "target_user_id": "11111111-1111-4111-8111-111111111111",
+                "image": (io.BytesIO(b"\x89PNG\r\n\x1a\nimage"), "horario.png", "image/png"),
+            },
+            content_type="multipart/form-data",
+        )
+        self.assertEqual(response.status_code, 200, response.get_json())
+        self.assertEqual(response.get_json()["clases"][0]["curso"], "Cálculo II")
+        extract.assert_called_once()
+
+    @patch("app.blueprints.academic_api.extract_schedule_from_image")
+    @patch("app.blueprints.academic_api.requests.get")
     @patch("app.blueprints.academic_api.dm.get_classes", return_value=[])
     def test_authenticated_upload_discards_unmatched_teacher_without_storing_image(self, _get_classes, auth_get, extract):
         auth_get.return_value = Mock(ok=True, json=lambda: {"id": "test-user"})

@@ -93,7 +93,7 @@
 #tab-notas.public-profile-active #notas-builder-container { display: none !important; }
 #tab-notas.public-profile-active > .public-profile-content[data-module="grades"] { box-sizing: border-box; padding-top: 16px; }
 #tab-progreso { overflow: visible !important; }
-#tab-mihorario.public-profile-active .schedule-import-control,
+#tab-mihorario.public-profile-active:not(.public-profile-admin-edit) .schedule-import-control,
 #tab-mihorario.public-profile-active .my-modal-overlay { display: none !important; }
 #tab-mihorario.public-profile-admin-edit .my-modal-overlay { display: flex !important; }
 

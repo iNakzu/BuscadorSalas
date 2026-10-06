@@ -4,6 +4,7 @@ import os
 import re
 import sqlite3
 import time
+import uuid
 
 import requests
 from flask import Blueprint, current_app, jsonify, request
@@ -406,6 +407,17 @@ def api_import_schedule():
     user_id = user.get("id") if isinstance(user, dict) else None
     if not user_id:
         return jsonify({"error": "No pude validar tu sesión. Inicia sesión de nuevo."}), 401
+    target_user_id = str(request.form.get("target_user_id") or "").strip()
+    if target_user_id:
+        metadata = user.get("app_metadata") if isinstance(user, dict) else None
+        if not isinstance(metadata, dict) or metadata.get("portal_role") != "admin":
+            return jsonify({"error": "Solo una cuenta administradora puede importar un horario para otro perfil."}), 403
+        try:
+            target_user_id = str(uuid.UUID(target_user_id))
+        except (ValueError, AttributeError):
+            return jsonify({"error": "El perfil seleccionado no es válido."}), 400
+        if target_user_id == str(user_id):
+            return jsonify({"error": "Para tu propio horario, vuelve a tu perfil personal antes de importar."}), 400
     try:
         import_allowed = _allow_schedule_import(str(user_id))
     except (OSError, sqlite3.Error):

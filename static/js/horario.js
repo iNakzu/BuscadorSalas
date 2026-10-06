@@ -1290,11 +1290,23 @@ document.addEventListener('portal:remote-state', event => {
 function seleccionarFotoHorario() {
     const input = document.getElementById('schedule-import-file');
     if (!input) return;
+    if (Array.isArray(horarioPerfilSeleccionado) && !getPerfilDestinoImportacionHorario()) {
+        mostrarEstadoImportacionHorario('Solo la cuenta administradora puede importar un horario para otro perfil.', true);
+        return;
+    }
     if (!window.PortalAuth || !window.PortalAuth.client) {
         mostrarEstadoImportacionHorario('La importación requiere iniciar sesión.', true);
         return;
     }
     input.click();
+}
+
+function getPerfilDestinoImportacionHorario() {
+    const community = window.PortalCommunity;
+    if (!community || typeof community.isAdminSelected !== 'function' || !community.isAdminSelected()
+        || typeof community.getSelected !== 'function') return null;
+    const profile = community.getSelected();
+    return profile && profile.user_id ? profile : null;
 }
 
 function mostrarEstadoImportacionHorario(message, isError = false) {
@@ -1336,6 +1348,12 @@ async function importarHorarioDesdeFoto(event) {
         input.value = '';
         return;
     }
+    const targetProfile = getPerfilDestinoImportacionHorario();
+    if (Array.isArray(horarioPerfilSeleccionado) && !targetProfile) {
+        mostrarEstadoImportacionHorario('Solo la cuenta administradora puede importar un horario para otro perfil.', true);
+        input.value = '';
+        return;
+    }
 
     if (button) {
         button.disabled = true;
@@ -1349,6 +1367,7 @@ async function importarHorarioDesdeFoto(event) {
         if (sessionResult.error || !token) throw new Error('Tu sesión venció. Inicia sesión otra vez.');
         const form = new FormData();
         form.append('image', file, file.name || 'horario');
+        if (targetProfile) form.append('target_user_id', String(targetProfile.user_id));
         const response = await fetch('/api/import_schedule', {
             method: 'POST',
             headers: { Authorization: 'Bearer ' + token },
@@ -1360,7 +1379,8 @@ async function importarHorarioDesdeFoto(event) {
         if (!Array.isArray(result.clases) || !result.clases.length) {
             throw new Error('No se detectaron clases completas en la imagen.');
         }
-        cargarHorarioImportado(result.clases);
+        const saved = await cargarHorarioImportado(result.clases, targetProfile && String(targetProfile.user_id));
+        if (!saved) throw new Error('No se pudo guardar el horario importado. Revisa que sigas en el perfil correcto e inténtalo de nuevo.');
     } catch (error) {
         mostrarEstadoImportacionHorario(error.message || 'No se pudo importar el horario.', true);
     } finally {
@@ -1380,7 +1400,7 @@ function bloqueHorarioMasCercano(hora) {
     , BLOQUES_HORARIOS[0]);
 }
 
-function cargarHorarioImportado(clasesDetectadas) {
+async function cargarHorarioImportado(clasesDetectadas, targetUserId = '') {
     if (!Array.isArray(clasesDetectadas) || !clasesDetectadas.length) return;
     const days = [[], [], [], [], [], []];
     clasesDetectadas.forEach(item => {
@@ -1422,6 +1442,20 @@ function cargarHorarioImportado(clasesDetectadas) {
         }
         occupiedBlocks.add(key);
     }
+    if (targetUserId) {
+        const community = window.PortalCommunity;
+        const profile = community && community.getSelected && community.getSelected();
+        if (!community || !community.isAdminSelected || !community.isAdminSelected()
+            || !profile || String(profile.user_id) !== String(targetUserId)
+            || typeof community.updateSelectedSchedule !== 'function') {
+            throw new Error('El perfil cambió durante la importación. Vuelve a seleccionarlo e inténtalo otra vez.');
+        }
+        const saved = await community.updateSelectedSchedule(classes => classes.splice(0, classes.length, ...imported));
+        if (!saved) return false;
+        mostrarEstadoImportacionHorario('');
+        return true;
+    }
+
     MI_HORARIO_DATA = { ...MI_HORARIO_DATA, clases: imported };
     guardarMiHorarioEnStorage();
     renderMiHorario();
