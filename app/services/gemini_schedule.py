@@ -30,7 +30,7 @@ SCHEDULE_SCHEMA = {
             "items": {
                 "type": "object",
                 "properties": {
-                    "day": {"type": "integer", "description": "1 Monday, 2 Tuesday, 3 Wednesday, 4 Thursday, 5 Friday."},
+                    "day": {"type": "integer", "description": "Día leído en el encabezado de la columna: 1 lunes, 2 martes, 3 miércoles, 4 jueves, 5 viernes. No desplaces clases entre columnas."},
                     "start": {"type": "string", "description": "Exact 24-hour start time HH:MM."},
                     "end": {"type": "string", "description": "Exact 24-hour end time HH:MM."},
                     "block_count": {"type": "integer", "description": "Cantidad de bloques normales consecutivos cubiertos por una sola tarjeta visual (1 si no ocupa más de una fila)."},
@@ -70,7 +70,7 @@ BLOCK_REVIEW_SCHEMA = {
 
 PROMPT = """Lee la imagen y extrae las clases visibles del horario. Devuelve una entrada por cada tarjeta, con día, hora de inicio y término, cantidad de bloques consecutivos que ocupa, ramo, sección, profesor, sala y tipo de clase.
 
-Ignora elementos visuales superpuestos, como líneas de color, y céntrate en las tarjetas de clase y en sus datos y horarios. Reconoce el horario aunque sea una tabla común, una captura de pantalla o una foto con perspectiva; no exijas líneas de cuadrícula perfectas ni una escala visual uniforme. Incluye también una tarjeta parcialmente cortada por el borde de la imagen si se distinguen el día, las horas, el ramo y el tipo; deja vacíos los demás campos que no se vean. No inventes datos ni repitas clases; deja vacío cualquier campo que no se distinga. En "course" escribe solo el nombre del ramo y en "kind" su tipo. Conserva el texto tal como se lee y escribe el profesor en mayúsculas. “Taller” puede ser parte del nombre del ramo (por ejemplo, “Taller de Redes y Servicios”), no un tipo de clase. Si aparece “Ayudantía de [nombre del ramo]” o “Ayudantía Obligatoria”, elimina esa etiqueta del título y clasifica el tipo como Ayudantía. No consultes ni dependas de una malla curricular para identificar nombres.
+Ignora elementos visuales superpuestos, como líneas de color, y céntrate en las tarjetas de clase y en sus datos y horarios. Reconoce el horario aunque sea una tabla común, una captura de pantalla o una foto con perspectiva; no exijas líneas de cuadrícula perfectas ni una escala visual uniforme. Lee el encabezado de cada columna y asigna el día por la columna donde está la tarjeta: 1 lunes, 2 martes, 3 miércoles, 4 jueves y 5 viernes. No deduzcas el día por el orden de las clases ni desplaces columnas vacías; aunque el viernes esté vacío, una tarjeta bajo jueves sigue siendo jueves. Incluye también una tarjeta parcialmente cortada por el borde de la imagen si se distinguen el día, las horas, el ramo y el tipo; deja vacíos los demás campos que no se vean. No inventes datos ni repitas clases; deja vacío cualquier campo que no se distinga. En "course" escribe solo el nombre del ramo y en "kind" su tipo. Copia con exactitud números romanos y números al final del ramo (por ejemplo, "Cálculo II" no es "Cálculo III"); no los completes ni los corrijas por lo que parezca más familiar. Conserva el texto tal como se lee y escribe el profesor en mayúsculas. “Taller” puede ser parte del nombre del ramo (por ejemplo, “Taller de Redes y Servicios”), no un tipo de clase. Si aparece “Ayudantía de [nombre del ramo]” o “Ayudantía Obligatoria”, elimina esa etiqueta del título y clasifica el tipo como Ayudantía. No consultes ni dependas de una malla curricular para identificar nombres.
 
 Para "block_count", cuenta cuántas filas/bloques horarios consecutivos cubre el fondo de UNA tarjeta: usa 2 si la misma tarjeta ocupa dos filas seguidas y 1 si ocupa una. La altura del texto envuelto no significa que dure más. Si una tarjeta ocupa dos bloques, devuelve una sola entrada con block_count=2 y el inicio y término del intervalo completo (por ejemplo, 10:00 a 12:50); no la dupliques como dos clases. Las tarjetas separadas siguen siendo clases distintas aunque tengan el mismo ramo.
 
@@ -319,6 +319,26 @@ def _course_match_key(value):
     return re.sub(r"[^a-z0-9]", "", without_marks)
 
 
+def _same_course_except_final_number(left, right):
+    """Allow review to fix a likely Roman/Arabic numeral OCR error only."""
+    def tokens(value):
+        normalized = unicodedata.normalize("NFKD", _clean_text(value).casefold())
+        without_marks = "".join(char for char in normalized if not unicodedata.combining(char))
+        return re.findall(r"[a-z0-9]+", without_marks)
+
+    first = tokens(left)
+    second = tokens(right)
+    number = re.compile(r"(?:\d+|(?:x|ix|iv|v?i{1,3}))\Z", re.IGNORECASE)
+    return (
+        len(first) >= 2
+        and len(first) == len(second)
+        and first[:-1] == second[:-1]
+        and first[-1] != second[-1]
+        and bool(number.fullmatch(first[-1]))
+        and bool(number.fullmatch(second[-1]))
+    )
+
+
 def _is_magenta_line_pixel(red, green, blue):
     return min(red, blue) - green > 45 and abs(red - blue) < 100 and max(red, blue) > 70
 
@@ -506,30 +526,26 @@ def _review_ambiguous_days(raw_classes, image_bytes, mime_type, api_key, model, 
             "day": _normalize_day(item.get("day")),
             "start": _normalize_time(item.get("start")),
             "course": _clean_text(item.get("course"), 120),
+            "kind": _clean_text(item.get("kind"), 40),
+            "room": _clean_text(item.get("room"), 60),
         }
         for index, item in enumerate(raw_classes)
         if isinstance(item, dict) and _normalize_day(item.get("day"))
     ]
     if not candidates:
         return raw_classes
-    standard_starts = {
-        start
-        for item in raw_classes
-        if isinstance(item, dict)
-        for start in [_normalize_time(item.get("start"))]
-        if any(format_time(block.get("start", "")) == start for block in normal_blocks)
-    }
-    if len(standard_starts) < 2:
-        # Without cards at different known rows we cannot calibrate image
-        # scale, so the extra vision request cannot improve duration results.
-        return raw_classes
-
     prompt = (
-        "Ubica cada tarjeta por su día, hora inicial y ramo en esta lista de candidatos: "
+        "Revisa cada candidata directamente en la imagen; usa su id, hora, ramo, tipo y sala solo para ubicar la tarjeta, "
+        "y vuelve a leer el texto visible sin copiar automáticamente el día o el nombre propuestos. Candidatas: "
         f"{json.dumps(candidates, ensure_ascii=False)}. "
-        "Para cada una mide solo el rectángulo de fondo coloreado y devuelve su caja como box_2d=[y_min,x_min,y_max,x_max], "
-        "con coordenadas normalizadas de 0 a 1000 sobre toda la imagen. Usa el borde visible del fondo, no incluyas el texto ni infieras duración. "
-        'Devuelve una entrada por id con su box_2d. JSON solamente.'
+        "Para el día, lee el encabezado de la columna donde está el centro de la tarjeta, no su orden en la lista. "
+        "Devuelve el texto literal de ese encabezado en column_header y tu certeza de lectura de 0 a 1 en day_confidence. "
+        "Una columna vacía no cambia el día de las demás: jueves siempre es jueves aunque viernes esté vacío. "
+        "Vuelve a leer también el nombre exacto visible del ramo en course_text y asigna course_confidence de 0 a 1; "
+        "copia con cuidado números romanos como II y III, sin inferir cuál debería ser. "
+        "Mide además el rectángulo del fondo coloreado como box_2d=[y_min,x_min,y_max,x_max], coordenadas 0-1000; "
+        "si no puedes ubicarlo claramente, usa una lista vacía. No infieras duración del texto envuelto. "
+        'Devuelve JSON con una entrada por id y los campos id, column_header, day_confidence, course_text, course_confidence y box_2d.'
     )
     body = {
         "contents": [{"parts": [
@@ -565,38 +581,60 @@ def _review_ambiguous_days(raw_classes, image_bytes, mime_type, api_key, model, 
             if isinstance(part, dict)
         )
         parsed_boxes = json.loads(response_text)
-        boxes = parsed_boxes if isinstance(parsed_boxes, list) else parsed_boxes.get("boxes", parsed_boxes.get("classes", []))
-    except (ValueError, TypeError, AttributeError) as error:
+        entries = parsed_boxes if isinstance(parsed_boxes, list) else parsed_boxes.get("classes", parsed_boxes.get("boxes", []))
+    except (ValueError, TypeError, AttributeError):
         return raw_classes
-    if not isinstance(boxes, list) or len(boxes) != len(candidates):
+    if not isinstance(entries, list) or len(entries) != len(candidates):
         return raw_classes
 
-    boxes_by_id = {}
-    for entry in boxes:
+    candidate_ids = {candidate["id"] for candidate in candidates}
+    entries_by_id = {}
+    for entry in entries:
         if not isinstance(entry, dict):
             return raw_classes
         class_id = entry.get("id")
+        if (not isinstance(class_id, int) or isinstance(class_id, bool) or
+                class_id not in candidate_ids or class_id in entries_by_id):
+            return raw_classes
+        entries_by_id[class_id] = entry
+    if set(entries_by_id) != candidate_ids:
+        return raw_classes
+
+    reviewed_classes = list(raw_classes)
+    for class_id, entry in entries_by_id.items():
+        original = raw_classes[class_id]
+        corrected = dict(original)
+        header_day = _normalize_day(entry.get("column_header"))
+        if header_day and _confidence(entry.get("day_confidence")) >= 0.9:
+            corrected["day"] = header_day
+        reviewed_course = _clean_text(entry.get("course_text"), 120)
+        if (_confidence(entry.get("course_confidence")) >= 0.9 and reviewed_course and
+                _same_course_except_final_number(original.get("course", ""), reviewed_course)):
+            corrected["course"] = reviewed_course
+        reviewed_classes[class_id] = corrected
+
+    boxes_by_id = {}
+    for class_id, entry in entries_by_id.items():
         box = entry.get("box_2d")
         if (not isinstance(class_id, int) or isinstance(class_id, bool) or
                 not isinstance(box, list) or len(box) != 4 or
                 any(not isinstance(value, (int, float)) or isinstance(value, bool) or not 0 <= value <= 1000 for value in box) or
-                box[0] >= box[2] or box[1] >= box[3] or class_id in boxes_by_id):
-            return raw_classes
+                box[0] >= box[2] or box[1] >= box[3]):
+            return reviewed_classes
         boxes_by_id[class_id] = box
-    if set(boxes_by_id) != {candidate["id"] for candidate in candidates}:
-        return raw_classes
+    if set(boxes_by_id) != candidate_ids:
+        return reviewed_classes
 
     row_height = _estimate_block_row_height(raw_classes, boxes_by_id, image_height)
     if row_height is None:
         # Custom timetable designs may have no regular grid spacing to calibrate.
-        # Keep Gemini's original start/end readings; normalization below still
-        # maps standard end times to one or more fixed class blocks.
-        return raw_classes
+        # Keep recognized start/end times and any clear header/text corrections.
+        return reviewed_classes
 
     replacements = {}
     for candidate in candidates:
         class_index = candidate["id"]
-        original = raw_classes[class_index]
+        original = reviewed_classes[class_index]
         start = candidate["start"]
         start_index = next((index for index, block in enumerate(normal_blocks)
                             if format_time(block.get("start", "")) == start), None)
@@ -611,7 +649,7 @@ def _review_ambiguous_days(raw_classes, image_bytes, mime_type, api_key, model, 
         replacement["end"] = format_time(normal_blocks[last_index].get("finish", ""))
         replacement["block_count"] = block_count
         replacements[class_index] = replacement
-    return [replacements.get(index, item) for index, item in enumerate(raw_classes)]
+    return [replacements.get(index, item) for index, item in enumerate(reviewed_classes)]
 
 def _request_model(image_body, api_key, model, attempts=3, timeout=(5, 35)):
     response = None

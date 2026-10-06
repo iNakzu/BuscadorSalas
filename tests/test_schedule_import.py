@@ -8,7 +8,7 @@ from unittest.mock import Mock, patch
 os.environ.setdefault("SCHEDULE_CACHE_FILE", os.path.join(tempfile.gettempdir(), "buscadorsalas-import-test.json"))
 
 from app import create_app
-from app.services.gemini_schedule import FALLBACK_GEMINI_MODEL, GeminiScheduleError, PROMPT, SCHEDULE_SCHEMA, _normalize_classes, _review_ambiguous_days, extract_schedule_from_image
+from app.services.gemini_schedule import FALLBACK_GEMINI_MODEL, GeminiScheduleError, PROMPT, SCHEDULE_SCHEMA, _normalize_classes, _review_ambiguous_days, _same_course_except_final_number, extract_schedule_from_image
 
 
 class GeminiScheduleServiceTest(unittest.TestCase):
@@ -23,6 +23,84 @@ class GeminiScheduleServiceTest(unittest.TestCase):
         self.assertIn('"obligatoria"', PROMPT)
         self.assertIn("no exijas líneas de cuadrícula perfectas", PROMPT)
         self.assertIn("La altura del texto envuelto no significa que dure más", PROMPT)
+        self.assertIn("aunque el viernes esté vacío, una tarjeta bajo jueves sigue siendo jueves", PROMPT)
+        self.assertIn('"Cálculo II" no es "Cálculo III"', PROMPT)
+
+    def test_only_corrects_a_confident_final_course_number_difference(self):
+        self.assertTrue(_same_course_except_final_number("Cálculo III", "Calculo II"))
+        self.assertTrue(_same_course_except_final_number("Matemática 2", "Matemática 3"))
+        self.assertFalse(_same_course_except_final_number("Proyecto TIC", "Proyecto II"))
+        self.assertFalse(_same_course_except_final_number("Cálculo II", "Cálculo diferencial II"))
+
+    @patch("app.services.gemini_schedule._request_model")
+    def test_review_corrects_shifted_weekday_and_roman_numeral_only_with_clear_evidence(self, request_model):
+        raw_classes = [{
+            "day": 5, "start": "10:00", "end": "11:20", "block_count": 1,
+            "course": "Cálculo III", "kind": "Cátedra", "room": "E201",
+        }]
+        reviewed_entry = {
+            "id": 0, "column_header": "Jueves", "day_confidence": 0.99,
+            "course_text": "Cálculo II", "course_confidence": 0.99,
+            "box_2d": [100, 100, 250, 300],
+        }
+        request_model.return_value = Mock(ok=True, status_code=200, json=lambda: {
+            "candidates": [{"content": {"parts": [{"text": json.dumps([reviewed_entry])}]}}]
+        })
+
+        reviewed = _review_ambiguous_days(
+            raw_classes, b"image-bytes", "image/jpeg", "private-test-key",
+            FALLBACK_GEMINI_MODEL, 500, 650, b"",
+        )
+
+        self.assertEqual(reviewed[0]["day"], 4)
+        self.assertEqual(reviewed[0]["course"], "Cálculo II")
+        self.assertEqual(reviewed[0]["start"], "10:00")
+
+    @patch("app.services.gemini_schedule._request_model")
+    def test_review_does_not_change_day_or_course_when_evidence_is_uncertain(self, request_model):
+        raw_classes = [{
+            "day": 5, "start": "10:00", "end": "11:20", "course": "Cálculo III",
+        }]
+        reviewed_entry = {
+            "id": 0, "column_header": "Jueves", "day_confidence": 0.7,
+            "course_text": "Cálculo II", "course_confidence": 0.7,
+        }
+        request_model.return_value = Mock(ok=True, status_code=200, json=lambda: {
+            "candidates": [{"content": {"parts": [{"text": json.dumps([reviewed_entry])}]}}]
+        })
+
+        reviewed = _review_ambiguous_days(
+            raw_classes, b"image-bytes", "image/jpeg", "private-test-key",
+            FALLBACK_GEMINI_MODEL, 500, 650, b"",
+        )
+
+        self.assertEqual(reviewed, raw_classes)
+
+    @patch("app.services.gemini_schedule._prepare_schedule_image", return_value=(b"jpeg", "image/jpeg", 500, 650, b""))
+    @patch("app.services.gemini_schedule._request_model")
+    def test_import_corrects_day_and_final_roman_numeral_from_clear_column_evidence(self, request_model, _prepare_image):
+        extraction = Mock(ok=True, status_code=200, json=lambda: {
+            "candidates": [{"content": {"parts": [{"text": json.dumps({"classes": [{
+                "day": 5, "start": "10:00", "end": "11:20", "block_count": 1,
+                "course": "Cálculo III", "section": "", "professor": "", "room": "", "kind": "Cátedra", "confidence": 0.99,
+            }]})}]}}]
+        })
+        day_and_course_review = Mock(ok=True, status_code=200, json=lambda: {
+            "candidates": [{"content": {"parts": [{"text": json.dumps([{
+                "id": 0, "column_header": "Jueves", "day_confidence": 0.99,
+                "course_text": "Cálculo II", "course_confidence": 0.99,
+                "box_2d": [100, 100, 250, 300],
+            }])}]}}]
+        })
+        request_model.side_effect = [extraction, day_and_course_review]
+
+        classes = extract_schedule_from_image(
+            b"image-bytes", "image/png", "private-test-key", FALLBACK_GEMINI_MODEL,
+        )
+
+        self.assertEqual(classes[0]["dia"], 4)
+        self.assertEqual(classes[0]["diaNombre"], "Jueves")
+        self.assertEqual(classes[0]["curso"], "Cálculo II")
 
     @patch("app.services.gemini_schedule._request_model")
     def test_custom_layout_without_measurable_row_scale_keeps_gemini_times(self, request_model):
@@ -159,8 +237,9 @@ class GeminiScheduleServiceTest(unittest.TestCase):
                 self.assertEqual(classes[0]["seccion"], expected)
 
     @patch("app.services.gemini_schedule._prepare_schedule_image", return_value=(b"prepared-image", "image/jpeg", 500, 650, b""))
+    @patch("app.services.gemini_schedule._review_ambiguous_days")
     @patch("app.services.gemini_schedule.requests.post")
-    def test_sends_inline_image_and_parses_gemini_response(self, post, _prepare_image):
+    def test_sends_inline_image_and_parses_gemini_response(self, post, review, _prepare_image):
         post.return_value = Mock(
             ok=True,
             status_code=200,
@@ -169,6 +248,7 @@ class GeminiScheduleServiceTest(unittest.TestCase):
                 "section": "A", "professor": "Docente", "room": "E-310", "kind": "Laboratorio", "confidence": 0.8,
             }]})}]}}]},
         )
+        review.side_effect = lambda raw_classes, *_args: raw_classes
         result = extract_schedule_from_image(b"image-bytes", "image/png", "do-not-log-key", "gemini-2.5-flash")
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]["curso"], "Programación")
@@ -185,9 +265,10 @@ class GeminiScheduleServiceTest(unittest.TestCase):
         self.assertIn('devuelve exactamente "Sección -"', prompt)
 
     @patch("app.services.gemini_schedule._prepare_schedule_image", return_value=(b"prepared-image", "image/jpeg", 500, 650, b""))
+    @patch("app.services.gemini_schedule._review_ambiguous_days")
     @patch("app.services.gemini_schedule.time.sleep")
     @patch("app.services.gemini_schedule.requests.post")
-    def test_retries_temporary_gemini_unavailability(self, post, _sleep, _prepare_image):
+    def test_retries_temporary_gemini_unavailability(self, post, _sleep, review, _prepare_image):
         unavailable = Mock(ok=False, status_code=503, headers={})
         success_payload = {"classes": [{
             "day": 1, "start": "08:30", "end": "09:50", "course": "Cálculo",
@@ -197,15 +278,17 @@ class GeminiScheduleServiceTest(unittest.TestCase):
             "candidates": [{"content": {"parts": [{"text": json.dumps(success_payload)}]}}]
         })
         post.side_effect = [unavailable, unavailable, success]
+        review.side_effect = lambda raw_classes, *_args: raw_classes
         result = extract_schedule_from_image(b"image-bytes", "image/png", "private-test-key")
         self.assertEqual(len(result), 1)
         self.assertEqual(post.call_count, 3)
         self.assertIn("gemini-3.5-flash-lite", post.call_args_list[0].args[0])
 
     @patch("app.services.gemini_schedule._prepare_schedule_image", return_value=(b"prepared-image", "image/jpeg", 500, 650, b""))
+    @patch("app.services.gemini_schedule._review_ambiguous_days")
     @patch("app.services.gemini_schedule.time.sleep")
     @patch("app.services.gemini_schedule.requests.post")
-    def test_falls_back_to_flash_after_flash_lite_stays_overloaded(self, post, _sleep, _prepare_image):
+    def test_falls_back_to_flash_after_flash_lite_stays_overloaded(self, post, _sleep, review, _prepare_image):
         unavailable = Mock(ok=False, status_code=503, headers={})
         success_payload = {"classes": [{
             "day": 1, "start": "08:30", "end": "09:50", "course": "Cálculo",
@@ -215,6 +298,7 @@ class GeminiScheduleServiceTest(unittest.TestCase):
             "candidates": [{"content": {"parts": [{"text": json.dumps(success_payload)}]}}]
         })
         post.side_effect = [unavailable, unavailable, unavailable, success]
+        review.side_effect = lambda raw_classes, *_args: raw_classes
         result = extract_schedule_from_image(b"image-bytes", "image/png", "private-test-key")
         self.assertEqual(len(result), 1)
         self.assertIn("gemini-3.5-flash", post.call_args.args[0])
