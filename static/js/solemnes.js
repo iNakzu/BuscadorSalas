@@ -22,10 +22,28 @@ function levenshtein(a, b) {
 
 function isFuzzyMatch(str1, str2) {
     if (str1 === str2) return true;
+    const romanLevels = { i: '1', ii: '2', iii: '3', iv: '4', v: '5', vi: '6', vii: '7', viii: '8', ix: '9', x: '10' };
+    const levelTokens = value => String(value).split(/\s+/).map(token => {
+        const normalized = token.toLowerCase();
+        if (Object.prototype.hasOwnProperty.call(romanLevels, normalized)) return romanLevels[normalized];
+        return /^\d+$/.test(normalized) ? String(Number(normalized)) : null;
+    }).filter(token => token !== null);
+    const levelsA = levelTokens(str1);
+    const levelsB = levelTokens(str2);
+    if (levelsA.length !== levelsB.length || levelsA.some((level, index) => level !== levelsB[index])) return false;
+
+    const wordsA = str1.split(/\s+/).filter(Boolean);
+    const wordsB = str2.split(/\s+/).filter(Boolean);
+    if (wordsA.length === wordsB.length && wordsA.every((wordA, index) => {
+        const wordB = wordsB[index];
+        if (wordA === wordB) return true;
+        const shortest = Math.min(wordA.length, wordB.length);
+        if (shortest >= 5 && (wordA.startsWith(wordB) || wordB.startsWith(wordA))) return true;
+        return wordA.length >= 6 && wordB.length >= 6 && levenshtein(wordA, wordB) <= 1;
+    })) return true;
+
     if (str1.length < 5 || str2.length < 5) return false;
-    const dist = levenshtein(str1, str2);
-    const maxLen = Math.max(str1.length, str2.length);
-    return dist <= 2;
+    return levenshtein(str1, str2) <= 2;
 }
 
 const SOLEMNES_COLORS = {

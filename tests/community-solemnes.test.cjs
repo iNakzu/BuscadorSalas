@@ -14,6 +14,7 @@ const context = {
       { curso: 'Bases de Datos' },
       { curso: 'Probabilidades y Estadística' },
       { curso: 'Cálculo II' },
+      { curso: 'Arquitectura y Organiz de Computadores' },
       { curso: 'Mecánica', rol: 'assistant' }
     ] } }
   }) } },
@@ -32,7 +33,13 @@ const context = {
       { nombre: 'Mecánica de Fluidos (EIT)' },
       { nombre: 'Mecánica de Sólidos (EIT)' }
     ] },
-    { dia: 2, horario: '10:45 a 12:45', ramos: [{ nombre: 'Cálculo Dif. E Integral/Cálculo II' }] }
+    { dia: 2, horario: '10:45 a 12:45', ramos: [
+      { nombre: 'Cálculo Dif. E Integral/Cálculo II' },
+      { nombre: 'Cálculo I (EIT)' },
+      { nombre: 'Cálculo II (EIT)' },
+      { nombre: 'Cálculo III (EIT)' },
+      { nombre: 'Arquitectura y Organización de Computadores (EIT)' }
+    ] }
   ],
   localStorage: { getItem: () => null, setItem() {} },
   getChileTime: () => ({ totalMinutes: 0 }),
@@ -69,6 +76,10 @@ assert.match(container.innerHTML, /class="sol-ramo-pill dimmed"[^>]*>\s*Mecánic
 assert.match(container.innerHTML, /class="sol-ramo-pill dimmed"[^>]*>\s*Mecánica de Sólidos \(EIT\)/);
 assert.match(container.innerHTML, /class="sol-ramo-pill dimmed"[^>]*>\s*Probabilidades y Estadística \(EII EOC\)/);
 assert.match(container.innerHTML, /Cálculo Dif\. E Integral\/Cálculo II/);
+assert.match(container.innerHTML, /class="sol-ramo-pill dimmed"[^>]*>\s*Cálculo I \(EIT\)/);
+assert.match(container.innerHTML, /class="sol-ramo-pill matched" style="background: rgba\(255, 255, 255, 0\.15\); border-color: rgba\(255, 255, 255, 0\.7\); border-left-color: #ffffff;"[^>]*>\s*Cálculo II \(EIT\)/);
+assert.match(container.innerHTML, /class="sol-ramo-pill dimmed"[^>]*>\s*Cálculo III \(EIT\)/);
+assert.match(container.innerHTML, /class="sol-ramo-pill matched" style="background: rgba\(255, 255, 255, 0\.15\); border-color: rgba\(255, 255, 255, 0\.7\); border-left-color: #ffffff;"[^>]*>\s*Arquitectura y Organización de Computadores \(EIT\)/);
 assert.match(container.innerHTML, /sol-ramo-pill matched/);
 assert.match(container.innerHTML, /sol-ramo-pill dimmed/);
 assert.match(container.innerHTML, /solemnes-scroll-wrapper/);
