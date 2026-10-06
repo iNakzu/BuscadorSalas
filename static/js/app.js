@@ -61,16 +61,47 @@ function obtenerDiaActualNumero() {
 
 let mallaLoadedOnce = false;
 
+function mostrarAvisoAccesoMalla() {
+    const gate = document.getElementById('auth-gate');
+    if (!gate) return;
+    const title = gate.querySelector('h2');
+    const message = gate.querySelector('p');
+    const button = gate.querySelector('.auth-button');
+    if (title) title.textContent = 'Carrera requerida';
+    if (message) message.textContent = 'Selecciona y guarda tu carrera en Mi perfil para ingresar a la vista de malla.';
+    if (button) {
+        button.textContent = 'Ir a Mi perfil';
+        button.onclick = () => {
+            gate.hidden = true;
+            abrirPerfil();
+        };
+    }
+    gate.hidden = false;
+}
+
+function mostrarAvisoInicioSesion() {
+    const gate = document.getElementById('auth-gate');
+    if (!gate) return;
+    const title = gate.querySelector('h2');
+    const message = gate.querySelector('p');
+    const button = gate.querySelector('.auth-button');
+    if (title) title.textContent = 'Tu espacio personal';
+    if (message) message.textContent = 'Inicia sesión con tu cuenta institucional para abrir este módulo y sincronizarlo entre dispositivos.';
+    if (button) {
+        button.textContent = 'Continuar con Google';
+        button.onclick = () => window.PortalAuth && window.PortalAuth.signIn();
+    }
+    gate.hidden = false;
+}
+
 function cambiarTab(panelId, btn) {
     if (btn.dataset.private === 'true' && (!window.PortalAuth || !window.PortalAuth.user)) {
-        const gate = document.getElementById('auth-gate');
-        if (gate) gate.hidden = false;
+        mostrarAvisoInicioSesion();
         return;
     }
     if ((panelId === 'tab-malla' || panelId === 'tab-progreso') && window.PortalAuth && window.PortalAuth.user
         && (!window.PortalProfile || !window.PortalProfile.getCareerId())) {
-        abrirPerfil();
-        if (window.PortalProfile) window.PortalProfile.requireCareer();
+        mostrarAvisoAccesoMalla();
         return;
     }
     document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));

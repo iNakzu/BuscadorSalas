@@ -28,6 +28,7 @@ jobs:
           node tests/personal-store.test.cjs
           node tests/app-security.test.cjs
           node tests/auth-ui.test.cjs
+          node tests/malla-career-gate.test.cjs
           node tests/community-schedules.test.cjs
           node tests/admin-profile-editing.test.cjs
           node tests/public-shared-views.test.cjs

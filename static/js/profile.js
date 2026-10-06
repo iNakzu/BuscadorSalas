@@ -270,5 +270,5 @@
     });
     document.addEventListener('portal:auth-changed', () => load());
     document.addEventListener('DOMContentLoaded', async () => { await loadCareers(); await load(); });
-    window.PortalProfile = { load, getCareerId, requireCareer: () => setFeedback('Selecciona y guarda tu carrera para abrir su malla.', 'error') };
+    window.PortalProfile = { load, getCareerId };
 })();
