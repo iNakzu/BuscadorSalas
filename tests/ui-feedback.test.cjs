@@ -1,6 +1,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const vm = require('vm');
+const styles = fs.readFileSync('static/css/main.css', 'utf8');
 
 const elements = {};
 const originalFocus = { focus() { document.activeElement = this; } };
@@ -51,5 +52,7 @@ context.confirmarWeb('¿Continuar?', () => { confirmed = true; });
 elements['ui-feedback-primary-action'].onclick();
 assert(confirmed, 'confirmation action should run');
 assert.strictEqual(modal.style.display, 'none');
+
+assert(styles.includes('.ui-feedback-actions button { flex: 0 0 auto; min-height: 40px; width: auto;'), 'shared actions should stay compact');
 
 console.log('ui-feedback: shared dialog, accessible focus, escaped content and actions passed');

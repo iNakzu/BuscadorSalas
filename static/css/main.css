@@ -2281,9 +2281,9 @@ html {
 .ui-feedback-items { display: grid; gap: 7px; margin: 13px 0 0; padding: 0; list-style: none; }
 .ui-feedback-items li { padding: 9px 11px; border: 1px solid rgba(125, 211, 252, .14); border-radius: 11px; color: #d9f2ff; background: rgba(56, 189, 248, .08); font-size: 13px; font-weight: 650; line-height: 1.4; }
 .ui-feedback-close { position: absolute; top: 14px; right: 15px; border: 0; background: transparent; color: #94a3b8; cursor: pointer; font-size: 26px; line-height: 1; }
-.ui-feedback-actions { grid-column: 1 / -1; display: flex; width: 100%; gap: 12px; margin-top: 17px; }
-.ui-feedback-actions button { flex: 1; }
-.ui-feedback-actions button { border-radius: 12px; cursor: pointer; padding: 10px 14px; font-weight: 700; }
+.ui-feedback-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; width: 100%; gap: 9px; margin-top: 16px; }
+.ui-feedback-actions button { flex: 0 0 auto; min-height: 40px; width: auto; border-radius: 999px; cursor: pointer; padding: 8px 16px; font-size: 12px; font-weight: 700; transition: transform .16s ease, background .16s ease, border-color .16s ease; }
+.ui-feedback-actions button:hover { transform: translateY(-1px); }
 .ui-feedback-primary { border: 1px solid rgba(56, 189, 248, 0.35); background: linear-gradient(135deg, #38bdf8, #2563eb); color: #fff; }
 .ui-feedback-secondary { border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06); color: #cbd5e1; }
 .ui-feedback-danger { border: 1px solid rgba(248,113,113,0.35); background: rgba(239,68,68,0.16); color: #fca5a5; }
