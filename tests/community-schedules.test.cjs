@@ -56,6 +56,9 @@ const sharedSchedules = [{ user_id: 'friend', display_name: 'Ana García López'
   grades: { 'me|Cálculo': { items: [{ name: 'Solemne 1', weight: 30, grade: 6.1 }] } },
   agenda: [{ fecha: '2026-10-02', ramo: 'Cálculo', tipo: 'Solemne' }],
   curriculum: { 1: 2 }
+} }, { user_id: 'no-career', display_name: 'Perfil sin carrera', modules: {
+  schedule: { clases: [{ dia: 1, horaInicio: '08:30', horaFin: '09:50', curso: 'Álgebra', sala: 'E101' }] },
+  curriculum: { __careerId: 'legacy-career', 'legacy-career:1': 2 }
 } }];
 const client = { rpc: async (name, args) => {
   if (name === 'search_shared_profiles') {
@@ -63,11 +66,12 @@ const client = { rpc: async (name, args) => {
     return { data: sharedSchedules.map(({ user_id, display_name }) => ({ user_id, display_name })), error: null };
   }
   if (name === 'get_shared_profile_information') {
-    assert.deepStrictEqual(JSON.parse(JSON.stringify(args)), { p_user_id: 'friend' });
-    return { data: sharedSchedules[0].modules, error: null };
+    assert.deepStrictEqual(JSON.parse(JSON.stringify(args)), { p_user_id: args.p_user_id });
+    return { data: sharedSchedules.find(profile => profile.user_id === args.p_user_id).modules, error: null };
   }
   if (name === 'get_shared_profile_career') {
-    assert.deepStrictEqual(JSON.parse(JSON.stringify(args)), { p_user_id: 'friend' });
+    assert.deepStrictEqual(JSON.parse(JSON.stringify(args)), { p_user_id: args.p_user_id });
+    if (args.p_user_id === 'no-career') return { data: null, error: null };
     return { data: 'ingenieria-civil-en-obras-civiles', error: null };
   }
   throw new Error(`Unexpected RPC ${name}`);
@@ -117,6 +121,11 @@ vm.runInContext(source, context);
   assert.deepStrictEqual(JSON.parse(JSON.stringify(context.publicAgenda)), [
     { fecha: '2026-10-02', ramo: 'Cálculo', tipo: 'Solemne' }
   ]);
+  await context.window.PortalCommunity.select('no-career');
+  const profileWithoutCareer = context.window.PortalCommunity.getSelected();
+  assert.strictEqual(profileWithoutCareer.careerId, null);
+  assert.strictEqual(profileWithoutCareer.modules.curriculum.__careerId, undefined,
+    'a profile without a career must not inherit a legacy/default curriculum');
   for (const panelId of ['tab-mihorario', 'tab-solemnes', 'tab-notas', 'tab-agenda', 'tab-progreso']) {
     await context.window.PortalCommunity.select('friend');
     assert.strictEqual(context.window.PortalCommunity.getSelected().user_id, 'friend');

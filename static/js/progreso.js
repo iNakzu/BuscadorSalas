@@ -60,7 +60,11 @@ let loadedCurriculumId = '';
 
 function getProgressCareerId(progress = progresoState, preferProfile = false) {
     const configured = preferProfile && window.PortalProfile && window.PortalProfile.getCareerId();
-    return configured || (progress && typeof progress.__careerId === 'string' ? progress.__careerId : '');
+    const stored = configured || (progress && typeof progress.__careerId === 'string' ? progress.__careerId : '');
+    if (window.PortalProfile && window.PortalProfile.resolveCareerId && stored) {
+        return window.PortalProfile.resolveCareerId(stored) || '';
+    }
+    return stored;
 }
 
 function progressKey(careerId, courseId) { return `${careerId}:${courseId}`; }
@@ -366,6 +370,10 @@ document.addEventListener('portal:career-changed', event => {
 document.addEventListener('portal:auth-changed', () => {
     const careerId = window.PortalProfile && window.PortalProfile.getCareerId();
     if (careerId) progresoState.__careerId = careerId;
+    loadedCurriculumId = '';
+    renderProgreso();
+});
+document.addEventListener('portal:careers-ready', () => {
     loadedCurriculumId = '';
     renderProgreso();
 });

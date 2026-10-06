@@ -337,6 +337,15 @@ function renderSolemnes() {
     const publicSchedule = publicModules.schedule && publicModules.schedule.clases;
     const isPublicProfile = Boolean(publicProfile);
     const highlightToggle = document.getElementById('solemnes-highlight-toggle');
+    const highlightCopy = document.querySelector('.solemnes-highlight-control .profile-switch-copy');
+    if (highlightCopy) {
+        const title = highlightCopy.querySelector('strong');
+        const description = highlightCopy.querySelector('small');
+        if (title) title.textContent = isPublicProfile ? 'Destacar las solemnes de este perfil' : 'Destacar mis solemnes';
+        if (description) description.textContent = isPublicProfile
+            ? 'Compara el horario y la carrera del perfil seleccionado.'
+            : 'Usa tu horario y la escuela de tu carrera para resaltar las evaluaciones que te corresponden.';
+    }
     const highlightEnabled = highlightToggle
         ? Boolean(highlightToggle.checked)
         : (typeof localStorage !== 'undefined' && localStorage.getItem('solemnes-highlight-enabled') === 'true');
@@ -399,7 +408,9 @@ function renderSolemnes() {
         if (!highlightEnabled) status.textContent = 'El resaltado personal está desactivado.';
         else if (!careerId) status.textContent = 'Este perfil no tiene una carrera configurada; el calendario se muestra sin resaltados.';
         else if (isPublicProfile) status.textContent = `Resaltando las evaluaciones de ${escapeHtml(publicProfile.display_name || 'este perfil')}.`;
-        else if (!personalCourses.length) status.textContent = 'Agrega tu horario para comparar tus ramos.';
+        else if (!personalCourses.length) status.textContent = isPublicProfile
+            ? 'Este perfil no tiene un horario compartido para comparar sus ramos.'
+            : 'Agrega tu horario para comparar tus ramos.';
         else if (!school) status.textContent = 'No se pudo determinar la escuela de esta carrera; solo se resaltarán coincidencias sin ambigüedad.';
         else status.textContent = 'El calendario destaca las solemnes que coinciden con tu horario y carrera.';
     }
@@ -503,6 +514,12 @@ function renderSolemnes() {
                     } else if (cLower.includes('blanco') || cLower.includes('sin color')) {
                         theme = { bg: 'rgba(255, 255, 255, 0.05)', border: 'rgba(255, 255, 255, 0.2)', color: '#cbd5e1' };
                     }
+                }
+
+                // Preserve the pre-V1 community highlight: matched exams are
+                // stark white, while unmatched entries retain their course color.
+                if (shouldHighlight && isMatch) {
+                    theme = { bg: 'rgba(255, 255, 255, 0.15)', border: 'rgba(255, 255, 255, 0.7)', color: '#ffffff' };
                 }
                 
                 const styleAttr = (!isFiltering || isMatch)

@@ -62,6 +62,19 @@
         return loadedUsers.find(item => String(item.user_id || '') === selectedUserId) || null;
     }
 
+    function cacheProfileModules(profile) {
+        if (!profile || !profile.user_id || !profile.modules) return;
+        const id = String(profile.user_id);
+        const cached = {
+            modules: profile.modules,
+            careerId: profile.careerId || profile.modules.curriculum && profile.modules.curriculum.__careerId || null
+        };
+        profileModulesCache.set(id, cached);
+        if (profileModulesCache.size > MAX_CACHED_PROFILES) {
+            profileModulesCache.delete(profileModulesCache.keys().next().value);
+        }
+    }
+
     function hasAdminRole() {
         const user = window.PortalAuth && window.PortalAuth.user;
         return Boolean(user && user.app_metadata && user.app_metadata.portal_role === 'admin');
@@ -85,7 +98,7 @@
         }).then(({ error }) => {
             if (error) throw error;
             profile.modules[module] = payload;
-            profileModulesCache.set(String(profile.user_id), profile.modules);
+            cacheProfileModules(profile);
         }).catch(error => {
             console.error('No se pudieron guardar los cambios del perfil', error);
             throw error;
@@ -179,7 +192,7 @@
                 }
             } catch (_) {
                 profile.modules.schedule = clonePayload(snapshot);
-                profileModulesCache.set(String(profile.user_id), profile.modules);
+                cacheProfileModules(profile);
                 if (typeof window.mostrarHorarioPerfilEnMiHorario === 'function') {
                     window.mostrarHorarioPerfilEnMiHorario(scheduleClasses(snapshot));
                 }
@@ -194,7 +207,7 @@
         if (!saved || typeof saved.catch !== 'function') return saved;
         return saved.catch(() => {
             profile.modules[module] = previous;
-            profileModulesCache.set(String(profile.user_id), profile.modules);
+            cacheProfileModules(profile);
             if (module === 'schedule' && typeof window.mostrarHorarioPerfilEnMiHorario === 'function') {
                 window.mostrarHorarioPerfilEnMiHorario(scheduleClasses(previous));
             } else renderGenericViews(profile);
@@ -515,9 +528,10 @@
             // Other shared views can still render; Solemnes will not infer a missing career.
         }
         const modules = { ...response.data };
-        if (careerId && modules.curriculum && typeof modules.curriculum === 'object'
-            && !modules.curriculum.__careerId) {
-            modules.curriculum = { ...modules.curriculum, __careerId: careerId };
+        if (modules.curriculum && typeof modules.curriculum === 'object' && !Array.isArray(modules.curriculum)) {
+            modules.curriculum = { ...modules.curriculum };
+            if (careerId) modules.curriculum.__careerId = careerId;
+            else delete modules.curriculum.__careerId;
         }
         profileModulesCache.set(id, { modules, careerId });
         if (profileModulesCache.size > MAX_CACHED_PROFILES) {
@@ -851,7 +865,8 @@
             if (!hasAdminRole() || !profile || !profile.modules) return;
             const previous = clonePayload(profile.modules.curriculum || {});
             const progress = profile.modules.curriculum || (profile.modules.curriculum = {});
-            const careerId = progress.__careerId || 'ingenieria-civil-en-informatica-y-telecomunicaciones';
+            const careerId = profile.careerId || progress.__careerId || '';
+            if (!careerId) return;
             const key = `${careerId}:${String(courseId || '')}`;
             progress[key] = ((Number(progress[key]) || 0) + 1) % 3;
             saveAdminMutation(profile, 'curriculum', previous);

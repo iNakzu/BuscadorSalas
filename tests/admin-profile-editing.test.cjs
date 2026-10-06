@@ -21,6 +21,7 @@ const client = { rpc: async (name, args) => {
     agenda: [{ ramo: 'Álgebra', fecha: '2026-10-05', tipo: 'Control' }],
     curriculum: { __careerId: 'ingenieria-civil-en-informatica-y-telecomunicaciones' }
   }, error: null };
+  if (name === 'admin_get_profile_career') return { data: 'ingenieria-civil-en-informatica-y-telecomunicaciones', error: null };
   if (name === 'admin_update_profile_module') return { data: true, error: null };
   throw new Error(`Unexpected RPC: ${name}`);
 } };
@@ -94,5 +95,10 @@ vm.runInContext(source, context);
   assert.equal(selected.grades['me|Álgebra'].examGrade, 6.2);
   assert.equal(selected.agenda[0].notas, 'Revisar');
   assert.equal(selected.curriculum['ingenieria-civil-en-informatica-y-telecomunicaciones:1'], 1);
+  await context.window.PortalCommunity.select('target');
+  assert.equal(context.window.PortalCommunity.getSelected().careerId,
+    'ingenieria-civil-en-informatica-y-telecomunicaciones');
+  assert.equal(context.window.PortalCommunity.getSelected().modules.curriculum['ingenieria-civil-en-informatica-y-telecomunicaciones:1'], 1,
+    'admin module updates keep the selected profile cache and its career metadata in sync');
   console.log('admin-profile-editing: shared views stay in place and changes persist through admin RPCs');
 })().catch(error => { console.error(error); process.exit(1); });

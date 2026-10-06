@@ -9,14 +9,20 @@ const context = {
   window: { PortalProfile: { getCareerId: () => 'eit', getSchoolForCareer: () => 'EIT' }, PortalCommunity: { getSelected: () => ({
     display_name: 'Ana García',
     careerId: 'eit',
-    modules: { schedule: { clases: [{ curso: 'Bases de Datos' }, { curso: 'Cálculo II' }] } }
+    modules: { schedule: { clases: [{ curso: 'Bases de Datos' }, { curso: 'Probabilidades y Estadística' }, { curso: 'Cálculo II' }] } }
   }) } },
   document: {
     getElementById: id => id === 'solemnes-container' ? container : id === 'solemnes-search' ? search : id === 'solemnes-highlight-toggle' ? toggle : null,
+    querySelector: () => null,
     addEventListener() {}
   },
   SOLEMNES_DATA: [
-    { dia: 1, horario: '8:30 a 10:30', ramos: [{ nombre: 'Bases de Datos (EIT)' }, { nombre: 'Bases de Datos (EII)' }, { nombre: 'Química' }] },
+    { dia: 1, horario: '8:30 a 10:30', ramos: [
+      { nombre: 'Bases de Datos (EIT)' },
+      { nombre: 'Probabilidades y Estadística (EIT)' },
+      { nombre: 'Probabilidades y Estadística (EII EOC)' },
+      { nombre: 'Química' }
+    ] },
     { dia: 2, horario: '10:45 a 12:45', ramos: [{ nombre: 'Cálculo Dif. E Integral/Cálculo II' }] }
   ],
   localStorage: { getItem: () => null, setItem() {} },
@@ -43,8 +49,9 @@ toggle.checked = true;
 container.innerHTML = '';
 vm.runInContext('renderSolemnes()', context);
 assert.match(container.innerHTML, /Ana García/);
-assert.match(container.innerHTML, /Bases de Datos \(EIT\)/);
-assert.match(container.innerHTML, /class="sol-ramo-pill dimmed"[^>]*>\s*Bases de Datos \(EII\)/);
+assert.match(container.innerHTML, /class="sol-ramo-pill matched" style="background: rgba\(255, 255, 255, 0\.15\); border-color: rgba\(255, 255, 255, 0\.7\); border-left-color: #ffffff;"[^>]*>\s*Bases de Datos \(EIT\)/);
+assert.match(container.innerHTML, /class="sol-ramo-pill matched" style="background: rgba\(255, 255, 255, 0\.15\); border-color: rgba\(255, 255, 255, 0\.7\); border-left-color: #ffffff;"[^>]*>\s*Probabilidades y Estadística \(EIT\)/);
+assert.match(container.innerHTML, /class="sol-ramo-pill dimmed"[^>]*>\s*Probabilidades y Estadística \(EII EOC\)/);
 assert.match(container.innerHTML, /Cálculo Dif\. E Integral\/Cálculo II/);
 assert.match(container.innerHTML, /sol-ramo-pill matched/);
 assert.match(container.innerHTML, /sol-ramo-pill dimmed/);
