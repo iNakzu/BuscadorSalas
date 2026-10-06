@@ -123,6 +123,7 @@ class PushNotificationTests(unittest.TestCase):
         self.assertEqual(deliver_at(16, 0), ["Tu clase de Álgebra ha comenzado."])
         self.assertEqual(deliver_at(17, 25), ["Tu clase ha comenzado."])
         self.assertEqual(deliver_at(17, 20), ["Comienza tu descanso de 5 minutos antes de tu próxima clase."])
+        self.assertEqual(deliver_at(18, 45), ["Tu jornada de clases terminó por hoy."])
 
     @patch("app.blueprints.push_api.requests.get")
     def test_api_derives_user_from_validated_supabase_token(self, auth_get):

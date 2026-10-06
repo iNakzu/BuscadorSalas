@@ -257,6 +257,18 @@ def deliver_due(path, private_key_path, public_key, subject):
                                         "Tu clase termina en 10 minutos.", "tab-mihorario"))
                 for class_day, day_classes in classes_by_day.items():
                     day_classes.sort(key=lambda item: item[0])
+                    final_class = max(
+                        (item for item in day_classes if item[1]),
+                        key=lambda item: item[1],
+                        default=None,
+                    )
+                    if final_class:
+                        final_start, final_finish, _, final_finish_text = final_class
+                        final_end = int(final_finish.timestamp())
+                        if start_minute < final_end <= current_minute:
+                            due.append((uid,
+                                        f"day-end:{final_finish.date().isoformat()}:{class_day}:{final_start.strftime('%H:%M')}:{final_finish_text}",
+                                        "Tu jornada de clases terminó por hoy.", "tab-mihorario"))
                     for current_class, next_class in zip(day_classes, day_classes[1:]):
                         class_at, finish_at, class_time, class_finish = current_class
                         next_start = next_class[0]
