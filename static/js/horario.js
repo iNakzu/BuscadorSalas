@@ -87,7 +87,9 @@ window.portalGetSchedulePushData = () => (MI_HORARIO_DATA && Array.isArray(MI_HO
         day: Number(clase.dia),
         time: String(clase.horaInicio || '').slice(0, 5),
         finish: String(clase.horaFin || '').slice(0, 5),
-        course: String(clase.cursoDisplay || clase.curso || '').slice(0, 120)
+        course: String(clase.cursoDisplay || clase.curso || '').slice(0, 120),
+        type: String(clase.tipo || ''),
+        role: String(clase.rol || '')
     }));
 
 

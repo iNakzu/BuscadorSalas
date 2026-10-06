@@ -40,6 +40,7 @@ def _connect(path):
           user_id TEXT NOT NULL, day INTEGER NOT NULL, class_time TEXT NOT NULL,
           class_finish TEXT NOT NULL DEFAULT '',
           course_name TEXT NOT NULL DEFAULT '',
+          class_kind TEXT NOT NULL DEFAULT 'clase',
           PRIMARY KEY(user_id, day, class_time)
         );
         CREATE TABLE IF NOT EXISTS push_agenda (
@@ -56,6 +57,8 @@ def _connect(path):
         connection.execute("ALTER TABLE push_classes ADD COLUMN class_finish TEXT NOT NULL DEFAULT ''")
     if "course_name" not in class_columns:
         connection.execute("ALTER TABLE push_classes ADD COLUMN course_name TEXT NOT NULL DEFAULT ''")
+    if "class_kind" not in class_columns:
+        connection.execute("ALTER TABLE push_classes ADD COLUMN class_kind TEXT NOT NULL DEFAULT 'clase'")
     connection.commit()
     try:
         os.chmod(path, 0o600)
@@ -160,7 +163,15 @@ def sync_reminders(path, user_id, classes, agenda):
         if not isinstance(course_name, str):
             course_name = ""
         course_name = "".join(char for char in course_name.strip() if char.isprintable())[:120]
-        normalized_classes[(day, class_time)] = (class_finish, course_name)
+        class_type = item.get("type", "")
+        if not isinstance(class_type, str):
+            class_type = ""
+        class_role = item.get("role", "")
+        kind_source = class_type.casefold()
+        class_kind = "ayudantía" if class_role == "assistant" or "ayudant" in kind_source else (
+            "laboratorio" if "laboratorio" in kind_source else "clase"
+        )
+        normalized_classes[(day, class_time)] = (class_finish, course_name, class_kind)
     normalized_agenda = {}
     today = datetime.now(CHILE).date()
     for item in agenda:
@@ -189,9 +200,9 @@ def sync_reminders(path, user_id, classes, agenda):
         normalized_agenda[key] = event_at
     with _connect(path) as db:
         db.execute("DELETE FROM push_classes WHERE user_id=?", (user_id,))
-        db.executemany("INSERT INTO push_classes(user_id,day,class_time,class_finish,course_name) VALUES(?,?,?,?,?)",
-                       [(user_id, day, class_time, class_finish, course_name)
-                        for (day, class_time), (class_finish, course_name) in normalized_classes.items()])
+        db.executemany("INSERT INTO push_classes(user_id,day,class_time,class_finish,course_name,class_kind) VALUES(?,?,?,?,?,?)",
+                       [(user_id, day, class_time, class_finish, course_name, class_kind)
+                        for (day, class_time), (class_finish, course_name, class_kind) in normalized_classes.items()])
         db.execute("DELETE FROM push_agenda WHERE user_id=?", (user_id,))
         db.executemany("INSERT INTO push_agenda(user_id,event_key,event_at) VALUES(?,?,?)",
                        [(user_id, key, event_at) for key, event_at in normalized_agenda.items()])
@@ -210,6 +221,11 @@ def _send_push(endpoint, p256dh, auth, payload, private_key, subject):
         return "retry"
 
 
+def _class_notification_label(class_kind, course_name=""):
+    noun = class_kind if class_kind in ("ayudantía", "laboratorio") else "clase"
+    return f"{noun} de {course_name}" if course_name else noun
+
+
 def deliver_due(path, private_key_path, public_key, subject):
     if not private_key_path or not public_key:
         raise RuntimeError("push keys are not configured")
@@ -225,7 +241,7 @@ def deliver_due(path, private_key_path, public_key, subject):
         for pref in prefs:
             uid = pref["user_id"]
             if pref["classes"]:
-                rows = db.execute("SELECT day,class_time,class_finish,course_name FROM push_classes WHERE user_id=?", (uid,)).fetchall()
+                rows = db.execute("SELECT day,class_time,class_finish,course_name,class_kind FROM push_classes WHERE user_id=?", (uid,)).fetchall()
                 classes_by_day = {}
                 for row in rows:
                     class_day = int(row["day"])
@@ -241,20 +257,21 @@ def deliver_due(path, private_key_path, public_key, subject):
                         finish_at = datetime(target_day.year, target_day.month, target_day.day,
                                              end_hh, end_mm, tzinfo=CHILE)
                     course_name = str(row["course_name"] or "")
+                    class_label = _class_notification_label(str(row["class_kind"] or "clase"), course_name)
                     classes_by_day.setdefault(class_day, []).append((class_at, finish_at, row["class_time"], class_finish))
                     if start_minute < remind_at <= current_minute and class_at > now:
                         due.append((uid, f"class:{target_day.isoformat()}:{row['day']}:{row['class_time']}",
-                                    "Tu próxima clase comienza en 10 minutos.", "tab-mihorario"))
+                                    f"Tu {class_label} comienza en 10 minutos.", "tab-mihorario"))
                     class_start_at = int(class_at.timestamp())
                     if start_minute < class_start_at <= current_minute:
-                        start_message = f"Tu clase de {course_name} ha comenzado." if course_name else "Tu clase ha comenzado."
+                        start_message = f"Tu {class_label} ha comenzado."
                         due.append((uid, f"class-start:{target_day.isoformat()}:{row['day']}:{row['class_time']}",
                                     start_message, "tab-mihorario"))
                     if finish_at:
                         finish_reminder = int((finish_at - timedelta(minutes=10)).timestamp())
                         if start_minute < finish_reminder <= current_minute and finish_at > now:
                             due.append((uid, f"class-end:{target_day.isoformat()}:{row['day']}:{row['class_time']}:{class_finish}",
-                                        "Tu clase termina en 10 minutos.", "tab-mihorario"))
+                                        f"Tu {class_label} termina en 10 minutos.", "tab-mihorario"))
                 for class_day, day_classes in classes_by_day.items():
                     day_classes.sort(key=lambda item: item[0])
                     final_class = max(

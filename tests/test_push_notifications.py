@@ -65,7 +65,8 @@ class PushNotificationTests(unittest.TestCase):
         with sqlite3.connect(self.db) as db:
             db.execute("CREATE TABLE push_classes (user_id TEXT NOT NULL, day INTEGER NOT NULL, class_time TEXT NOT NULL, PRIMARY KEY(user_id, day, class_time))")
         sync_reminders(self.db, "user-a", [
-            {"day": 1, "time": "08:30", "finish": "09:50", "course": "PRIVATE COURSE NAME"},
+            {"day": 1, "time": "08:30", "finish": "09:50", "course": "PRIVATE COURSE NAME",
+             "type": "Cátedra", "role": "assistant"},
             {"day": 8, "time": "08:30"},
             {"day": 2, "time": "bad"},
         ], [
@@ -76,18 +77,18 @@ class PushNotificationTests(unittest.TestCase):
             {"key": "far-future", "date": "2099-01-01", "time": "12:15", "hasTime": True, "completed": False},
         ])
         with sqlite3.connect(self.db) as db:
-            classes = db.execute("SELECT day,class_time,class_finish,course_name FROM push_classes WHERE user_id=?", ("user-a",)).fetchall()
+            classes = db.execute("SELECT day,class_time,class_finish,course_name,class_kind FROM push_classes WHERE user_id=?", ("user-a",)).fetchall()
             agenda = db.execute("SELECT event_key,event_at FROM push_agenda WHERE user_id=?", ("user-a",)).fetchall()
             class_columns = [row[1] for row in db.execute("PRAGMA table_info(push_classes)")]
             agenda_columns = [row[1] for row in db.execute("PRAGMA table_info(push_agenda)")]
-        self.assertEqual(classes, [(1, "08:30", "09:50", "PRIVATE COURSE NAME")])
+        self.assertEqual(classes, [(1, "08:30", "09:50", "PRIVATE COURSE NAME", "ayudantía")])
         self.assertEqual(len(agenda), 2)
         self.assertTrue(all(len(row[0]) == 64 for row in agenda))  # Only one-way event identifiers are persisted.
         all_day_date = datetime.now(CHILE).date() + timedelta(days=3)
         expected_all_day_at = int(datetime(all_day_date.year, all_day_date.month, all_day_date.day,
                                             8, 0, tzinfo=CHILE).timestamp())
         self.assertIn(expected_all_day_at, {row[1] for row in agenda})
-        self.assertEqual(class_columns, ["user_id", "day", "class_time", "class_finish", "course_name"])
+        self.assertEqual(class_columns, ["user_id", "day", "class_time", "class_finish", "course_name", "class_kind"])
         self.assertEqual(agenda_columns, ["user_id", "event_key", "event_at"])
 
     def test_class_end_and_interclass_break_notifications(self):
@@ -98,9 +99,9 @@ class PushNotificationTests(unittest.TestCase):
             "keys": {"p256dh": b64url(b"p" * 65), "auth": b64url(b"a" * 16)},
         })
         sync_reminders(self.db, "user-a", [
-            {"day": 1, "time": "14:30", "finish": "15:50", "course": "Cálculo"},
-            {"day": 1, "time": "16:00", "finish": "17:20", "course": "Álgebra"},
-            {"day": 1, "time": "17:25", "finish": "18:45"},
+            {"day": 1, "time": "14:30", "finish": "15:50", "course": "Cálculo", "type": "Cátedra"},
+            {"day": 1, "time": "16:00", "finish": "17:20", "course": "Álgebra", "type": "Ayudantía Obligatoria"},
+            {"day": 1, "time": "17:25", "finish": "18:45", "course": "Sistemas", "type": "Laboratorio"},
         ], [])
 
         def deliver_at(local_hour, local_minute):
@@ -116,13 +117,16 @@ class PushNotificationTests(unittest.TestCase):
                 deliver_due(self.db, "/unused", "public-key", "https://horarios.dev/")
             return [json.loads(call.args[3])["body"] for call in sender.call_args_list]
 
-        self.assertEqual(deliver_at(15, 40), ["Tu clase termina en 10 minutos."])
+        self.assertEqual(deliver_at(15, 40), ["Tu clase de Cálculo termina en 10 minutos."])
         at_ten_minute_gap = deliver_at(15, 50)
         self.assertIn("Comienza tu descanso de 10 minutos antes de tu próxima clase.", at_ten_minute_gap)
-        self.assertIn("Tu próxima clase comienza en 10 minutos.", at_ten_minute_gap)
-        self.assertEqual(deliver_at(16, 0), ["Tu clase de Álgebra ha comenzado."])
-        self.assertEqual(deliver_at(17, 25), ["Tu clase ha comenzado."])
+        self.assertIn("Tu ayudantía de Álgebra comienza en 10 minutos.", at_ten_minute_gap)
+        self.assertEqual(deliver_at(16, 0), ["Tu ayudantía de Álgebra ha comenzado."])
+        self.assertEqual(deliver_at(17, 10), ["Tu ayudantía de Álgebra termina en 10 minutos."])
+        self.assertEqual(deliver_at(17, 15), ["Tu laboratorio de Sistemas comienza en 10 minutos."])
+        self.assertEqual(deliver_at(17, 25), ["Tu laboratorio de Sistemas ha comenzado."])
         self.assertEqual(deliver_at(17, 20), ["Comienza tu descanso de 5 minutos antes de tu próxima clase."])
+        self.assertEqual(deliver_at(18, 35), ["Tu laboratorio de Sistemas termina en 10 minutos."])
         self.assertEqual(deliver_at(18, 45), ["Tu jornada de clases terminó por hoy."])
 
     @patch("app.blueprints.push_api.requests.get")
