@@ -198,16 +198,6 @@ const customStyles = `
         min-width: 1200px; /* Force wide layout for horizontal scroll */
         margin-top: 20px;
     }
-    .solemnes-profile-note {
-        margin: 14px 16px 0;
-        padding: 10px 12px;
-        border: 1px solid rgba(56, 189, 248, 0.22);
-        border-radius: 10px;
-        background: rgba(14, 165, 233, 0.08);
-        color: #bae6fd;
-        font-size: 12px;
-        line-height: 1.5;
-    }
     .solemnes-highlight-control { margin: 10px 0 0; }
     .solemnes-highlight-control .profile-switch-copy small { max-width: 680px; }
     
@@ -405,12 +395,15 @@ function renderSolemnes() {
 
     const status = document.getElementById('solemnes-highlight-status');
     if (status) {
+        status.hidden = false;
         if (!highlightEnabled) status.textContent = 'El resaltado personal está desactivado.';
         else if (!careerId) status.textContent = 'Este perfil no tiene una carrera configurada; el calendario se muestra sin resaltados.';
-        else if (isPublicProfile) status.textContent = `Resaltando las evaluaciones de ${escapeHtml(publicProfile.display_name || 'este perfil')}.`;
-        else if (!personalCourses.length) status.textContent = isPublicProfile
-            ? 'Este perfil no tiene un horario compartido para comparar sus ramos.'
-            : 'Agrega tu horario para comparar tus ramos.';
+        else if (isPublicProfile && !personalCourses.length) status.textContent = 'Este perfil no tiene un horario compartido para comparar sus ramos.';
+        else if (isPublicProfile && school) {
+            status.textContent = '';
+            status.hidden = true;
+        }
+        else if (!personalCourses.length) status.textContent = 'Agrega tu horario para comparar tus ramos.';
         else if (!school) status.textContent = 'No se pudo determinar la escuela de esta carrera; solo se resaltarán coincidencias sin ambigüedad.';
         else status.textContent = 'El calendario destaca las solemnes que coinciden con tu horario y carrera.';
     }
@@ -546,7 +539,6 @@ function renderSolemnes() {
 
     const finalHtml = `
         ${customStyles}
-        ${shouldHighlight && isPublicProfile ? `<div class="solemnes-profile-note">Se resaltan las solemnes que coinciden con los ramos y la carrera de <strong>${escapeHtml(publicProfile.display_name || 'esta persona')}</strong>.</div>` : ''}
         <div class="solemnes-scroll-wrapper">
             ${gridHtml}
         </div>

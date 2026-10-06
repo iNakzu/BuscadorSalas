@@ -96,7 +96,6 @@
 #tab-mihorario.public-profile-active .schedule-import-control,
 #tab-mihorario.public-profile-active .my-modal-overlay { display: none !important; }
 #tab-mihorario.public-profile-admin-edit .my-modal-overlay { display: flex !important; }
-#tab-solemnes.public-profile-active > .search-field { display: none !important; }
 
 @media (max-width: 600px) {
   .public-profile-toolbar { align-items: stretch; flex-direction: column; gap: 9px; padding: 11px 12px; }

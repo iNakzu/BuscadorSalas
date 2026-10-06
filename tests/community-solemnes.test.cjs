@@ -5,6 +5,7 @@ const vm = require('vm');
 const container = { innerHTML: '' };
 const search = { value: '' };
 const toggle = { checked: false };
+const status = { textContent: '', hidden: false };
 const context = {
   window: { PortalProfile: { getCareerId: () => 'eit', getSchoolForCareer: () => 'EIT' }, PortalCommunity: { getSelected: () => ({
     display_name: 'Ana García',
@@ -12,7 +13,7 @@ const context = {
     modules: { schedule: { clases: [{ curso: 'Bases de Datos' }, { curso: 'Probabilidades y Estadística' }, { curso: 'Cálculo II' }] } }
   }) } },
   document: {
-    getElementById: id => id === 'solemnes-container' ? container : id === 'solemnes-search' ? search : id === 'solemnes-highlight-toggle' ? toggle : null,
+    getElementById: id => id === 'solemnes-container' ? container : id === 'solemnes-search' ? search : id === 'solemnes-highlight-toggle' ? toggle : id === 'solemnes-highlight-status' ? status : null,
     querySelector: () => null,
     addEventListener() {}
   },
@@ -37,7 +38,7 @@ assert.match(source, /#tab-solemnes \{[\s\S]*?overflow: visible !important;/);
 assert.match(source, /\.solemnes-scroll-wrapper \{[\s\S]*?overflow-x: auto;/);
 assert.match(source, /@media \(max-width: 1023px\) \{\s*\.solemnes-scroll-wrapper \{\s*width: 100vw;\s*max-width: none;\s*margin-left: calc\(-50vw \+ 50%\);\s*padding-left: 32px;/);
 assert.match(source, /\.solemnes-scroll-wrapper \{[\s\S]*?padding: 0 16px 20px 16px;/);
-assert.match(fs.readFileSync('static/css/community.css', 'utf8'), /#tab-solemnes\.public-profile-active > \.search-field \{ display: none !important; \}/);
+assert.doesNotMatch(fs.readFileSync('static/css/community.css', 'utf8'), /#tab-solemnes\.public-profile-active > \.search-field \{ display: none !important; \}/);
 vm.createContext(context);
 vm.runInContext(source, context);
 vm.runInContext('renderSolemnes()', context);
@@ -48,7 +49,9 @@ assert.match(container.innerHTML, /Bases de Datos \(EIT\)/);
 toggle.checked = true;
 container.innerHTML = '';
 vm.runInContext('renderSolemnes()', context);
-assert.match(container.innerHTML, /Ana García/);
+assert.doesNotMatch(container.innerHTML, /Resaltando las evaluaciones|Se resaltan las solemnes/);
+assert.strictEqual(status.textContent, '');
+assert.strictEqual(status.hidden, true);
 assert.match(container.innerHTML, /class="sol-ramo-pill matched" style="background: rgba\(255, 255, 255, 0\.15\); border-color: rgba\(255, 255, 255, 0\.7\); border-left-color: #ffffff;"[^>]*>\s*Bases de Datos \(EIT\)/);
 assert.match(container.innerHTML, /class="sol-ramo-pill matched" style="background: rgba\(255, 255, 255, 0\.15\); border-color: rgba\(255, 255, 255, 0\.7\); border-left-color: #ffffff;"[^>]*>\s*Probabilidades y Estadística \(EIT\)/);
 assert.match(container.innerHTML, /class="sol-ramo-pill dimmed"[^>]*>\s*Probabilidades y Estadística \(EII EOC\)/);
