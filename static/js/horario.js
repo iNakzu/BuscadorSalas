@@ -1086,10 +1086,7 @@ function renderMiHorario() {
                                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
                                     <span>${escapeHtml(s)}</span>
                                 </span>
-                                `).join('') || `<span class="my-room-pill is-unassigned-room" aria-label="Sala no asignada" title="Sin sala asignada">
-                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-                                    <span>-</span>
-                                </span>`}
+                                `).join('')}
                                 <span class="my-card-bloque-num">Bloque ${escapeHtml(c.bloqueNum)}</span>
                             </div>
                         </div>
