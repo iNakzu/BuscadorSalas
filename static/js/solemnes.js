@@ -518,7 +518,9 @@ function renderSolemnes() {
                 const styleAttr = (!isFiltering || isMatch)
                     ? `style="background: ${theme.bg}; border-color: ${theme.border}; border-left-color: ${theme.color};"`
                     : '';
-                const matchClass = !isFiltering ? '' : (isMatch ? 'matched' : 'dimmed');
+                // The matched class supplies the normal capsule border and
+                // thick left accent too; keep it when no personal filter is active.
+                const matchClass = isMatch ? 'matched' : 'dimmed';
                 
                 cellContent += `
                     <div class="sol-ramo-pill ${matchClass}" ${styleAttr}>
