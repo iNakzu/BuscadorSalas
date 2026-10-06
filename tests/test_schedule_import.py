@@ -536,6 +536,28 @@ class ScheduleImportEndpointTest(unittest.TestCase):
         get_classes.assert_called_once()
 
     @patch("app.blueprints.academic_api.dm.get_classes")
+    def test_schedule_sync_does_not_match_a_different_numbered_course_level(self, get_classes):
+        from app.blueprints.academic_api import _course_name_distance
+
+        get_classes.return_value = [{"node": {
+            "course": "CÁLCULO III", "day": 2, "start": "11:30:00", "finish": "12:50:00",
+            "place": "E441.2.S205", "teacher": "DOCENTE DE CÁLCULO III", "section": 3, "code": "CBM1103",
+        }}]
+        original = {
+            "curso": "Cálculo II", "dia": 2, "horaInicio": "11:30", "horaFin": "12:50",
+            "bloqueNum": 3, "seccion": "", "sala": "", "profesor": "",
+        }
+
+        self.assertIsNone(_course_name_distance("Cálculo II", "Cálculo III"))
+        self.assertIsNone(_course_name_distance("Cálculo II", "Cálculo I"))
+        self.assertEqual(_course_name_distance("Cálculo II", "Cálculo 2"), 0)
+        response = self.client.post("/api/sync_horario", json={"clases": [original]})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), [original])
+        get_classes.assert_called_once()
+
+    @patch("app.blueprints.academic_api.dm.get_classes")
     def test_schedule_sync_preserves_known_course_acronyms_in_official_name(self, get_classes):
         get_classes.return_value = [{"node": {
             "course": "EVALUACIÓN DE PROYECTOS TIC", "day": 1, "start": "08:30:00", "finish": "09:50:00",

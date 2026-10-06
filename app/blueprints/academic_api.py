@@ -33,15 +33,33 @@ def _normalized_match_text(value):
 
 
 _COURSE_NAME_MAX_DISTANCE = 4
-_COURSE_NAME_EQUIVALENCES = frozenset((
-    "arquitectura y organizacion de computadores",
-    "arquitectura y organiz de computadores",
-))
+_ROMAN_COURSE_LEVELS = {
+    "i": "1", "ii": "2", "iii": "3", "iv": "4", "v": "5",
+    "vi": "6", "vii": "7", "viii": "8", "ix": "9", "x": "10",
+}
 
 
 def _normalized_course_name(value):
-    normalized = _normalized_match_text(value)
-    return "arquitectura y organizacion de computadores" if normalized in _COURSE_NAME_EQUIVALENCES else normalized
+    normalized = " ".join(re.findall(r"[a-z0-9]+", _normalized_match_text(value)))
+    canonical_tokens = []
+    for token in normalized.split():
+        if token in _ROMAN_COURSE_LEVELS:
+            canonical_tokens.append(_ROMAN_COURSE_LEVELS[token])
+        elif token.isdigit():
+            canonical_tokens.append(str(int(token)))
+        else:
+            canonical_tokens.append(token)
+    return " ".join(canonical_tokens)
+
+
+def _course_level_tokens(value):
+    levels = []
+    for token in _normalized_course_name(value).split():
+        if token in _ROMAN_COURSE_LEVELS:
+            levels.append(_ROMAN_COURSE_LEVELS[token])
+        elif token.isdigit():
+            levels.append(str(int(token)))
+    return levels
 
 
 def _course_name_distance(left, right):
@@ -49,14 +67,24 @@ def _course_name_distance(left, right):
     right = _normalized_course_name(right)
     if left == right:
         return 0
+    if _course_level_tokens(left) != _course_level_tokens(right):
+        return None
     left_tokens = left.split()
     right_tokens = right.split()
     if len(left_tokens) == len(right_tokens) and all(
         left_token == right_token
-        or (len(left_token) >= 4 and right_token.startswith(left_token))
+        or (
+            min(len(left_token), len(right_token)) >= 4
+            and (left_token.startswith(right_token) or right_token.startswith(left_token))
+        )
         for left_token, right_token in zip(left_tokens, right_tokens)
     ):
-        return sum(left_token != right_token for left_token, right_token in zip(left_tokens, right_tokens))
+        # Preserve a complete name the user typed when the JSON abbreviates
+        # it; when the user typed an abbreviation, prefer the official title.
+        return sum(
+            1 for left_token, right_token in zip(left_tokens, right_tokens)
+            if left_token != right_token and not left_token.startswith(right_token)
+        )
     max_distance = min(_COURSE_NAME_MAX_DISTANCE, max(1, max(len(left), len(right)) // 5))
     if abs(len(left) - len(right)) > max_distance:
         return None
@@ -608,7 +636,7 @@ def api_sync_horario():
             normalized_official_course = _normalized_match_text(official_course)
             equivalently_named_course = (
                 normalized_user_course != normalized_official_course
-                and _normalized_course_name(course) == _normalized_course_name(official_course)
+                and _course_name_distance(course, official_course) == 0
             )
             if not equivalently_named_course:
                 user_class["curso"] = fallback_course_display(official_course)
