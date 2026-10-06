@@ -371,26 +371,30 @@ function renderSolemnes() {
         return found;
     }
 
-    function matchesPersonalCourse(examName) {
-        if (!careerId || !personalCourses.length) return false;
+    function matchingPersonalCourses(examName) {
+        if (!careerId || !personalCourses.length) return [];
         const examSchools = schoolsInExamName(examName);
-        if (examSchools.size && (!school || !examSchools.has(school))) return false;
+        if (examSchools.size && (!school || !examSchools.has(school))) return [];
         const examNames = comparableNames(examName);
-        const candidates = personalCourses.some(course => {
-            const courseNames = comparableNames(course);
+        const candidates = (Array.isArray(personalSchedule) ? personalSchedule : []).filter(course => {
+            const courseNames = comparableNames(course && course.curso);
             return courseNames.some(courseName => examNames.some(exam =>
                 courseName === exam ||
                 (Math.min(courseName.length, exam.length) >= 8 && (courseName.includes(exam) || exam.includes(courseName))) ||
                 isFuzzyMatch(courseName, exam)
             ));
         });
-        if (!candidates || examSchools.size) return candidates;
+        if (!candidates.length || examSchools.size) return candidates;
 
         const allVariants = (Array.isArray(SOLEMNES_DATA) ? SOLEMNES_DATA : [])
             .flatMap(day => Array.isArray(day.ramos) ? day.ramos : [])
             .filter(item => comparableNames(item.nombre).some(exam => examNames.includes(exam)));
         const schoolsAcrossVariants = new Set(allVariants.flatMap(item => [...schoolsInExamName(item.nombre)]));
-        return schoolsAcrossVariants.size <= 1;
+        return schoolsAcrossVariants.size <= 1 ? candidates : [];
+    }
+
+    function matchesPersonalCourse(examName) {
+        return matchingPersonalCourses(examName).length > 0;
     }
 
     const status = document.getElementById('solemnes-highlight-status');
@@ -486,7 +490,8 @@ function renderSolemnes() {
 
             let cellContent = '';
             ramos.forEach(r => {
-                const isMatch = (!shouldHighlight || matchesPersonalCourse(r.nombre))
+                const matchingCourses = shouldHighlight ? matchingPersonalCourses(r.nombre) : [];
+                const isMatch = (!shouldHighlight || matchingCourses.length > 0)
                     && (!query || normStr(r.nombre).includes(query));
                 
                 let theme = { bg: 'rgba(56, 189, 248, 0.15)', border: 'rgba(56, 189, 248, 0.4)', color: '#38bdf8' }; // Default Celeste
@@ -510,7 +515,10 @@ function renderSolemnes() {
                 // Preserve the pre-V1 community highlight: matched exams are
                 // stark white, while unmatched entries retain their course color.
                 if (shouldHighlight && isMatch) {
-                    theme = { bg: 'rgba(255, 255, 255, 0.15)', border: 'rgba(255, 255, 255, 0.7)', color: '#ffffff' };
+                    const isAssistantCourse = matchingCourses.some(course => String(course && course.rol || '').toLowerCase() === 'assistant');
+                    theme = isAssistantCourse
+                        ? { bg: 'linear-gradient(135deg, rgba(217, 119, 6, 0.24), rgba(180, 83, 9, 0.20))', border: 'rgba(251, 191, 36, 0.48)', color: '#fbbf24' }
+                        : { bg: 'rgba(255, 255, 255, 0.15)', border: 'rgba(255, 255, 255, 0.7)', color: '#ffffff' };
                 }
                 
                 const styleAttr = (!isFiltering || isMatch)
