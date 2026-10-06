@@ -219,6 +219,13 @@ function actualizarHeroMiHorario() {
         return 'En cátedra';
     }
 
+    function getSalaAsignada(c) {
+        const sala = String(c && c.sala || '').trim();
+        const normalizada = sala.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es').replace(/\s+/g, ' ');
+        const marcadorVacio = /^(?:[-–—]+|sala\s+-|(?:sala\s+)?(?:no definida|no asignada)|sin sala(?:\s*\/\s*en linea)?|en linea)$/.test(normalizada);
+        return sala && !marcadorVacio ? sala : '';
+    }
+
     // --- Obtener hora actual en Chile ---
     const chileTime = getChileTime();
     const nowDay  = chileTime.dayOfWeek;
@@ -253,6 +260,7 @@ function actualizarHeroMiHorario() {
 
     if (claseActiva) {
         const c = claseActiva;
+        const sala = getSalaAsignada(c);
         const ini = timeToMinutes(c.horaInicio);
         const fin = timeToMinutes(c.horaFin);
         const durTotal = fin - ini;
@@ -273,7 +281,7 @@ function actualizarHeroMiHorario() {
                         <span class="my-course-display">${escapeHtml(getCourseDisplay(c))}</span>
                     </div>
                     <div class="my-hero-subtitle">
-                        ${c.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${escapeHtml(c.sala)}</span></span>` : ''}
+                        ${sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${escapeHtml(sala)}</span></span>` : ''}
                         <span style="${pill_style}">Quedan <strong>${quedan}m</strong></span>
                     </div>
                 </div>
@@ -284,6 +292,7 @@ function actualizarHeroMiHorario() {
 
     } else if (proximaHoy) {
         const c = proximaHoy;
+        const sala = getSalaAsignada(c);
         const minsParaEmpezar = timeToMinutes(c.horaInicio) - nowMins;
         const hrs = Math.floor(minsParaEmpezar / 60);
         const mins = minsParaEmpezar % 60;
@@ -312,7 +321,7 @@ function actualizarHeroMiHorario() {
                             <span>Tienes clase de <strong class="my-course-display">${escapeHtml(getCourseDisplay(c))}</strong></span>
                             <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>${escapeHtml(c.diaNombre)} ${escapeHtml(c.horaInicio)}</span></span>
                             <span style="${pill_style}">${escapeHtml(getShortClassRole(c))}</span>
-                            ${c.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${escapeHtml(c.sala)}</span></span>` : ''}
+                            ${sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${escapeHtml(sala)}</span></span>` : ''}
                         </div>
                     </div>
                 </div>
@@ -320,6 +329,7 @@ function actualizarHeroMiHorario() {
 
     } else if (todasTerminaron) {
         const c = proximaFutura;
+        const sala = getSalaAsignada(c);
         html = `
             <div class="my-hero-top">
                 <div class="my-hero-status-pill done">
@@ -335,7 +345,7 @@ function actualizarHeroMiHorario() {
                             <span>Tu siguiente clase es <strong class="my-course-display">${escapeHtml(getCourseDisplay(c))}</strong></span>
                             <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>${escapeHtml(c.diaNombre)} ${escapeHtml(c.horaInicio)}</span></span>
                             <span style="${pill_style}">${escapeHtml(getShortClassRole(c))}</span>
-                            ${c.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${escapeHtml(c.sala)}</span></span>` : ''}
+                            ${sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${escapeHtml(sala)}</span></span>` : ''}
                         </div>
                     </div>
                 </div>
@@ -343,6 +353,7 @@ function actualizarHeroMiHorario() {
 
     } else {
         const c = proximaFutura;
+        const sala = getSalaAsignada(c);
         const estadoSinClase = nowDay >= 1 && nowDay <= 5 ? 'Sin clases hoy' : 'Fin de semana';
         html = `
             <div class="my-hero-top">
@@ -359,7 +370,7 @@ function actualizarHeroMiHorario() {
                             <span>Tu siguiente clase es <strong class="my-course-display">${escapeHtml(getCourseDisplay(c))}</strong></span>
                             <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>${escapeHtml(c.diaNombre)} ${escapeHtml(c.horaInicio)}</span></span>
                             <span style="${pill_style}">${escapeHtml(getShortClassRole(c))}</span>
-                            ${c.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${escapeHtml(c.sala)}</span></span>` : ''}
+                            ${sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${escapeHtml(sala)}</span></span>` : ''}
                         </div>
                     </div>
                 </div>
