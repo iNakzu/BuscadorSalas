@@ -11,7 +11,7 @@
           "idVisible": false,
           "nombre": "Álgebra y Geometría",
           "requisitos": [],
-          "color": "211, 213, 214",
+          "color": "203, 213, 225",
           "keywords": [
             "algebra y geometria"
           ]
@@ -21,7 +21,7 @@
           "idVisible": false,
           "nombre": "Cálculo I",
           "requisitos": [],
-          "color": "211, 213, 214",
+          "color": "203, 213, 225",
           "keywords": [
             "calculo i"
           ]
@@ -31,7 +31,7 @@
           "idVisible": false,
           "nombre": "Química",
           "requisitos": [],
-          "color": "211, 213, 214",
+          "color": "203, 213, 225",
           "keywords": [
             "quimica"
           ]
@@ -41,7 +41,7 @@
           "idVisible": false,
           "nombre": "Programación",
           "requisitos": [],
-          "color": "172, 205, 196",
+          "color": "134, 239, 172",
           "keywords": [
             "programacion"
           ]
@@ -51,8 +51,7 @@
           "idVisible": false,
           "nombre": "Comunicación para la Ingeniería",
           "requisitos": [],
-          "color": "240, 240, 240",
-          "border": "255, 82, 82",
+          "color": "248, 250, 252",
           "keywords": [
             "comunicacion para la ingenieria"
           ]
@@ -67,7 +66,7 @@
           "idVisible": false,
           "nombre": "Álgebra Lineal",
           "requisitos": [],
-          "color": "211, 213, 214",
+          "color": "203, 213, 225",
           "keywords": [
             "algebra lineal"
           ]
@@ -77,7 +76,7 @@
           "idVisible": false,
           "nombre": "Cálculo II",
           "requisitos": [],
-          "color": "211, 213, 214",
+          "color": "203, 213, 225",
           "keywords": [
             "calculo ii"
           ]
@@ -87,7 +86,7 @@
           "idVisible": false,
           "nombre": "Mecánica",
           "requisitos": [],
-          "color": "211, 213, 214",
+          "color": "203, 213, 225",
           "keywords": [
             "mecanica"
           ]
@@ -97,7 +96,7 @@
           "idVisible": false,
           "nombre": "Programación Avanzada o Ingeniería de los Materiales",
           "requisitos": [],
-          "color": "172, 205, 196",
+          "color": "203, 213, 225",
           "keywords": [
             "programacion avanzada o ingenieria de los materiales",
             "programacion avanzada",
@@ -109,8 +108,7 @@
           "idVisible": false,
           "nombre": "Curso de Formación General",
           "requisitos": [],
-          "color": "240, 240, 240",
-          "border": "255, 82, 82",
+          "color": "248, 250, 252",
           "keywords": [
             "curso de formacion general"
           ]

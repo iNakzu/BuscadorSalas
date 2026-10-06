@@ -11,7 +11,7 @@
           "codigo": "CBM-1000",
           "nombre": "Álgebra y Geometría",
           "requisitos": [],
-          "color": "152, 206, 255",
+          "color": "203, 213, 225",
           "keywords": [
             "algebra y geometria"
           ]
@@ -21,7 +21,7 @@
           "codigo": "CBM-1001",
           "nombre": "Cálculo I",
           "requisitos": [],
-          "color": "152, 206, 255",
+          "color": "203, 213, 225",
           "keywords": [
             "calculo i"
           ]
@@ -31,7 +31,7 @@
           "codigo": "CBQ-1000",
           "nombre": "Química",
           "requisitos": [],
-          "color": "152, 206, 255",
+          "color": "203, 213, 225",
           "keywords": [
             "quimica"
           ]
@@ -41,7 +41,7 @@
           "codigo": "CIT-1000",
           "nombre": "Programación",
           "requisitos": [],
-          "color": "212, 251, 202",
+          "color": "134, 239, 172",
           "keywords": [
             "programacion"
           ]
@@ -51,7 +51,7 @@
           "codigo": "FIC-1000",
           "nombre": "Comunicación para la Ingeniería",
           "requisitos": [],
-          "color": "253, 202, 151",
+          "color": "248, 250, 252",
           "keywords": [
             "comunicacion para la ingenieria"
           ]
@@ -68,7 +68,7 @@
           "requisitos": [
             "1"
           ],
-          "color": "225, 241, 255",
+          "color": "203, 213, 225",
           "keywords": [
             "algebra lineal"
           ]
@@ -80,7 +80,7 @@
           "requisitos": [
             "2"
           ],
-          "color": "225, 241, 255",
+          "color": "203, 213, 225",
           "keywords": [
             "calculo ii"
           ]
@@ -92,7 +92,7 @@
           "requisitos": [
             "2"
           ],
-          "color": "225, 241, 255",
+          "color": "203, 213, 225",
           "keywords": [
             "mecanica"
           ]
@@ -104,7 +104,7 @@
           "requisitos": [
             "3"
           ],
-          "color": "225, 241, 255",
+          "color": "203, 213, 225",
           "keywords": [
             "ingenieria de materiales",
             "ingenieria en materiales"
@@ -115,7 +115,7 @@
           "codigo": "CFG-1",
           "nombre": "Curso de Formación General",
           "requisitos": [],
-          "color": "253, 202, 151",
+          "color": "248, 250, 252",
           "keywords": [
             "curso de formacion general"
           ]
@@ -133,7 +133,7 @@
             "6",
             "7"
           ],
-          "color": "225, 241, 255",
+          "color": "203, 213, 225",
           "keywords": [
             "ecuaciones diferenciales"
           ]
@@ -145,7 +145,7 @@
           "requisitos": [
             "7"
           ],
-          "color": "225, 241, 255",
+          "color": "203, 213, 225",
           "keywords": [
             "calculo iii"
           ]
@@ -158,7 +158,7 @@
             "7",
             "8"
           ],
-          "color": "225, 241, 255",
+          "color": "203, 213, 225",
           "keywords": [
             "calor y ondas"
           ]
@@ -171,7 +171,7 @@
             "7",
             "8"
           ],
-          "color": "225, 241, 255",
+          "color": "203, 213, 225",
           "keywords": [
             "estatica"
           ]
@@ -181,7 +181,7 @@
           "codigo": "CFG-2",
           "nombre": "Curso de Formación General",
           "requisitos": [],
-          "color": "253, 202, 151",
+          "color": "248, 250, 252",
           "keywords": [
             "curso de formacion general"
           ]
@@ -191,7 +191,7 @@
           "codigo": "FIC-1001",
           "nombre": "Inglés I",
           "requisitos": [],
-          "color": "253, 202, 151",
+          "color": "248, 250, 252",
           "keywords": [
             "ingles i"
           ]
@@ -208,7 +208,7 @@
           "requisitos": [
             "7"
           ],
-          "color": "243, 254, 240",
+          "color": "134, 239, 172",
           "keywords": [
             "probabilidad y estadistica",
             "probabilidades y estadistica",
@@ -222,7 +222,7 @@
           "requisitos": [
             "14"
           ],
-          "color": "243, 254, 240",
+          "color": "56, 189, 248",
           "keywords": [
             "mecanica de fluidos"
           ]
@@ -235,7 +235,7 @@
             "11",
             "12"
           ],
-          "color": "225, 241, 255",
+          "color": "203, 213, 225",
           "keywords": [
             "electricidad y magnetismo"
           ]
@@ -247,7 +247,7 @@
           "requisitos": [
             "14"
           ],
-          "color": "243, 254, 240",
+          "color": "56, 189, 248",
           "keywords": [
             "mecanica de solidos"
           ]
@@ -259,7 +259,7 @@
           "requisitos": [
             "9"
           ],
-          "color": "255, 254, 224",
+          "color": "56, 189, 248",
           "keywords": [
             "edificacion"
           ]
@@ -271,7 +271,7 @@
           "requisitos": [
             "16"
           ],
-          "color": "254, 240, 225",
+          "color": "248, 250, 252",
           "keywords": [
             "ingles ii"
           ]
@@ -289,7 +289,7 @@
             "6",
             "12"
           ],
-          "color": "255, 254, 224",
+          "color": "134, 239, 172",
           "keywords": [
             "optimizacion"
           ]
@@ -301,7 +301,7 @@
           "requisitos": [
             "18"
           ],
-          "color": "255, 254, 224",
+          "color": "56, 189, 248",
           "keywords": [
             "hidraulica"
           ]
@@ -313,7 +313,7 @@
           "requisitos": [
             "21"
           ],
-          "color": "255, 254, 224",
+          "color": "56, 189, 248",
           "keywords": [
             "topografia"
           ]
@@ -325,7 +325,7 @@
           "requisitos": [
             "20"
           ],
-          "color": "255, 254, 224",
+          "color": "56, 189, 248",
           "keywords": [
             "analisis estructural"
           ]
@@ -335,7 +335,7 @@
           "codigo": "CFG-3",
           "nombre": "Curso de Formación General",
           "requisitos": [],
-          "color": "253, 202, 151",
+          "color": "248, 250, 252",
           "keywords": [
             "curso de formacion general"
           ]
@@ -347,7 +347,7 @@
           "requisitos": [
             "22"
           ],
-          "color": "254, 240, 225",
+          "color": "248, 250, 252",
           "keywords": [
             "ingles iii"
           ]
@@ -364,7 +364,7 @@
           "requisitos": [
             "12"
           ],
-          "color": "243, 254, 240",
+          "color": "134, 239, 172",
           "keywords": [
             "introduccion a la economia"
           ]
@@ -376,7 +376,7 @@
           "requisitos": [
             "3"
           ],
-          "color": "243, 254, 240",
+          "color": "56, 189, 248",
           "keywords": [
             "ingenieria ambiental"
           ]
@@ -389,7 +389,7 @@
             "17",
             "21"
           ],
-          "color": "255, 254, 224",
+          "color": "56, 189, 248",
           "keywords": [
             "tecnologia del hormigon"
           ]
@@ -401,7 +401,7 @@
           "requisitos": [
             "26"
           ],
-          "color": "255, 254, 224",
+          "color": "56, 189, 248",
           "keywords": [
             "diseno estructural"
           ]
@@ -411,7 +411,7 @@
           "codigo": "COC-2300",
           "nombre": "Seminario Cs. Ingeniería",
           "requisitos": [],
-          "color": "212, 251, 202",
+          "color": "248, 250, 252",
           "keywords": [
             "seminario cs ingenieria"
           ]
@@ -425,7 +425,7 @@
             "26",
             "31"
           ],
-          "color": "246, 167, 193",
+          "color": "248, 250, 252",
           "keywords": [
             "practica i"
           ]
@@ -443,7 +443,7 @@
             "18",
             "26"
           ],
-          "color": "255, 254, 224",
+          "color": "56, 189, 248",
           "keywords": [
             "mecanica de suelos"
           ]
@@ -456,7 +456,7 @@
             "17",
             "24"
           ],
-          "color": "255, 254, 224",
+          "color": "56, 189, 248",
           "keywords": [
             "hidrologia"
           ]
@@ -469,7 +469,7 @@
             "21",
             "29"
           ],
-          "color": "255, 254, 224",
+          "color": "56, 189, 248",
           "keywords": [
             "administracion de proyectos civiles",
             "adm de proyectos civiles"
@@ -482,7 +482,7 @@
           "requisitos": [
             "32"
           ],
-          "color": "255, 254, 224",
+          "color": "56, 189, 248",
           "keywords": [
             "diseno en hormigon"
           ]
@@ -492,7 +492,7 @@
           "codigo": "CFG-4",
           "nombre": "Curso de Formación General",
           "requisitos": [],
-          "color": "253, 202, 151",
+          "color": "248, 250, 252",
           "keywords": [
             "curso de formacion general"
           ]
@@ -509,7 +509,7 @@
           "requisitos": [
             "35"
           ],
-          "color": "255, 254, 224",
+          "color": "56, 189, 248",
           "keywords": [
             "fundaciones"
           ]
@@ -521,7 +521,7 @@
           "requisitos": [
             "36"
           ],
-          "color": "255, 254, 224",
+          "color": "56, 189, 248",
           "keywords": [
             "hidraulica urbana"
           ]
@@ -533,7 +533,7 @@
           "requisitos": [
             "37"
           ],
-          "color": "255, 254, 224",
+          "color": "56, 189, 248",
           "keywords": [
             "planificacion de proyectos"
           ]
@@ -545,7 +545,7 @@
           "requisitos": [
             "32"
           ],
-          "color": "255, 254, 224",
+          "color": "56, 189, 248",
           "keywords": [
             "diseno en acero"
           ]
@@ -557,7 +557,7 @@
           "requisitos": [
             "38"
           ],
-          "color": "255, 254, 224",
+          "color": "56, 189, 248",
           "keywords": [
             "ingenieria sismica"
           ]
@@ -573,7 +573,7 @@
             "43",
             "44"
           ],
-          "color": "246, 167, 193",
+          "color": "248, 250, 252",
           "keywords": [
             "practica ii"
           ]
@@ -591,7 +591,7 @@
             "38",
             "41"
           ],
-          "color": "255, 254, 224",
+          "color": "56, 189, 248",
           "keywords": [
             "bim"
           ]
@@ -603,7 +603,7 @@
           "requisitos": [
             "42"
           ],
-          "color": "255, 254, 224",
+          "color": "134, 239, 172",
           "keywords": [
             "ingenieria de costos"
           ]
@@ -613,7 +613,7 @@
           "codigo": "COC-34XX",
           "nombre": "Electivo Profesional",
           "requisitos": [],
-          "color": "255, 250, 148",
+          "color": "125, 211, 252",
           "keywords": [
             "electivo profesional"
           ]
@@ -623,7 +623,7 @@
           "codigo": "COC-35XX",
           "nombre": "Electivo Profesional",
           "requisitos": [],
-          "color": "255, 250, 148",
+          "color": "125, 211, 252",
           "keywords": [
             "electivo profesional"
           ]
@@ -633,7 +633,7 @@
           "codigo": "COC-36XX",
           "nombre": "Electivo Profesional",
           "requisitos": [],
-          "color": "255, 250, 148",
+          "color": "125, 211, 252",
           "keywords": [
             "electivo profesional"
           ]
@@ -648,7 +648,7 @@
           "codigo": "COC-33XX",
           "nombre": "Taller de Proyectos",
           "requisitos": [],
-          "color": "255, 250, 148",
+          "color": "56, 189, 248",
           "keywords": [
             "taller de proyectos"
           ]
@@ -661,7 +661,7 @@
             "35",
             "38"
           ],
-          "color": "255, 254, 224",
+          "color": "56, 189, 248",
           "keywords": [
             "diseno de caminos"
           ]
@@ -671,7 +671,7 @@
           "codigo": "COC-34XY",
           "nombre": "Electivo Profesional",
           "requisitos": [],
-          "color": "255, 250, 148",
+          "color": "125, 211, 252",
           "keywords": [
             "electivo profesional"
           ]
@@ -681,7 +681,7 @@
           "codigo": "COC-35XY",
           "nombre": "Electivo Profesional",
           "requisitos": [],
-          "color": "255, 250, 148",
+          "color": "125, 211, 252",
           "keywords": [
             "electivo profesional"
           ]
@@ -691,7 +691,7 @@
           "codigo": "COC-36XY",
           "nombre": "Electivo Profesional",
           "requisitos": [],
-          "color": "255, 250, 148",
+          "color": "125, 211, 252",
           "keywords": [
             "electivo profesional"
           ]
@@ -706,7 +706,7 @@
           "codigo": "COC-END",
           "nombre": "Actividad de Titulación",
           "requisitos": [],
-          "color": "253, 202, 151",
+          "color": "248, 250, 252",
           "keywords": [
             "actividad de titulacion"
           ]

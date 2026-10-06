@@ -96,8 +96,8 @@ class CurriculumCatalogTests(unittest.TestCase):
         self.assertEqual((industrial_courses["9"]["codigo"], industrial_courses["9"]["nombre"],
                           industrial_courses["9"]["requisitos"]),
                          ("CIT-1010", "Programación Avanzada", ["4"]))
-        self.assertEqual(industrial_courses["5"]["color"], "238, 177, 124")
-        self.assertEqual(industrial_courses["45"]["color"], "255, 105, 97")
+        self.assertEqual(industrial_courses["5"]["color"], "248, 250, 252")
+        self.assertEqual(industrial_courses["45"]["color"], "125, 211, 252")
         self.assertEqual(industrial_courses["19"]["requisitos"], ["11", "12"])
         self.assertEqual(industrial_courses["55"]["codigo"], "CII-3102")
         obras_courses = {course["id"]: course for sem in obras for course in sem["cursos"]}
@@ -105,7 +105,7 @@ class CurriculumCatalogTests(unittest.TestCase):
         self.assertEqual(obras_courses["25"]["codigo"], "COC-20012")
         self.assertEqual(obras_courses["45"]["requisitos"], ["40", "41", "42", "43", "44"])
         self.assertEqual((obras_semesters["28"], obras_semesters["29"]), (5, 6))
-        self.assertEqual(obras_courses["48"]["color"], "255, 250, 148")
+        self.assertEqual(obras_courses["48"]["color"], "125, 211, 252")
         cfg_courses = [course for sem in industrial + obras for course in sem["cursos"]
                        if course["codigo"].startswith("CFG-")]
         self.assertTrue(cfg_courses)
@@ -162,6 +162,35 @@ class CurriculumCatalogTests(unittest.TestCase):
         ):
             with self.subTest(career_id=career_id):
                 self.assertTrue(get_visual_curriculum(career_id))
+
+    def test_loaded_curricula_share_the_informatics_color_palette(self):
+        palette = {
+            "203, 213, 225", "134, 239, 172", "125, 211, 252",
+            "56, 189, 248", "248, 250, 252",
+        }
+        loaded_programs = (
+            "ingenieria-civil-en-informatica-y-telecomunicaciones",
+            "ingenieria-civil-industrial",
+            "ingenieria-civil-en-obras-civiles",
+            "ingenieria-civil-plan-comun",
+        )
+        by_program = {}
+        for career_id in loaded_programs:
+            courses = [course for semester in get_visual_curriculum(career_id)
+                       for course in semester["cursos"]]
+            by_program[career_id] = courses
+            self.assertTrue(all(course.get("color") in palette for course in courses), career_id)
+            self.assertTrue(all("border" not in course for course in courses), career_id)
+
+        informatics_colors = {
+            course["nombre"]: course["color"]
+            for course in by_program["ingenieria-civil-en-informatica-y-telecomunicaciones"]
+        }
+        for career_id in loaded_programs[1:]:
+            for course in by_program[career_id]:
+                if course["nombre"] in informatics_colors:
+                    self.assertEqual(course["color"], informatics_colors[course["nombre"]],
+                                     f"{career_id}: {course['nombre']}")
 
 
 if __name__ == "__main__":

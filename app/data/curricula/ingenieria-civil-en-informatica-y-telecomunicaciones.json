@@ -13,7 +13,8 @@
           "requisitos": [],
           "keywords": [
             "algebra y geometria"
-          ]
+          ],
+          "color": "203, 213, 225"
         },
         {
           "id": "2",
@@ -22,7 +23,8 @@
           "requisitos": [],
           "keywords": [
             "calculo i"
-          ]
+          ],
+          "color": "203, 213, 225"
         },
         {
           "id": "3",
@@ -31,7 +33,8 @@
           "requisitos": [],
           "keywords": [
             "quimica"
-          ]
+          ],
+          "color": "203, 213, 225"
         },
         {
           "id": "4",
@@ -40,7 +43,8 @@
           "requisitos": [],
           "keywords": [
             "programacion"
-          ]
+          ],
+          "color": "134, 239, 172"
         },
         {
           "id": "5",
@@ -49,7 +53,8 @@
           "requisitos": [],
           "keywords": [
             "comunicacion para la ingenieria"
-          ]
+          ],
+          "color": "248, 250, 252"
         }
       ]
     },
@@ -65,7 +70,8 @@
           ],
           "keywords": [
             "algebra lineal"
-          ]
+          ],
+          "color": "203, 213, 225"
         },
         {
           "id": "7",
@@ -76,7 +82,8 @@
           ],
           "keywords": [
             "calculo ii"
-          ]
+          ],
+          "color": "203, 213, 225"
         },
         {
           "id": "8",
@@ -87,7 +94,8 @@
           ],
           "keywords": [
             "mecanica"
-          ]
+          ],
+          "color": "203, 213, 225"
         },
         {
           "id": "9",
@@ -98,7 +106,8 @@
           ],
           "keywords": [
             "programacion avanzada"
-          ]
+          ],
+          "color": "134, 239, 172"
         },
         {
           "id": "10",
@@ -109,7 +118,8 @@
           ],
           "keywords": [
             "curso de formacion general (ii)"
-          ]
+          ],
+          "color": "248, 250, 252"
         }
       ]
     },
@@ -126,7 +136,8 @@
           ],
           "keywords": [
             "ecuaciones diferenciales"
-          ]
+          ],
+          "color": "203, 213, 225"
         },
         {
           "id": "12",
@@ -137,7 +148,8 @@
           ],
           "keywords": [
             "calculo iii"
-          ]
+          ],
+          "color": "203, 213, 225"
         },
         {
           "id": "13",
@@ -149,7 +161,8 @@
           ],
           "keywords": [
             "calor y ondas"
-          ]
+          ],
+          "color": "203, 213, 225"
         },
         {
           "id": "14",
@@ -160,7 +173,8 @@
           ],
           "keywords": [
             "estructuras de datos y algoritmos"
-          ]
+          ],
+          "color": "125, 211, 252"
         },
         {
           "id": "15",
@@ -171,7 +185,8 @@
           ],
           "keywords": [
             "redes de datos"
-          ]
+          ],
+          "color": "56, 189, 248"
         }
       ]
     },
@@ -187,7 +202,8 @@
           ],
           "keywords": [
             "probabilidades y estadisticas"
-          ]
+          ],
+          "color": "134, 239, 172"
         },
         {
           "id": "17",
@@ -200,7 +216,8 @@
           ],
           "keywords": [
             "electronica y electrotecnia"
-          ]
+          ],
+          "color": "203, 213, 225"
         },
         {
           "id": "18",
@@ -212,7 +229,8 @@
           ],
           "keywords": [
             "electricidad y magnetismo"
-          ]
+          ],
+          "color": "203, 213, 225"
         },
         {
           "id": "19",
@@ -223,7 +241,8 @@
           ],
           "keywords": [
             "bases de datos"
-          ]
+          ],
+          "color": "125, 211, 252"
         },
         {
           "id": "20",
@@ -234,7 +253,8 @@
           ],
           "keywords": [
             "desarrollo web y movil"
-          ]
+          ],
+          "color": "125, 211, 252"
         },
         {
           "id": "21",
@@ -243,7 +263,8 @@
           "requisitos": [],
           "keywords": [
             "ingles i"
-          ]
+          ],
+          "color": "248, 250, 252"
         }
       ]
     },
@@ -260,7 +281,8 @@
           ],
           "keywords": [
             "optimizacion"
-          ]
+          ],
+          "color": "134, 239, 172"
         },
         {
           "id": "23",
@@ -272,7 +294,8 @@
           ],
           "keywords": [
             "taller de redes y servicios"
-          ]
+          ],
+          "color": "56, 189, 248"
         },
         {
           "id": "24",
@@ -284,7 +307,8 @@
           ],
           "keywords": [
             "proyecto en tics i"
-          ]
+          ],
+          "color": "125, 211, 252"
         },
         {
           "id": "25",
@@ -295,7 +319,8 @@
           ],
           "keywords": [
             "bases de datos avanzadas"
-          ]
+          ],
+          "color": "125, 211, 252"
         },
         {
           "id": "26",
@@ -306,7 +331,8 @@
           ],
           "keywords": [
             "curso de formacion general (v)"
-          ]
+          ],
+          "color": "248, 250, 252"
         },
         {
           "id": "27",
@@ -317,7 +343,8 @@
           ],
           "keywords": [
             "ingles ii"
-          ]
+          ],
+          "color": "248, 250, 252"
         },
         {
           "id": "54",
@@ -328,7 +355,8 @@
           ],
           "keywords": [
             "practica profesional i"
-          ]
+          ],
+          "color": "248, 250, 252"
         }
       ]
     },
@@ -344,7 +372,8 @@
           ],
           "keywords": [
             "contabilidad y costos"
-          ]
+          ],
+          "color": "134, 239, 172"
         },
         {
           "id": "29",
@@ -356,7 +385,8 @@
           ],
           "keywords": [
             "arquitectura y organizacion de computadores"
-          ]
+          ],
+          "color": "56, 189, 248"
         },
         {
           "id": "30",
@@ -368,7 +398,8 @@
           ],
           "keywords": [
             "señales y sistemas"
-          ]
+          ],
+          "color": "56, 189, 248"
         },
         {
           "id": "31",
@@ -380,7 +411,8 @@
           ],
           "keywords": [
             "sistemas operativos"
-          ]
+          ],
+          "color": "125, 211, 252"
         },
         {
           "id": "32",
@@ -391,7 +423,8 @@
           ],
           "keywords": [
             "curso de formacion general (vi)"
-          ]
+          ],
+          "color": "248, 250, 252"
         },
         {
           "id": "33",
@@ -402,7 +435,8 @@
           ],
           "keywords": [
             "ingles iii"
-          ]
+          ],
+          "color": "248, 250, 252"
         }
       ]
     },
@@ -418,7 +452,8 @@
           ],
           "keywords": [
             "gestion organizacional"
-          ]
+          ],
+          "color": "134, 239, 172"
         },
         {
           "id": "35",
@@ -430,7 +465,8 @@
           ],
           "keywords": [
             "sistemas distribuidos"
-          ]
+          ],
+          "color": "125, 211, 252"
         },
         {
           "id": "36",
@@ -442,7 +478,8 @@
           ],
           "keywords": [
             "comunicaciones digitales"
-          ]
+          ],
+          "color": "56, 189, 248"
         },
         {
           "id": "37",
@@ -454,7 +491,8 @@
           ],
           "keywords": [
             "ingenieria de software"
-          ]
+          ],
+          "color": "125, 211, 252"
         },
         {
           "id": "38",
@@ -465,7 +503,8 @@
           ],
           "keywords": [
             "curso de formacion general (vii)"
-          ]
+          ],
+          "color": "248, 250, 252"
         }
       ]
     },
@@ -481,7 +520,8 @@
           ],
           "keywords": [
             "introduccion a la economia"
-          ]
+          ],
+          "color": "134, 239, 172"
         },
         {
           "id": "40",
@@ -492,7 +532,8 @@
           ],
           "keywords": [
             "tecnologias inalambricas"
-          ]
+          ],
+          "color": "56, 189, 248"
         },
         {
           "id": "41",
@@ -503,7 +544,8 @@
           ],
           "keywords": [
             "criptografia y seguridad en redes"
-          ]
+          ],
+          "color": "56, 189, 248"
         },
         {
           "id": "42",
@@ -516,7 +558,8 @@
           ],
           "keywords": [
             "inteligencia artificial"
-          ]
+          ],
+          "color": "125, 211, 252"
         },
         {
           "id": "43",
@@ -529,7 +572,8 @@
           ],
           "keywords": [
             "evaluacion de proyectos tic"
-          ]
+          ],
+          "color": "56, 189, 248"
         },
         {
           "id": "55",
@@ -540,7 +584,8 @@
           ],
           "keywords": [
             "practica profesional ii"
-          ]
+          ],
+          "color": "248, 250, 252"
         }
       ]
     },
@@ -556,7 +601,8 @@
           ],
           "keywords": [
             "electivo profesional (1)"
-          ]
+          ],
+          "color": "125, 211, 252"
         },
         {
           "id": "45",
@@ -567,7 +613,8 @@
           ],
           "keywords": [
             "arquitecturas emergentes"
-          ]
+          ],
+          "color": "56, 189, 248"
         },
         {
           "id": "46",
@@ -578,7 +625,8 @@
           ],
           "keywords": [
             "electivo profesional (2)"
-          ]
+          ],
+          "color": "125, 211, 252"
         },
         {
           "id": "47",
@@ -589,7 +637,8 @@
           ],
           "keywords": [
             "arquitectura de software"
-          ]
+          ],
+          "color": "125, 211, 252"
         },
         {
           "id": "48",
@@ -601,7 +650,8 @@
           ],
           "keywords": [
             "data science"
-          ]
+          ],
+          "color": "56, 189, 248"
         }
       ]
     },
@@ -617,7 +667,8 @@
           ],
           "keywords": [
             "electivo profesional (3)"
-          ]
+          ],
+          "color": "125, 211, 252"
         },
         {
           "id": "50",
@@ -628,7 +679,8 @@
           ],
           "keywords": [
             "electivo profesional (4)"
-          ]
+          ],
+          "color": "125, 211, 252"
         },
         {
           "id": "51",
@@ -639,7 +691,8 @@
           ],
           "keywords": [
             "electivo profesional (5)"
-          ]
+          ],
+          "color": "125, 211, 252"
         },
         {
           "id": "52",
@@ -650,7 +703,8 @@
           ],
           "keywords": [
             "electivo profesional (6)"
-          ]
+          ],
+          "color": "125, 211, 252"
         },
         {
           "id": "53",
@@ -661,7 +715,8 @@
           ],
           "keywords": [
             "proyecto en tics ii"
-          ]
+          ],
+          "color": "56, 189, 248"
         }
       ]
     },
@@ -677,7 +732,8 @@
           ],
           "keywords": [
             "actividad de titulacion"
-          ]
+          ],
+          "color": "248, 250, 252"
         },
         {
           "id": "57",
@@ -688,7 +744,8 @@
           ],
           "keywords": [
             "opcion magister"
-          ]
+          ],
+          "color": "248, 250, 252"
         }
       ]
     }
