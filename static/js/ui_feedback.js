@@ -52,9 +52,11 @@ function renderUiFeedbackCard({ message = '', title = 'Aviso', tone = 'info', it
     modal.style.display = 'flex';
     modal.innerHTML = `
         <section class="ui-feedback-card modern-alert tone-${normalizedTone}" role="dialog" aria-modal="true" aria-labelledby="ui-feedback-title">
-            <span class="ui-feedback-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${iconMarkup}</svg></span>
-            <div class="ui-feedback-content">
+            <div class="ui-feedback-header">
+                <span class="ui-feedback-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${iconMarkup}</svg></span>
                 <h2 id="ui-feedback-title">${escapeUiFeedback(title)}</h2>
+            </div>
+            <div class="ui-feedback-content">
                 <p>${escapeUiFeedback(message)}</p>
                 ${itemMarkup}
             </div>
