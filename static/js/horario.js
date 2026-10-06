@@ -1049,7 +1049,7 @@ function renderMiHorario() {
                         : '';
                     const sectionLabel = sectionValue ? `Sección ${sectionValue}` : 'Sección -';
                     const secText = `<span class="my-type-sec">• ${escapeHtml(sectionLabel)}</span>`;
-                    const tipoVisible = c.rol === 'assistant' ? 'Ayud.' : tipoClase;
+                    const tipoVisible = c.rol === 'assistant' ? 'Ayudante' : tipoClase;
                     const tipoHtml = `<span class="my-type-tag ${tipoCls}"><span>${escapeHtml(tipoVisible)}</span>${secText}</span>`;
 
                     cardsHtml += `
