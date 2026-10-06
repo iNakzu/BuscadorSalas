@@ -54,5 +54,6 @@ assert(confirmed, 'confirmation action should run');
 assert.strictEqual(modal.style.display, 'none');
 
 assert(styles.includes('.ui-feedback-actions button { flex: 0 0 auto; min-height: 40px; width: auto;'), 'shared actions should stay compact');
+assert(styles.includes('.ui-feedback-actions { grid-column: 1 / -1; display: flex; justify-content: center;'), 'shared actions should align with the centered dialog content');
 
 console.log('ui-feedback: shared dialog, accessible focus, escaped content and actions passed');
