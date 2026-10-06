@@ -60,15 +60,20 @@ function obtenerDiaActualNumero() {
 }
 
 let mallaLoadedOnce = false;
+let panelPendientePorCarrera = '';
 
-function mostrarAvisoAccesoMalla() {
+function mostrarAvisoAccesoMalla(panelId = 'tab-malla') {
+    panelPendientePorCarrera = panelId;
     const gate = document.getElementById('auth-gate');
     if (!gate) return;
     const title = gate.querySelector('h2');
     const message = gate.querySelector('p');
     const button = gate.querySelector('.auth-button');
+    const isSolemnes = panelId === 'tab-solemnes';
     if (title) title.textContent = 'Carrera requerida';
-    if (message) message.textContent = 'Selecciona y guarda tu carrera en Mi perfil para ingresar a la vista de malla.';
+    if (message) message.textContent = isSolemnes
+        ? 'Selecciona y guarda tu carrera en Mi perfil para mostrar las solemnes que corresponden a tu escuela.'
+        : 'Selecciona y guarda tu carrera en Mi perfil para mostrar la información académica que te corresponde.';
     if (button) {
         button.textContent = 'Ir a Mi perfil';
         button.onclick = () => {
@@ -99,9 +104,9 @@ function cambiarTab(panelId, btn) {
         mostrarAvisoInicioSesion();
         return;
     }
-    if ((panelId === 'tab-malla' || panelId === 'tab-progreso') && window.PortalAuth && window.PortalAuth.user
+    if ((panelId === 'tab-malla' || panelId === 'tab-progreso' || panelId === 'tab-solemnes') && window.PortalAuth && window.PortalAuth.user
         && (!window.PortalProfile || !window.PortalProfile.getCareerId())) {
-        mostrarAvisoAccesoMalla();
+        mostrarAvisoAccesoMalla(panelId);
         return;
     }
     document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
@@ -139,6 +144,14 @@ function cambiarTab(panelId, btn) {
         document.dispatchEvent(new CustomEvent('portal:section-entered', { detail: { panelId } }));
     }
 }
+
+document.addEventListener('portal:career-changed', event => {
+    if (!panelPendientePorCarrera || !(event.detail && event.detail.careerId)) return;
+    const nextPanel = panelPendientePorCarrera;
+    panelPendientePorCarrera = '';
+    const button = document.querySelector(`.tab-btn[data-tab="${nextPanel}"]`);
+    if (button) cambiarTab(nextPanel, button);
+});
 
 let perfilPanelAnterior = 'tab-salas';
 
@@ -679,7 +692,7 @@ async function cargarClasesMalla(refrescarChips = false) {
     const careerId = window.PortalProfile && window.PortalProfile.getCareerId();
     if (!careerId) {
         mallaLoadedOnce = false;
-        container.textContent = 'Selecciona tu carrera en Mi perfil para abrir su malla.';
+        container.innerHTML = '<div class="curriculum-unavailable-card"><span class="curriculum-unavailable-icon" aria-hidden="true">⌑</span><h3>Configura tu carrera</h3><p>Selecciona y guarda tu carrera en Mi perfil para mostrar esta información.</p></div>';
         return;
     }
     
@@ -697,7 +710,18 @@ async function cargarClasesMalla(refrescarChips = false) {
         if (!data.disponible) {
             if (controls) controls.hidden = true;
             mallaRamosCache = [];
-            container.textContent = `La malla de ${data.carrera || 'esta carrera'} todavía no está incorporada. Cuando agreguemos su plan de estudios, aparecerá aquí.`;
+            const card = document.createElement('article');
+            card.className = 'curriculum-unavailable-card';
+            const icon = document.createElement('span');
+            icon.className = 'curriculum-unavailable-icon';
+            icon.setAttribute('aria-hidden', 'true');
+            icon.textContent = '⌑';
+            const title = document.createElement('h3');
+            title.textContent = 'Horarios por semestre no disponibles';
+            const description = document.createElement('p');
+            description.textContent = `Los horarios de clases por semestre para ${data.carrera || 'esta carrera'} todavía no están incorporados en esta vista.`;
+            card.append(icon, title, description);
+            container.replaceChildren(card);
             return;
         }
         if (controls) controls.hidden = false;

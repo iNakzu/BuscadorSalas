@@ -483,10 +483,10 @@
         if (!profile || !serverDirectoryMode) return profile;
         const id = String(profile.user_id || '');
         if (profileModulesCache.has(id)) {
-            const modules = profileModulesCache.get(id);
+            const cached = profileModulesCache.get(id);
             profileModulesCache.delete(id);
-            profileModulesCache.set(id, modules);
-            return { ...profile, modules };
+            profileModulesCache.set(id, cached);
+            return { ...profile, modules: cached.modules, careerId: cached.careerId || null };
         }
         const auth = window.PortalAuth;
         if (!auth || !auth.client) return profile;
@@ -501,11 +501,29 @@
             if (response.error) console.error('No se pudo cargar el perfil compartido', response.error);
             return null;
         }
-        profileModulesCache.set(id, response.data);
+        let careerId = null;
+        try {
+            const rpcName = hasAdminRole() ? 'admin_get_profile_career' : 'get_shared_profile_career';
+            const careerResponse = await auth.client.rpc(rpcName, { p_user_id: id });
+            if (!careerResponse.error && typeof careerResponse.data === 'string') {
+                const profileApi = window.PortalProfile;
+                careerId = profileApi && profileApi.resolveCareerId
+                    ? profileApi.resolveCareerId(careerResponse.data)
+                    : careerResponse.data;
+            }
+        } catch (_) {
+            // Other shared views can still render; Solemnes will not infer a missing career.
+        }
+        const modules = { ...response.data };
+        if (careerId && modules.curriculum && typeof modules.curriculum === 'object'
+            && !modules.curriculum.__careerId) {
+            modules.curriculum = { ...modules.curriculum, __careerId: careerId };
+        }
+        profileModulesCache.set(id, { modules, careerId });
         if (profileModulesCache.size > MAX_CACHED_PROFILES) {
             profileModulesCache.delete(profileModulesCache.keys().next().value);
         }
-        return { ...profile, modules: response.data };
+        return { ...profile, modules, careerId };
     }
 
     function installToolbars() {

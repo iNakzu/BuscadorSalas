@@ -29,6 +29,7 @@ jobs:
           node tests/app-security.test.cjs
           node tests/auth-ui.test.cjs
           node tests/malla-career-gate.test.cjs
+          node tests/progreso-career-gates.test.cjs
           node tests/community-schedules.test.cjs
           node tests/admin-profile-editing.test.cjs
           node tests/public-shared-views.test.cjs

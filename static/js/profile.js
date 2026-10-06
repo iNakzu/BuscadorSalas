@@ -15,6 +15,7 @@
     let careerSearchOriginalValue = null;
     let suppressCareerFocusOpen = false;
     let careers = [];
+    let careersLoaded = false;
     let menuOptions = [];
     let activeOption = -1;
 
@@ -122,6 +123,8 @@
         } catch (_) {
             careers = [];
         }
+        careersLoaded = true;
+        document.dispatchEvent(new CustomEvent('portal:careers-ready'));
     }
     async function load() {
         const currentAuth = auth();
@@ -192,9 +195,22 @@
 
     function getCareerId() {
         const metadata = auth() && auth().user && auth().user.user_metadata || {};
-        if (typeof metadata.careerId === 'string' && metadata.careerId) return metadata.careerId;
-        const saved = careers.find(item => item.name === metadata.career);
+        const configured = metadata.careerId || metadata.career;
+        if (!careersLoaded) return typeof configured === 'string' && configured ? configured : null;
+        return resolveCareerId(configured);
+    }
+    function resolveCareerId(value) {
+        if (typeof value !== 'string' || !value) return null;
+        if (!careersLoaded) return value;
+        const saved = careers.find(item => item.id === value) || careers.find(item => item.name === value);
         return saved ? saved.id : null;
+    }
+    function getSchoolForCareer(careerId = getCareerId()) {
+        const resolvedCareerId = resolveCareerId(careerId);
+        if (!resolvedCareerId) return null;
+        const career = careers.find(item => item.id === resolvedCareerId);
+        return career && typeof career.school === 'string' && career.school.trim()
+            ? career.school.trim().toUpperCase() : null;
     }
     async function saveSharing() {
         const currentAuth = auth();
@@ -270,5 +286,5 @@
     });
     document.addEventListener('portal:auth-changed', () => load());
     document.addEventListener('DOMContentLoaded', async () => { await loadCareers(); await load(); });
-    window.PortalProfile = { load, getCareerId };
+    window.PortalProfile = { load, getCareerId, resolveCareerId, getSchoolForCareer };
 })();

@@ -208,6 +208,8 @@ const customStyles = `
         font-size: 12px;
         line-height: 1.5;
     }
+    .solemnes-highlight-control { margin: 10px 0 0; }
+    .solemnes-highlight-control .profile-switch-copy small { max-width: 680px; }
     
     .sol-header-cell {
         background: rgba(30, 41, 59, 0.6);
@@ -333,22 +335,49 @@ function renderSolemnes() {
         ? window.PortalCommunity.getSelected() : null;
     const publicModules = publicProfile && publicProfile.modules || {};
     const publicSchedule = publicModules.schedule && publicModules.schedule.clases;
-    const publicCourses = Array.isArray(publicSchedule)
-        ? [...new Set(publicSchedule.map(item => String(item && item.curso || '').trim()).filter(Boolean))]
-        : [];
     const isPublicProfile = Boolean(publicProfile);
+    const highlightToggle = document.getElementById('solemnes-highlight-toggle');
+    const highlightEnabled = highlightToggle
+        ? Boolean(highlightToggle.checked)
+        : (typeof localStorage !== 'undefined' && localStorage.getItem('solemnes-highlight-enabled') === 'true');
+    const profileApi = window.PortalProfile;
+    const selectedCareerId = isPublicProfile
+        ? (typeof publicProfile.careerId === 'string' ? publicProfile.careerId : '')
+        : (profileApi && profileApi.getCareerId ? profileApi.getCareerId() : '');
+    const careerId = isPublicProfile && profileApi && profileApi.resolveCareerId
+        ? (profileApi.resolveCareerId(selectedCareerId) || '') : selectedCareerId;
+    const shouldHighlight = highlightEnabled && Boolean(careerId);
+    const school = profileApi && profileApi.getSchoolForCareer && careerId
+        ? profileApi.getSchoolForCareer(careerId) : null;
+    const personalSchedule = isPublicProfile
+        ? publicSchedule
+        : (typeof MI_HORARIO_DATA !== 'undefined' && MI_HORARIO_DATA && MI_HORARIO_DATA.clases);
+    const personalCourses = Array.isArray(personalSchedule)
+        ? [...new Set(personalSchedule.map(item => String(item && item.curso || '').trim()).filter(Boolean))]
+        : [];
 
     function comparableNames(value) {
         return normStr(value)
-            .replace(/\([^)]*\)/g, '')
+            .replace(/\((?:[^)]*\b(?:EIT|EII|EOC)\b[^)]*)\)/gi, '')
             .split('/')
             .map(item => item.replace(/[^a-z0-9]+/g, ' ').trim())
             .filter(Boolean);
     }
 
-    function matchesPublicCourse(examName) {
+    function schoolsInExamName(examName) {
+        const found = new Set();
+        for (const group of String(examName || '').matchAll(/\(([^)]*)\)/g)) {
+            for (const token of group[1].toUpperCase().match(/\b(?:EIT|EII|EOC)\b/g) || []) found.add(token);
+        }
+        return found;
+    }
+
+    function matchesPersonalCourse(examName) {
+        if (!careerId || !personalCourses.length) return false;
+        const examSchools = schoolsInExamName(examName);
+        if (examSchools.size && (!school || !examSchools.has(school))) return false;
         const examNames = comparableNames(examName);
-        return publicCourses.some(course => {
+        const candidates = personalCourses.some(course => {
             const courseNames = comparableNames(course);
             return courseNames.some(courseName => examNames.some(exam =>
                 courseName === exam ||
@@ -356,6 +385,23 @@ function renderSolemnes() {
                 isFuzzyMatch(courseName, exam)
             ));
         });
+        if (!candidates || examSchools.size) return candidates;
+
+        const allVariants = (Array.isArray(SOLEMNES_DATA) ? SOLEMNES_DATA : [])
+            .flatMap(day => Array.isArray(day.ramos) ? day.ramos : [])
+            .filter(item => comparableNames(item.nombre).some(exam => examNames.includes(exam)));
+        const schoolsAcrossVariants = new Set(allVariants.flatMap(item => [...schoolsInExamName(item.nombre)]));
+        return schoolsAcrossVariants.size <= 1;
+    }
+
+    const status = document.getElementById('solemnes-highlight-status');
+    if (status) {
+        if (!highlightEnabled) status.textContent = 'El resaltado personal está desactivado.';
+        else if (!careerId) status.textContent = 'Este perfil no tiene una carrera configurada; el calendario se muestra sin resaltados.';
+        else if (isPublicProfile) status.textContent = `Resaltando las evaluaciones de ${escapeHtml(publicProfile.display_name || 'este perfil')}.`;
+        else if (!personalCourses.length) status.textContent = 'Agrega tu horario para comparar tus ramos.';
+        else if (!school) status.textContent = 'No se pudo determinar la escuela de esta carrera; solo se resaltarán coincidencias sin ambigüedad.';
+        else status.textContent = 'El calendario destaca las solemnes que coinciden con tu horario y carrera.';
     }
 
     const mapDias = {
@@ -416,11 +462,13 @@ function renderSolemnes() {
         for (let d = 1; d <= 5; d++) {
             const cellData = SOLEMNES_DATA.find(item => item.dia === d && item.horario === b.raw);
             const ramos = cellData ? cellData.ramos : [];
-            const matches = isPublicProfile
-                ? ramos.filter(r => matchesPublicCourse(r.nombre))
-                : (query ? ramos.filter(r => normStr(r.nombre).includes(query)) : ramos);
+            const matches = ramos.filter(r => {
+                const matchesQuery = !query || normStr(r.nombre).includes(query);
+                const matchesPersonal = !shouldHighlight || matchesPersonalCourse(r.nombre);
+                return matchesQuery && matchesPersonal;
+            });
             const hasMatch = matches.length > 0;
-            const isFiltering = isPublicProfile || query !== '';
+            const isFiltering = shouldHighlight || query !== '';
             
             // Opacity logic: if filtering and no matches in this cell, dim the whole cell heavily
             const cellOpacity = (isFiltering && !hasMatch && ramos.length > 0) ? '0.15' : '1';
@@ -436,7 +484,8 @@ function renderSolemnes() {
 
             let cellContent = '';
             ramos.forEach(r => {
-                const isMatch = isPublicProfile ? matchesPublicCourse(r.nombre) : (!query || normStr(r.nombre).includes(query));
+                const isMatch = (!shouldHighlight || matchesPersonalCourse(r.nombre))
+                    && (!query || normStr(r.nombre).includes(query));
                 
                 let theme = { bg: 'rgba(56, 189, 248, 0.15)', border: 'rgba(56, 189, 248, 0.4)', color: '#38bdf8' }; // Default Celeste
                 
@@ -456,10 +505,13 @@ function renderSolemnes() {
                     }
                 }
                 
-                const styleAttr = isMatch ? `style="background: ${theme.bg}; border-color: ${theme.border}; border-left-color: ${theme.color};"` : '';
+                const styleAttr = (!isFiltering || isMatch)
+                    ? `style="background: ${theme.bg}; border-color: ${theme.border}; border-left-color: ${theme.color};"`
+                    : '';
+                const matchClass = !isFiltering ? '' : (isMatch ? 'matched' : 'dimmed');
                 
                 cellContent += `
-                    <div class="sol-ramo-pill ${isMatch ? 'matched' : 'dimmed'}" ${styleAttr}>
+                    <div class="sol-ramo-pill ${matchClass}" ${styleAttr}>
                         ${escapeHtml(r.nombre)}
                     </div>
                 `;
@@ -477,7 +529,7 @@ function renderSolemnes() {
 
     const finalHtml = `
         ${customStyles}
-        ${isPublicProfile ? `<div class="solemnes-profile-note">Se resaltan las solemnes que coinciden con los ramos del horario de <strong>${escapeHtml(publicProfile.display_name || 'esta persona')}</strong>.</div>` : ''}
+        ${shouldHighlight && isPublicProfile ? `<div class="solemnes-profile-note">Se resaltan las solemnes que coinciden con los ramos y la carrera de <strong>${escapeHtml(publicProfile.display_name || 'esta persona')}</strong>.</div>` : ''}
         <div class="solemnes-scroll-wrapper">
             ${gridHtml}
         </div>
@@ -493,6 +545,14 @@ function renderSolemnes() {
 
 
 document.addEventListener('DOMContentLoaded', () => {
+    const highlightToggle = document.getElementById('solemnes-highlight-toggle');
+    if (highlightToggle) {
+        highlightToggle.checked = localStorage.getItem('solemnes-highlight-enabled') === 'true';
+        highlightToggle.addEventListener('change', () => {
+            localStorage.setItem('solemnes-highlight-enabled', String(highlightToggle.checked));
+            renderSolemnes();
+        });
+    }
     renderSolemnes();
     const originalCambiarTab = window.cambiarTab;
     if (originalCambiarTab) {
@@ -512,4 +572,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 100);
     }
+});
+
+['portal:career-changed', 'portal:careers-ready', 'portal:public-profile-changed', 'portal:schedule-updated'].forEach(eventName => {
+    document.addEventListener(eventName, () => renderSolemnes());
 });

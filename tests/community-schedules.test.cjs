@@ -66,6 +66,10 @@ const client = { rpc: async (name, args) => {
     assert.deepStrictEqual(JSON.parse(JSON.stringify(args)), { p_user_id: 'friend' });
     return { data: sharedSchedules[0].modules, error: null };
   }
+  if (name === 'get_shared_profile_career') {
+    assert.deepStrictEqual(JSON.parse(JSON.stringify(args)), { p_user_id: 'friend' });
+    return { data: 'ingenieria-civil-en-obras-civiles', error: null };
+  }
   throw new Error(`Unexpected RPC ${name}`);
 } };
 const selectors = [];
@@ -98,6 +102,10 @@ vm.runInContext(source, context);
   assert.deepStrictEqual(JSON.parse(JSON.stringify(context.sharedSchedule)), [
     { dia: 1, horaInicio: '08:30', horaFin: '09:50', curso: 'Cálculo', sala: 'E101' }
   ]);
+  assert.strictEqual(context.window.PortalCommunity.getSelected().careerId,
+    'ingenieria-civil-en-obras-civiles');
+  assert.strictEqual(context.window.PortalCommunity.getSelected().modules.curriculum.__careerId,
+    'ingenieria-civil-en-obras-civiles');
   assert.deepStrictEqual(JSON.parse(JSON.stringify(context.window.PortalCommunity.getSelected().modules.agenda)), [
     { fecha: '2026-10-02', ramo: 'Cálculo', tipo: 'Solemne' }
   ]);

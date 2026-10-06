@@ -88,6 +88,22 @@ class CurriculumCatalogTests(unittest.TestCase):
                          "Programación Avanzada o Ingeniería de los Materiales")
         self.assertEqual(client.get("/api/malla/progreso/not-a-career").status_code, 404)
 
+    def test_data_science_visual_curriculum_is_unavailable_until_its_source_is_added(self):
+        client = create_app({"TESTING": True}).test_client()
+        result = client.get("/api/malla/progreso/ingenieria-civil-en-ciencia-de-datos-e-inteligencia-artificial")
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(result.json["carrera"], "Ingeniería Civil en Ciencia de Datos e Inteligencia Artificial")
+        self.assertEqual(result.json["semestres"], [])
+
+    def test_visual_curricula_are_available_for_loaded_programs(self):
+        for career_id in (
+            "ingenieria-civil-industrial",
+            "ingenieria-civil-en-obras-civiles",
+            "ingenieria-civil-plan-comun",
+        ):
+            with self.subTest(career_id=career_id):
+                self.assertTrue(get_visual_curriculum(career_id))
+
 
 if __name__ == "__main__":
     unittest.main()

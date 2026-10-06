@@ -56,28 +56,28 @@ let MALLA_MOCK = [];
 
 let progresoState = {};
 const CURRICULUM_CACHE = new Map();
-const DEFAULT_CURRICULUM_ID = 'ingenieria-civil-en-informatica-y-telecomunicaciones';
 let loadedCurriculumId = '';
 
 function getProgressCareerId(progress = progresoState, preferProfile = false) {
     const configured = preferProfile && window.PortalProfile && window.PortalProfile.getCareerId();
-    return configured || (progress && typeof progress.__careerId === 'string' ? progress.__careerId : DEFAULT_CURRICULUM_ID);
+    return configured || (progress && typeof progress.__careerId === 'string' ? progress.__careerId : '');
 }
 
 function progressKey(careerId, courseId) { return `${careerId}:${courseId}`; }
 
-function migrateProgressState(value) {
+function migrateProgressState(value, fallbackCareerId = '') {
     if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
     const result = { ...value };
-    const careerId = typeof result.__careerId === 'string' ? result.__careerId : DEFAULT_CURRICULUM_ID;
+    const careerId = typeof result.__careerId === 'string' ? result.__careerId : fallbackCareerId;
     for (const [key, status] of Object.entries(value)) {
         if (key === '__careerId' || key.includes(':')) continue;
-        if (/^\d+$/.test(key)) {
-            result[progressKey(DEFAULT_CURRICULUM_ID, key)] = status;
+        if (/^\d+$/.test(key) && careerId) {
+            result[progressKey(careerId, key)] = status;
             delete result[key];
         }
     }
-    result.__careerId = careerId;
+    if (careerId) result.__careerId = careerId;
+    else delete result.__careerId;
     return result;
 }
 
@@ -107,12 +107,20 @@ async function loadCurriculum(careerId) {
 }
 
 function initProgreso() {
+    const configuredCareerId = window.PortalProfile && window.PortalProfile.getCareerId
+        ? window.PortalProfile.getCareerId() : '';
     const saved = localStorage.getItem('mi_progreso_v1');
     if (saved) {
-        try { progresoState = migrateProgressState(JSON.parse(saved)); } catch(e) { progresoState = {}; }
+        try {
+            const storedProgress = JSON.parse(saved);
+            if (configuredCareerId && storedProgress && typeof storedProgress === 'object') {
+                storedProgress.__careerId = configuredCareerId;
+            }
+            progresoState = migrateProgressState(storedProgress, configuredCareerId || '');
+        } catch(e) { progresoState = {}; }
     }
-    const careerId = getProgressCareerId(progresoState, true);
-    progresoState.__careerId = careerId;
+    if (configuredCareerId) progresoState.__careerId = configuredCareerId;
+    else if (!progresoState.__careerId) delete progresoState.__careerId;
     renderProgreso();
 }
 
@@ -130,6 +138,7 @@ function revertDependents(id, careerId) {
 
 function toggleRamoEstado(id) {
     const careerId = getProgressCareerId(progresoState, true);
+    if (!careerId) return;
     let course = null;
     for (let s of MALLA_MOCK) {
         for (let c of s.cursos) {
@@ -276,14 +285,24 @@ async function renderProgreso() {
     const container = document.getElementById('progreso-container');
     if (!container) return;
 
-    const careerId = getProgressCareerId(progresoState, true);
+    const authUser = window.PortalAuth && window.PortalAuth.user;
+    if (!authUser) {
+        container.innerHTML = '<div class="curriculum-unavailable-card"><span class="curriculum-unavailable-icon" aria-hidden="true">⌑</span><h3>Inicia sesión para ver tu malla</h3><p>La malla y tu avance académico están disponibles al iniciar sesión.</p></div>';
+        return;
+    }
+    const careerId = window.PortalProfile && window.PortalProfile.getCareerId();
+    if (!careerId) {
+        container.innerHTML = '<div class="curriculum-unavailable-card"><span class="curriculum-unavailable-icon" aria-hidden="true">⌑</span><h3>Configura tu carrera</h3><p>Elige y guarda tu carrera en Mi perfil para mostrar la malla que te corresponde.</p></div>';
+        return;
+    }
     const requestCareerId = careerId;
     if (loadedCurriculumId !== careerId) {
         container.innerHTML = '<div class="empty-state">Cargando malla curricular…</div>';
         const curriculum = await loadCurriculum(careerId);
-        if (getProgressCareerId(progresoState, true) !== requestCareerId) return;
+        if (!window.PortalProfile || window.PortalProfile.getCareerId() !== requestCareerId) return;
         if (!curriculum.length) {
-            container.innerHTML = '<div class="empty-state">Todavía no hay una malla curricular disponible para esta carrera.</div>';
+            const careerName = (authUser.user_metadata || {}).career || 'esta carrera';
+            container.innerHTML = `<div class="curriculum-unavailable-card"><span class="curriculum-unavailable-icon" aria-hidden="true">✦</span><h3>Esta malla todavía no está disponible</h3><p>La malla de ${escapeProgresoHtml(careerName)} aún no está incorporada. Cuando esté lista, aparecerá aquí.</p></div>`;
             return;
         }
         MALLA_MOCK = curriculum;
@@ -308,8 +327,12 @@ async function renderProgreso() {
 
 window.renderMallaPublica = async function (container, progress, options = {}) {
     if (!container) return;
-    const safeProgress = migrateProgressState(progress);
+    const safeProgress = migrateProgressState(progress, '');
     const careerId = getProgressCareerId(safeProgress);
+    if (!careerId) {
+        container.innerHTML = '<div class="curriculum-unavailable-card"><span class="curriculum-unavailable-icon" aria-hidden="true">⌑</span><h3>Esta persona no tiene una carrera configurada</h3><p>No se mostrará una malla de otra carrera por suposición.</p></div>';
+        return;
+    }
     const curriculum = await loadCurriculum(careerId);
     if (!curriculum.length) {
         container.innerHTML = '<div class="empty-state">Esta persona todavía no tiene una malla curricular disponible.</div>';
@@ -326,13 +349,14 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('portal:remote-state', event => {
     if (event.detail.module !== 'curriculum') return;
     const activeCareerId = getProgressCareerId(progresoState, true);
-    progresoState = migrateProgressState(event.detail.payload);
+    progresoState = migrateProgressState(event.detail.payload, activeCareerId || '');
     if (activeCareerId) progresoState.__careerId = activeCareerId;
     renderProgreso();
 });
 document.addEventListener('portal:career-changed', event => {
     const careerId = event.detail && event.detail.careerId;
     if (!careerId) return;
+    progresoState = migrateProgressState(progresoState, careerId);
     progresoState.__careerId = careerId;
     localStorage.setItem('mi_progreso_v1', JSON.stringify(progresoState));
     if (window.PortalStore) window.PortalStore.save('curriculum', progresoState);

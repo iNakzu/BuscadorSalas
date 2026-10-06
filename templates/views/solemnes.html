@@ -6,6 +6,12 @@
 </svg>
 <input autocomplete="off" id="solemnes-search" onkeyup="renderSolemnes()" placeholder="Buscar ramo..." type="text"/>
 </div>
+<label class="profile-switch-row solemnes-highlight-control" for="solemnes-highlight-toggle">
+<span class="profile-switch-copy"><strong>Destacar mis solemnes</strong><small>Usa tu horario y la escuela de tu carrera para resaltar las evaluaciones que te corresponden.</small></span>
+<input id="solemnes-highlight-toggle" type="checkbox" aria-describedby="solemnes-highlight-status"/>
+<span class="profile-switch" aria-hidden="true"></span>
+</label>
+<p class="profile-inline-status" id="solemnes-highlight-status" aria-live="polite"></p>
 <div id="solemnes-container" style="display: flex; flex-direction: column; gap: 24px; padding: 20px 0;">
 <!-- Contenido generado por solemnes.js -->
 </div>

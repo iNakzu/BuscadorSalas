@@ -1,1 +1,1 @@
-const MI_HORARIO_DEFAULT_DATA = { escuela: 'EIT', clases: [] };
+const MI_HORARIO_DEFAULT_DATA = { clases: [] };

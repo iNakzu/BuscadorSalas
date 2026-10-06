@@ -9,7 +9,7 @@ function cargarMiHorarioDesdeStorage() {
             const stored = localStorage.getItem('mi_horario_custom_v1');
             if (stored) {
                 const parsed = JSON.parse(stored);
-                if (Array.isArray(parsed)) profile = { escuela: "EIT", clases: parsed }; else if (parsed && parsed.clases) profile = parsed;
+                if (Array.isArray(parsed)) profile = { clases: parsed }; else if (parsed && parsed.clases) profile = parsed;
             }
         }
     } catch (e) {
@@ -19,6 +19,10 @@ function cargarMiHorarioDesdeStorage() {
         profile = JSON.parse(JSON.stringify(MI_HORARIO_DEFAULT_DATA));
     }
     let changed = quitarBloqueLabels(profile.clases);
+    if (Object.prototype.hasOwnProperty.call(profile, 'escuela')) {
+        delete profile.escuela;
+        changed = true;
+    }
     // Limpiar "Ayudantía que impartes" y sincronizar secciones y profesores de ayudantías
     profile.clases.forEach(c => {
         if (c.seccion && c.seccion.toLowerCase().includes('ayudantía que impartes')) {
@@ -68,6 +72,9 @@ function etiquetaBloqueHorario(clase) {
 function guardarMiHorarioEnStorage() {
     let remoteSave = null;
     try {
+        if (MI_HORARIO_DATA && Object.prototype.hasOwnProperty.call(MI_HORARIO_DATA, 'escuela')) {
+            delete MI_HORARIO_DATA.escuela;
+        }
         quitarBloqueLabels(MI_HORARIO_DATA && MI_HORARIO_DATA.clases);
         rellenarSeccionesMismoRamo(MI_HORARIO_DATA && MI_HORARIO_DATA.clases);
         if (typeof localStorage !== 'undefined') {
@@ -1263,9 +1270,11 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('portal:remote-state', event => {
     if (event.detail.module !== 'schedule') return;
     MI_HORARIO_DATA = event.detail.payload || JSON.parse(JSON.stringify(MI_HORARIO_DEFAULT_DATA));
+    const removedSchool = Object.prototype.hasOwnProperty.call(MI_HORARIO_DATA, 'escuela');
+    if (removedSchool) delete MI_HORARIO_DATA.escuela;
     const removedLabels = quitarBloqueLabels(MI_HORARIO_DATA.clases);
     const filledSections = rellenarSeccionesMismoRamo(MI_HORARIO_DATA.clases);
-    if (removedLabels || filledSections) guardarMiHorarioEnStorage();
+    if (removedSchool || removedLabels || filledSections) guardarMiHorarioEnStorage();
     renderMiHorario();
     autoSyncHorario();
 });

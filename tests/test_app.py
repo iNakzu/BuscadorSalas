@@ -263,6 +263,17 @@ class PortalV1Test(unittest.TestCase):
         self.assertIn("public.is_community_member(p.id)", sql)
         self.assertIn("create or replace function public.get_shared_profile_information(p_user_id uuid)", sql)
         self.assertIn("grant execute on function public.search_shared_profiles(text, integer, integer) to authenticated", sql)
+
+    def test_solemnes_career_rpc_respects_profile_visibility_and_removes_schedule_school_duplicate(self):
+        migration = Path(__file__).parents[1] / "supabase/migrations/202610060001_shared_profile_career_for_solemnes.sql"
+        sql = migration.read_text(encoding="utf-8").lower()
+        self.assertIn("payload = payload - 'escuela'", sql)
+        self.assertIn("and p.share_information", sql)
+        self.assertIn("public.is_community_member(auth.uid())", sql)
+        self.assertIn("public.is_community_member(p.id)", sql)
+        self.assertIn("private.is_portal_admin()", sql)
+        self.assertIn("revoke all on function public.get_shared_profile_career(uuid) from public, anon", sql)
+        self.assertIn("grant execute on function public.get_shared_profile_career(uuid) to authenticated", sql)
         self.assertNotIn("to anon", sql)
 
     def test_signed_in_profile_uses_initials_instead_of_a_photo(self):
