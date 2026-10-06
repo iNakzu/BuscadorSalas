@@ -1,9 +1,11 @@
 import json
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from app import create_app
 from app.services.curricula import get_curriculum, get_program, get_programs, get_visual_curriculum
+from app.services.schedule import obtener_clases_malla
 
 
 class CurriculumCatalogTests(unittest.TestCase):
@@ -31,21 +33,54 @@ class CurriculumCatalogTests(unittest.TestCase):
         self.assertEqual(curriculum[8]["ramos"][0]["nombre"], "Introducción a la Economía")
         self.assertIsNone(get_curriculum("../../outside"))
         industrial = get_curriculum("ingenieria-civil-industrial")
-        self.assertEqual(industrial, {})
+        self.assertEqual(len(industrial), 10)
+        self.assertEqual(industrial[2]["ramos"][2]["nombre"], "Mecánica")
+        self.assertIn("id", industrial[2]["ramos"][2])
+        self.assertIn("requisitos", industrial[2]["ramos"][2])
 
-    def test_malla_endpoint_requires_career_and_does_not_show_informatics_for_other_program(self):
+    def test_schedule_by_semester_endpoint_uses_each_loaded_program_malla(self):
         client = create_app({"TESTING": True}).test_client()
         self.assertEqual(client.get("/api/malla").status_code, 400)
-        industrial = client.get("/api/malla?carrera=ingenieria-civil-industrial")
+        industrial = client.get("/api/malla?carrera=ingenieria-civil-industrial&semestre=2")
         self.assertEqual(industrial.status_code, 200)
-        self.assertFalse(industrial.json["disponible"])
+        self.assertTrue(industrial.json["disponible"])
         self.assertEqual(industrial.json["carrera"], "Ingeniería Civil Industrial")
-        self.assertEqual(industrial.json["clases"], [])
+        self.assertEqual(len(industrial.json["semestres_disponibles"]), 10)
+        self.assertIn("Mecánica", industrial.json["ramos_del_semestre"])
+        self.assertIn("MECÁNICA", {item["curso_oficial"] for item in industrial.json["clases"]})
+        self.assertNotIn("MECÁNICA DE FLUIDOS", {item["curso_oficial"] for item in industrial.json["clases"]})
         informatics = client.get("/api/malla?carrera=ingenieria-civil-en-informatica-y-telecomunicaciones&semestre=8")
         self.assertEqual(informatics.status_code, 200)
         self.assertTrue(informatics.json["disponible"])
         self.assertEqual(informatics.json["carrera"], "Ingeniería Civil en Informática y Telecomunicaciones")
         self.assertEqual(informatics.json["ramos_del_semestre"][0], "Introducción a la Economía")
+
+        for career_id, semester_count in (
+            ("ingenieria-civil-en-obras-civiles", 11),
+            ("ingenieria-civil-plan-comun", 2),
+        ):
+            with self.subTest(career_id=career_id):
+                response = client.get(f"/api/malla?carrera={career_id}&semestre=1")
+                self.assertTrue(response.json["disponible"])
+                self.assertEqual(len(response.json["semestres_disponibles"]), semester_count)
+
+    def test_semester_search_matches_full_course_titles_only(self):
+        curriculum = get_curriculum("ingenieria-civil-industrial")
+        classes = [
+            {"node": {"course": "MECÁNICA", "place": "E441.1.S101", "section": 1,
+                       "day": 1, "start": "08:30", "finish": "09:50", "code": "CBF1000",
+                       "teacher": "DOCENTE"}},
+            {"node": {"course": "MECÁNICA DE FLUIDOS", "place": "E441.1.S102", "section": 1,
+                       "day": 2, "start": "10:00", "finish": "11:20", "code": "CII2401",
+                       "teacher": "DOCENTE"}},
+            {"node": {"course": "MECÁNICA DE SÓLIDOS", "place": "E441.1.S103", "section": 1,
+                       "day": 3, "start": "11:30", "finish": "12:50", "code": "COC",
+                       "teacher": "DOCENTE"}},
+        ]
+        with patch("app.services.schedule.dm.get_classes", return_value=classes):
+            result = obtener_clases_malla(2, curriculum=curriculum)
+        self.assertEqual([item["curso_oficial"] for item in result], ["MECÁNICA"])
+        self.assertEqual([item["ramo_malla"] for item in result], ["Mecánica"])
 
     def test_progress_curricula_preserve_source_course_counts_and_prerequisites(self):
         industrial = get_visual_curriculum("ingenieria-civil-industrial")
@@ -76,6 +111,30 @@ class CurriculumCatalogTests(unittest.TestCase):
         self.assertTrue(cfg_courses)
         self.assertTrue(all(course["nombre"] == "Curso de Formación General" for course in cfg_courses))
         self.assertTrue(all("creditos" not in course for sem in industrial + obras for course in sem["cursos"]))
+
+    def test_each_loaded_course_is_stored_once_and_both_views_derive_from_it(self):
+        loaded_programs = (
+            "ingenieria-civil-en-informatica-y-telecomunicaciones",
+            "ingenieria-civil-industrial",
+            "ingenieria-civil-en-obras-civiles",
+            "ingenieria-civil-plan-comun",
+        )
+        for career_id in loaded_programs:
+            with self.subTest(career_id=career_id):
+                program = get_program(career_id)
+                raw = json.loads((Path("app/data/curricula") / program["curriculumFile"]).read_text(encoding="utf-8"))
+                self.assertEqual(raw["version"], 2)
+                self.assertNotIn("mallaVisual", raw)
+                canonical = get_curriculum(career_id)
+                visual = get_visual_curriculum(career_id)
+                self.assertEqual(len(canonical), len(visual))
+                for semester in visual:
+                    courses = canonical[semester["numero"]]["ramos"]
+                    self.assertEqual(
+                        [course["id"] for course in courses],
+                        [course["id"] for course in semester["cursos"]],
+                    )
+                    self.assertTrue(all(isinstance(course.get("keywords"), list) for course in courses))
 
     def test_progress_malla_endpoint_is_separate_from_schedule_search_catalog(self):
         client = create_app({"TESTING": True}).test_client()

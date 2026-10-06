@@ -1,92 +1,121 @@
 {
-  "version": 1,
+  "version": 2,
   "careerId": "ingenieria-civil-plan-comun",
   "school": null,
-  "semestres": {},
-  "mallaVisual": {
-    "semestres": [
-      {
-        "numero": 1,
-        "cursos": [
-          {
-            "id": "PC-1",
-            "idVisible": false,
-            "nombre": "Álgebra y Geometría",
-            "requisitos": [],
-            "color": "211, 213, 214"
-          },
-          {
-            "id": "PC-2",
-            "idVisible": false,
-            "nombre": "Cálculo I",
-            "requisitos": [],
-            "color": "211, 213, 214"
-          },
-          {
-            "id": "PC-3",
-            "idVisible": false,
-            "nombre": "Química",
-            "requisitos": [],
-            "color": "211, 213, 214"
-          },
-          {
-            "id": "PC-4",
-            "idVisible": false,
-            "nombre": "Programación",
-            "requisitos": [],
-            "color": "172, 205, 196"
-          },
-          {
-            "id": "PC-5",
-            "idVisible": false,
-            "nombre": "Comunicación para la Ingeniería",
-            "requisitos": [],
-            "color": "240, 240, 240",
-            "border": "255, 82, 82"
-          }
-        ]
-      },
-      {
-        "numero": 2,
-        "cursos": [
-          {
-            "id": "PC-6",
-            "idVisible": false,
-            "nombre": "Álgebra Lineal",
-            "requisitos": [],
-            "color": "211, 213, 214"
-          },
-          {
-            "id": "PC-7",
-            "idVisible": false,
-            "nombre": "Cálculo II",
-            "requisitos": [],
-            "color": "211, 213, 214"
-          },
-          {
-            "id": "PC-8",
-            "idVisible": false,
-            "nombre": "Mecánica",
-            "requisitos": [],
-            "color": "211, 213, 214"
-          },
-          {
-            "id": "PC-9",
-            "idVisible": false,
-            "nombre": "Programación Avanzada o Ingeniería de los Materiales",
-            "requisitos": [],
-            "color": "172, 205, 196"
-          },
-          {
-            "id": "PC-10",
-            "idVisible": false,
-            "nombre": "Curso de Formación General",
-            "requisitos": [],
-            "color": "240, 240, 240",
-            "border": "255, 82, 82"
-          }
-        ]
-      }
-    ]
+  "semestres": {
+    "1": {
+      "nombre": "Semestre I",
+      "ramos": [
+        {
+          "id": "PC-1",
+          "idVisible": false,
+          "nombre": "Álgebra y Geometría",
+          "requisitos": [],
+          "color": "211, 213, 214",
+          "keywords": [
+            "algebra y geometria"
+          ]
+        },
+        {
+          "id": "PC-2",
+          "idVisible": false,
+          "nombre": "Cálculo I",
+          "requisitos": [],
+          "color": "211, 213, 214",
+          "keywords": [
+            "calculo i"
+          ]
+        },
+        {
+          "id": "PC-3",
+          "idVisible": false,
+          "nombre": "Química",
+          "requisitos": [],
+          "color": "211, 213, 214",
+          "keywords": [
+            "quimica"
+          ]
+        },
+        {
+          "id": "PC-4",
+          "idVisible": false,
+          "nombre": "Programación",
+          "requisitos": [],
+          "color": "172, 205, 196",
+          "keywords": [
+            "programacion"
+          ]
+        },
+        {
+          "id": "PC-5",
+          "idVisible": false,
+          "nombre": "Comunicación para la Ingeniería",
+          "requisitos": [],
+          "color": "240, 240, 240",
+          "border": "255, 82, 82",
+          "keywords": [
+            "comunicacion para la ingenieria"
+          ]
+        }
+      ]
+    },
+    "2": {
+      "nombre": "Semestre II",
+      "ramos": [
+        {
+          "id": "PC-6",
+          "idVisible": false,
+          "nombre": "Álgebra Lineal",
+          "requisitos": [],
+          "color": "211, 213, 214",
+          "keywords": [
+            "algebra lineal"
+          ]
+        },
+        {
+          "id": "PC-7",
+          "idVisible": false,
+          "nombre": "Cálculo II",
+          "requisitos": [],
+          "color": "211, 213, 214",
+          "keywords": [
+            "calculo ii"
+          ]
+        },
+        {
+          "id": "PC-8",
+          "idVisible": false,
+          "nombre": "Mecánica",
+          "requisitos": [],
+          "color": "211, 213, 214",
+          "keywords": [
+            "mecanica"
+          ]
+        },
+        {
+          "id": "PC-9",
+          "idVisible": false,
+          "nombre": "Programación Avanzada o Ingeniería de los Materiales",
+          "requisitos": [],
+          "color": "172, 205, 196",
+          "keywords": [
+            "programacion avanzada o ingenieria de los materiales",
+            "programacion avanzada",
+            "ingenieria en materiales"
+          ]
+        },
+        {
+          "id": "PC-10",
+          "idVisible": false,
+          "nombre": "Curso de Formación General",
+          "requisitos": [],
+          "color": "240, 240, 240",
+          "border": "255, 82, 82",
+          "keywords": [
+            "curso de formacion general"
+          ]
+        }
+      ]
+    }
   }
 }

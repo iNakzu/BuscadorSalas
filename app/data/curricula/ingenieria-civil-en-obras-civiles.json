@@ -1,548 +1,717 @@
 {
-  "version": 1,
+  "version": 2,
   "careerId": "ingenieria-civil-en-obras-civiles",
   "school": "EOC",
-  "semestres": {},
-  "mallaVisual": {
-    "semestres": [
-      {
-        "numero": 1,
-        "cursos": [
-          {
-            "id": "1",
-            "codigo": "CBM-1000",
-            "nombre": "Álgebra y Geometría",
-            "requisitos": [],
-            "color": "152, 206, 255"
-          },
-          {
-            "id": "2",
-            "codigo": "CBM-1001",
-            "nombre": "Cálculo I",
-            "requisitos": [],
-            "color": "152, 206, 255"
-          },
-          {
-            "id": "3",
-            "codigo": "CBQ-1000",
-            "nombre": "Química",
-            "requisitos": [],
-            "color": "152, 206, 255"
-          },
-          {
-            "id": "4",
-            "codigo": "CIT-1000",
-            "nombre": "Programación",
-            "requisitos": [],
-            "color": "212, 251, 202"
-          },
-          {
-            "id": "5",
-            "codigo": "FIC-1000",
-            "nombre": "Comunicación para la Ingeniería",
-            "requisitos": [],
-            "color": "253, 202, 151"
-          }
-        ]
-      },
-      {
-        "numero": 2,
-        "cursos": [
-          {
-            "id": "6",
-            "codigo": "CBM-1002",
-            "nombre": "Álgebra Lineal",
-            "requisitos": [
-              "1"
-            ],
-            "color": "225, 241, 255"
-          },
-          {
-            "id": "7",
-            "codigo": "CBM-1003",
-            "nombre": "Cálculo II",
-            "requisitos": [
-              "2"
-            ],
-            "color": "225, 241, 255"
-          },
-          {
-            "id": "8",
-            "codigo": "CBF-1000",
-            "nombre": "Mecánica",
-            "requisitos": [
-              "2"
-            ],
-            "color": "225, 241, 255"
-          },
-          {
-            "id": "9",
-            "codigo": "COC-2001",
-            "nombre": "Ingeniería de Materiales",
-            "requisitos": [
-              "3"
-            ],
-            "color": "225, 241, 255"
-          },
-          {
-            "id": "10",
-            "codigo": "CFG-1",
-            "nombre": "Curso de Formación General",
-            "requisitos": [],
-            "color": "253, 202, 151"
-          }
-        ]
-      },
-      {
-        "numero": 3,
-        "cursos": [
-          {
-            "id": "11",
-            "codigo": "CBM-1005",
-            "nombre": "Ecuaciones Diferenciales",
-            "requisitos": [
-              "6",
-              "7"
-            ],
-            "color": "225, 241, 255"
-          },
-          {
-            "id": "12",
-            "codigo": "CBM-1006",
-            "nombre": "Cálculo III",
-            "requisitos": [
-              "7"
-            ],
-            "color": "225, 241, 255"
-          },
-          {
-            "id": "13",
-            "codigo": "CBF-1001",
-            "nombre": "Calor y Ondas",
-            "requisitos": [
-              "7",
-              "8"
-            ],
-            "color": "225, 241, 255"
-          },
-          {
-            "id": "14",
-            "codigo": "COC-2100",
-            "nombre": "Estática",
-            "requisitos": [
-              "7",
-              "8"
-            ],
-            "color": "225, 241, 255"
-          },
-          {
-            "id": "15",
-            "codigo": "CFG-2",
-            "nombre": "Curso de Formación General",
-            "requisitos": [],
-            "color": "253, 202, 151"
-          },
-          {
-            "id": "16",
-            "codigo": "FIC-1001",
-            "nombre": "Inglés I",
-            "requisitos": [],
-            "color": "253, 202, 151"
-          }
-        ]
-      },
-      {
-        "numero": 4,
-        "cursos": [
-          {
-            "id": "17",
-            "codigo": "CBE-2000",
-            "nombre": "Probabilidad y Estadística",
-            "requisitos": [
-              "7"
-            ],
-            "color": "243, 254, 240"
-          },
-          {
-            "id": "18",
-            "codigo": "COC-2200",
-            "nombre": "Mecánica de Fluidos",
-            "requisitos": [
-              "14"
-            ],
-            "color": "243, 254, 240"
-          },
-          {
-            "id": "19",
-            "codigo": "CBF-1002",
-            "nombre": "Electricidad y Magnetismo",
-            "requisitos": [
-              "11",
-              "12"
-            ],
-            "color": "225, 241, 255"
-          },
-          {
-            "id": "20",
-            "codigo": "COC-2101",
-            "nombre": "Mecánica de Sólidos",
-            "requisitos": [
-              "14"
-            ],
-            "color": "243, 254, 240"
-          },
-          {
-            "id": "21",
-            "codigo": "COC-2002",
-            "nombre": "Edificación",
-            "requisitos": [
-              "9"
-            ],
-            "color": "255, 254, 224"
-          },
-          {
-            "id": "22",
-            "codigo": "FIC-1002",
-            "nombre": "Inglés II",
-            "requisitos": [
-              "16"
-            ],
-            "color": "254, 240, 225"
-          }
-        ]
-      },
-      {
-        "numero": 5,
-        "cursos": [
-          {
-            "id": "23",
-            "codigo": "CII-2750",
-            "nombre": "Optimización",
-            "requisitos": [
-              "6",
-              "12"
-            ],
-            "color": "255, 254, 224"
-          },
-          {
-            "id": "24",
-            "codigo": "COC-2201",
-            "nombre": "Hidráulica",
-            "requisitos": [
-              "18"
-            ],
-            "color": "255, 254, 224"
-          },
-          {
-            "id": "25",
-            "codigo": "COC-20012",
-            "nombre": "Topografía",
-            "requisitos": [
-              "21"
-            ],
-            "color": "255, 254, 224"
-          },
-          {
-            "id": "26",
-            "codigo": "COC-2102",
-            "nombre": "Análisis Estructural",
-            "requisitos": [
-              "20"
-            ],
-            "color": "255, 254, 224"
-          },
-          {
-            "id": "27",
-            "codigo": "CFG-3",
-            "nombre": "Curso de Formación General",
-            "requisitos": [],
-            "color": "253, 202, 151"
-          },
-          {
-            "id": "28",
-            "codigo": "FIC-1003",
-            "nombre": "Inglés III",
-            "requisitos": [
-              "22"
-            ],
-            "color": "254, 240, 225"
-          }
-        ]
-      },
-      {
-        "numero": 6,
-        "cursos": [
-          {
-            "id": "29",
-            "codigo": "CII-2000",
-            "nombre": "Introducción a la Economía",
-            "requisitos": [
-              "12"
-            ],
-            "color": "243, 254, 240"
-          },
-          {
-            "id": "30",
-            "codigo": "COC-2203",
-            "nombre": "Ingeniería Ambiental",
-            "requisitos": [
-              "3"
-            ],
-            "color": "243, 254, 240"
-          },
-          {
-            "id": "31",
-            "codigo": "COC-2003",
-            "nombre": "Tecnología del Hormigón",
-            "requisitos": [
-              "17",
-              "21"
-            ],
-            "color": "255, 254, 224"
-          },
-          {
-            "id": "32",
-            "codigo": "COC-2103",
-            "nombre": "Diseño Estructural",
-            "requisitos": [
-              "26"
-            ],
-            "color": "255, 254, 224"
-          },
-          {
-            "id": "33",
-            "codigo": "COC-2300",
-            "nombre": "Seminario Cs. Ingeniería",
-            "requisitos": [],
-            "color": "212, 251, 202"
-          },
-          {
-            "id": "34",
-            "codigo": "P-1",
-            "nombre": "Práctica I",
-            "requisitos": [
-              "24",
-              "26",
-              "31"
-            ],
-            "color": "246, 167, 193"
-          }
-        ]
-      },
-      {
-        "numero": 7,
-        "cursos": [
-          {
-            "id": "35",
-            "codigo": "COC-2104",
-            "nombre": "Mecánica de Suelos",
-            "requisitos": [
-              "18",
-              "26"
-            ],
-            "color": "255, 254, 224"
-          },
-          {
-            "id": "36",
-            "codigo": "COC-2204",
-            "nombre": "Hidrología",
-            "requisitos": [
-              "17",
-              "24"
-            ],
-            "color": "255, 254, 224"
-          },
-          {
-            "id": "37",
-            "codigo": "COC-2004",
-            "nombre": "Administración de Proyectos Civiles",
-            "requisitos": [
-              "21",
-              "29"
-            ],
-            "color": "255, 254, 224"
-          },
-          {
-            "id": "38",
-            "codigo": "COC-2105",
-            "nombre": "Diseño en Hormigón",
-            "requisitos": [
-              "32"
-            ],
-            "color": "255, 254, 224"
-          },
-          {
-            "id": "39",
-            "codigo": "CFG-4",
-            "nombre": "Curso de Formación General",
-            "requisitos": [],
-            "color": "253, 202, 151"
-          }
-        ]
-      },
-      {
-        "numero": 8,
-        "cursos": [
-          {
-            "id": "40",
-            "codigo": "COC-2106",
-            "nombre": "Fundaciones",
-            "requisitos": [
-              "35"
-            ],
-            "color": "255, 254, 224"
-          },
-          {
-            "id": "41",
-            "codigo": "COC-2205",
-            "nombre": "Hidráulica Urbana",
-            "requisitos": [
-              "36"
-            ],
-            "color": "255, 254, 224"
-          },
-          {
-            "id": "42",
-            "codigo": "COC-2005",
-            "nombre": "Planificación de Proyectos",
-            "requisitos": [
-              "37"
-            ],
-            "color": "255, 254, 224"
-          },
-          {
-            "id": "43",
-            "codigo": "COC-2107",
-            "nombre": "Diseño en Acero",
-            "requisitos": [
-              "32"
-            ],
-            "color": "255, 254, 224"
-          },
-          {
-            "id": "44",
-            "codigo": "COC-3100",
-            "nombre": "Ingeniería Sísmica",
-            "requisitos": [
-              "38"
-            ],
-            "color": "255, 254, 224"
-          },
-          {
-            "id": "45",
-            "codigo": "P-2",
-            "nombre": "Práctica II",
-            "requisitos": [
-              "40",
-              "41",
-              "42",
-              "43",
-              "44"
-            ],
-            "color": "246, 167, 193"
-          }
-        ]
-      },
-      {
-        "numero": 9,
-        "cursos": [
-          {
-            "id": "46",
-            "codigo": "FIC-10032",
-            "nombre": "BIM",
-            "requisitos": [
-              "38",
-              "41"
-            ],
-            "color": "255, 254, 224"
-          },
-          {
-            "id": "47",
-            "codigo": "COC-3000",
-            "nombre": "Ingeniería de Costos",
-            "requisitos": [
-              "42"
-            ],
-            "color": "255, 254, 224"
-          },
-          {
-            "id": "48",
-            "codigo": "COC-34XX",
-            "nombre": "Electivo Profesional",
-            "requisitos": [],
-            "color": "255, 250, 148"
-          },
-          {
-            "id": "49",
-            "codigo": "COC-35XX",
-            "nombre": "Electivo Profesional",
-            "requisitos": [],
-            "color": "255, 250, 148"
-          },
-          {
-            "id": "50",
-            "codigo": "COC-36XX",
-            "nombre": "Electivo Profesional",
-            "requisitos": [],
-            "color": "255, 250, 148"
-          }
-        ]
-      },
-      {
-        "numero": 10,
-        "cursos": [
-          {
-            "id": "51",
-            "codigo": "COC-33XX",
-            "nombre": "Taller de Proyectos",
-            "requisitos": [],
-            "color": "255, 250, 148"
-          },
-          {
-            "id": "52",
-            "codigo": "COC-3001",
-            "nombre": "Diseño de Caminos",
-            "requisitos": [
-              "35",
-              "38"
-            ],
-            "color": "255, 254, 224"
-          },
-          {
-            "id": "53",
-            "codigo": "COC-34XY",
-            "nombre": "Electivo Profesional",
-            "requisitos": [],
-            "color": "255, 250, 148"
-          },
-          {
-            "id": "54",
-            "codigo": "COC-35XY",
-            "nombre": "Electivo Profesional",
-            "requisitos": [],
-            "color": "255, 250, 148"
-          },
-          {
-            "id": "55",
-            "codigo": "COC-36XY",
-            "nombre": "Electivo Profesional",
-            "requisitos": [],
-            "color": "255, 250, 148"
-          }
-        ]
-      },
-      {
-        "numero": 11,
-        "cursos": [
-          {
-            "id": "56",
-            "codigo": "COC-END",
-            "nombre": "Actividad de Titulación",
-            "requisitos": [],
-            "color": "253, 202, 151"
-          }
-        ]
-      }
-    ]
+  "semestres": {
+    "1": {
+      "nombre": "Semestre I",
+      "ramos": [
+        {
+          "id": "1",
+          "codigo": "CBM-1000",
+          "nombre": "Álgebra y Geometría",
+          "requisitos": [],
+          "color": "152, 206, 255",
+          "keywords": [
+            "algebra y geometria"
+          ]
+        },
+        {
+          "id": "2",
+          "codigo": "CBM-1001",
+          "nombre": "Cálculo I",
+          "requisitos": [],
+          "color": "152, 206, 255",
+          "keywords": [
+            "calculo i"
+          ]
+        },
+        {
+          "id": "3",
+          "codigo": "CBQ-1000",
+          "nombre": "Química",
+          "requisitos": [],
+          "color": "152, 206, 255",
+          "keywords": [
+            "quimica"
+          ]
+        },
+        {
+          "id": "4",
+          "codigo": "CIT-1000",
+          "nombre": "Programación",
+          "requisitos": [],
+          "color": "212, 251, 202",
+          "keywords": [
+            "programacion"
+          ]
+        },
+        {
+          "id": "5",
+          "codigo": "FIC-1000",
+          "nombre": "Comunicación para la Ingeniería",
+          "requisitos": [],
+          "color": "253, 202, 151",
+          "keywords": [
+            "comunicacion para la ingenieria"
+          ]
+        }
+      ]
+    },
+    "2": {
+      "nombre": "Semestre II",
+      "ramos": [
+        {
+          "id": "6",
+          "codigo": "CBM-1002",
+          "nombre": "Álgebra Lineal",
+          "requisitos": [
+            "1"
+          ],
+          "color": "225, 241, 255",
+          "keywords": [
+            "algebra lineal"
+          ]
+        },
+        {
+          "id": "7",
+          "codigo": "CBM-1003",
+          "nombre": "Cálculo II",
+          "requisitos": [
+            "2"
+          ],
+          "color": "225, 241, 255",
+          "keywords": [
+            "calculo ii"
+          ]
+        },
+        {
+          "id": "8",
+          "codigo": "CBF-1000",
+          "nombre": "Mecánica",
+          "requisitos": [
+            "2"
+          ],
+          "color": "225, 241, 255",
+          "keywords": [
+            "mecanica"
+          ]
+        },
+        {
+          "id": "9",
+          "codigo": "COC-2001",
+          "nombre": "Ingeniería de Materiales",
+          "requisitos": [
+            "3"
+          ],
+          "color": "225, 241, 255",
+          "keywords": [
+            "ingenieria de materiales",
+            "ingenieria en materiales"
+          ]
+        },
+        {
+          "id": "10",
+          "codigo": "CFG-1",
+          "nombre": "Curso de Formación General",
+          "requisitos": [],
+          "color": "253, 202, 151",
+          "keywords": [
+            "curso de formacion general"
+          ]
+        }
+      ]
+    },
+    "3": {
+      "nombre": "Semestre III",
+      "ramos": [
+        {
+          "id": "11",
+          "codigo": "CBM-1005",
+          "nombre": "Ecuaciones Diferenciales",
+          "requisitos": [
+            "6",
+            "7"
+          ],
+          "color": "225, 241, 255",
+          "keywords": [
+            "ecuaciones diferenciales"
+          ]
+        },
+        {
+          "id": "12",
+          "codigo": "CBM-1006",
+          "nombre": "Cálculo III",
+          "requisitos": [
+            "7"
+          ],
+          "color": "225, 241, 255",
+          "keywords": [
+            "calculo iii"
+          ]
+        },
+        {
+          "id": "13",
+          "codigo": "CBF-1001",
+          "nombre": "Calor y Ondas",
+          "requisitos": [
+            "7",
+            "8"
+          ],
+          "color": "225, 241, 255",
+          "keywords": [
+            "calor y ondas"
+          ]
+        },
+        {
+          "id": "14",
+          "codigo": "COC-2100",
+          "nombre": "Estática",
+          "requisitos": [
+            "7",
+            "8"
+          ],
+          "color": "225, 241, 255",
+          "keywords": [
+            "estatica"
+          ]
+        },
+        {
+          "id": "15",
+          "codigo": "CFG-2",
+          "nombre": "Curso de Formación General",
+          "requisitos": [],
+          "color": "253, 202, 151",
+          "keywords": [
+            "curso de formacion general"
+          ]
+        },
+        {
+          "id": "16",
+          "codigo": "FIC-1001",
+          "nombre": "Inglés I",
+          "requisitos": [],
+          "color": "253, 202, 151",
+          "keywords": [
+            "ingles i"
+          ]
+        }
+      ]
+    },
+    "4": {
+      "nombre": "Semestre IV",
+      "ramos": [
+        {
+          "id": "17",
+          "codigo": "CBE-2000",
+          "nombre": "Probabilidad y Estadística",
+          "requisitos": [
+            "7"
+          ],
+          "color": "243, 254, 240",
+          "keywords": [
+            "probabilidad y estadistica",
+            "probabilidades y estadistica",
+            "probabilidades y estadisticas"
+          ]
+        },
+        {
+          "id": "18",
+          "codigo": "COC-2200",
+          "nombre": "Mecánica de Fluidos",
+          "requisitos": [
+            "14"
+          ],
+          "color": "243, 254, 240",
+          "keywords": [
+            "mecanica de fluidos"
+          ]
+        },
+        {
+          "id": "19",
+          "codigo": "CBF-1002",
+          "nombre": "Electricidad y Magnetismo",
+          "requisitos": [
+            "11",
+            "12"
+          ],
+          "color": "225, 241, 255",
+          "keywords": [
+            "electricidad y magnetismo"
+          ]
+        },
+        {
+          "id": "20",
+          "codigo": "COC-2101",
+          "nombre": "Mecánica de Sólidos",
+          "requisitos": [
+            "14"
+          ],
+          "color": "243, 254, 240",
+          "keywords": [
+            "mecanica de solidos"
+          ]
+        },
+        {
+          "id": "21",
+          "codigo": "COC-2002",
+          "nombre": "Edificación",
+          "requisitos": [
+            "9"
+          ],
+          "color": "255, 254, 224",
+          "keywords": [
+            "edificacion"
+          ]
+        },
+        {
+          "id": "22",
+          "codigo": "FIC-1002",
+          "nombre": "Inglés II",
+          "requisitos": [
+            "16"
+          ],
+          "color": "254, 240, 225",
+          "keywords": [
+            "ingles ii"
+          ]
+        }
+      ]
+    },
+    "5": {
+      "nombre": "Semestre V",
+      "ramos": [
+        {
+          "id": "23",
+          "codigo": "CII-2750",
+          "nombre": "Optimización",
+          "requisitos": [
+            "6",
+            "12"
+          ],
+          "color": "255, 254, 224",
+          "keywords": [
+            "optimizacion"
+          ]
+        },
+        {
+          "id": "24",
+          "codigo": "COC-2201",
+          "nombre": "Hidráulica",
+          "requisitos": [
+            "18"
+          ],
+          "color": "255, 254, 224",
+          "keywords": [
+            "hidraulica"
+          ]
+        },
+        {
+          "id": "25",
+          "codigo": "COC-20012",
+          "nombre": "Topografía",
+          "requisitos": [
+            "21"
+          ],
+          "color": "255, 254, 224",
+          "keywords": [
+            "topografia"
+          ]
+        },
+        {
+          "id": "26",
+          "codigo": "COC-2102",
+          "nombre": "Análisis Estructural",
+          "requisitos": [
+            "20"
+          ],
+          "color": "255, 254, 224",
+          "keywords": [
+            "analisis estructural"
+          ]
+        },
+        {
+          "id": "27",
+          "codigo": "CFG-3",
+          "nombre": "Curso de Formación General",
+          "requisitos": [],
+          "color": "253, 202, 151",
+          "keywords": [
+            "curso de formacion general"
+          ]
+        },
+        {
+          "id": "28",
+          "codigo": "FIC-1003",
+          "nombre": "Inglés III",
+          "requisitos": [
+            "22"
+          ],
+          "color": "254, 240, 225",
+          "keywords": [
+            "ingles iii"
+          ]
+        }
+      ]
+    },
+    "6": {
+      "nombre": "Semestre VI",
+      "ramos": [
+        {
+          "id": "29",
+          "codigo": "CII-2000",
+          "nombre": "Introducción a la Economía",
+          "requisitos": [
+            "12"
+          ],
+          "color": "243, 254, 240",
+          "keywords": [
+            "introduccion a la economia"
+          ]
+        },
+        {
+          "id": "30",
+          "codigo": "COC-2203",
+          "nombre": "Ingeniería Ambiental",
+          "requisitos": [
+            "3"
+          ],
+          "color": "243, 254, 240",
+          "keywords": [
+            "ingenieria ambiental"
+          ]
+        },
+        {
+          "id": "31",
+          "codigo": "COC-2003",
+          "nombre": "Tecnología del Hormigón",
+          "requisitos": [
+            "17",
+            "21"
+          ],
+          "color": "255, 254, 224",
+          "keywords": [
+            "tecnologia del hormigon"
+          ]
+        },
+        {
+          "id": "32",
+          "codigo": "COC-2103",
+          "nombre": "Diseño Estructural",
+          "requisitos": [
+            "26"
+          ],
+          "color": "255, 254, 224",
+          "keywords": [
+            "diseno estructural"
+          ]
+        },
+        {
+          "id": "33",
+          "codigo": "COC-2300",
+          "nombre": "Seminario Cs. Ingeniería",
+          "requisitos": [],
+          "color": "212, 251, 202",
+          "keywords": [
+            "seminario cs ingenieria"
+          ]
+        },
+        {
+          "id": "34",
+          "codigo": "P-1",
+          "nombre": "Práctica I",
+          "requisitos": [
+            "24",
+            "26",
+            "31"
+          ],
+          "color": "246, 167, 193",
+          "keywords": [
+            "practica i"
+          ]
+        }
+      ]
+    },
+    "7": {
+      "nombre": "Semestre VII",
+      "ramos": [
+        {
+          "id": "35",
+          "codigo": "COC-2104",
+          "nombre": "Mecánica de Suelos",
+          "requisitos": [
+            "18",
+            "26"
+          ],
+          "color": "255, 254, 224",
+          "keywords": [
+            "mecanica de suelos"
+          ]
+        },
+        {
+          "id": "36",
+          "codigo": "COC-2204",
+          "nombre": "Hidrología",
+          "requisitos": [
+            "17",
+            "24"
+          ],
+          "color": "255, 254, 224",
+          "keywords": [
+            "hidrologia"
+          ]
+        },
+        {
+          "id": "37",
+          "codigo": "COC-2004",
+          "nombre": "Administración de Proyectos Civiles",
+          "requisitos": [
+            "21",
+            "29"
+          ],
+          "color": "255, 254, 224",
+          "keywords": [
+            "administracion de proyectos civiles",
+            "adm de proyectos civiles"
+          ]
+        },
+        {
+          "id": "38",
+          "codigo": "COC-2105",
+          "nombre": "Diseño en Hormigón",
+          "requisitos": [
+            "32"
+          ],
+          "color": "255, 254, 224",
+          "keywords": [
+            "diseno en hormigon"
+          ]
+        },
+        {
+          "id": "39",
+          "codigo": "CFG-4",
+          "nombre": "Curso de Formación General",
+          "requisitos": [],
+          "color": "253, 202, 151",
+          "keywords": [
+            "curso de formacion general"
+          ]
+        }
+      ]
+    },
+    "8": {
+      "nombre": "Semestre VIII",
+      "ramos": [
+        {
+          "id": "40",
+          "codigo": "COC-2106",
+          "nombre": "Fundaciones",
+          "requisitos": [
+            "35"
+          ],
+          "color": "255, 254, 224",
+          "keywords": [
+            "fundaciones"
+          ]
+        },
+        {
+          "id": "41",
+          "codigo": "COC-2205",
+          "nombre": "Hidráulica Urbana",
+          "requisitos": [
+            "36"
+          ],
+          "color": "255, 254, 224",
+          "keywords": [
+            "hidraulica urbana"
+          ]
+        },
+        {
+          "id": "42",
+          "codigo": "COC-2005",
+          "nombre": "Planificación de Proyectos",
+          "requisitos": [
+            "37"
+          ],
+          "color": "255, 254, 224",
+          "keywords": [
+            "planificacion de proyectos"
+          ]
+        },
+        {
+          "id": "43",
+          "codigo": "COC-2107",
+          "nombre": "Diseño en Acero",
+          "requisitos": [
+            "32"
+          ],
+          "color": "255, 254, 224",
+          "keywords": [
+            "diseno en acero"
+          ]
+        },
+        {
+          "id": "44",
+          "codigo": "COC-3100",
+          "nombre": "Ingeniería Sísmica",
+          "requisitos": [
+            "38"
+          ],
+          "color": "255, 254, 224",
+          "keywords": [
+            "ingenieria sismica"
+          ]
+        },
+        {
+          "id": "45",
+          "codigo": "P-2",
+          "nombre": "Práctica II",
+          "requisitos": [
+            "40",
+            "41",
+            "42",
+            "43",
+            "44"
+          ],
+          "color": "246, 167, 193",
+          "keywords": [
+            "practica ii"
+          ]
+        }
+      ]
+    },
+    "9": {
+      "nombre": "Semestre IX",
+      "ramos": [
+        {
+          "id": "46",
+          "codigo": "FIC-10032",
+          "nombre": "BIM",
+          "requisitos": [
+            "38",
+            "41"
+          ],
+          "color": "255, 254, 224",
+          "keywords": [
+            "bim"
+          ]
+        },
+        {
+          "id": "47",
+          "codigo": "COC-3000",
+          "nombre": "Ingeniería de Costos",
+          "requisitos": [
+            "42"
+          ],
+          "color": "255, 254, 224",
+          "keywords": [
+            "ingenieria de costos"
+          ]
+        },
+        {
+          "id": "48",
+          "codigo": "COC-34XX",
+          "nombre": "Electivo Profesional",
+          "requisitos": [],
+          "color": "255, 250, 148",
+          "keywords": [
+            "electivo profesional"
+          ]
+        },
+        {
+          "id": "49",
+          "codigo": "COC-35XX",
+          "nombre": "Electivo Profesional",
+          "requisitos": [],
+          "color": "255, 250, 148",
+          "keywords": [
+            "electivo profesional"
+          ]
+        },
+        {
+          "id": "50",
+          "codigo": "COC-36XX",
+          "nombre": "Electivo Profesional",
+          "requisitos": [],
+          "color": "255, 250, 148",
+          "keywords": [
+            "electivo profesional"
+          ]
+        }
+      ]
+    },
+    "10": {
+      "nombre": "Semestre X",
+      "ramos": [
+        {
+          "id": "51",
+          "codigo": "COC-33XX",
+          "nombre": "Taller de Proyectos",
+          "requisitos": [],
+          "color": "255, 250, 148",
+          "keywords": [
+            "taller de proyectos"
+          ]
+        },
+        {
+          "id": "52",
+          "codigo": "COC-3001",
+          "nombre": "Diseño de Caminos",
+          "requisitos": [
+            "35",
+            "38"
+          ],
+          "color": "255, 254, 224",
+          "keywords": [
+            "diseno de caminos"
+          ]
+        },
+        {
+          "id": "53",
+          "codigo": "COC-34XY",
+          "nombre": "Electivo Profesional",
+          "requisitos": [],
+          "color": "255, 250, 148",
+          "keywords": [
+            "electivo profesional"
+          ]
+        },
+        {
+          "id": "54",
+          "codigo": "COC-35XY",
+          "nombre": "Electivo Profesional",
+          "requisitos": [],
+          "color": "255, 250, 148",
+          "keywords": [
+            "electivo profesional"
+          ]
+        },
+        {
+          "id": "55",
+          "codigo": "COC-36XY",
+          "nombre": "Electivo Profesional",
+          "requisitos": [],
+          "color": "255, 250, 148",
+          "keywords": [
+            "electivo profesional"
+          ]
+        }
+      ]
+    },
+    "11": {
+      "nombre": "Semestre XI",
+      "ramos": [
+        {
+          "id": "56",
+          "codigo": "COC-END",
+          "nombre": "Actividad de Titulación",
+          "requisitos": [],
+          "color": "253, 202, 151",
+          "keywords": [
+            "actividad de titulacion"
+          ]
+        }
+      ]
+    }
   }
 }

@@ -1,39 +1,34 @@
 # Carreras y mallas curriculares
 
-El catálogo de carreras está en `static/data/udp-careers.json`. Cada programa tiene un `id` estable, nombre visible, escuela (`EII`, `EOC`, `EIT` o `null`), duración conocida y el nombre de su archivo de malla. El Plan Común dura un año y no pertenece a una escuela. No se infiere la duración de los demás programas.
-
-Cada archivo de malla vive en `app/data/curricula/` y usa este formato:
+El catálogo de carreras está en `static/data/udp-careers.json`. Cada archivo de `app/data/curricula/` es la única fuente de cursos por semestre para las vistas **Malla** y **Horarios por semestre**. La versión 2 guarda cada ramo una sola vez en `semestres`; no se mantiene una lista paralela `mallaVisual`.
 
 ```json
 {
-  "version": 1,
+  "version": 2,
   "careerId": "ingenieria-civil-industrial",
   "school": "EII",
   "semestres": {
     "1": {
       "nombre": "Semestre I",
       "ramos": [
-        {"nombre": "Nombre oficial de la asignatura", "keywords": ["nombre usado en data.json"]}
+        {
+          "id": "1",
+          "nombre": "Álgebra y Geometría",
+          "keywords": ["algebra y geometria"],
+          "requisitos": [],
+          "codigo": "CBM-1000",
+          "color": "124, 238, 238"
+        }
       ]
     }
   }
 }
 ```
 
-Los archivos también pueden incluir `mallaVisual`, que alimenta la vista personal **Malla**. Cada curso tiene un identificador estable, nombre, requisitos como identificadores de curso y, cuando la fuente lo muestra, su código. `idVisible: false` permite usar un identificador interno sin mostrar una numeración que no existe en la fuente. `color` y `border` son valores RGB separados por comas. Los créditos solo se guardan cuando la fuente realmente entrega créditos; no se deben copiar números de otras posiciones de la cápsula.
+`id`, `nombre`, `keywords` y `requisitos` son datos comunes. Los requisitos se refieren a los `id` de otros ramos de la misma carrera. `codigo`, `creditos`, `idVisible`, `color` y `border` son opcionales y se usan cuando la fuente de la malla los incluye. Los campos visuales se conservan junto al curso, no en una segunda lista.
 
-```json
-{
-  "mallaVisual": {
-    "semestres": [
-      {"numero": 1, "cursos": [
-        {"id": "1", "codigo": "CBM-1000", "nombre": "Álgebra y Geometría", "requisitos": [], "color": "152, 206, 255"}
-      ]}
-    ]
-  }
-}
-```
+`keywords` contiene nombres completos con los que el horario oficial identifica ese ramo. La búsqueda normaliza mayúsculas, tildes, puntuación y espacios, y compara nombres completos; no usa fragmentos que puedan confundir, por ejemplo, «Mecánica» con «Mecánica de Fluidos». Solo se agregan equivalencias respaldadas por el nombre oficial o por una fuente de la carrera. Si no hay equivalencia segura, se conserva el ramo en su semestre y no se le atribuyen clases.
 
-`keywords` enlaza el nombre oficial de la malla con los nombres de cursos que entrega el horario universitario. Se agregan solo equivalencias respaldadas por la malla o por los datos oficiales; no se inventan asignaturas ni coincidencias. Los semestres y sus botones se generan a partir del archivo de cada carrera, así el Plan Común puede tener sus dos semestres.
+La API de horarios consume los `nombre` y `keywords` del catálogo. La API de malla visual transforma los mismos `ramos` a la respuesta gráfica existente, incluyendo códigos, requisitos y colores. Así, cambiar el semestre o el nombre de un ramo requiere actualizar una sola entrada.
 
-La búsqueda **Ramos por Semestre** usa `semestres`; la vista personal **Malla** usa `mallaVisual`. No se debe asumir que una de las dos implica que la otra esté completa. Informática conserva sus cursos y créditos originales; Obras Civiles e Industrial usan sus códigos, numeración y requisitos transcritos de sus imágenes. Plan Común tiene dos semestres y su fuente no muestra códigos, numeraciones por curso, requisitos ni créditos, así que esos datos se omiten. Las mallas visuales se sirven por `/api/malla/progreso/<career_id>` y requieren una carrera guardada en el perfil.
+Las mallas visuales cargadas actualmente son Informática y Telecomunicaciones, Industrial, Obras Civiles y Plan Común. Ciencia de Datos e Inteligencia Artificial permanece sin semestres hasta incorporar su fuente. Plan Común tiene dos semestres; sus códigos, requisitos y créditos se omiten si no aparecen en la fuente.
