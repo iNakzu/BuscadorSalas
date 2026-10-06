@@ -13,6 +13,7 @@
 
     const api = window.PortalAuth = { client, user: null, available };
     let resolveInitialSession;
+    let initialSessionResolved = false;
     api.ready = new Promise(resolve => { resolveInitialSession = resolve; });
 
     function displayName(user) {
@@ -42,8 +43,15 @@
         if (!status || !profile || !avatar || !name || !email || !login) return;
         if (!available) {
             status.textContent = 'El acceso personal estará disponible al conectar Supabase.';
+            status.hidden = false;
             login.disabled = true;
+            login.hidden = false;
             profile.hidden = true;
+        } else if (!initialSessionResolved) {
+            status.hidden = false;
+            status.textContent = 'Restaurando tu sesión…';
+            profile.hidden = true;
+            login.hidden = true;
         } else if (api.user) {
             const gate = document.getElementById('auth-gate');
             if (gate) gate.hidden = true;
@@ -65,6 +73,7 @@
 
     function publish(session, wasSignedOut = false) {
         const hadAuthenticatedUser = Boolean(api.user);
+        initialSessionResolved = true;
         api.user = session && session.user || null;
         render();
         if (resolveInitialSession) {

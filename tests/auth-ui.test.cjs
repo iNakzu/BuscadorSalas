@@ -46,7 +46,10 @@ function boot(session, signInError = null, publicOrigin = 'https://horarios.dev'
     email: 'ana.garcia@mail.udp.cl',
     user_metadata: { given_name: 'Benjamín Alezis', family_name: 'Guzmán Norambuena', picture: 'https://example.invalid/photo.jpg' }
   } });
-  await signedIn.listeners.DOMContentLoaded();
+  const restoring = signedIn.listeners.DOMContentLoaded();
+  assert.strictEqual(signedIn.elements.get('auth-status').textContent, 'Restaurando tu sesión…');
+  assert.strictEqual(signedIn.elements.get('auth-login').hidden, true, 'do not briefly present a saved session as signed out');
+  await restoring;
   assert.strictEqual(signedIn.elements.get('auth-name').textContent, 'Benjamín Alezis Guzmán Norambuena');
   assert.strictEqual(signedIn.elements.get('auth-avatar').textContent, 'BG');
   assert.strictEqual(signedIn.elements.get('auth-profile').hidden, false);
