@@ -64,39 +64,30 @@ let panelPendientePorCarrera = '';
 
 function mostrarAvisoAccesoMalla(panelId = 'tab-malla') {
     panelPendientePorCarrera = panelId;
-    const gate = document.getElementById('auth-gate');
-    if (!gate) return;
-    const title = gate.querySelector('h2');
-    const message = gate.querySelector('p');
-    const button = gate.querySelector('.auth-button');
     const isSolemnes = panelId === 'tab-solemnes';
-    if (title) title.textContent = 'Carrera requerida';
-    if (message) message.textContent = isSolemnes
-        ? 'Selecciona y guarda tu carrera en Mi perfil para mostrar las solemnes que corresponden a tu escuela.'
-        : 'Selecciona y guarda tu carrera en Mi perfil para mostrar la información académica que te corresponde.';
-    if (button) {
-        button.textContent = 'Ir a Mi perfil';
-        button.onclick = () => {
-            gate.hidden = true;
-            abrirPerfil();
-        };
-    }
-    gate.hidden = false;
+    mostrarUiFeedback({
+        title: 'Carrera requerida',
+        message: isSolemnes
+            ? 'Selecciona y guarda tu carrera en Mi perfil para mostrar las solemnes que corresponden a tu escuela.'
+            : 'Selecciona y guarda tu carrera en Mi perfil para mostrar la información académica que te corresponde.',
+        tone: 'info',
+        icon: 'user',
+        primaryLabel: 'Ir a Mi perfil',
+        onPrimary: () => { cerrarUiFeedback(); abrirPerfil(); },
+        closeOnBackdrop: true
+    });
 }
 
 function mostrarAvisoInicioSesion() {
-    const gate = document.getElementById('auth-gate');
-    if (!gate) return;
-    const title = gate.querySelector('h2');
-    const message = gate.querySelector('p');
-    const button = gate.querySelector('.auth-button');
-    if (title) title.textContent = 'Tu espacio personal';
-    if (message) message.textContent = 'Inicia sesión con tu cuenta institucional para abrir este módulo y sincronizarlo entre dispositivos.';
-    if (button) {
-        button.textContent = 'Continuar con Google';
-        button.onclick = () => window.PortalAuth && window.PortalAuth.signIn();
-    }
-    gate.hidden = false;
+    mostrarUiFeedback({
+        title: 'Tu espacio personal',
+        message: 'Inicia sesión con tu cuenta institucional para abrir este módulo y sincronizarlo entre dispositivos.',
+        tone: 'info',
+        icon: 'user',
+        primaryLabel: 'Continuar con Google',
+        onPrimary: () => { cerrarUiFeedback(); window.PortalAuth && window.PortalAuth.signIn(); },
+        closeOnBackdrop: true
+    });
 }
 
 function cambiarTab(panelId, btn) {
@@ -157,8 +148,7 @@ let perfilPanelAnterior = 'tab-salas';
 
 function abrirPerfil() {
     if (!window.PortalAuth || !window.PortalAuth.user) {
-        const gate = document.getElementById('auth-gate');
-        if (gate) gate.hidden = false;
+        mostrarAvisoInicioSesion();
         return;
     }
     const current = document.querySelector('.panel.active');
@@ -203,8 +193,6 @@ function toggleSidebar() {
 }
 
 document.addEventListener('click', event => {
-    const gate = document.getElementById('auth-gate');
-    if (gate && event.target === gate) gate.hidden = true;
     if (event.target.closest('.tab-btn') && window.innerWidth < 1600) toggleSidebar();
 });
 
