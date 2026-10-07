@@ -102,6 +102,23 @@ class GeminiScheduleServiceTest(unittest.TestCase):
         self.assertEqual(classes[0]["diaNombre"], "Jueves")
         self.assertEqual(classes[0]["curso"], "Cálculo II")
 
+    @patch("app.services.gemini_schedule._prepare_schedule_image", return_value=(b"jpeg", "image/jpeg", 500, 650, b""))
+    @patch("app.services.gemini_schedule._request_model")
+    def test_confident_standard_class_uses_one_gemini_request(self, request_model, _prepare_image):
+        request_model.return_value = Mock(ok=True, status_code=200, json=lambda: {
+            "candidates": [{"content": {"parts": [{"text": json.dumps({"classes": [{
+                "day": 1, "start": "08:30", "end": "09:50", "block_count": 1,
+                "course": "Cálculo", "section": "", "professor": "", "room": "",
+                "kind": "Cátedra", "confidence": 0.98,
+            }]})}]}}]
+        })
+
+        classes = extract_schedule_from_image(b"image", "image/jpeg", "private-test-key")
+
+        self.assertEqual(len(classes), 1)
+        request_model.assert_called_once()
+        self.assertEqual(request_model.call_args.kwargs["timeout"], (4, 12))
+
     @patch("app.services.gemini_schedule._request_model")
     def test_custom_layout_without_measurable_row_scale_keeps_gemini_times(self, request_model):
         classes = [
@@ -297,12 +314,12 @@ class GeminiScheduleServiceTest(unittest.TestCase):
         success = Mock(ok=True, status_code=200, json=lambda: {
             "candidates": [{"content": {"parts": [{"text": json.dumps(success_payload)}]}}]
         })
-        post.side_effect = [unavailable, unavailable, unavailable, success]
+        post.side_effect = [unavailable, unavailable, success]
         review.side_effect = lambda raw_classes, *_args: raw_classes
         result = extract_schedule_from_image(b"image-bytes", "image/png", "private-test-key")
         self.assertEqual(len(result), 1)
         self.assertIn("gemini-3.5-flash", post.call_args.args[0])
-        self.assertEqual(post.call_count, 4)
+        self.assertEqual(post.call_count, 3)
 
 
 class ScheduleImportEndpointTest(unittest.TestCase):

@@ -520,6 +520,27 @@ def _measure_card_block_count(rgb_pixels, width, height, box, row_height):
 
 def _review_ambiguous_days(raw_classes, image_bytes, mime_type, api_key, model, image_width, image_height, rgb_pixels):
     normal_blocks = [block for block in STANDARD_BLOCKS if not str(block.get("id", "")).endswith("_S")]
+    block_ends = {
+        format_time(block.get("start", "")): format_time(block.get("finish", ""))
+        for block in normal_blocks
+    }
+
+    def needs_review(item):
+        # A regular, confidently read class needs no second Gemini call. Keep
+        # the visual pass for uncertain OCR, possible multi-block cards, and
+        # course names whose final numeral is easy to confuse (II/III, 2/3).
+        confidence = item.get("confidence")
+        if confidence is None or _confidence(confidence) < 0.75:
+            return True
+        if isinstance(item.get("block_count"), int) and item["block_count"] > 1:
+            return True
+        start = _normalize_time(item.get("start"))
+        end = _normalize_time(item.get("end"))
+        if start not in block_ends or end != block_ends[start]:
+            return True
+        course = _clean_text(item.get("course"), 120)
+        return bool(re.search(r"(?:\b\d+|\b(?:II|III|IV|VI|VII|VIII|IX|X))\s*$", course, re.IGNORECASE))
+
     candidates = [
         {
             "id": index,
@@ -530,7 +551,7 @@ def _review_ambiguous_days(raw_classes, image_bytes, mime_type, api_key, model, 
             "room": _clean_text(item.get("room"), 60),
         }
         for index, item in enumerate(raw_classes)
-        if isinstance(item, dict) and _normalize_day(item.get("day"))
+        if isinstance(item, dict) and _normalize_day(item.get("day")) and needs_review(item)
     ]
     if not candidates:
         return raw_classes
@@ -554,20 +575,22 @@ def _review_ambiguous_days(raw_classes, image_bytes, mime_type, api_key, model, 
         ]}],
         "generationConfig": {"temperature": 0, "responseMimeType": "application/json"},
     }
+    used_fallback = False
     try:
-        response = _request_model(body, api_key, model, attempts=1, timeout=(5, 25))
+        response = _request_model(body, api_key, model, attempts=1, timeout=(4, 8))
     except GeminiScheduleError:
         if model == FALLBACK_GEMINI_MODEL:
             return raw_classes
+        used_fallback = True
         try:
-            response = _request_model(body, api_key, FALLBACK_GEMINI_MODEL, attempts=1, timeout=(5, 25))
+            response = _request_model(body, api_key, FALLBACK_GEMINI_MODEL, attempts=1, timeout=(4, 8))
         except GeminiScheduleError:
             # Geometry review only improves duration detection. A failure in
             # this optional pass must not discard classes already recognized.
             return raw_classes
-    if response.status_code in RETRYABLE_STATUSES and model != FALLBACK_GEMINI_MODEL:
+    if response.status_code in RETRYABLE_STATUSES and model != FALLBACK_GEMINI_MODEL and not used_fallback:
         try:
-            response = _request_model(body, api_key, FALLBACK_GEMINI_MODEL, attempts=1, timeout=(5, 25))
+            response = _request_model(body, api_key, FALLBACK_GEMINI_MODEL, attempts=1, timeout=(4, 8))
         except GeminiScheduleError:
             return raw_classes
     if response.status_code in RETRYABLE_STATUSES or not response.ok:
@@ -689,12 +712,19 @@ def extract_schedule_from_image(image_bytes, mime_type, api_key, model=DEFAULT_G
             "responseSchema": SCHEDULE_SCHEMA,
         },
     }
-    response = _request_model(body, api_key, model)
+    used_fallback = False
+    try:
+        response = _request_model(body, api_key, model, attempts=2, timeout=(4, 12))
+    except GeminiScheduleError:
+        if model == FALLBACK_GEMINI_MODEL:
+            raise
+        used_fallback = True
+        response = _request_model(body, api_key, FALLBACK_GEMINI_MODEL, attempts=1, timeout=(4, 12))
     # Flash-Lite is preferred for this short extraction. If it remains busy or
     # rate limited, try the regular Flash model once before returning an error.
     if response.status_code in RETRYABLE_STATUSES and model != FALLBACK_GEMINI_MODEL:
-        time.sleep(_retry_delay(response, 2))
-        response = _request_model(body, api_key, FALLBACK_GEMINI_MODEL, attempts=1)
+        used_fallback = True
+        response = _request_model(body, api_key, FALLBACK_GEMINI_MODEL, attempts=1, timeout=(4, 12))
 
     if response.status_code == 429:
         raise GeminiScheduleError("Gemini alcanzó su límite temporal de solicitudes. Espera un minuto y vuelve a intentar.", 429)
@@ -722,14 +752,8 @@ def extract_schedule_from_image(image_bytes, mime_type, api_key, model=DEFAULT_G
     raw_classes = extracted.get("classes")
     if not isinstance(raw_classes, list):
         return _normalize_classes(raw_classes)
-    reviewed_classes = _review_ambiguous_days(
-        raw_classes,
-        image_bytes,
-        mime_type,
-        api_key,
-        model,
-        image_width,
-        image_height,
-        rgb_pixels,
+    reviewed_classes = raw_classes if used_fallback else _review_ambiguous_days(
+        raw_classes, image_bytes, mime_type, api_key, model,
+        image_width, image_height, rgb_pixels,
     )
     return _normalize_classes(reviewed_classes)
