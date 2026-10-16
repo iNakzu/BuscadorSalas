@@ -2,6 +2,8 @@ import datetime
 import json
 import os
 import re
+import threading
+import time
 import unicodedata
 from pathlib import Path
 from urllib.request import Request, urlopen
@@ -80,6 +82,8 @@ class DataManager:
         self.cache_file = Path(cache_file or RUNTIME_DATA_FILE)
         self.cache = None
         self.last_synced = None
+        self._last_sync_attempt = 0.0
+        self._sync_lock = threading.Lock()
         self.source = "none"
         self.ttl_seconds = 1800  # 30 minutos de caché en memoria
         self.total_classes = 0
@@ -109,6 +113,13 @@ class DataManager:
         return False
 
     def sync_from_remote(self):
+        # Manual refreshes and stale-cache refreshes share one lock so two
+        # simultaneous requests in this worker do not download the feed twice.
+        with self._sync_lock:
+            self._last_sync_attempt = time.monotonic()
+            return self._download_remote()
+
+    def _download_remote(self):
         try:
             print(f"[DataManager] Sincronizando datos desde {REMOTE_URL} ...")
             req = Request(
@@ -172,6 +183,13 @@ class DataManager:
     def get_classes(self):
         if not self.cache:
             self._init_data()
+        elif time.monotonic() - self._last_sync_attempt >= self.ttl_seconds:
+            # Recheck after taking the lock: another request may already have
+            # refreshed this worker's in-memory copy while we were waiting.
+            with self._sync_lock:
+                if time.monotonic() - self._last_sync_attempt >= self.ttl_seconds:
+                    self._last_sync_attempt = time.monotonic()
+                    self._download_remote()
         return self.cache.get('data', {}).get('allSalasUdps', {}).get('edges', []) if self.cache else []
 
     def get_status(self):
