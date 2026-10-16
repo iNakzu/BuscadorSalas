@@ -2,7 +2,7 @@
 
 **Portal académico — documento para evaluación universitaria**
 **Fecha:** 16 de octubre de 2026
-**Base revisada:** `main` de producción y correcciones integradas para este despliegue.
+**Base revisada:** `main` de producción, commit funcional `25d1afa`.
 
 ## Objetivo y alcance
 
@@ -159,9 +159,10 @@ Los seis cambios permanecen **sólo en esta copia local**; no se publicaron ni s
 
 - **88 pruebas Python** y **21 pruebas JavaScript** pasaron en la rama `main`, incluidas las nuevas pruebas de regresión para el reinicio remoto, el reintento de malla y el contexto del asistente.
 - `git diff --check` pasó antes de crear la publicación.
+- El despliegue automático de GitHub Actions (`38844990270`) terminó correctamente. El 16 de octubre de 2026, `https://horarios.dev/api/status` respondió HTTP 200 y reportó la fuente institucional en línea (1.315 clases y 85 salas).
 
 ## Límites y pasos recomendados
 
-La revisión de código no sustituye una evaluación institucional. No se probaron permisos entre dos cuentas autenticadas, la exactitud académica del calendario con responsables de la universidad, carga representativa, lectores de pantalla en dispositivos reales ni recuperación push en todos los navegadores. La publicación debe identificarse por su commit de Git y el resultado del despliegue automático; cualquier validación posterior debe comparar esa versión con el entorno de producción.
+La revisión de código no sustituye una evaluación institucional. No se probaron permisos entre dos cuentas autenticadas, la exactitud académica del calendario con responsables de la universidad, carga representativa, lectores de pantalla en dispositivos reales ni recuperación push en todos los navegadores. La versión funcional revisada es `25d1afa`; la revisión de este informe se publica por separado. Cualquier validación posterior debe comparar el commit desplegado con el entorno de producción.
 
 Antes de un piloto universitario, se recomienda: (1) validar este informe con responsables académicos y de privacidad; (2) decidir los permisos por módulo y la política del asistente; (3) revisar fuentes y vigencia de JSON y calendario; (4) ejecutar las pruebas completas; y (5) preparar una rama limpia, revisión institucional y plan de reversión antes del despliegue.
