@@ -88,7 +88,10 @@ function migrateProgressState(value, fallbackCareerId = '') {
 async function loadCurriculum(careerId) {
     if (CURRICULUM_CACHE.has(careerId)) return CURRICULUM_CACHE.get(careerId);
     const promise = fetch(`/api/malla/progreso/${encodeURIComponent(careerId)}`, { credentials: 'same-origin' })
-        .then(response => response.ok ? response.json() : null)
+        .then(response => {
+            if (!response.ok) throw new Error(`No se pudo cargar la malla (${response.status}).`);
+            return response.json();
+        })
         .then(data => {
             const semesters = data && Array.isArray(data.semestres) ? data.semestres : [];
             return semesters.map(semester => ({
@@ -105,7 +108,11 @@ async function loadCurriculum(careerId) {
                 }))
             }));
         })
-        .catch(() => []);
+        .catch(() => {
+            // Do not cache a transient network/server failure as an empty curriculum.
+            CURRICULUM_CACHE.delete(careerId);
+            return [];
+        });
     CURRICULUM_CACHE.set(careerId, promise);
     return promise;
 }

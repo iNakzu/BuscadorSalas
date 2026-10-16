@@ -3,8 +3,10 @@ const fs = require('fs');
 const vm = require('vm');
 
 const curriculumUrl = '/api/malla/progreso/ingenieria-civil-en-ciencia-de-datos-e-inteligencia-artificial';
-const container = { innerHTML: '' };
+const container = { innerHTML: '', querySelector: () => null };
 const listeners = {};
+let failNextCurriculum = false;
+let curriculumFetches = 0;
 const context = {
   window: { PortalAuth: { user: { user_metadata: { career: 'Ingeniería Civil en Ciencia de Datos e Inteligencia Artificial' } } },
     PortalProfile: { getCareerId: () => 'ingenieria-civil-en-ciencia-de-datos-e-inteligencia-artificial' } },
@@ -14,8 +16,16 @@ const context = {
   },
   localStorage: { getItem: () => null, setItem() {} },
   fetch: async url => {
-    assert.strictEqual(url, curriculumUrl);
-    return { ok: true, json: async () => ({ semestres: [] }) };
+    assert.match(url, /^\/api\/malla\/progreso\//);
+    curriculumFetches += 1;
+    if (failNextCurriculum) {
+      failNextCurriculum = false;
+      return { ok: false, status: 503, json: async () => ({}) };
+    }
+    const semestres = url.endsWith('retry-career')
+      ? [{ numero: 1, cursos: [{ id: 'course-1', nombre: 'Álgebra' }] }]
+      : [];
+    return { ok: true, json: async () => ({ semestres }) };
   },
   console
 };
@@ -42,5 +52,12 @@ vm.runInContext(fs.readFileSync('static/js/progreso.js', 'utf8'), context);
   await vm.runInContext('renderProgreso()', context);
   assert.match(container.innerHTML, /Configura tu carrera/);
 
-  console.log('progreso-career-gates: login, career and unavailable-curriculum states are explicit');
+  failNextCurriculum = true;
+  const failedLoad = await vm.runInContext("loadCurriculum('retry-career')", context);
+  assert.deepStrictEqual(Array.from(failedLoad), [], 'temporary failures should render the unavailable state');
+  const retriedLoad = await vm.runInContext("loadCurriculum('retry-career')", context);
+  assert.strictEqual(retriedLoad.length, 1, 'a later request should load the curriculum after recovery');
+  assert.strictEqual(curriculumFetches, 3, 'the failed response must not remain cached');
+
+  console.log('progreso-career-gates: access gates and curriculum retry scenarios passed');
 })().catch(error => { console.error(error); process.exit(1); });

@@ -133,11 +133,6 @@
             console.error('No se pudieron reiniciar los datos personales', error);
             if (status) {
                 status.hidden = false;
-                if (error && error.localDataCleared) {
-                    status.textContent = 'Datos locales borrados. Actualizando…';
-                    window.location.reload();
-                    return;
-                }
                 const errorCode = error && error.code ? ` (${error.code})` : '';
                 status.textContent = `No se pudieron reiniciar los datos${errorCode || ' (error de conexión)'}. Inténtalo de nuevo.`;
             }

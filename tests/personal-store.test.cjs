@@ -74,7 +74,7 @@ const settle = () => new Promise(resolve => setTimeout(resolve, 20));
   });
   secondUser.context.window.PortalStore.register('agenda', 'mi_agenda_v1', []);
   await settle();
-  assert.deepStrictEqual(secondUser.upserts[0].payload, []);
+  assert.strictEqual(secondUser.upserts.length, 0, 'an empty local module needs no redundant remote write');
   assert.deepStrictEqual(JSON.parse(secondUser.localStorage.getItem('mi_agenda_v1')), []);
   assert.strictEqual(secondUser.events.some(event => event.type === 'portal:remote-state'
     && event.detail.module === 'agenda' && Array.isArray(event.detail.payload)

@@ -36,7 +36,7 @@ vm.runInContext(`
 
 context.renderMiHorario();
 assert.strictEqual(vm.runInContext('MI_HORARIO_DATA.clases[1].seccion', context), 'Sección 3', 'a professor-backed lecture section should replace a conflicting section read from the image');
-assert.strictEqual(vm.runInContext('MI_HORARIO_DATA.clases[2].seccion', context), 'Sección 3', 'a blank same-course laboratory section should be filled');
+assert.strictEqual(vm.runInContext('MI_HORARIO_DATA.clases[2].seccion', context), '-', 'an explicitly cleared section must stay empty');
 assert.strictEqual(vm.runInContext('MI_HORARIO_DATA.clases[3].seccion', context), 'Sección 3', 'all same-course classes should share the chosen section');
 assert.strictEqual(vm.runInContext('MI_HORARIO_DATA.clases[4].seccion', context), 'Sección 4', 'a differently named course must keep its own section');
 assert.strictEqual(vm.runInContext('saves', context), 1, 'the migrated schedule should be persisted automatically');

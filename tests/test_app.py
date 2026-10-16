@@ -42,11 +42,10 @@ class PortalV1Test(unittest.TestCase):
         self.assertNotIn('data-val="Taller"', template)
         self.assertRegex(template, r'data-val="Laboratorio"[^>]*>Laboratorio</button>')
         self.assertIn('oninput="buscarProfesoresModal(this.value)"', template)
-        self.assertIn('oninput="buscarCursosModal(this.value)"', template)
-        self.assertIn('id="modal-cursos-options"', template)
-        self.assertIn('#modal-cursos-options', styles)
-        self.assertIn('function buscarCursosModal(query)', Path('static/js/horario.js').read_text())
-        self.assertEqual(template.count("dropdown-trigger notas-course-trigger"), 5)
+        self.assertNotIn('buscarCursosModal', template)
+        self.assertNotIn('modal-cursos-options', template)
+        self.assertNotIn('function buscarCursosModal(query)', Path('static/js/horario.js').read_text())
+        self.assertEqual(template.count("dropdown-trigger notas-course-trigger"), 4)
         self.assertNotIn('modal-sala-search', template)
         self.assertNotIn('.my-modal-select-group-label', styles)
         self.assertIn('id="modal-salas-options"', template)
@@ -59,7 +58,7 @@ class PortalV1Test(unittest.TestCase):
         self.assertIn('restaurarScrollFondoHorario();', Path('static/js/horario.js').read_text())
 
     def test_removed_endpoints_are_gone(self):
-        for path in ("/api/chat", "/api/tutor", "/api/transcribe", "/api/clima", "/api/transporte", "/api/metro-alertas"):
+        for path in ("/api/tutor", "/api/transcribe", "/api/clima", "/api/transporte", "/api/metro-alertas"):
             self.assertEqual(self.client.get(path).status_code, 404, path)
 
     def test_only_v1_modules_are_rendered(self):
@@ -74,7 +73,7 @@ class PortalV1Test(unittest.TestCase):
         self.assertNotIn('label-sync-count', html)
         self.assertNotIn('class="status-pill"', html)
         self.assertNotIn('btn-clear-cache', html)
-        for removed in ("ai-chat-window", "tab-reloj", "tab-cronometro", "tab-kanban", "tab-gastos", "tab-compras", "tab-notasvoz", "tab-habitos", "tab-riff", "tab-transporte", "tab-clima"):
+        for removed in ("tab-reloj", "tab-cronometro", "tab-kanban", "tab-gastos", "tab-compras", "tab-notasvoz", "tab-habitos", "tab-riff", "tab-transporte", "tab-clima"):
             self.assertNotIn(removed, html)
 
     def test_notes_course_selector_has_no_outer_card(self):
@@ -182,7 +181,7 @@ class PortalV1Test(unittest.TestCase):
         self.assertIn("url.pathname.startsWith('/api/')", worker)
         self.assertIn("url.pathname.includes('/auth/')", worker)
         self.assertIn("if (url.search)", worker)
-        self.assertIn("portal-estudiantil-v1-core-16", worker)
+        self.assertIn("portal-estudiantil-v1-core-41", worker)
         self.assertLess(worker.index("response.clone()"), worker.index("caches.open(CACHE_NAME).then(cache => cache.put"))
 
     def test_nginx_api_rate_limit_is_wired_before_validation(self):

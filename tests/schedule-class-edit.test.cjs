@@ -85,7 +85,7 @@ assert.strictEqual(modalDialogStyle.left, '', 'mobile editor should return to th
 assert.strictEqual(modalDialogStyle.width, '', 'mobile editor should use the mobile stylesheet width');
 context.window.innerWidth = 1440;
 context.window.resizeHandler();
-assert.deepStrictEqual(JSON.parse(vm.runInContext('JSON.stringify(classLookup)', context)), { day: 1, start: '16:00' });
+assert.strictEqual(vm.runInContext('classLookup', context), null, 'opening an editor should not trigger the removed automatic JSON lookup');
 assert.strictEqual(fields.get('modal-add-id').value, 'edit-me');
 assert.strictEqual(fields.get('modal-add-curso').value, 'Ecuaciones Diferenciales');
 assert.strictEqual(fields.get('modal-add-sala').required, false);
@@ -104,8 +104,8 @@ assert.strictEqual(savedClass.sala, '');
 
 context.setModalTipo('Laboratorio');
 context.setModalRol('assistant');
-assert.strictEqual(fields.get('modal-add-tipo').value, 'Laboratorio');
-assert.strictEqual(fields.get('label-modal-tipo').textContent, 'Laboratorio');
+assert.strictEqual(fields.get('modal-add-tipo').value, 'Cátedra', 'assistant role must preserve the locked class type');
+assert.strictEqual(fields.get('label-modal-tipo').textContent, '');
 assert.strictEqual(fields.get('modal-add-rol').value, 'assistant');
 assert.strictEqual(fields.get('label-modal-rol').textContent, 'Ayudante');
 
@@ -113,24 +113,10 @@ const modalTemplate = fs.readFileSync('templates/components/schedule_modal.html'
 const modalStyles = fs.readFileSync('static/css/horario.css', 'utf8');
 assert(!/data-val="Taller"/.test(modalTemplate), 'Taller must not be an available class type');
 assert(/data-val="Laboratorio"[^>]*>Laboratorio</.test(modalTemplate), 'Laboratorio must be shown in full');
-assert.strictEqual((modalTemplate.match(/dropdown-trigger notas-course-trigger/g) || []).length, 5, 'all five selectors must use the Notes selector appearance');
+assert.strictEqual((modalTemplate.match(/dropdown-trigger notas-course-trigger/g) || []).length, 4, 'all four selectors must use the Notes selector appearance');
 assert(/\.my-modal-select \.dropdown-item\.active\s*\{[^}]*background: linear-gradient/.test(modalStyles), 'selected type and role options must stay highlighted');
 assert(/oninput="buscarProfesoresModal\(this\.value\)"/.test(modalTemplate), 'teacher field must use JSON autocomplete');
-assert(/oninput="buscarCursosModal\(this\.value\)"/.test(modalTemplate), 'manual course field must search JSON courses');
-assert(!modalTemplate.includes('Buscar clase real') && !modalTemplate.includes('modal-real-badge'), 'real class search should not show its title or count capsule');
-assert(modalTemplate.includes('<span>Rellena manualmente</span>') && !modalTemplate.includes('O completa / edita'), 'manual form divider should use the shorter centered copy');
-assert(!/modal-real-badge|clases en bloque|cursos disponibles/.test(fs.readFileSync('static/js/horario.js', 'utf8')), 'real class search should not update a count badge');
-assert(/\.my-search-real-container > \.search-field\s*\{[^}]*max-width: none/.test(modalStyles), 'real course search capsule should span the same content width as its results');
-assert(/\.my-search-real-container > \.search-field\s*\{[^}]*width: calc\(100% - 10px\)/.test(modalStyles), 'real course search capsule should leave room for the results scrollbar');
-assert(!/my-real-item-chip[^\n]*\$\{codigo\}/.test(fs.readFileSync('static/js/horario.js', 'utf8')), 'real course results should not display course codes');
-context.renderListaClasesRealesModal([{
-  curso: 'Arquitecturas Emergentes', sala: 'E441.2.S201', seccion: '2', profe: 'Rivero Rosa Elvira'
-}], false);
-const realClassResults = fields.get('modal-real-classes-list').innerHTML;
-assert(realClassResults.includes('Arquitecturas Emergentes') && realClassResults.includes('E441.2.S201') && realClassResults.includes('Sección 2'));
-const visibleRealClassMetadata = (realClassResults.match(/<div class="my-real-item-meta">([\s\S]*?)<\/div>/) || [])[1] || '';
-assert(!visibleRealClassMetadata.includes('Rivero Rosa Elvira'), 'block match rows should not show the professor');
-assert(realClassResults.includes('class="my-real-item-separator" aria-hidden="true"></span>') && !realClassResults.includes('my-real-item-chip') && !realClassResults.includes('my-real-select-btn'), 'block matches should render as clean rows with CSS metadata dots');
+assert(!modalTemplate.includes('buscarCursosModal') && !modalTemplate.includes('modal-real-classes-list'), 'the removed automatic course search should stay absent');
 assert(/aria-label="Eliminar clase"[^>]*>[\s\S]*?<svg/.test(modalTemplate), 'delete action should have an accessible remove icon');
 assert(/aria-label="Cancelar"[^>]*>[\s\S]*?<svg/.test(modalTemplate), 'cancel action should use an accessible close icon');
 assert(/aria-label="Guardar en tu horario"[^>]*>[\s\S]*?<svg/.test(modalTemplate), 'save action should use an accessible icon');
@@ -147,13 +133,10 @@ assert(/#modal-agregar-ramo \.my-modal-dialog::-webkit-scrollbar-track\s*\{[^}]*
 assert(/#modal-agregar-ramo \.my-modal-dialog::-webkit-scrollbar-thumb\s*\{[^}]*border-radius: 999px/.test(modalStyles), 'schedule scrollbar thumb should have rounded ends');
 assert(/@media \(max-width: 640px\)[\s\S]*?#modal-agregar-ramo \.my-modal-dialog\s*\{[^}]*scrollbar-width: none/.test(modalStyles), 'mobile should hide the native scrollbar indicator while preserving touch scrolling');
 assert(/#modal-agregar-ramo \.my-modal-dialog::-webkit-scrollbar\s*\{[^}]*display: none/.test(modalStyles), 'mobile WebKit scrollbar indicator should not overlap rounded edges');
-assert(/\.my-real-class-item\s*\{[^}]*border-bottom: 1px solid/.test(modalStyles), 'real classes should be divided by subtle row rules instead of colored cards');
-assert(/\.my-divider-with-text\s*\{[^}]*justify-content: center[^}]*margin: 3px 0 11px/.test(modalStyles), 'manual form divider should be centered and sit closer to the search results');
-assert(/\.my-real-item-separator\s*\{[^}]*border-radius: 50%/.test(modalStyles), 'inline metadata separator should be a round CSS dot, not a font glyph');
 assert(/getBoundingClientRect\(\)/.test(fs.readFileSync('static/js/horario.js', 'utf8')), 'desktop position should follow the content bounds');
-assert(/#dd-modal-profesor\.open \.my-modal-search-menu,\s*#dd-modal-curso\.open \.my-modal-search-menu\s*\{[^}]*display: flex/.test(modalStyles), 'course and teacher searches stay outside the results scroller');
-assert(/#modal-profesores-options,\s*#modal-cursos-options\s*\{[^}]*overflow-y: auto/.test(modalStyles), 'search results should scroll independently from their fixed inputs');
-assert(/@media \(max-width: 640px\)[\s\S]*?#modal-agregar-ramo \.my-modal-dialog\s*\{[^}]*width: min\(calc\(90vw \+ 12px\), calc\(100vw - 20px\), 572px\)[^}]*height: auto[^}]*min-height: min\(calc\(90dvh \+ 12px\), 772px\)[^}]*max-height: calc\(100dvh - 20px\)/.test(modalStyles), 'mobile editor should grow 12px in each dimension while respecting the dynamic viewport');
+assert(/#dd-modal-profesor\.open \.my-modal-search-menu\s*\{[^}]*display: flex/.test(modalStyles), 'teacher search stays outside the results scroller');
+assert(/#modal-profesores-options\s*\{[^}]*overflow-y: auto/.test(modalStyles), 'teacher results should scroll independently from their fixed input');
+assert(/@media \(max-width: 640px\)[\s\S]*?#modal-agregar-ramo \.my-modal-dialog\s*\{[^}]*width: min\(calc\(90vw \+ 12px\), calc\(100vw - 20px\), 572px\)[^}]*height: auto[^}]*min-height: 0[^}]*max-height: calc\(100dvh - 20px\)/.test(modalStyles), 'mobile editor should size to its content while respecting the dynamic viewport');
 assert(modalStyles.includes('@media (max-height: 620px)') && modalStyles.includes('#modal-agregar-ramo .my-modal-dialog {\n        min-height: 0;'), 'short screens should not force a tall editor');
 
 context.confirmarWeb = (_message, callback) => callback();
@@ -166,19 +149,14 @@ assert.strictEqual(context.window.resizeHandler, null, 'closing must remove the 
 
 async function testTeacherAutocomplete() {
   context.fetch = async url => {
-    assert(url.includes('/api/search?q=Ri') || url.includes('/api/search?q=Cal') || url.includes('/api/search?q=Xy'));
-    const isCourseQuery = url.includes('/api/search?q=Cal');
+    assert(url.includes('/api/search?q=Ri'));
     return {
       ok: true,
       json: async () => ({ profesores: [
         { profe: 'Rivero Rosa Elvira' },
         { profe: 'Rivero Rosa Elvira' },
         { profe: 'Rivas Ana' }
-      ], cursos: isCourseQuery ? [
-        { curso: 'CALCULO I' },
-        { curso: 'CALCULO I' },
-        { curso: 'CALCULO AVANZADO' }
-      ] : [] })
+      ] })
     };
   };
   context.buscarProfesoresModal('Ri');
@@ -193,23 +171,6 @@ async function testTeacherAutocomplete() {
   context.abrirProfesoresDropdown();
   assert.strictEqual(fields.get('modal-profesor-search').value, '', 'reopening professor selector should clear its search');
   assert.strictEqual(fields.get('modal-add-profesor').value, 'Rivero Rosa Elvira', 'clearing the search must preserve the selected professor');
-  context.buscarCursosModal('Cal');
-  const courseSearch = timers.pop();
-  await courseSearch();
-  const courseOptions = fields.get('modal-cursos-options').innerHTML;
-  assert(courseOptions.includes('CALCULO I') && courseOptions.includes('CALCULO AVANZADO'));
-  assert(!courseOptions.includes('Usar «Cal»'), 'partial queries with catalog matches should not appear as custom courses');
-  assert.strictEqual((courseOptions.match(/data-val="CALCULO I"/g) || []).length, 1, 'duplicate courses should be removed');
-  context.seleccionarCursoModal('CALCULO I');
-  assert.strictEqual(fields.get('modal-add-curso').value, 'CALCULO I');
-  assert.strictEqual(fields.get('label-modal-curso').textContent, 'CALCULO I');
-  context.abrirCursosDropdown();
-  assert.strictEqual(fields.get('modal-curso-search').value, '', 'reopening course selector should clear its search');
-  assert.strictEqual(fields.get('modal-add-curso').value, 'CALCULO I', 'clearing the search must preserve the selected course');
-  context.buscarCursosModal('Xy');
-  const customCourseSearch = timers.pop();
-  await customCourseSearch();
-  assert(fields.get('modal-cursos-options').innerHTML.includes('Usar «Xy»'), 'manual custom course names should remain available when no JSON match exists');
   assert.strictEqual(fields.get('label-modal-profesor').textContent, 'Rivero Rosa Elvira');
   assert.strictEqual(fields.get('modal-add-profesor').value, 'Rivero Rosa Elvira');
   context.TODAS_LAS_SALAS = ['E999.1.S101', 'V432.2.S201', 'E441.2.S201', 'E441.1.S101', 'V432.1.S101'];
@@ -223,7 +184,7 @@ async function testTeacherAutocomplete() {
   context.seleccionarSalaModal('E441.1.S101');
   assert.strictEqual(fields.get('modal-add-sala').value, 'E441.1.S101');
   assert.strictEqual(fields.get('label-modal-sala').textContent, 'E441.1.S101');
-  console.log('schedule-class-edit: edits role and details, loads edit suggestions, and autocompletes teachers');
+  console.log('schedule-class-edit: edits class details and autocompletes teachers without course catalog lookup');
 }
 
 testTeacherAutocomplete().catch(error => {

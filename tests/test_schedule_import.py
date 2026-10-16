@@ -416,7 +416,8 @@ class ScheduleImportEndpointTest(unittest.TestCase):
         }
         response = self.client.post("/api/sync_horario", json={"clases": [original]})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.get_json(), [original])
+        expected = dict(original, profesor="")
+        self.assertEqual(response.get_json(), [expected])
         get_classes.assert_called_once()
 
     @patch("app.blueprints.academic_api.dm.get_classes")
@@ -433,7 +434,8 @@ class ScheduleImportEndpointTest(unittest.TestCase):
         response = self.client.post("/api/sync_horario", json={"clases": [original]})
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.get_json(), [original])
+        expected = dict(original, profesor="")
+        self.assertEqual(response.get_json(), [expected])
         get_classes.assert_called_once()
 
     @patch("app.blueprints.academic_api.dm.get_classes")
@@ -499,7 +501,7 @@ class ScheduleImportEndpointTest(unittest.TestCase):
         self.assertEqual((matched[1]["curso"], matched[1]["seccion"], matched[1]["sala"]),
                          ("Introducción al Álgebra", "Sección 3", "E306.1.S101"))
         self.assertEqual((matched[2]["seccion"], matched[2]["sala"]), ("Sección 11", "E306.2.S208"))
-        self.assertEqual(matched[3], classes[3])
+        self.assertEqual(matched[3], dict(classes[3], profesor=""))
         get_classes.assert_called_once()
 
     @patch("app.blueprints.academic_api.dm.get_classes")

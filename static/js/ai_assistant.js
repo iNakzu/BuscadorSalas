@@ -435,19 +435,12 @@ function parseAssistantListBlock(lines, startIndex) {
     function getAcademicContext() {
         const schedule = readLocal('mi_horario_custom_v1', {});
         const classes = Array.isArray(schedule) ? schedule : (Array.isArray(schedule.clases) ? schedule.clases : []);
-        const storedGrades = readLocal('mi_notas_v1', {});
-        const grades = storedGrades && typeof storedGrades === 'object'
-            ? Object.fromEntries(Object.entries(storedGrades).filter(([key]) => key.startsWith('me|')))
-            : {};
-        const agenda = readLocal('mi_agenda_v1', []);
         return {
             horario: classes.slice(0, 40).map(item => ({
                 asignatura: item.cursoDisplay || item.curso || '', dia: item.diaNombre || item.dia || '',
                 hora: item.horaInicio || '', termino: item.horaFin || '', sala: item.sala || '',
                 seccion: item.seccion || '', tipo: item.tipo || '', rol: item.rol || ''
-            })),
-            notas: grades && typeof grades === 'object' ? grades : {},
-            agenda: Array.isArray(agenda) ? agenda.filter(event => !event.perfil || event.perfil === 'me').slice(0, 60) : []
+            }))
         };
     }
 

@@ -6,11 +6,11 @@ const scheduleCss = fs.readFileSync('static/css/horario.css', 'utf8');
 assert.match(scheduleCss, /\.my-empty-slot\.is-readonly:hover \.my-empty-text\s*\{\s*display:\s*inline;/);
 assert.match(scheduleCss, /@media \(max-width: 900px\)\s*\{\s*\.my-week-grid\s*\{[^}]*width:\s*100vw;[^}]*margin-left:\s*calc\(-50vw \+ 50%\);/s);
 
-const container = { innerHTML: '', scrollIntoView() {} };
+const container = { innerHTML: '', scrollIntoView() {}, querySelector: () => null };
 const hero = { innerHTML: '' };
 const context = {
   window: {},
-  document: { getElementById: id => id === 'mihorario-display-container' ? container : id === 'my-schedule-hero' ? hero : null, addEventListener() {} },
+  document: { getElementById: id => id === 'mihorario-display-container' ? container : id === 'my-schedule-hero' ? hero : null, querySelector: () => null, addEventListener() {} },
   localStorage: { getItem: () => null, setItem() {} },
   MI_HORARIO_DEFAULT_DATA: { escuela: 'EIT', clases: [] },
   state: { miHorarioRol: 'ALL', miHorarioSearch: '' },

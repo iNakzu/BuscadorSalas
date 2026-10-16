@@ -250,12 +250,10 @@
         if (!auth || !auth.client || !auth.user) throw new Error('Se requiere una sesión activa.');
         if (resetting) throw new Error('El reinicio ya está en curso.');
         resetting = true;
-        let localDataCleared = false;
         try {
             const resetAt = new Date().toISOString();
-            // Clear first, without waiting for a possibly stalled Supabase sync.
-            clearLocalData(auth.user.id, resetAt);
-            localDataCleared = true;
+            // Stop new writes and finish in-flight work before asking Supabase
+            // to reset. Keep the local copy unless the remote reset succeeds.
             while (syncing || activeSaves > 0) {
                 await new Promise(resolve => setTimeout(resolve, 10));
             }
@@ -280,12 +278,6 @@
             resetMarkers.set(auth.user.id, confirmedResetAt);
             return confirmedResetAt;
         } catch (error) {
-            if (localDataCleared) {
-                const resetError = new Error(error && error.message || 'No se pudo contactar a Supabase.');
-                if (error && error.code) resetError.code = error.code;
-                resetError.localDataCleared = true;
-                throw resetError;
-            }
             throw error;
         } finally {
             pendingSync = false;
