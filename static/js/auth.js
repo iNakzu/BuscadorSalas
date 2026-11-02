@@ -53,6 +53,8 @@
             profile.hidden = true;
             login.hidden = true;
         } else if (api.user) {
+            const gate = document.getElementById('auth-gate');
+            if (gate) gate.hidden = true;
             const fullName = displayName(api.user);
             status.hidden = true;
             profile.hidden = false;

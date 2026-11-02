@@ -16,6 +16,8 @@ function normalizarNota(value) {
 }
 
 
+
+
 function initNotas() {
     try {
         const stored = localStorage.getItem('mi_notas_v1');

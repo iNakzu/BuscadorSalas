@@ -1,6 +1,7 @@
 import io
 import json
 import os
+import shutil
 import tempfile
 import unittest
 from unittest.mock import Mock, patch
@@ -261,7 +262,7 @@ class GeminiScheduleServiceTest(unittest.TestCase):
             ok=True,
             status_code=200,
             json=lambda: {"candidates": [{"content": {"parts": [{"text": json.dumps({"classes": [{
-                "day": 3, "start": "13:00", "end": "14:20", "course": "Programación",
+                "day": 3, "start": "13:00", "end": "14:20", "block_count": 1, "course": "Programación",
                 "section": "A", "professor": "Docente", "room": "E-310", "kind": "Laboratorio", "confidence": 0.8,
             }]})}]}}]},
         )
@@ -269,7 +270,8 @@ class GeminiScheduleServiceTest(unittest.TestCase):
         result = extract_schedule_from_image(b"image-bytes", "image/png", "do-not-log-key", "gemini-2.5-flash")
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]["curso"], "Programación")
-        args, kwargs = post.call_args
+        self.assertEqual(post.call_count, 1)
+        args, kwargs = post.call_args_list[0]
         self.assertTrue(args[0].endswith("/gemini-2.5-flash:generateContent"))
         self.assertEqual(kwargs["headers"]["x-goog-api-key"], "do-not-log-key")
         self.assertEqual(kwargs["json"]["contents"][0]["parts"][1]["inline_data"]["mime_type"], "image/jpeg")
@@ -289,7 +291,7 @@ class GeminiScheduleServiceTest(unittest.TestCase):
         unavailable = Mock(ok=False, status_code=503, headers={})
         success_payload = {"classes": [{
             "day": 1, "start": "08:30", "end": "09:50", "course": "Cálculo",
-            "section": "", "professor": "", "room": "", "kind": "Cátedra", "confidence": 0.8,
+            "block_count": 1, "section": "", "professor": "", "room": "", "kind": "Cátedra", "confidence": 0.8,
         }]}
         success = Mock(ok=True, status_code=200, json=lambda: {
             "candidates": [{"content": {"parts": [{"text": json.dumps(success_payload)}]}}]
@@ -309,7 +311,7 @@ class GeminiScheduleServiceTest(unittest.TestCase):
         unavailable = Mock(ok=False, status_code=503, headers={})
         success_payload = {"classes": [{
             "day": 1, "start": "08:30", "end": "09:50", "course": "Cálculo",
-            "section": "", "professor": "", "room": "", "kind": "Cátedra", "confidence": 0.8,
+            "block_count": 1, "section": "", "professor": "", "room": "", "kind": "Cátedra", "confidence": 0.8,
         }]}
         success = Mock(ok=True, status_code=200, json=lambda: {
             "candidates": [{"content": {"parts": [{"text": json.dumps(success_payload)}]}}]
@@ -762,12 +764,13 @@ class ScheduleImportEndpointTest(unittest.TestCase):
     @patch("app.blueprints.academic_api.extract_schedule_from_image")
     @patch("app.blueprints.academic_api.requests.get")
     @patch("app.blueprints.academic_api.dm.get_classes", return_value=[])
-    def test_authenticated_upload_discards_unmatched_teacher_without_storing_image(self, _get_classes, auth_get, extract):
+    def test_authenticated_upload_matches_normalized_teacher_without_storing_image(self, _get_classes, auth_get, extract):
         auth_get.return_value = Mock(ok=True, json=lambda: {"id": "test-user"})
+        _get_classes.return_value = [{"node": {"teacher": "CALCAGNO JAIME ALBERTO"}}]
         extract.return_value = [{
             "dia": 1, "diaNombre": "Lunes", "horaInicio": "08:30", "horaFin": "09:50",
             "curso": "Cálculo", "tipo": "Cátedra", "seccion": "1", "sala": "E-201",
-            "profesor": "Docente", "confianza": 0.95,
+            "profesor": "Jaime Calcaño", "confianza": 0.95,
         }]
         response = self.client.post(
             "/api/import_schedule",
@@ -777,11 +780,52 @@ class ScheduleImportEndpointTest(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 200, response.get_json())
         self.assertEqual(response.get_json()["total"], 1)
-        self.assertEqual(response.get_json()["clases"][0]["profesor"], "")
+        self.assertEqual(response.get_json()["clases"][0]["profesor"], "CALCAGNO JAIME ALBERTO")
         self.assertNotIn("image", response.get_json())
         auth_get.assert_called_once()
         extract.assert_called_once()
         self.assertEqual(extract.call_args.args[0], b"\x89PNG\r\n\x1a\nimage")
+        self.assertNotIn("course_catalog", extract.call_args.kwargs)
+
+    @patch("app.blueprints.academic_api.extract_schedule_from_image")
+    @patch("app.blueprints.academic_api.requests.get")
+    @patch("app.blueprints.academic_api.dm.get_classes", return_value=[])
+    def test_authenticated_upload_discards_unmatched_gemini_teacher(self, _get_classes, auth_get, extract):
+        auth_get.return_value = Mock(ok=True, json=lambda: {"id": "test-user"})
+        extract.return_value = [{
+            "dia": 1, "diaNombre": "Lunes", "horaInicio": "08:30", "horaFin": "09:50",
+            "curso": "Cálculo", "tipo": "Cátedra", "seccion": "1", "sala": "E-201",
+            "profesor": "NOMBRE INVENTADO POR OCR", "confianza": 0.95,
+        }]
+
+        response = self.client.post(
+            "/api/import_schedule",
+            headers={"Authorization": "Bearer valid-test-session"},
+            data={"image": (io.BytesIO(b"\x89PNG\r\n\x1a\nimage"), "horario.png", "image/png")},
+            content_type="multipart/form-data",
+        )
+
+        self.assertEqual(response.status_code, 200, response.get_json())
+        self.assertEqual(response.get_json()["clases"][0]["profesor"], "")
+
+    @patch("app.blueprints.academic_api.extract_schedule_from_image")
+    @patch("app.blueprints.academic_api.requests.get")
+    def test_authenticated_upload_rejects_overlapping_classes(self, auth_get, extract):
+        auth_get.return_value = Mock(ok=True, json=lambda: {"id": "overlap-test-user"})
+        extract.return_value = [
+            {"dia": 2, "diaNombre": "Martes", "horaInicio": "10:00", "horaFin": "12:50",
+             "curso": "Climate Futures", "tipo": "Cátedra", "seccion": "", "sala": "", "profesor": ""},
+            {"dia": 2, "diaNombre": "Martes", "horaInicio": "11:30", "horaFin": "12:50",
+             "curso": "Otra clase", "tipo": "Cátedra", "seccion": "", "sala": "", "profesor": ""},
+        ]
+        response = self.client.post(
+            "/api/import_schedule",
+            headers={"Authorization": "Bearer valid-test-session"},
+            data={"image": (io.BytesIO(b"\x89PNG\r\n\x1a\nimage"), "horario.png", "image/png")},
+            content_type="multipart/form-data",
+        )
+        self.assertEqual(response.status_code, 422)
+        self.assertIn("más de una clase en un mismo bloque", response.get_json()["error"])
 
     @patch("app.blueprints.academic_api.requests.get")
     def test_rejects_non_image_uploads(self, auth_get):

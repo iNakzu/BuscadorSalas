@@ -1507,6 +1507,14 @@ body.schedule-modal-open {
     display: inline-block;
 }
 
+.my-room-pill.is-unassigned-room,
+.my-room-pill.is-unassigned-room:hover {
+    cursor: default;
+    transform: none;
+    box-shadow: none;
+    color: var(--text-sub);
+}
+
 .my-room-pill:hover {
     background: linear-gradient(135deg, rgba(59, 130, 246, 0.35) 0%, rgba(14, 165, 233, 0.3) 100%);
     border-color: rgba(147, 197, 253, 0.7);

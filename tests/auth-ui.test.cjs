@@ -17,6 +17,7 @@ function boot(session, signInError = null, publicOrigin = 'https://horarios.dev'
       async getSession() { return { data: { session } }; },
       onAuthStateChange(callback) { authStateCallback = callback; },
       async signInWithOAuth(options) { calls.oauth = options; return { error: signInError }; },
+      async updateUser({ data }) { calls.metadata = data; session.user.user_metadata = { ...session.user.user_metadata, ...data }; return { data: { user: session.user } }; },
       async signOut() {}
     }
   };

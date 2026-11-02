@@ -23,6 +23,7 @@ const context = {
     querySelector: () => null,
     addEventListener() {}
   },
+  localStorage: { getItem: () => null, setItem() {} },
   SOLEMNES_DATA: [
     { dia: 1, horario: '8:30 a 10:30', ramos: [
       { nombre: 'Bases de Datos (EIT)' },
@@ -56,7 +57,23 @@ assert.match(source, /\.solemnes-scroll-wrapper \{[\s\S]*?padding: 0 16px 20px 1
 assert.doesNotMatch(fs.readFileSync('static/css/community.css', 'utf8'), /#tab-solemnes\.public-profile-active > \.search-field \{ display: none !important; \}/);
 vm.createContext(context);
 vm.runInContext(source, context);
+
+// Personalized highlight starts disabled and therefore keeps every exam in its normal style.
 vm.runInContext('renderSolemnes()', context);
+assert.doesNotMatch(container.innerHTML, /Se resaltan las solemnes.*Ana García/);
+assert.doesNotMatch(container.innerHTML, /sol-ramo-pill dimmed/);
+assert.match(container.innerHTML, /solemnes-scroll-wrapper/);
+
+// Once enabled, school tags are checked before names: EIT matches and EII/EOC does not.
+toggle.checked = true;
+vm.runInContext('renderSolemnes()', context);
+const eit = container.innerHTML.match(/<div class="sol-ramo-pill matched"[^>]*>[\s\S]*?Probabilidades y Estadística \(EIT\)/);
+const eiiEoc = container.innerHTML.match(/<div class="sol-ramo-pill dimmed"[^>]*>[\s\S]*?Probabilidades y Estadística \(EII EOC\)/);
+assert(eit, 'the matching EIT exam should be highlighted');
+assert(eiiEoc, 'the EII/EOC duplicate should remain dimmed for an EIT profile');
+assert.doesNotMatch(container.innerHTML, /Resaltando las evaluaciones|Se resaltan las solemnes/);
+assert.strictEqual(status.textContent, '');
+assert.strictEqual(status.hidden, true);
 
 assert.match(container.innerHTML, /<div class="sol-ramo-pill matched" style="[^"]*border-left-color: [^;]+;/);
 assert.strictEqual(status.textContent, '');

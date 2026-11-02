@@ -8,23 +8,48 @@ function storage(initial = {}) {
   return {
     getItem: key => values.has(key) ? values.get(key) : null,
     setItem: (key, value) => values.set(key, String(value)),
+    removeItem: key => values.delete(key),
+    key: index => Array.from(values.keys())[index] || null,
+    get length() { return values.size; },
     values
   };
 }
 
-function environment({ initial = {}, user = null, remote = null }) {
+function environment({ initial = {}, user = null, remote = null, resetAt = null, resetFailure = false,
+  resetResult = { reset_at: '2026-10-03T13:00:00.000Z' }, holdSync = false, resetGeneration = null }) {
   const localStorage = storage(initial);
   const events = [];
   const upserts = [];
+  const rpcCalls = [];
   const listeners = {};
-  const query = {
+  let releaseSync;
+  const syncGate = new Promise(resolve => { releaseSync = () => resolve({ data: null, error: null }); });
+  const moduleQuery = {
     select() { return this; }, eq() { return this; },
     async maybeSingle() { return { data: remote, error: null }; },
+    delete() { return this; },
+    async in() { return { error: null }; },
     async upsert(row) { upserts.push(row); return { error: null }; }
   };
-  const client = { from() { return query; } };
+  const profileQuery = {
+    select() { return this; }, eq() { return this; },
+    maybeSingle() {
+      if (holdSync) return syncGate;
+      return Promise.resolve({ data: resetAt ? { data_reset_at: resetAt } : null, error: null });
+    }
+  };
+  const client = {
+    from(table) { return table === 'profiles' ? profileQuery : moduleQuery; },
+    async rpc(name) {
+      rpcCalls.push(name);
+      return resetFailure ? { data: null, error: { code: 'PGRST002' } } : { data: resetResult, error: null };
+    }
+  };
   const context = {
-    window: { PortalAuth: user ? { user: { id: user }, client } : null },
+    window: {
+      PortalAuth: user ? { user: { id: user }, client } : null,
+      PORTAL_CONFIG: resetGeneration ? { personalDataResetGeneration: resetGeneration } : {}
+    },
     localStorage,
     document: {
       addEventListener(name, callback) { listeners[name] = callback; },
@@ -39,7 +64,7 @@ function environment({ initial = {}, user = null, remote = null }) {
   };
   vm.createContext(context);
   vm.runInContext(source, context);
-  return { context, localStorage, events, upserts, listeners };
+  return { context, localStorage, events, upserts, rpcCalls, listeners, releaseSync };
 }
 
 const settle = () => new Promise(resolve => setTimeout(resolve, 20));
@@ -63,6 +88,8 @@ const settle = () => new Promise(resolve => setTimeout(resolve, 20));
   await settle();
   assert.strictEqual(newerLocal.upserts.length, 1);
   assert.strictEqual(newerLocal.upserts[0].payload[0].id, 'local');
+  assert.strictEqual(newerLocal.upserts[0].schema_version, 2);
+  assert.strictEqual(newerLocal.upserts[0].reset_marker, '1970-01-01T00:00:00.000Z');
 
   const secondUser = environment({
     user: 'user-2',

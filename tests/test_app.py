@@ -61,9 +61,33 @@ class PortalV1Test(unittest.TestCase):
         for path in ("/api/tutor", "/api/transcribe", "/api/clima", "/api/transporte", "/api/metro-alertas"):
             self.assertEqual(self.client.get(path).status_code, 404, path)
 
+    def test_chat_validates_messages_and_keeps_gemini_key_server_side(self):
+        import requests
+
+        from unittest.mock import Mock
+
+        self.app.config["GEMINI_API_KEY"] = "server-test-key"
+        gemini_response = Mock()
+        gemini_response.ok = True
+        gemini_response.json.return_value = {"candidates": [{"content": {"parts": [{"text": "Hola"}]}}]}
+        with patch("app.blueprints.academic_api._consume_rate_limit", return_value=(True, 0)), \
+                patch("app.blueprints.academic_api.requests.post", return_value=gemini_response) as request_to_gemini:
+            response = self.client.post("/api/chat", json={"message": "Hola"})
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.get_json(), {"answer": "Hola"})
+            self.assertEqual(request_to_gemini.call_args.kwargs["headers"]["x-goog-api-key"], "server-test-key")
+            self.assertNotIn("server-test-key", request_to_gemini.call_args.args[0])
+            self.assertIn("KaTeX", request_to_gemini.call_args.kwargs["json"]["systemInstruction"]["parts"][0]["text"])
+            invalid = self.client.post("/api/chat", json={"message": "x" * 3001})
+            self.assertEqual(invalid.status_code, 400)
+            bad_image = self.client.post("/api/chat", json={
+                "message": "Lee esto", "image": {"mimeType": "image/png", "data": "bm90YW5pbWFnZQ=="}
+            })
+            self.assertEqual(bad_image.status_code, 400)
+
     def test_only_v1_modules_are_rendered(self):
         html = self.client.get("/").get_data(as_text=True)
-        for panel in ("tab-salas", "tab-profes", "tab-ramos", "tab-malla", "tab-horario", "tab-mihorario", "tab-solemnes", "tab-notas", "tab-agenda", "tab-progreso", "tab-estudio", "tab-timer"):
+        for panel in ("tab-salas", "tab-profes", "tab-ramos", "tab-malla", "tab-horario", "tab-mihorario", "tab-solemnes", "tab-notas", "tab-agenda", "tab-perfil", "tab-progreso", "tab-estudio", "tab-timer"):
             self.assertIn(f'id="{panel}"', html)
         self.assertIn('data-tab="tab-solemnes" data-private="true"', html)
         self.assertNotIn('private-mark', html)
@@ -75,6 +99,25 @@ class PortalV1Test(unittest.TestCase):
         self.assertNotIn('btn-clear-cache', html)
         for removed in ("tab-reloj", "tab-cronometro", "tab-kanban", "tab-gastos", "tab-compras", "tab-notasvoz", "tab-habitos", "tab-riff", "tab-transporte", "tab-clima"):
             self.assertNotIn(removed, html)
+        self.assertIn('id="ai-chat-window"', html)
+        self.assertNotIn('id="ai-share-context"', html)
+        self.assertIn('id="ai-image-lightbox"', html)
+        assistant_js = Path("static/js/ai_assistant.js").read_text()
+        assistant_context = assistant_js.split("function getAcademicContext() {", 1)[1].split("\n    }", 1)[0]
+        self.assertIn("readLocal('mi_horario_custom_v1'", assistant_context)
+        self.assertNotIn("mi_notas_v1", assistant_context)
+        self.assertNotIn("mi_agenda_v1", assistant_context)
+        self.assertIn("const context = getAcademicContext();", assistant_js)
+        self.assertIn("function renderAssistantMessage", assistant_js)
+        self.assertIn("trust: false", assistant_js)
+        self.assertIn("katex@0.19.0", Path("templates/index.html").read_text())
+        self.assertIn("bubble.textContent = text", assistant_js)
+
+    def test_opening_personal_schedule_does_not_force_scroll_to_current_class(self):
+        app_js = Path("static/js/app.js").read_text()
+        self.assertIn("renderMiHorario();", app_js)
+        self.assertNotIn(".my-class-card.is-current-class", app_js)
+        self.assertNotIn(".my-timeline-card.is-current-class", app_js)
 
     def test_notes_course_selector_has_no_outer_card(self):
         notes = Path("templates/views/notas.html").read_text()
@@ -282,6 +325,34 @@ class PortalV1Test(unittest.TestCase):
         self.assertIn('id="auth-name"', profile)
         self.assertIn('id="auth-email"', profile)
         self.assertNotIn("<img", profile)
+
+    def test_account_settings_live_in_a_separate_profile_view(self):
+        html = self.client.get("/").get_data(as_text=True)
+        sidebar = html.split('id="auth-card"', 1)[1].split("</nav>", 1)[0]
+        self.assertIn('id="auth-profile" onclick="abrirPerfil()"', sidebar)
+        self.assertNotIn('id="auth-reset-data"', sidebar)
+        self.assertNotIn('id="auth-logout"', sidebar)
+        self.assertNotIn('id="push-settings-open"', sidebar)
+        for marker in ('id="tab-perfil"', 'id="profile-career-input"', 'id="profile-sharing-toggle"',
+                       'id="push-settings-inline"', 'id="profile-community-directory"', 'id="auth-reset-data"', 'Cerrar sesión'):
+            self.assertIn(marker, html)
+        self.assertNotIn('Configurar notificaciones', html)
+        self.assertNotIn('Ver perfiles compartidos', html)
+        self.assertNotIn('id="push-settings-dialog"', html)
+        profile_view = html.split('id="tab-perfil"', 1)[1].split('id="profile-feedback"', 1)[0]
+        self.assertNotIn("Cuenta conectada", profile_view)
+        self.assertIn("profile-hero", html)
+        profile_css = (Path(__file__).parents[1] / "static/css/profile.css").read_text()
+        self.assertIn(".profile-hero { display: block;", profile_css)
+        self.assertIn("width: min(100%, 1060px)", profile_css)
+        self.assertIn("grid-template-columns: repeat(2,minmax(0,1fr))", profile_css)
+        self.assertIn("js/profile.js?", html)
+        self.assertIn("20261006-profile-hero-compact-1", html)
+        catalog = self.client.get("/static/data/udp-careers.json")
+        self.assertEqual(catalog.status_code, 200)
+        self.assertEqual(len(catalog.get_json()), 5)
+        self.assertIn('data-tab="tab-malla" data-private="true"', html)
+        catalog.close()
 
 
 if __name__ == "__main__":

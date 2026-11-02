@@ -30,7 +30,7 @@ const context = {
     addEventListener(name, callback) { documentListeners.set(name, callback); },
     createElement() { return { classList: { add() {}, remove() {} }, appendChild() {} }; }
   },
-  MI_HORARIO_DEFAULT_DATA: { escuela: 'EIT', clases: [] },
+  MI_HORARIO_DEFAULT_DATA: { clases: [] },
   setTimeout() { return 1; },
   setInterval() { return 1; },
   console,
@@ -50,6 +50,8 @@ local.set('mi_horario_custom_v1', JSON.stringify({ escuela: 'EIT', clases: [
 vm.runInContext('MI_HORARIO_DATA = cargarMiHorarioDesdeStorage()', context);
 const migratedLegacySchedule = JSON.parse(local.get('mi_horario_custom_v1'));
 assert.strictEqual(Object.prototype.hasOwnProperty.call(migratedLegacySchedule.clases[0], 'bloqueLabel'), false);
+assert.strictEqual(Object.prototype.hasOwnProperty.call(migratedLegacySchedule, 'escuela'), false,
+  'the legacy hardcoded school must be removed from stored schedules');
 
 vm.runInContext(`
   actualizarContadoresFiltrosMiHorario = function () {};
