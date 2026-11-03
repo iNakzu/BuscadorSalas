@@ -16,7 +16,7 @@ class DataManagerRefreshTests(unittest.TestCase):
         manager._download_remote = Mock()
         return manager
 
-    def test_get_classes_refreshes_feed_when_cache_expires(self):
+    def test_get_classes_refreshes_remote_feed_after_cache_ttl(self):
         manager = self.make_manager()
 
         def refresh():
@@ -31,7 +31,7 @@ class DataManagerRefreshTests(unittest.TestCase):
         self.assertEqual(classes[0]["node"]["place"], "NEW")
         manager._download_remote.assert_called_once()
 
-    def test_get_classes_keeps_fresh_cache_without_fetching(self):
+    def test_get_classes_uses_fresh_cache_without_remote_request(self):
         manager = self.make_manager()
 
         classes = manager.get_classes()

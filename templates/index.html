@@ -14,21 +14,21 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.css" integrity="sha384-3rdsX6e5mueWyoweR9NIVmtEsUkokpBT/0ALqKKIBMr9j4qhHkaIkAcGgsE6uVlp" crossorigin="anonymous">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}&amp;v=20261006-career-curriculum-1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}&amp;v=20261006-shared-feedback-5">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}?v=20261002-free-room-pill">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/notas.css') }}&amp;v=20261002-notes-course-search-style">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/agenda.css') }}&amp;v=20261004-agenda-course-colors-1">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/horario.css') }}&amp;v=20261005-schedule-import-feedback-1">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/v1.css') }}&amp;v=20261006-career-curriculum-1">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/community.css') }}?v=20261004-profile-inline-1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/horario.css') }}&amp;v=20261006-hero-progress-class-colors-1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/v1.css') }}&amp;v=20261006-shared-feedback-2">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/community.css') }}?v=20261006-profile-directory-fill-2">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/ai-assistant.css') }}?v=20261004-ai-chat-surface-gradient-3">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/push-notifications.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}&amp;v=20261004-profile-inline-2">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/push-notifications.css') }}?v=20261005-profile-notifications-toggle-1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}&amp;v=20261006-profile-hero-compact-1">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/highlight-github-dark.min.css') }}&amp;v=20261004-highlightjs-11.12.0-1">
 </head>
 <body class="{% if solemne_status.get(sel.dia|int, False) %}solemne-mode{% endif %}">
 <div class="container">
-  <header><div class="mobile-header-content"><button type="button" class="btn-sidebar-toggle" onclick="toggleSidebar()" aria-label="Abrir menú"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button></div></header>
+  <header><div class="mobile-header-content"><button type="button" class="btn-sidebar-toggle" onclick="toggleSidebar()" aria-label="Abrir menú" aria-expanded="false"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button></div></header>
   {% include 'components/sidebar.html' %}
   <main>
     {% include 'views/salas.html' %}
@@ -49,27 +49,25 @@
 {% include 'components/schedule_modal.html' %}
 {% include 'components/agenda_modal.html' %}
 {% include 'components/ai_assistant.html' %}
-<div class="auth-gate" id="auth-gate" hidden><div><h2>Tu espacio personal</h2><p>Inicia sesión con tu cuenta institucional para abrir este módulo y sincronizarlo entre dispositivos.</p><button type="button" class="auth-button" onclick="PortalAuth.signIn()">Continuar con Google</button></div></div>
-<div class="auth-gate career-gate" id="career-gate" hidden role="dialog" aria-modal="true" aria-labelledby="career-gate-title"><div><span class="career-gate-icon" aria-hidden="true">✦</span><h2 id="career-gate-title">Elige tu carrera</h2><p>Para mostrar la información académica que te corresponde, primero selecciona y guarda tu carrera en Mi perfil.</p><div class="career-gate-actions"><button type="button" class="auth-button" onclick="irAPerfilDesdeAvisoCarrera()">Ir a Mi perfil</button><button type="button" class="career-gate-dismiss" onclick="cerrarAvisoCarrera()">Ahora no</button></div></div></div>
 <script>window.PORTAL_CONFIG={{ client_config|tojson }}; window.PORTAL_CONFIG.personalDataResetGeneration="20261003-reset-academic-data"; (function(){try{const g="portal:personal-data-reset-generation",v=window.PORTAL_CONFIG.personalDataResetGeneration;if(localStorage.getItem(g)===v)return;["mi_horario_custom_v1","mi_notas_v1","mi_agenda_v1","mi_progreso_v1","portal:legacy-owner"].forEach(k=>localStorage.removeItem(k));for(let i=localStorage.length-1;i>=0;i--){const k=localStorage.key(i);if(k&&(/^portal:[^:]+:(schedule|grades|agenda|curriculum)(:updated-at)?$/.test(k)||/^portal:[^:]+:data-reset-at:(schedule|grades|agenda|curriculum)$/.test(k)))localStorage.removeItem(k)}localStorage.setItem(g,v)}catch(e){console.error("No se pudieron limpiar los datos locales",e)}})(); const TODAS_LAS_SALAS={{ todas_las_salas|tojson }}; window.statusSolemnes={{ solemne_status|tojson }};</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2" integrity="sha384-WgXwGL6fUsYJWNaKJgVbrJKGRQwc1vieh2oy4kw9nXqpNDz3tdSsqEYUgeHD/NuF" crossorigin="anonymous" defer></script>
-<script src="{{ url_for('static', filename='js/ui_feedback.js') }}" defer></script>
-<script src="{{ url_for('static', filename='js/app.js') }}&amp;v=20261016-no-auto-schedule-scroll-1" defer></script>
-<script src="{{ url_for('static', filename='js/auth.js') }}&amp;v=20261004-profile-page-1" defer></script>
-<script src="{{ url_for('static', filename='js/community_schedules.js') }}?v=20261006-career-curriculum-1" defer></script>
+<script src="{{ url_for('static', filename='js/ui_feedback.js') }}?v=20261006-shared-feedback-2" defer></script>
+<script src="{{ url_for('static', filename='js/app.js') }}&amp;v=20261006-shared-feedback-2" defer></script>
+<script src="{{ url_for('static', filename='js/auth.js') }}&amp;v=20261006-shared-feedback-2" defer></script>
+<script src="{{ url_for('static', filename='js/community_schedules.js') }}?v=20261006-selected-profile-career-2" defer></script>
 <script src="{{ url_for('static', filename='js/personal_store.js') }}&amp;v=20261016-reset-remote-first-1" defer></script>
-<script src="{{ url_for('static', filename='js/user_schedule_data.js') }}" defer></script>
-<script src="{{ url_for('static', filename='js/horario.js') }}&amp;v=20261006-career-curriculum-1" defer></script>
+<script src="{{ url_for('static', filename='js/user_schedule_data.js') }}?v=20261006-no-default-school-1" defer></script>
+<script src="{{ url_for('static', filename='js/horario.js') }}?v=20261006-hide-unassigned-room-placeholders-2" defer></script>
 <script src="{{ url_for('static', filename='js/solemnes_data.js') }}" defer></script>
-<script src="{{ url_for('static', filename='js/solemnes.js') }}?v=20261006-career-curriculum-2" defer></script>
-<script src="{{ url_for('static', filename='js/notas.js') }}&amp;v=20261004-grade-bounds-1" defer></script>
-<script src="{{ url_for('static', filename='js/agenda.js') }}&amp;v=20261004-agenda-course-colors-2" defer></script>
+<script src="{{ url_for('static', filename='js/solemnes.js') }}?v=20261006-solemnes-level-aware-match-2" defer></script>
+<script src="{{ url_for('static', filename='js/notas.js') }}&amp;v=20261005-admin-shared-view-edit-2" defer></script>
+<script src="{{ url_for('static', filename='js/agenda.js') }}&amp;v=20261005-admin-shared-agenda-edit-1" defer></script>
 <script src="{{ url_for('static', filename='js/progreso.js') }}?v=20261016-curriculum-retry-1" defer></script>
 <script src="{{ url_for('static', filename='js/estudio.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/timer.js') }}&amp;v=20261002-timer-end-time" defer></script>
 <script src="{{ url_for('static', filename='js/pwa.js') }}" defer></script>
-<script src="{{ url_for('static', filename='js/push_notifications.js') }}&amp;v=20261004-push-enable-toggle-1" defer></script>
-<script src="{{ url_for('static', filename='js/profile.js') }}&amp;v=20261006-career-curriculum-1" defer></script>
+<script src="{{ url_for('static', filename='js/push_notifications.js') }}&amp;v=20261005-push-class-start-alert-1" defer></script>
+<script src="{{ url_for('static', filename='js/profile.js') }}&amp;v=20261006-career-school-lookup-1" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.js" integrity="sha384-QFFtAGzvvj+bfgCGxXJlNZZR1nXEZgvG8tDLCCY1F19xl20WlfTYgguB4VcNdxYk" crossorigin="anonymous" defer></script>
 <script src="{{ url_for('static', filename='js/vendor/highlight-full.min.js') }}&amp;v=20261004-highlightjs-11.12.0-1" defer></script>
 <script src="{{ url_for('static', filename='js/ai_assistant.js') }}&amp;v=20261016-minimal-academic-context-1" defer></script>

@@ -1,0 +1,21 @@
+const assert = require('assert');
+const fs = require('fs');
+
+const app = fs.readFileSync('static/js/app.js', 'utf8');
+const profile = fs.readFileSync('static/js/profile.js', 'utf8');
+const guardStart = app.indexOf("if ((panelId === 'tab-malla' || panelId === 'tab-progreso' || panelId === 'tab-solemnes')");
+const guardEnd = app.indexOf("document.querySelectorAll('.tab-btn')", guardStart);
+assert(guardStart >= 0 && guardEnd > guardStart, 'malla career guard should run before changing active tabs');
+const guard = app.slice(guardStart, guardEnd);
+assert(guard.includes('mostrarAvisoAccesoMalla(panelId)'), 'missing career should open the career prompt for the requested section');
+assert(!guard.includes('abrirPerfil()'), 'missing career should not redirect away from the current view');
+assert(app.includes("panelPendientePorCarrera = panelId"));
+assert(app.includes("const isSolemnes = panelId === 'tab-solemnes'"));
+assert(app.includes("const button = document.querySelector(`.tab-btn[data-tab=\"${nextPanel}\"]`)"));
+assert(app.includes("'tab-malla' || panelId === 'tab-progreso' || panelId === 'tab-solemnes'"));
+assert(app.includes("primaryLabel: 'Ir a Mi perfil'"), 'career prompt should use the shared feedback dialog');
+assert(app.includes("primaryLabel: 'Continuar con Google'"), 'login-required sections should use the shared feedback dialog');
+assert(app.includes("onPrimary: () => { cerrarUiFeedback(); window.PortalAuth && window.PortalAuth.signIn(); }"), 'login action should preserve Google sign-in');
+assert(!app.includes("getElementById('auth-gate')"), 'login prompts should not use a separate modal');
+assert(!profile.includes('requireCareer'), 'career requirement is handled by the navigation popup');
+console.log('career-gates: Ramos por Semestre, Malla and Solemnes require a saved career after login');

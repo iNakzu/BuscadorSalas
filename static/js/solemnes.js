@@ -22,10 +22,28 @@ function levenshtein(a, b) {
 
 function isFuzzyMatch(str1, str2) {
     if (str1 === str2) return true;
+    const romanLevels = { i: '1', ii: '2', iii: '3', iv: '4', v: '5', vi: '6', vii: '7', viii: '8', ix: '9', x: '10' };
+    const levelTokens = value => String(value).split(/\s+/).map(token => {
+        const normalized = token.toLowerCase();
+        if (Object.prototype.hasOwnProperty.call(romanLevels, normalized)) return romanLevels[normalized];
+        return /^\d+$/.test(normalized) ? String(Number(normalized)) : null;
+    }).filter(token => token !== null);
+    const levelsA = levelTokens(str1);
+    const levelsB = levelTokens(str2);
+    if (levelsA.length !== levelsB.length || levelsA.some((level, index) => level !== levelsB[index])) return false;
+
+    const wordsA = str1.split(/\s+/).filter(Boolean);
+    const wordsB = str2.split(/\s+/).filter(Boolean);
+    if (wordsA.length === wordsB.length && wordsA.every((wordA, index) => {
+        const wordB = wordsB[index];
+        if (wordA === wordB) return true;
+        const shortest = Math.min(wordA.length, wordB.length);
+        if (shortest >= 5 && (wordA.startsWith(wordB) || wordB.startsWith(wordA))) return true;
+        return wordA.length >= 6 && wordB.length >= 6 && levenshtein(wordA, wordB) <= 1;
+    })) return true;
+
     if (str1.length < 5 || str2.length < 5) return false;
-    const dist = levenshtein(str1, str2);
-    const maxLen = Math.max(str1.length, str2.length);
-    return dist <= 2;
+    return levenshtein(str1, str2) <= 2;
 }
 
 const SOLEMNES_COLORS = {
@@ -327,13 +345,25 @@ function renderSolemnes() {
     const publicSchedule = publicModules.schedule && publicModules.schedule.clases;
     const isPublicProfile = Boolean(publicProfile);
     const highlightToggle = document.getElementById('solemnes-highlight-toggle');
+    const highlightCopy = document.querySelector('.solemnes-highlight-control .profile-switch-copy');
+    if (highlightCopy) {
+        const title = highlightCopy.querySelector('strong');
+        const description = highlightCopy.querySelector('small');
+        if (title) title.textContent = isPublicProfile ? 'Destacar las solemnes de este perfil' : 'Destacar mis solemnes';
+        if (description) description.textContent = isPublicProfile
+            ? 'Compara el horario y la carrera del perfil seleccionado.'
+            : 'Usa tu horario y la escuela de tu carrera para resaltar las evaluaciones que te corresponden.';
+    }
     const highlightEnabled = highlightToggle
         ? Boolean(highlightToggle.checked)
         : (typeof localStorage !== 'undefined' && localStorage.getItem('solemnes-highlight-enabled') === 'true');
     const profileApi = window.PortalProfile;
-    const careerId = isPublicProfile
+    const selectedCareerId = isPublicProfile
         ? (typeof publicProfile.careerId === 'string' ? publicProfile.careerId : '')
         : (profileApi && profileApi.getCareerId ? profileApi.getCareerId() : '');
+    const careerId = isPublicProfile && profileApi && profileApi.resolveCareerId
+        ? (profileApi.resolveCareerId(selectedCareerId) || '') : selectedCareerId;
+    const shouldHighlight = highlightEnabled && Boolean(careerId);
     const school = profileApi && profileApi.getSchoolForCareer && careerId
         ? profileApi.getSchoolForCareer(careerId) : null;
     const personalSchedule = isPublicProfile
@@ -359,42 +389,42 @@ function renderSolemnes() {
         return found;
     }
 
-    function matchesPersonalCourse(examName) {
-        if (!careerId || !personalCourses.length) return false;
+    function matchingPersonalCourses(examName) {
+        if (!careerId || !personalCourses.length) return [];
         const examSchools = schoolsInExamName(examName);
-        if (examSchools.size && (!school || !examSchools.has(school))) return false;
+        if (examSchools.size && (!school || !examSchools.has(school))) return [];
         const examNames = comparableNames(examName);
-        const candidates = personalCourses.some(course => {
-            const courseNames = comparableNames(course);
+        const candidates = (Array.isArray(personalSchedule) ? personalSchedule : []).filter(course => {
+            const courseNames = comparableNames(course && course.curso);
             return courseNames.some(courseName => examNames.some(exam =>
                 courseName === exam ||
-                (Math.min(courseName.length, exam.length) >= 8 && (courseName.includes(exam) || exam.includes(courseName))) ||
                 isFuzzyMatch(courseName, exam)
             ));
         });
-        if (!candidates || examSchools.size) return candidates;
+        if (!candidates.length || examSchools.size) return candidates;
 
-        // If an untagged exam has same-name variants for multiple schools,
-        // do not guess which one belongs to this profile.
         const allVariants = (Array.isArray(SOLEMNES_DATA) ? SOLEMNES_DATA : [])
             .flatMap(day => Array.isArray(day.ramos) ? day.ramos : [])
             .filter(item => comparableNames(item.nombre).some(exam => examNames.includes(exam)));
         const schoolsAcrossVariants = new Set(allVariants.flatMap(item => [...schoolsInExamName(item.nombre)]));
-        return schoolsAcrossVariants.size <= 1;
+        return schoolsAcrossVariants.size <= 1 ? candidates : [];
+    }
+
+    function matchesPersonalCourse(examName) {
+        return matchingPersonalCourses(examName).length > 0;
     }
 
     const status = document.getElementById('solemnes-highlight-status');
     if (status) {
-        status.hidden = false;
-        if (!highlightEnabled) status.textContent = 'El resaltado personal está desactivado.';
-        else if (!careerId) status.textContent = 'No se pudo identificar la carrera de este perfil.';
-        else if (isPublicProfile && personalCourses.length && school) {
-            status.textContent = '';
-            status.hidden = true;
+        status.textContent = '';
+        status.hidden = true;
+        if (highlightEnabled) {
+            if (!careerId) status.textContent = 'Este perfil no tiene una carrera configurada; el calendario se muestra sin resaltados.';
+            else if (isPublicProfile && !personalCourses.length) status.textContent = 'Este perfil no tiene un horario compartido para comparar sus ramos.';
+            else if (!personalCourses.length) status.textContent = 'Agrega tu horario para comparar tus ramos.';
+            else if (!school) status.textContent = 'No se pudo determinar la escuela de esta carrera; solo se resaltarán coincidencias sin ambigüedad.';
+            if (status.textContent) status.hidden = false;
         }
-        else if (!personalCourses.length) status.textContent = 'Agrega tu horario para comparar tus ramos.';
-        else if (!school) status.textContent = 'No se pudo determinar la escuela de esta carrera; solo se resaltarán coincidencias sin ambigüedad.';
-        else status.textContent = 'El calendario destaca las solemnes que coinciden con tu horario y carrera.';
     }
 
     const mapDias = {
@@ -457,11 +487,11 @@ function renderSolemnes() {
             const ramos = cellData ? cellData.ramos : [];
             const matches = ramos.filter(r => {
                 const matchesQuery = !query || normStr(r.nombre).includes(query);
-                const matchesPersonal = !highlightEnabled || matchesPersonalCourse(r.nombre);
+                const matchesPersonal = !shouldHighlight || matchesPersonalCourse(r.nombre);
                 return matchesQuery && matchesPersonal;
             });
             const hasMatch = matches.length > 0;
-            const isFiltering = highlightEnabled || query !== '';
+            const isFiltering = shouldHighlight || query !== '';
             
             // Opacity logic: if filtering and no matches in this cell, dim the whole cell heavily
             const cellOpacity = (isFiltering && !hasMatch && ramos.length > 0) ? '0.15' : '1';
@@ -477,7 +507,8 @@ function renderSolemnes() {
 
             let cellContent = '';
             ramos.forEach(r => {
-                const isMatch = (!highlightEnabled || matchesPersonalCourse(r.nombre))
+                const matchingCourses = shouldHighlight ? matchingPersonalCourses(r.nombre) : [];
+                const isMatch = (!shouldHighlight || matchingCourses.length > 0)
                     && (!query || normStr(r.nombre).includes(query));
                 
                 let theme = { bg: 'rgba(56, 189, 248, 0.15)', border: 'rgba(56, 189, 248, 0.4)', color: '#38bdf8' }; // Default Celeste
@@ -497,11 +528,25 @@ function renderSolemnes() {
                         theme = { bg: 'rgba(255, 255, 255, 0.05)', border: 'rgba(255, 255, 255, 0.2)', color: '#cbd5e1' };
                     }
                 }
+
+                // Preserve the pre-V1 community highlight: matched exams are
+                // stark white, while unmatched entries retain their course color.
+                if (shouldHighlight && isMatch) {
+                    const isAssistantCourse = matchingCourses.some(course => String(course && course.rol || '').toLowerCase() === 'assistant');
+                    theme = isAssistantCourse
+                        ? { bg: 'linear-gradient(135deg, rgba(217, 119, 6, 0.24), rgba(180, 83, 9, 0.20))', border: 'rgba(251, 191, 36, 0.48)', color: '#fbbf24' }
+                        : { bg: 'rgba(255, 255, 255, 0.15)', border: 'rgba(255, 255, 255, 0.7)', color: '#ffffff' };
+                }
                 
-                const styleAttr = isMatch ? `style="background: ${theme.bg}; border-color: ${theme.border}; border-left-color: ${theme.color};"` : '';
+                const styleAttr = (!isFiltering || isMatch)
+                    ? `style="background: ${theme.bg}; border-color: ${theme.border}; border-left-color: ${theme.color};"`
+                    : '';
+                // The matched class supplies the normal capsule border and
+                // thick left accent too; keep it when no personal filter is active.
+                const matchClass = isMatch ? 'matched' : 'dimmed';
                 
                 cellContent += `
-                    <div class="sol-ramo-pill ${isMatch ? 'matched' : 'dimmed'}" ${styleAttr}>
+                    <div class="sol-ramo-pill ${matchClass}" ${styleAttr}>
                         ${escapeHtml(r.nombre)}
                     </div>
                 `;

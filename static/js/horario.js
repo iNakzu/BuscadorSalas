@@ -62,6 +62,7 @@ function quitarBloqueLabels(clases) {
 
 let MI_HORARIO_DATA = cargarMiHorarioDesdeStorage();
 let horarioPerfilSeleccionado = null;
+let horarioAdminProfileContext = null;
 
 function etiquetaBloqueHorario(clase) {
     const block = BLOQUES_HORARIOS && BLOQUES_HORARIOS.find(item => item.num === Number(clase.bloqueNum));
@@ -89,7 +90,14 @@ function guardarMiHorarioEnStorage() {
 }
 
 window.portalGetSchedulePushData = () => (MI_HORARIO_DATA && Array.isArray(MI_HORARIO_DATA.clases) ? MI_HORARIO_DATA.clases : [])
-    .map(clase => ({ day: Number(clase.dia), time: String(clase.horaInicio || '').slice(0, 5) }));
+    .map(clase => ({
+        day: Number(clase.dia),
+        time: String(clase.horaInicio || '').slice(0, 5),
+        finish: String(clase.horaFin || '').slice(0, 5),
+        course: String(clase.cursoDisplay || clase.curso || '').slice(0, 120),
+        type: String(clase.tipo || ''),
+        role: String(clase.rol || '')
+    }));
 
 
 let miHorarioInitialized = false;
@@ -189,6 +197,10 @@ function actualizarHeroMiHorario() {
         return tipo;
     }
 
+    function getShortClassRole(c) {
+        return c && c.rol === 'assistant' ? 'Ayud.' : getShortTipo(c && c.tipo);
+    }
+
     function getColorClass(c) {
         if (!c) return '';
         if (c.rol === 'assistant') return 'assistant';
@@ -205,6 +217,13 @@ function actualizarHeroMiHorario() {
         if (tipo.includes('laboratorio')) return 'En laboratorio';
         if (tipo.includes('ayudantía') || tipo.includes('ayudantia')) return 'En ayudantía';
         return 'En cátedra';
+    }
+
+    function getSalaAsignada(c) {
+        const sala = String(c && c.sala || '').trim();
+        const normalizada = sala.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es').replace(/\s+/g, ' ');
+        const marcadorVacio = /^(?:[-–—]+|sala\s+-|(?:sala\s+)?(?:no definida|no asignada)|sin sala(?:\s*\/\s*en linea)?|en linea)$/.test(normalizada);
+        return sala && !marcadorVacio ? sala : '';
     }
 
     // --- Obtener hora actual en Chile ---
@@ -241,6 +260,7 @@ function actualizarHeroMiHorario() {
 
     if (claseActiva) {
         const c = claseActiva;
+        const sala = getSalaAsignada(c);
         const ini = timeToMinutes(c.horaInicio);
         const fin = timeToMinutes(c.horaFin);
         const durTotal = fin - ini;
@@ -261,9 +281,7 @@ function actualizarHeroMiHorario() {
                         <span class="my-course-display">${escapeHtml(getCourseDisplay(c))}</span>
                     </div>
                     <div class="my-hero-subtitle">
-                        ${c.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${escapeHtml(c.sala)}</span></span>` : ''}
-                        <span class="hide-on-mobile" style="${pill_style}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg>${escapeHtml(etiquetaBloqueHorario(c))}</span>
-                        ${c.rol !== 'assistant' ? `<span class="hide-on-mobile" style="${pill_style}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>${escapeHtml(c.profesor || '-')}</span>` : ''}
+                        ${sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${escapeHtml(sala)}</span></span>` : ''}
                         <span style="${pill_style}">Quedan <strong>${quedan}m</strong></span>
                     </div>
                 </div>
@@ -274,6 +292,7 @@ function actualizarHeroMiHorario() {
 
     } else if (proximaHoy) {
         const c = proximaHoy;
+        const sala = getSalaAsignada(c);
         const minsParaEmpezar = timeToMinutes(c.horaInicio) - nowMins;
         const hrs = Math.floor(minsParaEmpezar / 60);
         const mins = minsParaEmpezar % 60;
@@ -301,8 +320,8 @@ function actualizarHeroMiHorario() {
                         <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-top: 4px;">
                             <span>Tienes clase de <strong class="my-course-display">${escapeHtml(getCourseDisplay(c))}</strong></span>
                             <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>${escapeHtml(c.diaNombre)} ${escapeHtml(c.horaInicio)}</span></span>
-                            <span style="${pill_style}">${escapeHtml(c.rol === 'assistant' ? 'Ayudante' : getShortTipo(c.tipo))}</span>
-                            ${c.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${escapeHtml(c.sala)}</span></span>` : ''}
+                            <span style="${pill_style}">${escapeHtml(getShortClassRole(c))}</span>
+                            ${sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${escapeHtml(sala)}</span></span>` : ''}
                         </div>
                     </div>
                 </div>
@@ -310,6 +329,7 @@ function actualizarHeroMiHorario() {
 
     } else if (todasTerminaron) {
         const c = proximaFutura;
+        const sala = getSalaAsignada(c);
         html = `
             <div class="my-hero-top">
                 <div class="my-hero-status-pill done">
@@ -322,10 +342,10 @@ function actualizarHeroMiHorario() {
                     <div class="my-hero-title">No tienes más clases hoy</div>
                     <div class="my-hero-subtitle">
                         <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-top: 4px;">
-                            <span>Tu próxima clase es <strong class="my-course-display">${escapeHtml(getCourseDisplay(c))}</strong></span>
+                            <span>Tu siguiente clase es <strong class="my-course-display">${escapeHtml(getCourseDisplay(c))}</strong></span>
                             <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>${escapeHtml(c.diaNombre)} ${escapeHtml(c.horaInicio)}</span></span>
-                            <span style="${pill_style}">${escapeHtml(c.rol === 'assistant' ? 'Ayudante' : getShortTipo(c.tipo))}</span>
-                            ${c.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${escapeHtml(c.sala)}</span></span>` : ''}
+                            <span style="${pill_style}">${escapeHtml(getShortClassRole(c))}</span>
+                            ${sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${escapeHtml(sala)}</span></span>` : ''}
                         </div>
                     </div>
                 </div>
@@ -333,6 +353,7 @@ function actualizarHeroMiHorario() {
 
     } else {
         const c = proximaFutura;
+        const sala = getSalaAsignada(c);
         const estadoSinClase = nowDay >= 1 && nowDay <= 5 ? 'Sin clases hoy' : 'Fin de semana';
         html = `
             <div class="my-hero-top">
@@ -346,10 +367,10 @@ function actualizarHeroMiHorario() {
                     <div class="my-hero-title">Hoy toca descansar</div>
                     <div class="my-hero-subtitle">
                         <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-top: 4px;">
-                            <span>Tu próxima clase es <strong class="my-course-display">${escapeHtml(getCourseDisplay(c))}</strong></span>
+                            <span>Tu siguiente clase es <strong class="my-course-display">${escapeHtml(getCourseDisplay(c))}</strong></span>
                             <span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>${escapeHtml(c.diaNombre)} ${escapeHtml(c.horaInicio)}</span></span>
-                            <span style="${pill_style}">${escapeHtml(c.rol === 'assistant' ? 'Ayudante' : getShortTipo(c.tipo))}</span>
-                            ${c.sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${escapeHtml(c.sala)}</span></span>` : ''}
+                            <span style="${pill_style}">${escapeHtml(getShortClassRole(c))}</span>
+                            ${sala ? `<span style="${pill_style}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span>${escapeHtml(sala)}</span></span>` : ''}
                         </div>
                     </div>
                 </div>
@@ -398,7 +419,20 @@ function getCourseDisplay(clase) {
 
 function normalizarTipoClase(tipo) {
     const value = String(tipo || '').trim();
-    return !value || value.toLocaleLowerCase('es') === 'estudio' ? 'Cátedra' : value;
+    return value || 'Cátedra';
+}
+
+function reemplazarGridHorarioConScroll(container, markup) {
+    const previousGrid = container.querySelector('.my-week-grid');
+    const previousScrollLeft = previousGrid ? previousGrid.scrollLeft : null;
+    container.innerHTML = markup;
+    if (previousScrollLeft === null) return;
+    const nextGrid = container.querySelector('.my-week-grid');
+    if (!nextGrid) return;
+    const previousBehavior = nextGrid.style.scrollBehavior;
+    nextGrid.style.scrollBehavior = 'auto';
+    nextGrid.scrollLeft = previousScrollLeft;
+    nextGrid.style.scrollBehavior = previousBehavior;
 }
 
 function actualizarContadoresFiltrosMiHorario() {
@@ -635,6 +669,7 @@ function seleccionarProfesorModal(nombre) {
 }
 
 function abrirModalAgregarClase(diaNum, bloqueNum) {
+    horarioAdminProfileContext = null;
     const bloque = BLOQUES_HORARIOS.find(b => b.num === bloqueNum);
     const diasNombres = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
     const diaNombre = diasNombres[diaNum] || 'Día';
@@ -701,16 +736,26 @@ function normalizarNumeroSeccion(valor) {
     return Number.isSafeInteger(numero) && numero > 0 ? String(numero) : '';
 }
 
+function seccionMarcadaSinNumero(valor) {
+    const normalizada = String(valor == null ? '' : valor).normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .trim().toLocaleLowerCase('es').replace(/\s+/g, ' ');
+    return normalizada === '-' || normalizada === 'seccion -';
+}
+
 function normalizarNombreRamoParaComparar(nombre) {
-    return String(nombre || '').trim().replace(/\s+/g, ' ')
-        .normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es');
+    return String(nombre || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .toLocaleLowerCase('es').replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
+}
+
+function nombreRamoParaComparar(clase) {
+    return clase ? getCourseDisplay(clase) : '';
 }
 
 function propagarSeccionMismoRamo(claseOrigen, seccion) {
-    const nombreRamo = normalizarNombreRamoParaComparar(claseOrigen && claseOrigen.curso);
-    if (!nombreRamo || !seccion || !MI_HORARIO_DATA || !Array.isArray(MI_HORARIO_DATA.clases)) return;
+    const nombreRamo = normalizarNombreRamoParaComparar(nombreRamoParaComparar(claseOrigen));
+    if (!nombreRamo || !seccion || seccionMarcadaSinNumero(seccion) || !MI_HORARIO_DATA || !Array.isArray(MI_HORARIO_DATA.clases)) return;
     MI_HORARIO_DATA.clases.forEach(clase => {
-        if (clase !== claseOrigen && normalizarNombreRamoParaComparar(clase && clase.curso) === nombreRamo) {
+        if (clase !== claseOrigen && !seccionMarcadaSinNumero(clase.seccion) && normalizarNombreRamoParaComparar(nombreRamoParaComparar(clase)) === nombreRamo) {
             clase.seccion = seccion;
         }
     });
@@ -720,19 +765,27 @@ function rellenarSeccionesMismoRamo(clases) {
     if (!Array.isArray(clases)) return false;
     const porRamo = new Map();
     clases.forEach(clase => {
-        const nombre = normalizarNombreRamoParaComparar(clase && clase.curso);
+        const nombre = normalizarNombreRamoParaComparar(nombreRamoParaComparar(clase));
         const seccion = normalizarNumeroSeccion(clase && clase.seccion);
         if (!nombre || !seccion) return;
-        if (!porRamo.has(nombre)) porRamo.set(nombre, new Set());
-        porRamo.get(nombre).add(seccion);
+        if (!porRamo.has(nombre)) porRamo.set(nombre, []);
+        const tipo = normalizarTipoClase(clase.tipo).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es');
+        const profesor = String(clase.profesor || '').trim();
+        const tieneProfesor = profesor && !['-', 'sin profesor', 'no definido'].includes(profesor.toLocaleLowerCase('es'));
+        const prioridad = (tieneProfesor ? 2 : 0) + (tipo === 'catedra' ? 1 : 0);
+        porRamo.get(nombre).push({ clase, seccion, prioridad });
     });
 
     let changed = false;
     clases.forEach(clase => {
-        const nombre = normalizarNombreRamoParaComparar(clase && clase.curso);
-        const secciones = porRamo.get(nombre);
-        if (!secciones || secciones.size !== 1 || normalizarNumeroSeccion(clase && clase.seccion)) return;
-        clase.seccion = secciones.values().next().value;
+        if (seccionMarcadaSinNumero(clase && clase.seccion)) return;
+        const nombre = normalizarNombreRamoParaComparar(nombreRamoParaComparar(clase));
+        const candidatas = porRamo.get(nombre);
+        if (!candidatas || !candidatas.length) return;
+        const prioritaria = candidatas.reduce((best, candidate) => candidate.prioridad > best.prioridad ? candidate : best);
+        const seccionActual = normalizarNumeroSeccion(clase && clase.seccion);
+        if (seccionActual === prioritaria.seccion) return;
+        clase.seccion = prioritaria.clase.seccion;
         changed = true;
     });
     return changed;
@@ -743,18 +796,10 @@ function abrirModalEditarClase(id, ev) {
     const clase = MI_HORARIO_DATA.clases.find(item => String(item.id) === String(id));
     if (!clase) return;
 
-    // Reuse the exact title already rendered on the schedule card. This keeps
-    // the editor aligned with the visible, formatted course name even when
-    // legacy records still store the course itself in uppercase.
-    const card = document.getElementById(`card-${String(clase.id)}`);
-    const renderedTitle = card && card.querySelector('.my-card-title');
-    const cardTitle = renderedTitle && String(renderedTitle.textContent || '').trim();
-    const courseTitle = cardTitle || getCourseDisplay(clase);
-
     abrirModalAgregarClase(Number(clase.dia), Number(clase.bloqueNum));
     const values = {
         'modal-add-id': clase.id,
-        'modal-add-curso': courseTitle,
+        'modal-add-curso': clase.curso || '',
         'modal-add-sala': clase.sala || '',
         'modal-add-seccion': normalizarNumeroSeccion(clase.seccion),
         'modal-add-profesor': clase.profesor || ''
@@ -763,6 +808,9 @@ function abrirModalEditarClase(id, ev) {
         const input = document.getElementById(inputId);
         if (input) input.value = values[inputId];
     });
+    if (document.getElementById('modal-add-curso')) {
+        document.getElementById('modal-add-curso').value = getCourseDisplay(clase);
+    }
     setModalSelectValue('dd-modal-sala', 'modal-add-sala', 'label-modal-sala', clase.sala || '', '-');
     setModalSelectValue('dd-modal-profesor', 'modal-add-profesor', 'label-modal-profesor', clase.profesor || '', 'Sin profesor');
     const title = document.getElementById('modal-titulo-bloque');
@@ -776,10 +824,53 @@ function abrirModalEditarClase(id, ev) {
     setModalRol(clase.rol || 'student');
 }
 
+function abrirModalEditarPerfilClase(index, ev) {
+    if (ev) ev.stopPropagation();
+    const profile = window.PortalCommunity && window.PortalCommunity.getSelected && window.PortalCommunity.getSelected();
+    const schedule = profile && profile.modules && profile.modules.schedule;
+    const classes = Array.isArray(schedule) ? schedule : schedule && Array.isArray(schedule.clases) ? schedule.clases : [];
+    const clase = classes[index];
+    if (!clase || !window.PortalCommunity.isAdminSelected()) return;
+    abrirModalAgregarClase(Number(clase.dia), Number(clase.bloqueNum));
+    horarioAdminProfileContext = { index };
+    const values = {
+        'modal-add-id': `profile:${index}`,
+        'modal-add-curso': clase.cursoDisplay || clase.curso || '',
+        'modal-add-sala': clase.sala || '',
+        'modal-add-seccion': normalizarNumeroSeccion(clase.seccion),
+        'modal-add-profesor': clase.profesor || ''
+    };
+    Object.entries(values).forEach(([id, value]) => { const input = document.getElementById(id); if (input) input.value = value; });
+    setModalSelectValue('dd-modal-sala', 'modal-add-sala', 'label-modal-sala', clase.sala || '', '-');
+    setModalSelectValue('dd-modal-profesor', 'modal-add-profesor', 'label-modal-profesor', clase.profesor || '', 'Sin profesor');
+    const title = document.getElementById('modal-titulo-bloque');
+    const saveButton = document.getElementById('modal-save-class');
+    const deleteButton = document.getElementById('modal-delete-class');
+    if (title) title.textContent = 'Editar Asignatura';
+    if (saveButton) saveButton.setAttribute('aria-label', 'Guardar cambios');
+    if (deleteButton) deleteButton.hidden = false;
+    setModalTipo(clase.tipo || 'Cátedra');
+    setModalRol(clase.rol || 'student');
+}
+
+function abrirModalAgregarPerfilClase(diaNum, bloqueNum) {
+    if (!window.PortalCommunity || !window.PortalCommunity.isAdminSelected()) return;
+    abrirModalAgregarClase(diaNum, bloqueNum);
+    horarioAdminProfileContext = { index: null };
+}
+
 function eliminarClaseDesdeEditor(ev) {
     if (ev) ev.preventDefault();
     const idInput = document.getElementById('modal-add-id');
     if (!idInput || !idInput.value) return;
+    if (horarioAdminProfileContext && window.PortalCommunity && window.PortalCommunity.isAdminSelected()) {
+        const index = horarioAdminProfileContext.index;
+        const save = window.PortalCommunity.updateSelectedSchedule(clases => { if (clases[index]) clases.splice(index, 1); });
+        if (save && typeof save.catch === 'function') save.catch(() => {});
+        cerrarModalAgregarClase();
+        horarioAdminProfileContext = null;
+        return;
+    }
     eliminarClaseMiHorario(idInput.value, ev, cerrarModalAgregarClase);
 }
 
@@ -801,6 +892,7 @@ function cerrarModalAgregarClase() {
     if (roomSelect) roomSelect.classList.remove('open');
     if (teacherSelect) teacherSelect.classList.remove('open');
     restaurarScrollFondoHorario();
+    horarioAdminProfileContext = null;
 }
 
 function guardarNuevaClaseModal(ev) {
@@ -823,11 +915,21 @@ function guardarNuevaClaseModal(ev) {
     const diasNombres = ['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
 
     const editedIndex = editId ? MI_HORARIO_DATA.clases.findIndex(c => String(c.id) === String(editId)) : -1;
-    if (editId && editedIndex === -1) return;
+    if (editId && editedIndex === -1 && !horarioAdminProfileContext) return;
+    const selectedProfile = horarioAdminProfileContext && window.PortalCommunity && window.PortalCommunity.getSelected();
+    const selectedSchedule = selectedProfile && selectedProfile.modules && selectedProfile.modules.schedule;
+    const selectedClasses = Array.isArray(selectedSchedule) ? selectedSchedule : selectedSchedule && Array.isArray(selectedSchedule.clases) ? selectedSchedule.clases : [];
+    const adminExistingClass = horarioAdminProfileContext && horarioAdminProfileContext.index != null
+        ? selectedClasses[horarioAdminProfileContext.index] : null;
+    const ownExistingClass = editedIndex >= 0 ? MI_HORARIO_DATA.clases[editedIndex] : null;
+    const existingClass = adminExistingClass || ownExistingClass;
+    const sectionWasSet = Boolean(existingClass && normalizarNumeroSeccion(existingClass.seccion));
+    const sectionWasExplicitlyCleared = Boolean(existingClass && seccionMarcadaSinNumero(existingClass.seccion));
+    const sectionToSave = seccion || (sectionWasSet || sectionWasExplicitlyCleared ? 'Sección -' : '');
 
     const nuevaClase = {
-        ...(editedIndex >= 0 ? MI_HORARIO_DATA.clases[editedIndex] : {}),
-        id: editId || 'custom-' + Date.now(),
+        ...(horarioAdminProfileContext ? (adminExistingClass || {}) : editedIndex >= 0 ? MI_HORARIO_DATA.clases[editedIndex] : {}),
+        id: adminExistingClass && adminExistingClass.id || (horarioAdminProfileContext && horarioAdminProfileContext.index != null ? `profile-${horarioAdminProfileContext.index}` : editId) || 'custom-' + Date.now(),
         dia: diaNum,
         diaNombre: diasNombres[diaNum] || 'Día',
         bloqueNum: bloqueNum,
@@ -836,11 +938,31 @@ function guardarNuevaClaseModal(ev) {
         curso: curso,
         cursoDisplay: curso,
         tipo: tipo,
-        seccion: seccion,
+        seccion: sectionToSave,
         sala: sala,
         profesor: profesor,
         rol: rol
     };
+
+    if (horarioAdminProfileContext && window.PortalCommunity && window.PortalCommunity.isAdminSelected()) {
+        const index = horarioAdminProfileContext.index;
+        const save = window.PortalCommunity.updateSelectedSchedule(clases => {
+            if (index == null) {
+                if (clases.some(item => Number(item.dia) === diaNum && Number(item.bloqueNum) === bloqueNum)) return;
+                clases.push(nuevaClase);
+            } else if (clases[index]) {
+                if (clases.some((item, itemIndex) => itemIndex !== index && Number(item.dia) === diaNum && Number(item.bloqueNum) === bloqueNum)) return;
+                clases[index] = nuevaClase;
+                const normalizedName = normalizarNombreRamoParaComparar(getCourseDisplay(nuevaClase));
+                if (sectionToSave && !seccionMarcadaSinNumero(sectionToSave) && normalizedName) clases.forEach((item, itemIndex) => {
+                    if (itemIndex !== index && !seccionMarcadaSinNumero(item.seccion) && normalizarNombreRamoParaComparar(getCourseDisplay(item)) === normalizedName) item.seccion = sectionToSave;
+                });
+            }
+        });
+        if (save && typeof save.catch === 'function') save.catch(() => {});
+        cerrarModalAgregarClase();
+        return;
+    }
 
     if (editedIndex >= 0) {
         MI_HORARIO_DATA.clases[editedIndex] = nuevaClase;
@@ -849,7 +971,7 @@ function guardarNuevaClaseModal(ev) {
         MI_HORARIO_DATA.clases = MI_HORARIO_DATA.clases.filter(c => !(c.dia === diaNum && c.bloqueNum === bloqueNum));
         MI_HORARIO_DATA.clases.push(nuevaClase);
     }
-    propagarSeccionMismoRamo(nuevaClase, seccion);
+    propagarSeccionMismoRamo(nuevaClase, sectionToSave);
     guardarMiHorarioEnStorage();
     cerrarModalAgregarClase();
     renderMiHorario();
@@ -886,6 +1008,7 @@ function normalizarClasesPerfil(clases) {
         delete normalizedItem.bloqueLabel;
         return {
             ...normalizedItem,
+            _profileIndex: item._profileIndex,
             dia: Number(item.dia),
             diaNombre: item.diaNombre || days[Number(item.dia)] || '',
             bloqueNum: block.num,
@@ -896,13 +1019,20 @@ function normalizarClasesPerfil(clases) {
 }
 
 function renderMiHorario() {
+    // Reconciliar también al renderizar: algunos horarios ya están en localStorage
+    // antes de que llegue el estado remoto, así las secciones aparecen de inmediato.
+    if (!Array.isArray(horarioPerfilSeleccionado)
+        && rellenarSeccionesMismoRamo(MI_HORARIO_DATA && MI_HORARIO_DATA.clases)) {
+        guardarMiHorarioEnStorage();
+    }
     const container = document.getElementById('mihorario-display-container');
     if (!container) return;
 
     const { dayOfWeek, totalMinutes } = getChileTime();
 
     const sharedProfileView = Array.isArray(horarioPerfilSeleccionado);
-    const items = sharedProfileView ? normalizarClasesPerfil(horarioPerfilSeleccionado).map((item, index) => ({ ...item, isSharedProfile: true, id: `shared-${index}` })) : getHorarioActivo().filter(c =>
+    const adminCanEditShared = sharedProfileView && Boolean(window.PortalCommunity && window.PortalCommunity.isAdminSelected && window.PortalCommunity.isAdminSelected());
+    const items = sharedProfileView ? normalizarClasesPerfil(horarioPerfilSeleccionado).map((item, index) => ({ ...item, isSharedProfile: true, _profileIndex: item._profileIndex == null ? index : item._profileIndex, id: `shared-${item._profileIndex == null ? index : item._profileIndex}` })) : getHorarioActivo().filter(c =>
         state.miHorarioRol === 'ALL' || c.rol === state.miHorarioRol
     );
 
@@ -947,7 +1077,9 @@ function renderMiHorario() {
                                     ${isCurrent ? '<span class="pulse-dot-white"></span>' : '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>'}
                                     <span>${escapeHtml(etiquetaBloqueHorario(c))}</span>
                                 </span>
-                                ${c.isSharedProfile ? '' : `<button type="button" class="my-btn-edit" onclick="abrirModalEditarClase(${escapeHtml(JSON.stringify(String(c.id)))}, event)" title="Editar asignatura" aria-label="Editar ${escapeHtml(c.curso)}">
+                                ${c.isSharedProfile ? (adminCanEditShared ? `<button type="button" class="my-btn-edit" onclick="abrirModalEditarPerfilClase(${c._profileIndex}, event)" title="Editar asignatura" aria-label="Editar ${escapeHtml(c.curso)}">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"></path></svg>
+                                </button>` : '') : `<button type="button" class="my-btn-edit" onclick="abrirModalEditarClase(${escapeHtml(JSON.stringify(String(c.id)))}, event)" title="Editar asignatura" aria-label="Editar ${escapeHtml(c.curso)}">
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                         <path d="M12 20h9"></path>
                                         <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"></path>
@@ -965,23 +1097,20 @@ function renderMiHorario() {
                                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
                                     <span>${escapeHtml(s)}</span>
                                 </span>
-                                `).join('') || `<span class="my-room-pill is-unassigned-room" aria-label="Sala no asignada" title="Sin sala asignada">
-                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-                                    <span>-</span>
-                                </span>`}
+                                `).join('')}
                                 <span class="my-card-bloque-num">Bloque ${escapeHtml(c.bloqueNum)}</span>
                             </div>
                         </div>
                     `;
                     });
                 } else {
-                    cardsHtml += sharedProfileView ? `
+                    cardsHtml += sharedProfileView && !adminCanEditShared ? `
                         <div class="my-empty-slot is-readonly">
                             <div class="my-empty-header"><span class="my-empty-time"><span>${b.label}</span></span><span class="my-card-bloque-num">Bloque ${b.num}</span></div>
                             <div class="my-empty-body"><span class="my-empty-text">Sin clases</span></div>
                         </div>
                     ` : `
-                        <div class="my-empty-slot ${isCurrent ? 'is-current-empty' : ''}" onclick="abrirModalAgregarClase(${d.num}, ${b.num})" title="Haz clic para agregar una asignatura en este bloque (${b.label})">
+                        <div class="my-empty-slot ${isCurrent ? 'is-current-empty' : ''}" onclick="${sharedProfileView ? `abrirModalAgregarPerfilClase(${d.num}, ${b.num})` : `abrirModalAgregarClase(${d.num}, ${b.num})`}" title="Haz clic para agregar una asignatura en este bloque (${b.label})">
                             <div class="my-empty-header">
                                 <span class="my-empty-time">
                                     ${isCurrent ? '<span class="pulse-dot-white"></span>' : '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>'}
@@ -1017,11 +1146,11 @@ function renderMiHorario() {
             `;
         });
 
-        container.innerHTML = `
+        reemplazarGridHorarioConScroll(container, `
             <div class="my-week-grid">
                 ${colsHtml}
             </div>
-        `;
+        `);
 //    }
 }
 
@@ -1074,6 +1203,10 @@ function mergeEnrichedSchedule(originalClasses, enrichedClasses) {
             const emptyMarkers = ['', '-'];
             if (field === 'sala') emptyMarkers.push('sala no definida');
             if (field === 'seccion') emptyMarkers.push('sección -', 'seccion -');
+            if (field === 'seccion' && seccionMarcadaSinNumero(oldValue)) {
+                merged[field] = oldValue;
+                return;
+            }
             const oldTeacherNeedsReconciliation = field === 'profesor' && oldText &&
                 oldText !== oldText.toLocaleUpperCase('es');
             if (oldTeacherNeedsReconciliation && !newText) return;
@@ -1157,11 +1290,23 @@ document.addEventListener('portal:remote-state', event => {
 function seleccionarFotoHorario() {
     const input = document.getElementById('schedule-import-file');
     if (!input) return;
+    if (Array.isArray(horarioPerfilSeleccionado) && !getPerfilDestinoImportacionHorario()) {
+        mostrarEstadoImportacionHorario('Solo la cuenta administradora puede importar un horario para otro perfil.', true);
+        return;
+    }
     if (!window.PortalAuth || !window.PortalAuth.client) {
         mostrarEstadoImportacionHorario('La importación requiere iniciar sesión.', true);
         return;
     }
     input.click();
+}
+
+function getPerfilDestinoImportacionHorario() {
+    const community = window.PortalCommunity;
+    if (!community || typeof community.isAdminSelected !== 'function' || !community.isAdminSelected()
+        || typeof community.getSelected !== 'function') return null;
+    const profile = community.getSelected();
+    return profile && profile.user_id ? profile : null;
 }
 
 function mostrarEstadoImportacionHorario(message, isError = false) {
@@ -1172,7 +1317,8 @@ function mostrarEstadoImportacionHorario(message, isError = false) {
         status.classList.remove('is-error');
     }
     if (warning) {
-        warning.querySelector('span').textContent = isError ? (message || '') : '';
+        const warningText = warning.querySelector('span');
+        if (warningText) warningText.textContent = isError ? (message || '') : '';
         warning.classList.toggle('show', Boolean(isError && message));
     } else if (status) {
         status.textContent = message || '';
@@ -1202,6 +1348,12 @@ async function importarHorarioDesdeFoto(event) {
         input.value = '';
         return;
     }
+    const targetProfile = getPerfilDestinoImportacionHorario();
+    if (Array.isArray(horarioPerfilSeleccionado) && !targetProfile) {
+        mostrarEstadoImportacionHorario('Solo la cuenta administradora puede importar un horario para otro perfil.', true);
+        input.value = '';
+        return;
+    }
 
     if (button) {
         button.disabled = true;
@@ -1215,6 +1367,7 @@ async function importarHorarioDesdeFoto(event) {
         if (sessionResult.error || !token) throw new Error('Tu sesión venció. Inicia sesión otra vez.');
         const form = new FormData();
         form.append('image', file, file.name || 'horario');
+        if (targetProfile) form.append('target_user_id', String(targetProfile.user_id));
         const response = await fetch('/api/import_schedule', {
             method: 'POST',
             headers: { Authorization: 'Bearer ' + token },
@@ -1226,7 +1379,8 @@ async function importarHorarioDesdeFoto(event) {
         if (!Array.isArray(result.clases) || !result.clases.length) {
             throw new Error('No se detectaron clases completas en la imagen.');
         }
-        cargarHorarioImportado(result.clases);
+        const saved = await cargarHorarioImportado(result.clases, targetProfile && String(targetProfile.user_id));
+        if (!saved) throw new Error('No se pudo guardar el horario importado. Revisa que sigas en el perfil correcto e inténtalo de nuevo.');
     } catch (error) {
         mostrarEstadoImportacionHorario(error.message || 'No se pudo importar el horario.', true);
     } finally {
@@ -1246,7 +1400,7 @@ function bloqueHorarioMasCercano(hora) {
     , BLOQUES_HORARIOS[0]);
 }
 
-function cargarHorarioImportado(clasesDetectadas) {
+async function cargarHorarioImportado(clasesDetectadas, targetUserId = '') {
     if (!Array.isArray(clasesDetectadas) || !clasesDetectadas.length) return;
     const days = [[], [], [], [], [], []];
     clasesDetectadas.forEach(item => {
@@ -1288,6 +1442,20 @@ function cargarHorarioImportado(clasesDetectadas) {
         }
         occupiedBlocks.add(key);
     }
+    if (targetUserId) {
+        const community = window.PortalCommunity;
+        const profile = community && community.getSelected && community.getSelected();
+        if (!community || !community.isAdminSelected || !community.isAdminSelected()
+            || !profile || String(profile.user_id) !== String(targetUserId)
+            || typeof community.updateSelectedSchedule !== 'function') {
+            throw new Error('El perfil cambió durante la importación. Vuelve a seleccionarlo e inténtalo otra vez.');
+        }
+        const saved = await community.updateSelectedSchedule(classes => classes.splice(0, classes.length, ...imported));
+        if (!saved) return false;
+        mostrarEstadoImportacionHorario('');
+        return true;
+    }
+
     MI_HORARIO_DATA = { ...MI_HORARIO_DATA, clases: imported };
     guardarMiHorarioEnStorage();
     renderMiHorario();

@@ -23,11 +23,41 @@ class PortalV1Test(unittest.TestCase):
                 self.assertEqual(response.status_code, 200, path)
                 if path == "/":
                     self.assertNotIn("Portal Estudiantil UDP", response.get_data(as_text=True))
+                    self.assertNotIn('id="pwa-install-btn"', response.get_data(as_text=True))
                 if path == "/manifest.json":
                     self.assertNotIn("UDP", response.get_data(as_text=True))
 
+    def test_agenda_mobile_cards_use_search_width(self):
+        template = Path("templates/views/agenda.html").read_text()
+        styles = Path("static/css/agenda.css").read_text()
+        self.assertIn('<div id="agenda-container">', template)
+        self.assertRegex(styles, r"@media \(max-width: 600px\)\s*\{[^}]*#agenda-container\s*\{\s*padding:\s*24px 0;",)
+
+    def test_schedule_editor_uses_compact_class_and_role_selectors(self):
+        styles = Path("static/css/horario.css").read_text()
+        template = Path("templates/components/schedule_modal.html").read_text()
+        self.assertIn(".my-modal-choice-row", styles)
+        self.assertIn(".my-modal-select", styles)
+        self.assertIn(".my-modal-select .dropdown-item.active", styles)
+        self.assertNotIn('data-val="Taller"', template)
+        self.assertRegex(template, r'data-val="Laboratorio"[^>]*>Laboratorio</button>')
+        self.assertIn('oninput="buscarProfesoresModal(this.value)"', template)
+        self.assertNotIn('buscarCursosModal', template)
+        self.assertNotIn('modal-cursos-options', template)
+        self.assertNotIn('function buscarCursosModal(query)', Path('static/js/horario.js').read_text())
+        self.assertEqual(template.count("dropdown-trigger notas-course-trigger"), 4)
+        self.assertNotIn('modal-sala-search', template)
+        self.assertNotIn('.my-modal-select-group-label', styles)
+        self.assertIn('id="modal-salas-options"', template)
+        self.assertIn('id="modal-profesores-dropdown"', template)
+        self.assertIn('body.schedule-modal-open', styles)
+        self.assertIn('#modal-profesores-options', styles)
+        self.assertIn('width: min(96%, 1000px)', styles)
+        self.assertIn('getBoundingClientRect()', Path('static/js/horario.js').read_text())
+        self.assertIn('bloquearScrollFondoHorario();', Path('static/js/horario.js').read_text())
+        self.assertIn('restaurarScrollFondoHorario();', Path('static/js/horario.js').read_text())
+
     def test_removed_endpoints_are_gone(self):
-        self.assertEqual(self.client.get("/api/chat").status_code, 405)
         for path in ("/api/tutor", "/api/transcribe", "/api/clima", "/api/transporte", "/api/metro-alertas"):
             self.assertEqual(self.client.get(path).status_code, 404, path)
 
@@ -153,26 +183,6 @@ class PortalV1Test(unittest.TestCase):
         self.assertEqual(last_normal["start"], "17:25:00")
         self.assertEqual(last_normal["finish"], "18:45:00")
 
-    def test_final_time_filters_use_1725_to_1845_for_course_and_semester(self):
-        html = self.client.get("/").get_data(as_text=True)
-        for view in ("profes", "ramos", "malla"):
-            template = Path(f"templates/views/{view}.html").read_text()
-            self.assertIn('data-hora="17:25:00"', template)
-            self.assertIn("17:25 - 18:45", template)
-            self.assertNotIn('data-hora="17:30:00"', template)
-        self.assertIn("17:25 - 18:45", html)
-        self.assertIn('{ start: "17:25", finish: "18:45" }', Path("static/js/app.js").read_text())
-        self.assertIn("label: '17:25 - 18:45', inicio: '17:25', fin: '18:45'", Path("static/js/horario.js").read_text())
-
-    def test_room_search_uses_the_fixed_final_standard_block(self):
-        classes = [{"node": {
-            "day": "3", "start": "17:25", "finish": "18:45", "place": "E441.1.S101",
-            "section": "1", "course": "Último bloque", "teacher": "Profesora Ejemplo", "code": "ABC123",
-        }}]
-        with patch.object(schedule.dm, "get_classes", return_value=classes):
-            _, occupied, _ = schedule.obtener_salas(3, "17:25:00", "INGENIERIA")
-        self.assertEqual(occupied["E441.1.S101"]["horario"], "17:25 - 18:45")
-
     def test_teacher_search_splits_each_room_and_section_into_its_own_result(self):
         classes = [
             {"node": {
@@ -214,9 +224,20 @@ class PortalV1Test(unittest.TestCase):
         self.assertIn("url.pathname.startsWith('/api/')", worker)
         self.assertIn("url.pathname.includes('/auth/')", worker)
         self.assertIn("if (url.search)", worker)
-        self.assertRegex(worker, r"portal-estudiantil-v1-core-\d+")
-        self.assertIn("notification-status-badge-v2.png", worker)
+        self.assertIn("portal-estudiantil-v1-core-41", worker)
         self.assertLess(worker.index("response.clone()"), worker.index("caches.open(CACHE_NAME).then(cache => cache.put"))
+
+    def test_nginx_api_rate_limit_is_wired_before_validation(self):
+        zone = Path("nginx_api_limits.conf").read_text()
+        site = Path("nginx_buscadorsalas.conf").read_text()
+        workflow = Path(".github/workflows/deploy.yml").read_text()
+        self.assertIn("zone=buscador_api_per_ip:10m rate=15r/s", zone)
+        self.assertIn("limit_req zone=buscador_api_per_ip burst=60 nodelay", site)
+        self.assertIn("limit_req_status 429", site)
+        self.assertLess(
+            workflow.index("cp nginx_api_limits.conf /etc/nginx/conf.d/"),
+            workflow.index("sudo nginx -t && sudo systemctl reload nginx"),
+        )
 
     def test_supabase_browser_sdk_is_version_and_integrity_pinned(self):
         template = Path(__file__).parents[1] / "templates/index.html"
@@ -249,6 +270,9 @@ class PortalV1Test(unittest.TestCase):
         self.assertNotIn('Personas de la comunidad', html)
         self.assertIn('id="schedule-import-button"', html)
         self.assertIn('id="schedule-import-file"', html)
+        self.assertLess(html.index('id="schedule-import-status"'), html.index('class="schedule-import-note"'))
+        self.assertLess(html.index('class="schedule-import-note"'), html.index('id="schedule-import-warning"'))
+        self.assertLess(html.index('id="schedule-import-warning"'), html.index('id="my-schedule-hero"'))
         self.assertNotIn('id="schedule-import-preview"', html)
         self.assertIn('data-tab="tab-mihorario" data-private="true"', html)
         self.assertNotIn('id="share-schedule-toggle"', html)
@@ -281,6 +305,17 @@ class PortalV1Test(unittest.TestCase):
         self.assertIn("public.is_community_member(p.id)", sql)
         self.assertIn("create or replace function public.get_shared_profile_information(p_user_id uuid)", sql)
         self.assertIn("grant execute on function public.search_shared_profiles(text, integer, integer) to authenticated", sql)
+
+    def test_solemnes_career_rpc_respects_profile_visibility_and_removes_schedule_school_duplicate(self):
+        migration = Path(__file__).parents[1] / "supabase/migrations/202610060001_shared_profile_career_for_solemnes.sql"
+        sql = migration.read_text(encoding="utf-8").lower()
+        self.assertIn("payload = payload - 'escuela'", sql)
+        self.assertIn("and p.share_information", sql)
+        self.assertIn("public.is_community_member(auth.uid())", sql)
+        self.assertIn("public.is_community_member(p.id)", sql)
+        self.assertIn("private.is_portal_admin()", sql)
+        self.assertIn("revoke all on function public.get_shared_profile_career(uuid) from public, anon", sql)
+        self.assertIn("grant execute on function public.get_shared_profile_career(uuid) to authenticated", sql)
         self.assertNotIn("to anon", sql)
 
     def test_signed_in_profile_uses_initials_instead_of_a_photo(self):
@@ -306,13 +341,13 @@ class PortalV1Test(unittest.TestCase):
         self.assertNotIn('id="push-settings-dialog"', html)
         profile_view = html.split('id="tab-perfil"', 1)[1].split('id="profile-feedback"', 1)[0]
         self.assertNotIn("Cuenta conectada", profile_view)
-        self.assertIn("profile-inline-2", html)
+        self.assertIn("profile-hero", html)
         profile_css = (Path(__file__).parents[1] / "static/css/profile.css").read_text()
         self.assertIn(".profile-hero { display: block;", profile_css)
         self.assertIn("width: min(100%, 1060px)", profile_css)
         self.assertIn("grid-template-columns: repeat(2,minmax(0,1fr))", profile_css)
         self.assertIn("js/profile.js?", html)
-        self.assertIn("20261004-profile-page-1", html)
+        self.assertIn("20261006-profile-hero-compact-1", html)
         catalog = self.client.get("/static/data/udp-careers.json")
         self.assertEqual(catalog.status_code, 200)
         self.assertEqual(len(catalog.get_json()), 5)

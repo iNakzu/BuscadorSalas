@@ -28,9 +28,9 @@
 .public-profile-dialog-header p { margin: 0; color: #94a3b8; font-size: 12px; }
 .public-profile-dialog-close { display: grid; flex: 0 0 36px; width: 36px; height: 36px; place-items: center; border: 0; border-radius: 0; background: transparent; color: #94a3b8; cursor: pointer; }
 .public-profile-dialog-close:hover, .public-profile-dialog-close:focus-visible { outline: none; border: 0; background: transparent; color: #f8fafc; }
-.public-profile-search { display: flex; align-items: center; gap: 9px; min-height: 40px; margin: 2px 2px 7px; padding: 0 11px; border: 1px solid rgba(148,163,184,.17); border-radius: 11px; background: rgba(2,6,23,.52); }
+.public-profile-search { display: flex; align-items: center; gap: 9px; min-height: 40px; margin: 2px 2px 7px; padding: 0 11px; border: 1px solid rgba(148,163,184,.17); border-radius: 11px; background: rgba(18,29,47,.96); }
 .public-profile-dialog > .public-profile-dialog-shell > .public-profile-search { min-height: 48px; margin: 0 22px 10px; padding: 0 13px; }
-.public-profile-search:focus-within { border-color: rgba(56,189,248,.48); box-shadow: 0 0 0 3px rgba(56,189,248,.1); }
+.public-profile-search:focus-within { border-color: rgba(56,189,248,.48); background: rgba(25,40,63,.98); box-shadow: 0 0 0 3px rgba(56,189,248,.1); }
 .public-profile-search svg { flex: 0 0 16px; width: 16px; height: 16px; stroke: #718096; stroke-width: 2; }
 .public-profile-search-input { width: 100%; min-width: 0; padding: 0; border: 0; outline: 0; background: transparent; color: #f8fafc; font: inherit; font-size: 12px; }
 .public-profile-search-input::placeholder { color: #64748b; }
@@ -64,6 +64,16 @@
 .profile-community-directory .public-profile-account { padding-bottom: 8px; }
 .profile-community-directory .public-profile-pagination { margin-top: 0; padding: 8px 2px 0; }
 .profile-community-directory .public-profile-option { min-height: 50px; }
+@media (min-width: 1024px) {
+  .profile-community-card { display: flex; flex-direction: column; min-height: 0; }
+  .profile-community-directory { display: grid; flex: 1 1 auto; grid-template-rows: auto auto minmax(0,1fr) auto; align-content: stretch; width: 100%; min-width: 0; min-height: 0; max-width: 100%; }
+  .profile-community-directory .public-profile-dialog-results,
+  .profile-community-directory .public-profile-account,
+  .profile-community-directory .public-profile-shared,
+  .profile-community-directory .public-profile-dialog-options,
+  .profile-community-directory .public-profile-option { box-sizing: border-box; width: 100%; min-width: 0; max-width: 100%; }
+  .profile-community-directory .public-profile-dialog-results { grid-template-rows: auto minmax(0,1fr); justify-items: stretch; min-height: 0; max-height: none; overflow-y: auto; }
+}
 .public-profile-content[hidden] { display: none; }
 .public-profile-empty { padding: 34px 20px; border: 1px dashed rgba(148,163,184,.24); border-radius: 14px; color: #94a3b8; text-align: center; }
 .public-info-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,300px),1fr)); gap: 14px; }
@@ -85,15 +95,17 @@
 .notas-card.notas-readonly input:disabled { opacity: 1; color: #e2e8f0; -webkit-text-fill-color: #e2e8f0; }
 .malla-ramo-card.malla-ramo-readonly { cursor: default; }
 .malla-ramo-card.malla-ramo-readonly:hover { transform: none; }
+.public-agenda-view.is-admin-editable .cal-day:not(.empty) { cursor: pointer; }
+.public-agenda-view.is-admin-editable .cal-day:not(.empty):hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(2,132,199,.14); background: rgba(15,23,42,.75); border-color: rgba(56,189,248,.35); }
 #tab-notas.public-profile-active > :not(.public-profile-toolbar):not(.public-profile-content):not(.notas-controls-shell),
 #tab-agenda.public-profile-active > :not(.public-profile-toolbar):not(.public-profile-content),
 #tab-progreso.public-profile-active > :not(.public-profile-toolbar):not(.public-profile-content) { display: none !important; }
 #tab-notas.public-profile-active #notas-builder-container { display: none !important; }
 #tab-notas.public-profile-active > .public-profile-content[data-module="grades"] { box-sizing: border-box; padding-top: 16px; }
 #tab-progreso { overflow: visible !important; }
-#tab-mihorario.public-profile-active .schedule-import-control,
+#tab-mihorario.public-profile-active:not(.public-profile-admin-edit) .schedule-import-control,
 #tab-mihorario.public-profile-active .my-modal-overlay { display: none !important; }
-#tab-solemnes.public-profile-active > .search-field { display: none !important; }
+#tab-mihorario.public-profile-admin-edit .my-modal-overlay { display: flex !important; }
 
 @media (max-width: 600px) {
   .public-profile-toolbar { align-items: stretch; flex-direction: column; gap: 9px; padding: 11px 12px; }

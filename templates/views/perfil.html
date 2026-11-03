@@ -1,10 +1,10 @@
-<section id="tab-perfil" class="panel profile-page" aria-labelledby="profile-page-title">
+<section id="tab-perfil" class="panel profile-page" aria-label="Mi perfil">
   <header class="profile-hero">
     <div class="profile-hero-glow" aria-hidden="true"></div>
-    <div class="profile-hero-topline"><span class="profile-hero-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>CUENTA PERSONAL</span></div>
+    <div class="profile-hero-topline"><span class="profile-hero-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span id="profile-account-type">CUENTA PERSONAL</span></div>
     <div class="profile-hero-identity">
       <span class="profile-hero-avatar" id="profile-hero-avatar" aria-hidden="true">ES</span>
-      <div class="profile-hero-copy"><h1 id="profile-page-title">Mi perfil</h1><strong id="profile-hero-name">Estudiante</strong><span id="profile-hero-email"></span></div>
+      <div class="profile-hero-copy"><strong id="profile-hero-name">Estudiante</strong><span id="profile-hero-email"></span></div>
     </div>
     <p>Administra tu información, privacidad y preferencias desde un solo lugar.</p>
   </header>
@@ -20,7 +20,12 @@
         <div class="profile-combobox-menu" id="profile-career-options" role="listbox" aria-label="Carreras disponibles" hidden></div>
       </div>
       <p class="profile-field-hint">Selecciona tu carrera para cargar la malla correspondiente. Tu carrera es privada.</p>
-      <button type="button" id="profile-career-save" class="profile-primary-button"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Guardar carrera</span></button>
+      <button type="button" id="profile-career-save" class="profile-primary-button" aria-live="polite" aria-atomic="true"><svg class="profile-career-save-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="profile-primary-button-label">Guardar carrera</span></button>
+    </section>
+
+    <section class="profile-setting-card profile-community-card" aria-labelledby="profile-community-title">
+      <div class="profile-card-heading"><span class="profile-card-icon profile-card-icon--community" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM20 8v6M23 11h-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><h2 id="profile-community-title">Comunidad</h2><p>Consulta horarios y otra información que las personas registradas comparten.</p></div></div>
+      <div id="profile-community-directory" class="profile-community-directory" aria-label="Perfiles compartidos"></div>
     </section>
 
     <section class="profile-setting-card profile-privacy-card" aria-labelledby="profile-privacy-title">
@@ -30,26 +35,21 @@
     </section>
 
     <section class="profile-setting-card profile-notifications-card" aria-labelledby="profile-notifications-title">
+      <div class="profile-card-heading"><span class="profile-card-icon profile-card-icon--community" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><h2 id="profile-notifications-title">Notificaciones</h2><p>Avisos de clases y agenda en este dispositivo.</p></div></div>
       <div id="push-settings-inline" class="push-settings-inline" aria-label="Notificaciones de este dispositivo">
-        <p class="push-dialog-status push-status-sr-only" id="push-dialog-status" aria-live="polite"></p>
-        <button type="button" class="push-enable-button" id="push-enable-button">Activar notificaciones</button>
+        <label class="profile-switch-row" for="push-enable-toggle"><span class="profile-switch-copy"><strong>Activar notificaciones</strong><small>Recibe recordatorios de clases y agenda en este dispositivo. El permiso se administra desde la configuración del navegador.</small></span><input id="push-enable-toggle" type="checkbox" disabled><span class="profile-switch" aria-hidden="true"></span></label>
+        <p class="push-dialog-status" id="push-dialog-status" role="status" aria-live="polite">Comprobando este dispositivo…</p>
       </div>
     </section>
 
-    <section class="profile-setting-card profile-community-card" aria-labelledby="profile-community-title">
-      <div class="profile-card-heading"><span class="profile-card-icon profile-card-icon--community" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM20 8v6M23 11h-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><h2 id="profile-community-title">Comunidad</h2><p>Consulta horarios y otra información que las personas registradas comparten.</p></div></div>
-      <div id="profile-community-directory" class="profile-community-directory" aria-label="Perfiles compartidos"></div>
-    </section>
-
     <section class="profile-setting-card profile-data-card" aria-labelledby="profile-data-title">
-      <div class="profile-card-heading"><span class="profile-card-icon profile-card-icon--data" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 1 0 2.64-6.36L3 8M3 3v5h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><h2 id="profile-data-title">Tus datos</h2><p>Borra únicamente tus horarios, notas, agenda y progreso guardado.</p></div></div>
-      <button type="button" id="auth-reset-data" class="profile-danger-button" onclick="PortalAuth.resetPersonalData()"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.64-6.36L3 8M3 3v5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Reiniciar datos personales</span></button>
-      <p class="profile-field-hint">Esta acción conserva tu cuenta y perfil.</p>
+      <div class="profile-card-heading"><span class="profile-card-icon profile-card-icon--data" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 1 0 2.64-6.36L3 8M3 3v5h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><h2 id="profile-data-title">Tus datos</h2><p>Restablece la información académica guardada en tu perfil.</p></div></div>
+      <button type="button" id="auth-reset-data" class="profile-action-row is-danger" onclick="PortalAuth.resetPersonalData()"><span class="profile-switch-copy"><strong>Reiniciar datos personales</strong><small>Elimina horario, notas, agenda y malla. Conserva tu cuenta.</small></span><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.64-6.36L3 8M3 3v5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     </section>
 
     <section class="profile-setting-card profile-signout-card" aria-labelledby="profile-signout-title">
-      <div class="profile-card-heading"><span class="profile-card-icon profile-card-icon--signout" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><h2 id="profile-signout-title">Sesión</h2><p>Cierra el acceso de esta cuenta en el dispositivo.</p></div></div>
-      <button type="button" class="profile-logout-button" onclick="PortalAuth.signOut()"><span>Cerrar sesión</span><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="profile-card-heading"><span class="profile-card-icon profile-card-icon--signout" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><h2 id="profile-signout-title">Sesión</h2><p>Administra el acceso de tu cuenta en este dispositivo.</p></div></div>
+      <button type="button" class="profile-action-row is-signout" onclick="PortalAuth.signOut()"><span class="profile-switch-copy"><strong>Cerrar sesión</strong><small>Salir de tu cuenta en este dispositivo.</small></span><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     </section>
   </div>
 </section>
