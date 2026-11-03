@@ -14,8 +14,8 @@
 .auth-card { display: flex; flex-direction: column; align-items: center; text-align: center; }
 .auth-card > p { align-self: stretch; }
 .auth-card .auth-button, .auth-card .auth-profile { box-sizing: border-box; width: 100%; }
-.auth-card .auth-profile { justify-content: flex-start; width: calc(100% + 24px); margin: -12px; padding: 20px 17px; border: 0; border-radius: 10px; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; transition: background .18s ease; }
-.auth-card .auth-profile:hover,.auth-card .auth-profile:active { background: rgba(255,255,255,.06); }
+.auth-card .auth-profile { justify-content: flex-start; margin: 0; padding: 8px 5px; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.auth-card .auth-profile:hover { background: rgba(255,255,255,.045); }
 .auth-card .auth-profile:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
 .auth-card .auth-profile-copy { text-align: left; }
 .auth-account-actions { display: flex; align-items: center; gap: 0; width: 100%; padding: 2px 6px; border: 1px solid rgba(148,163,184,.18); border-radius: 9px; background: rgba(148,163,184,.18); box-sizing: border-box; }
@@ -30,4 +30,15 @@
 .tabs-wrapper .pwa-install-btn[hidden] { display: none; }
 @media (min-width: 1024px) { .tabs-wrapper { padding-top: 20px; } }
 @media (max-width: 1023px) { .tabs-wrapper { padding-top: 20px; } }
+.auth-gate { position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center; padding: 24px; background: rgba(2,6,23,.78); backdrop-filter: blur(12px); }
+.auth-gate[hidden] { display: none; }
+.auth-gate > div { width: min(420px,100%); padding: 28px; border: 1px solid rgba(148,163,184,.2); border-radius: 18px; background: #0f172a; box-shadow: 0 25px 60px rgba(0,0,0,.4); }
+.auth-gate h2 { margin: 0 0 8px; color: #f8fafc; }
+.auth-gate p { color: #94a3b8; line-height: 1.55; }
+.auth-gate .auth-button { margin-top: 12px; }
+.career-gate > div { border-color: rgba(56,189,248,.2); background: radial-gradient(ellipse at top left,rgba(56,189,248,.12),transparent 55%),linear-gradient(145deg,#111b2e,#0c1423); }
+.career-gate-icon { display: grid; width: 38px; height: 38px; margin-bottom: 14px; place-items: center; border: 1px solid rgba(125,211,252,.2); border-radius: 12px; color: #7dd3fc; background: rgba(56,189,248,.1); }
+.career-gate-actions { display: grid; gap: 8px; margin-top: 18px; }
+.career-gate .auth-button { margin-top: 0; }
+.career-gate-dismiss { justify-self: center; padding: 8px 14px; border: 0; color: #9aa8bb; background: transparent; font: inherit; cursor: pointer; }
 .agenda-type-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; }

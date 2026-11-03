@@ -54,6 +54,7 @@ let state = {
     filtros: {}
 };
 
+
 function obtenerDiaActualNumero() {
     const d = new Date().getDay();
     return (d >= 1 && d <= 5) ? d : 1;
@@ -62,42 +63,40 @@ function obtenerDiaActualNumero() {
 let mallaLoadedOnce = false;
 let panelPendientePorCarrera = '';
 
-function mostrarAvisoAccesoMalla(panelId = 'tab-malla') {
-    panelPendientePorCarrera = panelId;
-    const isSolemnes = panelId === 'tab-solemnes';
-    mostrarUiFeedback({
-        title: 'Carrera requerida',
-        message: isSolemnes
-            ? 'Selecciona y guarda tu carrera en Mi perfil para mostrar las solemnes que corresponden a tu escuela.'
-            : 'Selecciona y guarda tu carrera en Mi perfil para mostrar la información académica que te corresponde.',
-        tone: 'info',
-        icon: 'user',
-        primaryLabel: 'Ir a Mi perfil',
-        onPrimary: () => { cerrarUiFeedback(); abrirPerfil(); },
-        closeOnBackdrop: true
-    });
+const PANELES_CON_CARRERA = new Set(['tab-solemnes', 'tab-malla', 'tab-progreso']);
+
+function mostrarAvisoCarrera(panelId) {
+    panelPendientePorCarrera = panelId || '';
+    const gate = document.getElementById('career-gate');
+    if (gate) gate.hidden = false;
 }
 
-function mostrarAvisoInicioSesion() {
-    mostrarUiFeedback({
-        title: 'Tu espacio personal',
-        message: 'Inicia sesión con tu cuenta institucional para abrir este módulo y sincronizarlo entre dispositivos.',
-        tone: 'info',
-        icon: 'user',
-        primaryLabel: 'Continuar con Google',
-        onPrimary: () => { cerrarUiFeedback(); window.PortalAuth && window.PortalAuth.signIn(); },
-        closeOnBackdrop: true
-    });
+function cerrarAvisoCarrera() {
+    const gate = document.getElementById('career-gate');
+    if (gate) gate.hidden = true;
+    panelPendientePorCarrera = '';
 }
+
+function irAPerfilDesdeAvisoCarrera() {
+    const gate = document.getElementById('career-gate');
+    if (gate) gate.hidden = true;
+    abrirPerfil();
+}
+
+window.mostrarAvisoCarrera = mostrarAvisoCarrera;
+window.cerrarAvisoCarrera = cerrarAvisoCarrera;
+window.irAPerfilDesdeAvisoCarrera = irAPerfilDesdeAvisoCarrera;
 
 function cambiarTab(panelId, btn) {
-    if (btn.dataset.private === 'true' && (!window.PortalAuth || !window.PortalAuth.user)) {
-        mostrarAvisoInicioSesion();
+    if ((btn && btn.dataset.private === 'true' || PANELES_CON_CARRERA.has(panelId))
+        && (!window.PortalAuth || !window.PortalAuth.user)) {
+        const gate = document.getElementById('auth-gate');
+        if (gate) gate.hidden = false;
         return;
     }
-    if ((panelId === 'tab-malla' || panelId === 'tab-progreso' || panelId === 'tab-solemnes') && window.PortalAuth && window.PortalAuth.user
+    if (PANELES_CON_CARRERA.has(panelId) && window.PortalAuth && window.PortalAuth.user
         && (!window.PortalProfile || !window.PortalProfile.getCareerId())) {
-        mostrarAvisoAccesoMalla(panelId);
+        mostrarAvisoCarrera(panelId);
         return;
     }
     document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
@@ -148,7 +147,8 @@ let perfilPanelAnterior = 'tab-salas';
 
 function abrirPerfil() {
     if (!window.PortalAuth || !window.PortalAuth.user) {
-        mostrarAvisoInicioSesion();
+        const gate = document.getElementById('auth-gate');
+        if (gate) gate.hidden = false;
         return;
     }
     const current = document.querySelector('.panel.active');
@@ -186,25 +186,14 @@ window.abrirPerfilesComunidad = abrirPerfilesComunidad;
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar-menu');
     const overlay = document.querySelector('.sidebar-overlay');
-    const isOpen = sidebar && sidebar.classList.toggle('open');
-    if (overlay) overlay.classList.toggle('active', Boolean(isOpen));
-    const menuButton = document.querySelector('.btn-sidebar-toggle');
-    if (menuButton) menuButton.setAttribute('aria-expanded', String(Boolean(isOpen)));
+    if (sidebar) sidebar.classList.toggle('open');
+    if (overlay) overlay.classList.toggle('active');
 }
 
 document.addEventListener('click', event => {
-    if (event.target.closest('.tab-btn') && window.innerWidth < 1600) toggleSidebar();
-});
-
-window.addEventListener('resize', () => {
-    if (window.innerWidth >= 1600) {
-        const sidebar = document.getElementById('sidebar-menu');
-        const overlay = document.querySelector('.sidebar-overlay');
-        const menuButton = document.querySelector('.btn-sidebar-toggle');
-        if (sidebar) sidebar.classList.remove('open');
-        if (overlay) overlay.classList.remove('active');
-        if (menuButton) menuButton.setAttribute('aria-expanded', 'false');
-    }
+    const gate = document.getElementById('auth-gate');
+    if (gate && event.target === gate) gate.hidden = true;
+    if (event.target.closest('.tab-btn') && window.innerWidth < 1024) toggleSidebar();
 });
 function setFacultadPill(val, btn) {
     document.querySelectorAll('#bar-facultad .pill-btn').forEach(b => b.classList.remove('active'));
@@ -680,7 +669,7 @@ async function cargarClasesMalla(refrescarChips = false) {
     const careerId = window.PortalProfile && window.PortalProfile.getCareerId();
     if (!careerId) {
         mallaLoadedOnce = false;
-        container.innerHTML = '<div class="curriculum-unavailable-card"><span class="curriculum-unavailable-icon" aria-hidden="true">⌑</span><h3>Configura tu carrera</h3><p>Selecciona y guarda tu carrera en Mi perfil para mostrar esta información.</p></div>';
+        container.textContent = 'Selecciona tu carrera en Mi perfil para abrir su malla.';
         return;
     }
     
@@ -707,7 +696,7 @@ async function cargarClasesMalla(refrescarChips = false) {
             const title = document.createElement('h3');
             title.textContent = 'Horarios por semestre no disponibles';
             const description = document.createElement('p');
-            description.textContent = `Los horarios de clases por semestre para ${data.carrera || 'esta carrera'} todavía no están incorporados en esta vista.`;
+            description.textContent = `La información de clases con horarios para ${data.carrera || 'esta carrera'} todavía no está incorporada.`;
             card.append(icon, title, description);
             container.replaceChildren(card);
             return;

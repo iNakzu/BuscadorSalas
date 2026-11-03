@@ -252,8 +252,10 @@
         resetting = true;
         try {
             const resetAt = new Date().toISOString();
-            // Stop new writes and finish in-flight work before asking Supabase
-            // to reset. Keep the local copy unless the remote reset succeeds.
+            // Stop new writes and let in-flight syncs finish before asking
+            // Supabase to reset. Keep local data intact unless the remote
+            // reset is confirmed, so a network failure cannot resurrect old
+            // remote data after the UI has reported an unsuccessful reset.
             while (syncing || activeSaves > 0) {
                 await new Promise(resolve => setTimeout(resolve, 10));
             }
@@ -274,7 +276,7 @@
             if (typeof confirmedResetAt !== 'string' || !Number.isFinite(Date.parse(confirmedResetAt))) {
                 throw new Error('Supabase no confirmó el reinicio.');
             }
-            if (confirmedResetAt !== resetAt) clearLocalData(auth.user.id, confirmedResetAt);
+            clearLocalData(auth.user.id, confirmedResetAt);
             resetMarkers.set(auth.user.id, confirmedResetAt);
             return confirmedResetAt;
         } catch (error) {

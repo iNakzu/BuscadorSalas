@@ -2,9 +2,6 @@ const assert = require('assert');
 const fs = require('fs');
 const vm = require('vm');
 
-assert.match(fs.readFileSync('static/css/community.css', 'utf8'), /#tab-mihorario\.public-profile-active:not\(\.public-profile-admin-edit\) \.schedule-import-control/,
-  'only non-admin shared schedule views hide the photo import control');
-
 const elements = new Map();
 const documentListeners = new Map();
 for (const id of ['schedule-import-file', 'schedule-import-button', 'schedule-import-status']) {
@@ -88,10 +85,39 @@ assert.strictEqual(schedule.clases[4].bloqueNum, 5);
 assert.strictEqual(schedule.clases[5].curso, 'Redes');
 assert.strictEqual(schedule.clases[5].bloqueNum, 6);
 assert.strictEqual(Object.prototype.hasOwnProperty.call(schedule.clases[5], 'bloqueLabel'), false);
-const pushSchedule = JSON.parse(JSON.stringify(context.window.portalGetSchedulePushData()));
-assert.deepStrictEqual(pushSchedule[0], { day: 1, time: '08:30', finish: '09:50', course: 'Cálculo I', type: 'Cátedra', role: 'student' });
 assert.strictEqual(elements.get('schedule-import-status').textContent, '', 'successful import should clear progress without showing a success notification');
 assert(!/Horario cargado:/.test(fs.readFileSync('static/js/horario.js', 'utf8')), 'successful Gemini import must not create a toast notification');
+
+const originalAutoSyncHorario = context.autoSyncHorario;
+context.autoSyncHorario = function () {};
+context.cargarHorarioImportado([{
+  dia: 2, diaNombre: 'Martes', horaInicio: '10:00', horaFin: '12:50', bloques: 2,
+  curso: 'Climate Futures', tipo: 'Cátedra', seccion: '4', sala: 'E441.2.S201', profesor: 'DOCENTE OFICIAL'
+}]);
+const multiblockSchedule = JSON.parse(local.get('mi_horario_custom_v1'));
+assert.deepStrictEqual(multiblockSchedule.clases.map(item => [item.bloqueNum, item.horaInicio, item.horaFin]), [
+  [2, '10:00', '11:20'], [3, '11:30', '12:50']
+], 'a class spanning two blocks should be represented once in each block');
+assert.strictEqual(multiblockSchedule.clases[0].curso, 'Climate Futures');
+assert.strictEqual(multiblockSchedule.clases[1].curso, 'Climate Futures');
+assert.notStrictEqual(multiblockSchedule.clases[0].id, multiblockSchedule.clases[1].id);
+context.autoSyncHorario = originalAutoSyncHorario;
+
+const beforeRejectedImport = JSON.parse(local.get('mi_horario_custom_v1'));
+context.cargarHorarioImportado([
+  { dia: 2, diaNombre: 'Martes', horaInicio: '10:00', horaFin: '12:50', curso: 'Climate Futures', tipo: 'Cátedra' },
+  { dia: 2, diaNombre: 'Martes', horaInicio: '11:30', horaFin: '12:50', curso: 'Otra clase', tipo: 'Cátedra' }
+]);
+assert.deepStrictEqual(JSON.parse(local.get('mi_horario_custom_v1')), beforeRejectedImport,
+  'an overlapping import must not replace the saved schedule');
+assert.match(elements.get('schedule-import-status').textContent, /más de una clase en un mismo bloque/);
+
+context.cargarHorarioImportado([{
+  dia: 2, diaNombre: 'Martes', horaInicio: '10:00', horaFin: '11:30', bloques: 2,
+  curso: 'Clase normal', tipo: 'Cátedra'
+}]);
+assert.deepStrictEqual(JSON.parse(local.get('mi_horario_custom_v1')).clases.map(item => item.bloqueNum), [2],
+  'an unconfirmed block_count cannot expand a class into the next slot');
 
 (async () => {
   const file = { type: 'image/jpeg', size: 100, name: 'horario.jpg' };
@@ -99,13 +125,11 @@ assert(!/Horario cargado:/.test(fs.readFileSync('static/js/horario.js', 'utf8'))
   context.window.PortalAuth = {
     client: { auth: { getSession: async () => ({ data: { session: { access_token: 'session-token' } }, error: null }) } }
   };
-  context.FormData = class { constructor() { this.entries = []; } append(...args) { this.entries.push(args); } };
+  context.FormData = class { append() {} };
   let syncPayload = null;
   let syncCalls = 0;
-  let lastImportBody = null;
   context.fetch = async (url, options = {}) => {
     if (url === '/api/import_schedule') {
-      lastImportBody = options.body;
       return { ok: true, json: async () => ({ clases: [
         { dia: 2, diaNombre: 'Martes', horaInicio: '11:30', horaFin: '12:50', curso: 'Estructuras', tipo: 'Cátedra', seccion: '2' }
       ] }) };
@@ -126,27 +150,14 @@ assert(!/Horario cargado:/.test(fs.readFileSync('static/js/horario.js', 'utf8'))
   assert.strictEqual(directlyLoaded.clases[0].curso, 'Estructuras');
   assert.strictEqual(syncPayload.clases[0].seccion, '2');
   assert.strictEqual(directlyLoaded.clases[0].sala, 'E441.2.S201');
-  assert(!lastImportBody.entries.some(([key]) => key === 'target_user_id'), 'personal imports must not set a target profile');
   let persistedSchedule = null;
   context.window.PortalStore = { save(module, payload) { assert.strictEqual(module, 'schedule'); persistedSchedule = payload; } };
   await documentListeners.get('portal:section-entered')({ detail: { panelId: 'tab-mihorario' } });
   assert.strictEqual(syncCalls, 2, 'an unresolved or stale schedule can be synchronized again without editing it');
   assert.strictEqual(persistedSchedule.clases[0].sala, 'E441.2.S201');
-
-  const targetUserId = '11111111-1111-4111-8111-111111111111';
-  const targetSchedule = { clases: [{ id: 'previous', curso: 'Horario anterior', dia: 1, bloqueNum: 1 }] };
-  const ownScheduleBeforeSharedImport = local.get('mi_horario_custom_v1');
-  context.window.PortalCommunity = {
-    isAdminSelected: () => true,
-    getSelected: () => ({ user_id: targetUserId }),
-    updateSelectedSchedule(mutator) { mutator(targetSchedule.clases); return Promise.resolve(true); }
-  };
-  vm.runInContext('horarioPerfilSeleccionado = []', context);
-  await context.importarHorarioDesdeFoto({ target: input });
-  assert(lastImportBody.entries.some(([key, value]) => key === 'target_user_id' && value === targetUserId));
-  assert.strictEqual(targetSchedule.clases.length, 1);
-  assert.strictEqual(targetSchedule.clases[0].curso, 'Estructuras');
-  assert.strictEqual(local.get('mi_horario_custom_v1'), ownScheduleBeforeSharedImport, 'admin imports must not overwrite the administrator’s own local schedule');
+  vm.runInContext(`MI_HORARIO_DATA = { escuela: 'EIT', clases: [] }; guardarMiHorarioEnStorage();`, context);
+  assert.strictEqual(Object.prototype.hasOwnProperty.call(persistedSchedule, 'escuela'), false,
+    'saving a remote schedule must remove the duplicated hardcoded school');
   assert.strictEqual(input.value, '');
   console.log('schedule-import-ui: photo upload loads classes and immediately syncs their room data');
 })().catch(error => { console.error(error); process.exit(1); });

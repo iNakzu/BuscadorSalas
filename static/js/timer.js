@@ -64,10 +64,10 @@ function getCalendarDayOffset(date, now = new Date()) {
     return Math.round((targetDay - currentDay) / 86400000);
 }
 
-function getTimerEndLabel(date = null) {
+function getTimerEndLabel(date = null, now = new Date()) {
     const endDate = date || (timerEndAt ? new Date(timerEndAt) : getTimerTargetDate(timerTargetTime));
     if (!endDate) return 'Elige una hora de término';
-    const dayOffset = getCalendarDayOffset(endDate);
+    const dayOffset = getCalendarDayOffset(endDate, now);
     const dayLabel = dayOffset === 1 ? 'Mañana · ' : dayOffset > 1 ? `En ${dayOffset} días · ` : '';
     return `${dayLabel}Termina a las ${formatClockTime(endDate)}`;
 }

@@ -13,7 +13,6 @@
 
     const api = window.PortalAuth = { client, user: null, available };
     let resolveInitialSession;
-    let initialSessionResolved = false;
     api.ready = new Promise(resolve => { resolveInitialSession = resolve; });
 
     function displayName(user) {
@@ -29,8 +28,7 @@
         const words = String(name).trim().split(/\s+/).filter(Boolean);
         if (!words.length) return 'ES';
         if (words.length === 1) return Array.from(words[0]).slice(0, 2).join('').toLocaleUpperCase('es');
-        const firstSurname = words.length >= 3 ? words[words.length - 2] : words[1];
-        return `${Array.from(words[0])[0]}${Array.from(firstSurname)[0]}`.toLocaleUpperCase('es');
+        return `${Array.from(words[0])[0]}${Array.from(words[words.length - 1])[0]}`.toLocaleUpperCase('es');
     }
 
     function render() {
@@ -43,15 +41,8 @@
         if (!status || !profile || !avatar || !name || !email || !login) return;
         if (!available) {
             status.textContent = 'El acceso personal estará disponible al conectar Supabase.';
-            status.hidden = false;
             login.disabled = true;
-            login.hidden = false;
             profile.hidden = true;
-        } else if (!initialSessionResolved) {
-            status.hidden = false;
-            status.textContent = 'Restaurando tu sesión…';
-            profile.hidden = true;
-            login.hidden = true;
         } else if (api.user) {
             const gate = document.getElementById('auth-gate');
             if (gate) gate.hidden = true;
@@ -73,7 +64,6 @@
 
     function publish(session, wasSignedOut = false) {
         const hadAuthenticatedUser = Boolean(api.user);
-        initialSessionResolved = true;
         api.user = session && session.user || null;
         render();
         if (resolveInitialSession) {

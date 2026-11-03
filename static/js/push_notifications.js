@@ -1,7 +1,7 @@
 (function () {
     const panel = document.getElementById('push-settings-inline');
     if (!panel) return;
-    const enableToggle = document.getElementById('push-enable-toggle');
+    const enableButton = document.getElementById('push-enable-button');
     const status = document.getElementById('push-dialog-status');
     let supported = false;
     let subscribed = false;
@@ -37,9 +37,10 @@
         return result;
     }
 
-    function updateToggleState() {
-        if (!changing) enableToggle.checked = subscribed;
-        enableToggle.disabled = changing || !supported;
+    function updateButtonState() {
+        enableButton.hidden = false;
+        enableButton.textContent = subscribed ? 'Desactivar notificaciones' : 'Activar notificaciones';
+        enableButton.setAttribute('aria-pressed', String(subscribed));
     }
 
     async function syncReminders() {
@@ -56,12 +57,13 @@
             supported = Boolean(config.supported && 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window);
             if (!supported) {
                 setStatus('Las notificaciones push no están disponibles en este navegador o aún no están configuradas.', true);
-                updateToggleState();
+                enableButton.disabled = true;
                 return;
             }
+            enableButton.disabled = false;
             const prefs = await api('/subscribe');
             subscribed = prefs.subscribed;
-            updateToggleState();
+            updateButtonState();
             if (subscribed) {
                 await api('/settings', { method: 'PATCH', body: JSON.stringify({ classes: true, agenda: true }) });
                 await syncReminders();
@@ -69,9 +71,9 @@
             if (Notification.permission === 'denied' && !subscribed) {
                 setStatus('Las notificaciones están bloqueadas en el navegador. Actívalas en la configuración del sitio.', true);
             } else if (subscribed) {
-                setStatus('Avisos de clases, descansos y agenda activados.');
+                setStatus('Este dispositivo está listo para recibir tus avisos.');
             } else {
-                setStatus('Permite las notificaciones del dispositivo para recibir avisos automáticos.');
+                setStatus('Activa los avisos de clases y agenda en este dispositivo.');
             }
         } catch (error) {
             setStatus(error.message, true);
@@ -81,7 +83,7 @@
     async function activate() {
         if (!supported || changing) return;
         changing = true;
-        updateToggleState();
+        enableButton.disabled = true;
         setStatus('');
         try {
             // Ask permission directly from the user gesture, before network work.
@@ -100,32 +102,31 @@
             subscribed = true;
             await api('/settings', { method: 'PATCH', body: JSON.stringify({ classes: true, agenda: true }) });
             await syncReminders();
-            updateToggleState();
-            setStatus('Listo. Avisos antes del inicio, al comenzar y al terminar clases, y al empezar descansos.');
+            updateButtonState();
+            setStatus('Listo. Recibirás recordatorios 10 minutos antes.');
         } catch (error) {
             setStatus(error.message || 'No se pudieron activar las notificaciones.', true);
             await loadSettings();
         } finally {
             changing = false;
-            updateToggleState();
+            enableButton.disabled = false;
         }
     }
 
     async function deactivate() {
-        if (!supported || changing) return;
+        if (changing) return;
         changing = true;
-        updateToggleState();
-        setStatus('');
+        enableButton.disabled = true;
         try {
             await detachCurrentDevice();
             subscribed = false;
+            updateButtonState();
             setStatus('Notificaciones desactivadas en este dispositivo.');
         } catch (error) {
-            setStatus(error.message || 'No se pudieron desactivar las notificaciones.', true);
-            await loadSettings();
+            setStatus(error.message, true);
         } finally {
             changing = false;
-            updateToggleState();
+            enableButton.disabled = false;
         }
     }
 
@@ -143,16 +144,13 @@
         if (removalError) throw removalError;
     }
 
-    enableToggle.addEventListener('change', () => {
-        if (enableToggle.checked) activate();
-        else deactivate();
-    });
+    enableButton.addEventListener('click', () => subscribed ? deactivate() : activate());
     document.addEventListener('portal:auth-changed', () => {
         const signedIn = Boolean(window.PortalAuth && window.PortalAuth.user);
         panel.hidden = !signedIn;
         subscribed = false;
         if (signedIn) loadSettings();
-        updateToggleState();
+        updateButtonState();
     });
     document.addEventListener('portal:schedule-updated', () => syncReminders().catch(() => {}));
     document.addEventListener('portal:agenda-updated', () => syncReminders().catch(() => {}));

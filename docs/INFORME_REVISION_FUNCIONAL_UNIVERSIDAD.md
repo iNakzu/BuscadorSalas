@@ -2,7 +2,7 @@
 
 **Portal académico — documento para evaluación universitaria**
 **Fecha:** 16 de octubre de 2026
-**Base revisada:** `main` de producción, commit funcional `25d1afa`.
+**Base revisada:** código disponible en la rama `release/v1-core`.
 
 ## Objetivo y alcance
 
@@ -14,7 +14,7 @@ Es una revisión funcional del código disponible, no una certificación de segu
 
 El portal ya resuelve un conjunto amplio de tareas académicas: busca salas, ramos y docentes desde el feed institucional; permite importar y editar horarios; mantiene módulos personales sincronizados; presenta mallas por carrera y solemnes; y admite recordatorios push. Las principales oportunidades se concentran en cuatro aspectos: que el usuario pueda revisar un horario reconocido antes de reemplazar el suyo, que la interfaz indique cuándo los datos personales no se sincronizaron, que se explicite y limite la información compartida con la comunidad y los servicios de IA, y que las fuentes académicas muestren su vigencia.
 
-Durante esta revisión se corrigieron tres defectos: un reinicio de datos que podía borrar la copia local antes de confirmar la operación remota, una falla temporal de malla que quedaba cacheada como un resultado vacío y el envío de notas y agenda al asistente junto con el horario. Se comprobó además que la versión actual de `main` ya renueva el feed oficial al vencer su caché y no desplaza automáticamente la vista del horario. Las correcciones de esta revisión incluyen pruebas de regresión y se publican junto con este informe.
+Durante esta revisión se corrigieron cuatro defectos en la copia local: el reinicio de datos cuando falla Supabase, la renovación del feed oficial al vencer el caché en memoria, la repetición de una falla temporal al cargar una malla y el salto automático hasta la clase actual al abrir “Mi horario”. También se limitó el contexto enviado por el asistente a los datos del horario, de acuerdo con el alcance solicitado para esa función. **Estos cambios no se han publicado ni subido a Git.**
 
 ## Cobertura funcional revisada
 
@@ -66,7 +66,7 @@ Durante esta revisión se corrigieron tres defectos: un reinicio de datos que po
 
 **Problema y usuarios afectados.** La persona necesita entender qué datos personales salen de su dispositivo y quién puede consultarlos.
 
-**Comportamiento actual y evidencia.** La preferencia `share_information` expone conjuntamente horario, notas, agenda y progreso de malla a cuentas autenticadas autorizadas, según `docs/V1_PRODUCT_AND_ARCHITECTURE.md` y las funciones SQL de `supabase/migrations/202609290002_public_information.sql`. Además, `static/js/ai_assistant.js`, `getAcademicContext()`, leía horario, notas y agenda y enviaba ese contexto junto con cada pregunta a `/api/chat`. En esta publicación se limita el contexto automático del asistente al horario; el envío de adjuntos que la persona selecciona sigue siendo parte de la función de chat.
+**Comportamiento actual y evidencia.** La preferencia `share_information` expone conjuntamente horario, notas, agenda y progreso de malla a cuentas autenticadas autorizadas, según `docs/V1_PRODUCT_AND_ARCHITECTURE.md` y las funciones SQL de `supabase/migrations/202609290002_public_information.sql`. Además, `static/js/ai_assistant.js`, `getAcademicContext()`, leía horario, notas y agenda y enviaba ese contexto junto con cada pregunta a `/api/chat`; el componente `templates/components/ai_assistant.html` no explicaba ese envío. En esta revisión se corrigió localmente para que el asistente sólo envíe el horario, que es el contexto solicitado para la función.
 
 **Propuesta y ejemplo.** Evaluar permisos independientes para horario, notas, agenda y progreso, con una descripción visible de quién puede ver cada módulo. Para el asistente, informar antes de la primera consulta que el horario se procesa con Gemini y evitar incluir otros módulos personales salvo autorización explícita.
 
@@ -144,25 +144,25 @@ Durante esta revisión se corrigieron tres defectos: un reinicio de datos que po
 
 **Riesgo y validación.** Riesgo bajo, aunque el manejo de Escape debe respetar diálogos destructivos. Validar sólo teclado y lector de pantalla en móvil y escritorio, incluyendo cierre, confirmación y retorno del foco.
 
-## Correcciones incluidas en esta publicación
+## Defectos corregidos durante esta revisión
 
-1. **Reinicio ante error de Supabase.** `static/js/personal_store.js`: espera confirmación de `reset_my_personal_data` antes de borrar la copia local. Si la llamada falla, conserva los datos del dispositivo. `tests/personal-store-reset.test.cjs` comprueba tanto el fallo como el reinicio confirmado.
-2. **Reintento de malla tras una falla temporal.** `static/js/progreso.js`: una respuesta HTTP fallida ya no queda almacenada como una malla vacía durante toda la sesión; la siguiente consulta vuelve a intentarlo. `tests/progreso-career-gates.test.cjs` comprueba la recuperación.
-3. **Contexto personal mínimo para el asistente.** `static/js/ai_assistant.js`: el contexto automático enviado al servicio de IA contiene sólo el horario y excluye notas y agenda. `tests/ai-academic-context.test.cjs` verifica las fuentes que lee el asistente.
-4. **Actualización de recursos.** Se versionaron los scripts modificados en `templates/index.html` y se incrementó el caché del service worker para que los navegadores reciban esta versión.
-
-La renovación del feed oficial cuando vence el caché y la ausencia de desplazamiento automático al abrir “Mi horario” ya están presentes en `main`; se verificaron y no se duplicaron en esta publicación.
+1. **Reinicio ante error de Supabase.** `static/js/personal_store.js`: ahora espera confirmación de `reset_my_personal_data` antes de limpiar los datos locales. Si falla la llamada, conserva la copia local. La prueba verifica el error `PGRST002`.
+2. **Caché de horarios vencido.** `app/services/schedule.py`: `get_classes()` ahora renueva el feed oficial al vencer el TTL y coordina solicitudes concurrentes dentro del proceso. Las pruebas cubren caché vigente y vencida.
+3. **Error temporal al cargar una malla.** `static/js/progreso.js`: una respuesta fallida ya no queda cacheada como una malla vacía por toda la sesión; el siguiente render puede volver a intentarlo. `tests/progreso-career-gate.test.cjs` cubre fallo inicial y recuperación.
+4. **Desplazamiento forzado al abrir “Mi horario”.** `static/js/app.js`: se quitó el salto automático a la clase actual, que podía sacar al usuario del día que estaba consultando. Se añadió una prueba de regresión.
+5. **Datos personales enviados innecesariamente al asistente.** `static/js/ai_assistant.js`: el contexto enviado a Gemini ahora contiene el horario y excluye notas y agenda. Se actualizó la prueba para verificar que esos módulos no formen parte del contexto.
+6. **Caché de recursos del navegador.** Se actualizaron las versiones de los scripts afectados en `templates/index.html` y el número de caché del service worker para que los navegadores recojan las correcciones al publicarlas.
 
 Los seis cambios permanecen **sólo en esta copia local**; no se publicaron ni se subieron a Git.
 
 ## Verificación
 
-- **88 pruebas Python** y **21 pruebas JavaScript** pasaron en la rama `main`, incluidas las nuevas pruebas de regresión para el reinicio remoto, el reintento de malla y el contexto del asistente.
-- `git diff --check` pasó antes de crear la publicación.
-- El despliegue automático de GitHub Actions (`38844990270`) terminó correctamente. El 16 de octubre de 2026, `https://horarios.dev/api/status` respondió HTTP 200 y reportó la fuente institucional en línea (1.315 clases y 85 salas).
+- **91 pruebas Python** aprobadas tras las correcciones, incluyendo recuperación de malla y ausencia de desplazamiento automático.
+- **19 archivos de pruebas JavaScript** aprobados; la suite se ejecutó individualmente con Node.js 12.22.1.
+- `git diff --check` pasó tras las correcciones y los cambios de versión de caché.
 
 ## Límites y pasos recomendados
 
-La revisión de código no sustituye una evaluación institucional. No se probaron permisos entre dos cuentas autenticadas, la exactitud académica del calendario con responsables de la universidad, carga representativa, lectores de pantalla en dispositivos reales ni recuperación push en todos los navegadores. La versión funcional revisada es `25d1afa`; la revisión de este informe se publica por separado. Cualquier validación posterior debe comparar el commit desplegado con el entorno de producción.
+El checkout de `release/v1-core` contiene numerosos cambios locales previos y archivos sin seguimiento. No debe considerarse una rama lista para publicar ni una comparación limpia con producción. No se probaron permisos entre dos cuentas autenticadas, la exactitud académica del calendario con responsables de la universidad, carga representativa, lectores de pantalla en dispositivos reales ni recuperación push en todos los navegadores.
 
 Antes de un piloto universitario, se recomienda: (1) validar este informe con responsables académicos y de privacidad; (2) decidir los permisos por módulo y la política del asistente; (3) revisar fuentes y vigencia de JSON y calendario; (4) ejecutar las pruebas completas; y (5) preparar una rama limpia, revisión institucional y plan de reversión antes del despliegue.

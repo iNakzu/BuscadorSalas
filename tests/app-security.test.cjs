@@ -46,11 +46,13 @@ vm.runInNewContext(`${horarioHelpers}\nthis.escapeHtml = escapeHtml; this.horari
 assert.equal(horarioContext.escapeHtml(hostile), '&lt;/div&gt;&lt;img src=x onerror=&quot;alert(1)&quot;&gt;&amp;&#039;');
 assert(!horarioContext.horarioJsArg(hostile).includes('<'));
 assert(horarioSource.includes('verHorarioDirecto(${horarioJsArg(s)})'));
-assert(horarioSource.includes("seleccionarSalaModal(' + horarioJsArg(room) + ')"));
-assert(!horarioSource.includes('JSON.parse(${objSafe})'), 'obsolete interpolation pattern should not return');
-for (const field of ["c.profesor || '-'", 'getCourseDisplay(c)', 'c.bloqueNum', 's']) {
+assert(horarioSource.includes('horarioJsArg(room)'));
+assert(horarioSource.includes('escapeHtml(room)'));
+assert(horarioSource.includes('escapeHtml(JSON.stringify(String(c.id)))'));
+for (const field of ['getCourseDisplay(c)', 'tipoVisible', "c.profesor || '-'", 'etiquetaBloqueHorario(c)', 's']) {
     assert(horarioSource.includes(`escapeHtml(${field})`), `unescaped shared schedule field: ${field}`);
 }
+assert(horarioSource.includes("warning.querySelector('span').textContent"));
 
 const notasSource = fs.readFileSync('static/js/notas.js', 'utf8');
 const notasHelpers = notasSource.match(/^function notasJsArg[\s\S]*?^}/m)[0];

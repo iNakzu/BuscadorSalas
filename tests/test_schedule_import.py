@@ -9,185 +9,19 @@ from unittest.mock import Mock, patch
 os.environ.setdefault("SCHEDULE_CACHE_FILE", os.path.join(tempfile.gettempdir(), "buscadorsalas-import-test.json"))
 
 from app import create_app
-from app.services.gemini_schedule import FALLBACK_GEMINI_MODEL, GeminiScheduleError, PROMPT, SCHEDULE_SCHEMA, _normalize_classes, _review_ambiguous_days, _same_course_except_final_number, extract_schedule_from_image
+from app.services.schedule import STANDARD_BLOCKS
+from app.services.gemini_schedule import (
+    GeminiScheduleError,
+    _measure_card_block_count,
+    _normalize_classes,
+    _prepare_schedule_image,
+    _remove_horizontal_time_indicator,
+    _review_ambiguous_days,
+    extract_schedule_from_image,
+)
 
 
 class GeminiScheduleServiceTest(unittest.TestCase):
-    def test_prompt_and_schema_require_real_rooms_and_numeric_sections(self):
-        fields = SCHEDULE_SCHEMA["properties"]["classes"]["items"]["properties"]
-        self.assertIn("Solo el número", fields["section"]["description"])
-        self.assertIn("Nunca inventes valores", fields["room"]["description"])
-        self.assertIn("block_count", fields)
-        self.assertIn("block_count", SCHEDULE_SCHEMA["properties"]["classes"]["items"]["required"])
-        self.assertIn('deja el campo vacío', PROMPT)
-        self.assertIn('"SALA NO"', PROMPT)
-        self.assertIn('"obligatoria"', PROMPT)
-        self.assertIn("no exijas líneas de cuadrícula perfectas", PROMPT)
-        self.assertIn("La altura del texto envuelto no significa que dure más", PROMPT)
-        self.assertIn("aunque el viernes esté vacío, una tarjeta bajo jueves sigue siendo jueves", PROMPT)
-        self.assertIn('"Cálculo II" no es "Cálculo III"', PROMPT)
-
-    def test_only_corrects_a_confident_final_course_number_difference(self):
-        self.assertTrue(_same_course_except_final_number("Cálculo III", "Calculo II"))
-        self.assertTrue(_same_course_except_final_number("Matemática 2", "Matemática 3"))
-        self.assertFalse(_same_course_except_final_number("Proyecto TIC", "Proyecto II"))
-        self.assertFalse(_same_course_except_final_number("Cálculo II", "Cálculo diferencial II"))
-
-    @patch("app.services.gemini_schedule._request_model")
-    def test_review_corrects_shifted_weekday_and_roman_numeral_only_with_clear_evidence(self, request_model):
-        raw_classes = [{
-            "day": 5, "start": "10:00", "end": "11:20", "block_count": 1,
-            "course": "Cálculo III", "kind": "Cátedra", "room": "E201",
-        }]
-        reviewed_entry = {
-            "id": 0, "column_header": "Jueves", "day_confidence": 0.99,
-            "course_text": "Cálculo II", "course_confidence": 0.99,
-            "box_2d": [100, 100, 250, 300],
-        }
-        request_model.return_value = Mock(ok=True, status_code=200, json=lambda: {
-            "candidates": [{"content": {"parts": [{"text": json.dumps([reviewed_entry])}]}}]
-        })
-
-        reviewed = _review_ambiguous_days(
-            raw_classes, b"image-bytes", "image/jpeg", "private-test-key",
-            FALLBACK_GEMINI_MODEL, 500, 650, b"",
-        )
-
-        self.assertEqual(reviewed[0]["day"], 4)
-        self.assertEqual(reviewed[0]["course"], "Cálculo II")
-        self.assertEqual(reviewed[0]["start"], "10:00")
-
-    @patch("app.services.gemini_schedule._request_model")
-    def test_review_does_not_change_day_or_course_when_evidence_is_uncertain(self, request_model):
-        raw_classes = [{
-            "day": 5, "start": "10:00", "end": "11:20", "course": "Cálculo III",
-        }]
-        reviewed_entry = {
-            "id": 0, "column_header": "Jueves", "day_confidence": 0.7,
-            "course_text": "Cálculo II", "course_confidence": 0.7,
-        }
-        request_model.return_value = Mock(ok=True, status_code=200, json=lambda: {
-            "candidates": [{"content": {"parts": [{"text": json.dumps([reviewed_entry])}]}}]
-        })
-
-        reviewed = _review_ambiguous_days(
-            raw_classes, b"image-bytes", "image/jpeg", "private-test-key",
-            FALLBACK_GEMINI_MODEL, 500, 650, b"",
-        )
-
-        self.assertEqual(reviewed, raw_classes)
-
-    @patch("app.services.gemini_schedule._prepare_schedule_image", return_value=(b"jpeg", "image/jpeg", 500, 650, b""))
-    @patch("app.services.gemini_schedule._request_model")
-    def test_import_corrects_day_and_final_roman_numeral_from_clear_column_evidence(self, request_model, _prepare_image):
-        extraction = Mock(ok=True, status_code=200, json=lambda: {
-            "candidates": [{"content": {"parts": [{"text": json.dumps({"classes": [{
-                "day": 5, "start": "10:00", "end": "11:20", "block_count": 1,
-                "course": "Cálculo III", "section": "", "professor": "", "room": "", "kind": "Cátedra", "confidence": 0.99,
-            }]})}]}}]
-        })
-        day_and_course_review = Mock(ok=True, status_code=200, json=lambda: {
-            "candidates": [{"content": {"parts": [{"text": json.dumps([{
-                "id": 0, "column_header": "Jueves", "day_confidence": 0.99,
-                "course_text": "Cálculo II", "course_confidence": 0.99,
-                "box_2d": [100, 100, 250, 300],
-            }])}]}}]
-        })
-        request_model.side_effect = [extraction, day_and_course_review]
-
-        classes = extract_schedule_from_image(
-            b"image-bytes", "image/png", "private-test-key", FALLBACK_GEMINI_MODEL,
-        )
-
-        self.assertEqual(classes[0]["dia"], 4)
-        self.assertEqual(classes[0]["diaNombre"], "Jueves")
-        self.assertEqual(classes[0]["curso"], "Cálculo II")
-
-    @patch("app.services.gemini_schedule._prepare_schedule_image", return_value=(b"jpeg", "image/jpeg", 500, 650, b""))
-    @patch("app.services.gemini_schedule._request_model")
-    def test_confident_standard_class_uses_one_gemini_request(self, request_model, _prepare_image):
-        request_model.return_value = Mock(ok=True, status_code=200, json=lambda: {
-            "candidates": [{"content": {"parts": [{"text": json.dumps({"classes": [{
-                "day": 1, "start": "08:30", "end": "09:50", "block_count": 1,
-                "course": "Cálculo", "section": "", "professor": "", "room": "",
-                "kind": "Cátedra", "confidence": 0.98,
-            }]})}]}}]
-        })
-
-        classes = extract_schedule_from_image(b"image", "image/jpeg", "private-test-key")
-
-        self.assertEqual(len(classes), 1)
-        request_model.assert_called_once()
-        self.assertEqual(request_model.call_args.kwargs["timeout"], (4, 12))
-
-    @patch("app.services.gemini_schedule._request_model")
-    def test_custom_layout_without_measurable_row_scale_keeps_gemini_times(self, request_model):
-        classes = [
-            {"day": 2, "start": "08:30", "end": "09:50", "course": "Cálculo"},
-            {"day": 2, "start": "10:00", "end": "12:50", "course": "Climate Futures"},
-        ]
-        request_model.return_value = Mock(ok=True, status_code=200, json=lambda: {
-            "candidates": [{"content": {"parts": [{"text": json.dumps([
-                {"id": 0, "box_2d": [100, 100, 250, 300]},
-                {"id": 1, "box_2d": [300, 100, 500, 300]},
-            ])}]}}]
-        })
-
-        reviewed = _review_ambiguous_days(
-            classes, b"image-bytes", "image/jpeg", "private-test-key",
-            "gemini-3.5-flash-lite", 500, 650, b"",
-        )
-
-        self.assertEqual(reviewed, classes)
-        self.assertEqual(reviewed[1]["end"], "12:50")
-        request_model.assert_called_once()
-
-    def test_explicit_two_block_card_uses_fixed_schedule_end(self):
-        classes = _normalize_classes([{
-            "day": 2, "start": "10:00", "end": "11:20", "block_count": 2,
-            "course": "Climate Futures", "kind": "Cátedra", "confidence": 0.9,
-        }])
-
-        self.assertEqual(classes[0]["horaInicio"], "10:00")
-        self.assertEqual(classes[0]["horaFin"], "12:50")
-        self.assertEqual(classes[0]["bloques"], 2)
-
-    @patch("app.services.gemini_schedule._request_model", side_effect=GeminiScheduleError("geometry unavailable", 503))
-    def test_visual_duration_review_failure_keeps_recognized_classes(self, request_model):
-        classes = [
-            {"day": 2, "start": "10:00", "end": "11:20", "block_count": 2, "course": "Climate Futures"},
-            {"day": 2, "start": "13:00", "end": "14:20", "block_count": 1, "course": "Otra asignatura"},
-        ]
-
-        reviewed = _review_ambiguous_days(
-            classes, b"image-bytes", "image/jpeg", "private-test-key",
-            FALLBACK_GEMINI_MODEL, 500, 650, b"",
-        )
-
-        self.assertEqual(reviewed, classes)
-        request_model.assert_called_once()
-
-    @patch("app.services.gemini_schedule._prepare_schedule_image", return_value=(b"jpeg", "image/jpeg", 500, 650, b""))
-    @patch("app.services.gemini_schedule._request_model")
-    def test_import_succeeds_and_keeps_double_block_when_visual_review_fails(self, request_model, _prepare_image):
-        payload = {"classes": [
-            {"day": 2, "start": "10:00", "end": "11:20", "block_count": 2,
-             "course": "Climate Futures", "section": "", "professor": "", "room": "", "kind": "Cátedra", "confidence": 0.9},
-            {"day": 2, "start": "13:00", "end": "14:20", "block_count": 1,
-             "course": "Otra asignatura", "section": "", "professor": "", "room": "", "kind": "Cátedra", "confidence": 0.9},
-        ]}
-        extracted = Mock(ok=True, status_code=200, json=lambda: {
-            "candidates": [{"content": {"parts": [{"text": json.dumps(payload)}]}}]
-        })
-        request_model.side_effect = [extracted, GeminiScheduleError("geometry unavailable", 503)]
-
-        classes = extract_schedule_from_image(b"image-bytes", "image/png", "private-test-key", FALLBACK_GEMINI_MODEL)
-
-        self.assertEqual(classes[0]["curso"], "Climate Futures")
-        self.assertEqual(classes[0]["horaFin"], "12:50")
-        self.assertEqual(classes[0]["bloques"], 2)
-        self.assertEqual(len(classes), 2)
-
     def test_normalizes_full_class_details_and_sorts_by_time(self):
         classes = _normalize_classes([
             {
@@ -206,58 +40,134 @@ class GeminiScheduleServiceTest(unittest.TestCase):
         self.assertEqual(classes[0]["horaInicio"], "08:30")
         self.assertEqual(classes[0]["sala"], "E-201")
         self.assertEqual(classes[0]["profesor"], "PROF. ROJAS")
-        self.assertEqual(classes[0]["seccion"], "Sección 1")
+        self.assertEqual(classes[0]["seccion"], "1")
         self.assertEqual(classes[0]["confianza"], 0)
         self.assertEqual(classes[1]["curso"], "Álgebra")
 
-    def test_removes_class_type_labels_from_course_and_keeps_type_separate(self):
+    def test_strips_class_type_from_title_and_normalizes_course_name(self):
         classes = _normalize_classes([
             {
                 "day": 1, "start": "08:30", "end": "09:50",
-                "course": "Bioética y Sociedad Actual - Ayudantia Obligatoria",
-                "kind": "Ayudantía Obligatoria", "confidence": 0.9,
+                "course": "Cátedra de Historia del Arte", "kind": "", "confidence": 0.9,
             },
             {
                 "day": 1, "start": "10:00", "end": "11:20",
-                "course": "Laboratorio de Física", "kind": "Laboratorio", "confidence": 0.9,
+                "course": "Laboratorio de Física", "kind": "", "confidence": 0.9,
             },
             {
                 "day": 1, "start": "11:30", "end": "12:50",
-                "course": "Ayudantía Obligatoria - Taller de Robótica", "kind": "", "confidence": 0.9,
+                "course": "Bioética y Sociedad Actual - Ayudantía Obligatoria", "kind": "", "confidence": 0.9,
+            },
+            {
+                "day": 1, "start": "13:00", "end": "14:20",
+                "course": "Evaluación de Proyectos TIC - Laboratorio", "kind": "Laboratorio", "confidence": 0.9,
             },
         ])
 
         self.assertEqual([item["curso"] for item in classes], [
-            "Bioética y Sociedad Actual", "Física", "Taller de Robótica",
+            "Historia del Arte", "Física", "Bioética y Sociedad Actual", "Evaluación de Proyectos TIC",
         ])
         self.assertEqual([item["tipo"] for item in classes], [
-            "Ayudantía", "Laboratorio", "Ayudantía",
+            "Cátedra", "Laboratorio", "Ayudantía", "Laboratorio",
         ])
+
+    def test_keeps_taller_as_course_title_and_strips_ayudantia_de_prefix(self):
+        classes = _normalize_classes([
+            {
+                "day": 1, "start": "08:30", "end": "09:50",
+                "course": "Taller de Redes y Servicios", "kind": "Taller", "confidence": 0.9,
+            },
+            {
+                "day": 1, "start": "10:00", "end": "11:20",
+                "course": "Ayudantía de Redes y Servicios", "kind": "Ayudantía", "confidence": 0.9,
+            },
+        ])
+
+        self.assertEqual(classes[0]["curso"], "Taller de Redes y Servicios")
+        self.assertNotEqual(classes[0]["tipo"], "Taller")
+        self.assertEqual(classes[1]["curso"], "Redes y Servicios")
+        self.assertEqual(classes[1]["tipo"], "Ayudantía")
+
+    def test_normalizes_imported_teacher_names_to_uppercase(self):
+        classes = _normalize_classes([{
+            "day": 1, "start": "08:30", "end": "09:50", "course": "Cálculo",
+            "professor": "Dra. Pérez González", "confidence": 0.9,
+        }])
+
+        self.assertEqual(classes[0]["profesor"], "DRA. PÉREZ GONZÁLEZ")
+
+    def test_preserves_full_time_range_for_a_class_spanning_two_blocks(self):
+        classes = _normalize_classes([{
+            "day": 2, "start": "10:00", "end": "12:50", "block_count": 2, "course": "Climate Futures",
+            "confidence": 0.95,
+        }])
+
+        self.assertEqual(len(classes), 1)
+        self.assertEqual(classes[0]["horaInicio"], "10:00")
+        self.assertEqual(classes[0]["horaFin"], "12:50")
+        self.assertEqual(classes[0]["bloques"], 2)
+
+    def test_uses_visual_block_count_when_ocr_reads_the_next_row_boundary(self):
+        classes = _normalize_classes([{
+            "day": 2, "start": "10:00", "end": "11:30", "block_count": 2,
+            "course": "Climate Futures", "confidence": 0.95,
+        }])
+
+        self.assertEqual(classes[0]["horaInicio"], "10:00")
+        self.assertEqual(classes[0]["horaFin"], "12:50")
+        self.assertEqual(classes[0]["bloques"], 2)
+
+    def test_does_not_extend_class_when_end_is_next_block_start(self):
+        classes = _normalize_classes([{
+            "day": 2, "start": "10:00", "end": "11:30", "block_count": 1,
+            "course": "Climate Futures", "confidence": 0.95,
+        }])
+
+        self.assertEqual(classes[0]["horaFin"], "11:30")
+        self.assertNotIn("bloques", classes[0])
+
+    def test_ignores_unconfirmed_model_block_count_for_normal_classes(self):
+        classes = _normalize_classes([
+            {"day": 1, "start": "08:30", "end": "09:50", "block_count": 2, "course": "Cálculo"},
+            {"day": 1, "start": "10:00", "end": "11:20", "block_count": 2, "course": "Física"},
+        ])
+
+        self.assertEqual(len(classes), 2)
+        self.assertTrue(all("bloques" not in item for item in classes))
+
+    def test_rejects_two_classes_occupying_the_same_block(self):
+        with self.assertRaisesRegex(GeminiScheduleError, "más de una clase en un mismo bloque"):
+            _normalize_classes([
+                {"day": 2, "start": "10:00", "end": "12:50", "block_count": 2, "course": "Climate Futures"},
+                {"day": 2, "start": "11:30", "end": "12:50", "course": "Otra clase"},
+            ])
+
+    def test_rejects_false_double_block_when_it_collides_with_next_normal_class(self):
+        with self.assertRaisesRegex(GeminiScheduleError, "más de una clase en un mismo bloque"):
+            _normalize_classes([
+                {"day": 1, "start": "08:30", "end": "10:00", "block_count": 2, "course": "Cálculo"},
+                {"day": 1, "start": "10:00", "end": "11:20", "block_count": 1, "course": "Física"},
+            ])
+
+    def test_study_is_not_a_class_type_or_removed_from_course_name(self):
+        classes = _normalize_classes([
+            {
+                "day": 1, "start": "08:30", "end": "09:50",
+                "course": "Estudio de Mercado", "kind": "Estudio", "confidence": 0.9,
+            },
+        ])
+
+        self.assertEqual(classes[0]["curso"], "Estudio de Mercado")
+        self.assertEqual(classes[0]["tipo"], "Cátedra")
 
     def test_rejects_unusable_model_output(self):
         with self.assertRaises(GeminiScheduleError):
             _normalize_classes([{"day": 6, "start": "08:30", "end": "09:30", "course": "Física"}])
 
-    def test_missing_or_undefined_room_is_normalized_to_dash(self):
-        base = {"day": 1, "start": "08:30", "end": "09:50", "course": "Cálculo"}
-        for room in ("", "NO", "SALA NO", "SALA NO DEFINIDA", "Sala no definida.", "SALA NO ASIGNADA", "NO DEFINIDA", "Sin sala", "BLOQUE", "Bloque 1", "BLOQUE A", "AULA"):
-            with self.subTest(room=room):
-                classes = _normalize_classes([{**base, "room": room}])
-                self.assertEqual(classes[0]["sala"], "-")
-        labeled_room = _normalize_classes([{**base, "room": "BLOQUE E441.2.S201"}])
-        self.assertEqual(labeled_room[0]["sala"], "E441.2.S201")
-
-    def test_sections_are_labeled_and_s4_is_expanded(self):
-        base = {"day": 1, "start": "08:30", "end": "09:50", "course": "Cálculo"}
-        for section, expected in (("S4", "Sección 4"), ("Sec. 2", "Sección 2"), ("4", "Sección 4"), (4, "Sección 4"), ("Sección: 04", "Sección 4"), ("", "Sección -"), ("OBLIGATORIA", "Sección -"), ("Sección OBLIGATORIA", "Sección -"), ("Obligatoria 2", "Sección -"), ("No visible", "Sección -")):
-            with self.subTest(section=section):
-                classes = _normalize_classes([{**base, "section": section}])
-                self.assertEqual(classes[0]["seccion"], expected)
-
-    @patch("app.services.gemini_schedule._prepare_schedule_image", return_value=(b"prepared-image", "image/jpeg", 500, 650, b""))
-    @patch("app.services.gemini_schedule._review_ambiguous_days")
+    @patch("app.services.gemini_schedule._review_ambiguous_days", side_effect=lambda classes, *_args: classes)
+    @patch("app.services.gemini_schedule._prepare_schedule_image", return_value=(b"prepared-image", "image/png", 4, 4, bytes([255, 255, 255]) * 16))
     @patch("app.services.gemini_schedule.requests.post")
-    def test_sends_inline_image_and_parses_gemini_response(self, post, review, _prepare_image):
+    def test_sends_inline_image_and_parses_gemini_response(self, post, _prepare, _review):
         post.return_value = Mock(
             ok=True,
             status_code=200,
@@ -266,7 +176,6 @@ class GeminiScheduleServiceTest(unittest.TestCase):
                 "section": "A", "professor": "Docente", "room": "E-310", "kind": "Laboratorio", "confidence": 0.8,
             }]})}]}}]},
         )
-        review.side_effect = lambda raw_classes, *_args: raw_classes
         result = extract_schedule_from_image(b"image-bytes", "image/png", "do-not-log-key", "gemini-2.5-flash")
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]["curso"], "Programación")
@@ -274,20 +183,133 @@ class GeminiScheduleServiceTest(unittest.TestCase):
         args, kwargs = post.call_args_list[0]
         self.assertTrue(args[0].endswith("/gemini-2.5-flash:generateContent"))
         self.assertEqual(kwargs["headers"]["x-goog-api-key"], "do-not-log-key")
-        self.assertEqual(kwargs["json"]["contents"][0]["parts"][1]["inline_data"]["mime_type"], "image/jpeg")
-        self.assertEqual(kwargs["json"]["contents"][0]["parts"][1]["inline_data"]["data"], "cHJlcGFyZWQtaW1hZ2U=")
+        self.assertEqual(kwargs["json"]["contents"][0]["parts"][1]["inline_data"]["mime_type"], "image/png")
         prompt = kwargs["json"]["contents"][0]["parts"][0]["text"]
-        self.assertIn('etiquetas genéricas como "BLOQUE"', prompt)
-        self.assertIn("Ayudantía Obligatoria", prompt)
-        self.assertIn("No consultes ni dependas de una malla curricular", prompt)
-        self.assertIn('si en la imagen aparece "S4", devuelve "Sección 4"', prompt)
-        self.assertIn('devuelve exactamente "Sección -"', prompt)
+        response_schema = kwargs["json"]["generationConfig"]["responseSchema"]
+        self.assertIn('escribe solo el nombre del ramo', prompt)
+        self.assertIn('“Taller” puede ser parte del nombre del ramo', prompt)
+        self.assertIn('elimina “Ayudantía de” del título', prompt)
+        self.assertIn("profesor en mayúsculas", prompt)
+        self.assertNotIn("block_count", response_schema["properties"]["classes"]["items"]["properties"])
+        self.assertNotIn("construye internamente una tabla", prompt)
+        self.assertIn("Ignora elementos visuales superpuestos, como líneas de color", prompt)
+        self.assertIn("Incluye también una tarjeta parcialmente cortada por el borde de la imagen", prompt)
+        self.assertNotIn("línea morada", prompt)
+        self.assertNotIn("Nunca asignes dos clases distintas", prompt)
+        self.assertNotIn("MALLA_ICIT", prompt)
 
-    @patch("app.services.gemini_schedule._prepare_schedule_image", return_value=(b"prepared-image", "image/jpeg", 500, 650, b""))
-    @patch("app.services.gemini_schedule._review_ambiguous_days")
+    @patch("app.services.gemini_schedule._request_model")
+    def test_measures_tall_cards_and_keeps_normal_wrapped_cards_single(self, request_model):
+        block_entries = [block for block in STANDARD_BLOCKS if not str(block.get("id", "")).endswith("_S")]
+        candidates = [
+            {"day": 1, "start": "14:30", "end": "16:00", "course": "Arquitectura y Organización de Computadores", "block_count": 1},
+            {"day": 2, "start": "10:00", "end": "11:30", "course": "Climate Futures: Science, Technology", "block_count": 1},
+            {"day": 2, "start": "13:00", "end": "14:30", "course": "Inteligencia Artificial", "block_count": 1},
+            {"day": 3, "start": "14:30", "end": "16:00", "course": "Arquitectura y Organización de Computadores", "block_count": 1},
+            {"day": 4, "start": "14:30", "end": "16:00", "course": "Arquitectura y Organización de Computadores", "block_count": 1},
+            {"day": 5, "start": "13:00", "end": "14:30", "course": "Inteligencia Artificial", "block_count": 1},
+        ]
+        width, height, pitch = 500, 650, 70
+        pixels = bytearray([255, 255, 255] * width * height)
+        boxes = []
+        for index, item in enumerate(candidates):
+            day = item["day"]
+            start_index = next(i for i, block in enumerate(block_entries) if block["start"][:5] == item["start"])
+            top = 25 + start_index * pitch
+            left = day * 80 + 10
+            right = left + 55
+            card_height = 126 if item["course"].startswith("Climate") else 58
+            for y in range(top, top + card_height):
+                for x in range(left, right):
+                    offset = (y * width + x) * 3
+                    pixels[offset:offset + 3] = bytes((200, 250, 238))
+            boxes.append({"id": index, "box_2d": [
+                round(top * 1000 / height), round(left * 1000 / width),
+                round((top + 58) * 1000 / height), round(right * 1000 / width),
+            ]})
+
+        request_model.return_value = Mock(ok=True, status_code=200, json=lambda: {
+            "candidates": [{"content": {"parts": [{"text": json.dumps(boxes)}]}}]
+        })
+        reviewed = _review_ambiguous_days(candidates, b"image-bytes", "image/jpeg", "private-test-key", "gemini-3.5-flash-lite", width, height, bytes(pixels))
+
+        self.assertEqual(request_model.call_count, 1)
+        self.assertIn("box_2d=[y_min,x_min,y_max,x_max]", request_model.call_args.args[0]["contents"][0]["parts"][0]["text"])
+        climate = next(item for item in reviewed if item["course"].startswith("Climate"))
+        friday_ai = next(item for item in reviewed if item["day"] == 5)
+        self.assertEqual((climate["end"], climate["block_count"]), ("12:50", 2))
+        self.assertEqual((friday_ai["end"], friday_ai["block_count"]), ("14:20", 1))
+        self.assertEqual([item["block_count"] for item in reviewed if item["course"].startswith("Arquitectura")], [1, 1, 1])
+
+    @patch("app.services.gemini_schedule._request_model")
+    def test_custom_layout_without_measurable_row_scale_keeps_gemini_times(self, request_model):
+        classes = [{
+            "day": 2, "start": "10:00", "end": "12:50", "course": "Climate Futures",
+            "section": "", "professor": "", "room": "", "kind": "Cátedra", "confidence": 0.9,
+        }]
+        request_model.return_value = Mock(ok=True, status_code=200, json=lambda: {
+            "candidates": [{"content": {"parts": [{"text": json.dumps([
+                {"id": 0, "box_2d": [100, 100, 300, 300]},
+            ])}]}}]
+        })
+
+        reviewed = _review_ambiguous_days(
+            classes, b"image-bytes", "image/jpeg", "private-test-key",
+            "gemini-3.5-flash-lite", 500, 650, b"",
+        )
+
+        self.assertEqual(reviewed, classes)
+        self.assertEqual(reviewed[0]["end"], "12:50")
+
+    def test_removes_only_a_long_horizontal_purple_indicator(self):
+        width, height = 120, 60
+        pixels = bytearray([245, 245, 245] * width * height)
+        for x in range(10, 110):
+            offset = (30 * width + x) * 3
+            pixels[offset:offset + 3] = bytes((105, 15, 115))
+
+        cleaned, removed = _remove_horizontal_time_indicator(bytes(pixels), width, height)
+
+        self.assertTrue(removed)
+        self.assertEqual(cleaned[(30 * width + 50) * 3:(30 * width + 50) * 3 + 3], bytes((245, 245, 245)))
+
+    @unittest.skipUnless(shutil.which("convert"), "ImageMagick is installed by setup_server.sh")
+    def test_prepares_image_and_removes_time_indicator_before_gemini(self):
+        width, height = 120, 80
+        pixels = bytearray([245, 245, 245] * width * height)
+        for x in range(10, 110):
+            offset = (35 * width + x) * 3
+            pixels[offset:offset + 3] = bytes((105, 15, 115))
+        ppm = f"P6\n{width} {height}\n255\n".encode("ascii") + bytes(pixels)
+
+        prepared, mime, decoded_width, decoded_height, decoded_pixels = _prepare_schedule_image(ppm)
+
+        self.assertEqual((mime, decoded_width, decoded_height), ("image/jpeg", width, height))
+        self.assertTrue(prepared.startswith(b"\xff\xd8\xff"))
+        center = (35 * width + 50) * 3
+        self.assertGreater(min(decoded_pixels[center:center + 3]), 200)
+
+    def test_measures_card_height_from_background_even_when_text_is_wrapped(self):
+        width, height, top, left, right = 100, 200, 20, 20, 80
+        pixels = bytearray([255, 255, 255] * width * height)
+        for y in range(top, top + 120):
+            for x in range(left, right):
+                offset = (y * width + x) * 3
+                pixels[offset:offset + 3] = bytes((200, 250, 238))
+        for y in (top + 10, top + 24, top + 38):
+            for x in range(left, left + 35):
+                offset = (y * width + x) * 3
+                pixels[offset:offset + 3] = bytes((20, 40, 35))
+
+        count = _measure_card_block_count(bytes(pixels), width, height, [100, 100, 390, 900], 70)
+
+        self.assertEqual(count, 2)
+
+    @patch("app.services.gemini_schedule._review_ambiguous_days", side_effect=lambda classes, *_args: classes)
+    @patch("app.services.gemini_schedule._prepare_schedule_image", return_value=(b"prepared-image", "image/png", 4, 4, bytes([255, 255, 255]) * 16))
     @patch("app.services.gemini_schedule.time.sleep")
     @patch("app.services.gemini_schedule.requests.post")
-    def test_retries_temporary_gemini_unavailability(self, post, _sleep, review, _prepare_image):
+    def test_retries_temporary_gemini_unavailability(self, post, _sleep, _prepare, _review):
         unavailable = Mock(ok=False, status_code=503, headers={})
         success_payload = {"classes": [{
             "day": 1, "start": "08:30", "end": "09:50", "course": "Cálculo",
@@ -296,18 +318,17 @@ class GeminiScheduleServiceTest(unittest.TestCase):
         success = Mock(ok=True, status_code=200, json=lambda: {
             "candidates": [{"content": {"parts": [{"text": json.dumps(success_payload)}]}}]
         })
-        post.side_effect = [unavailable, unavailable, success]
-        review.side_effect = lambda raw_classes, *_args: raw_classes
+        post.side_effect = [unavailable, unavailable, success, success]
         result = extract_schedule_from_image(b"image-bytes", "image/png", "private-test-key")
         self.assertEqual(len(result), 1)
         self.assertEqual(post.call_count, 3)
         self.assertIn("gemini-3.5-flash-lite", post.call_args_list[0].args[0])
 
-    @patch("app.services.gemini_schedule._prepare_schedule_image", return_value=(b"prepared-image", "image/jpeg", 500, 650, b""))
-    @patch("app.services.gemini_schedule._review_ambiguous_days")
+    @patch("app.services.gemini_schedule._review_ambiguous_days", side_effect=lambda classes, *_args: classes)
+    @patch("app.services.gemini_schedule._prepare_schedule_image", return_value=(b"prepared-image", "image/png", 4, 4, bytes([255, 255, 255]) * 16))
     @patch("app.services.gemini_schedule.time.sleep")
     @patch("app.services.gemini_schedule.requests.post")
-    def test_falls_back_to_flash_after_flash_lite_stays_overloaded(self, post, _sleep, review, _prepare_image):
+    def test_falls_back_to_flash_after_flash_lite_stays_overloaded(self, post, _sleep, _prepare, _review):
         unavailable = Mock(ok=False, status_code=503, headers={})
         success_payload = {"classes": [{
             "day": 1, "start": "08:30", "end": "09:50", "course": "Cálculo",
@@ -316,12 +337,11 @@ class GeminiScheduleServiceTest(unittest.TestCase):
         success = Mock(ok=True, status_code=200, json=lambda: {
             "candidates": [{"content": {"parts": [{"text": json.dumps(success_payload)}]}}]
         })
-        post.side_effect = [unavailable, unavailable, success]
-        review.side_effect = lambda raw_classes, *_args: raw_classes
+        post.side_effect = [unavailable, unavailable, unavailable, success, success]
         result = extract_schedule_from_image(b"image-bytes", "image/png", "private-test-key")
         self.assertEqual(len(result), 1)
-        self.assertIn("gemini-3.5-flash", post.call_args.args[0])
-        self.assertEqual(post.call_count, 3)
+        self.assertIn("gemini-3.5-flash", post.call_args_list[3].args[0])
+        self.assertEqual(post.call_count, 4)
 
 
 class ScheduleImportEndpointTest(unittest.TestCase):
@@ -391,13 +411,16 @@ class ScheduleImportEndpointTest(unittest.TestCase):
             "curso": "Introduccion   a la economia", "dia": 2, "horaInicio": "11:30", "horaFin": "12:50",
             "bloqueNum": 3, "seccion": "S1", "sala": "", "profesor": "",
         }
+
         response = self.client.post("/api/sync_horario", json={"clases": [original]})
+
         self.assertEqual(response.status_code, 200)
         matched = response.get_json()[0]
-        self.assertEqual(matched["curso"], "Introducción a la Economía")
+        self.assertEqual(matched["curso"], "Introduccion   a la economia")
+        self.assertNotIn("cursoDisplay", matched)
         self.assertEqual(matched["sala"], "E441.2.S201")
         self.assertEqual(matched["profesor"], "CALCAGNO JAIME ALBERTO")
-        self.assertEqual(matched["seccion"], "Sección 1")
+        self.assertEqual(matched["seccion"], "S1", "a section explicitly entered by the user should be preserved")
         get_classes.assert_called_once()
 
     @patch("app.blueprints.academic_api.dm.get_classes")
@@ -416,9 +439,11 @@ class ScheduleImportEndpointTest(unittest.TestCase):
             "curso": "Introduccion a la economia", "dia": 2, "horaInicio": "11:30", "horaFin": "12:50",
             "bloqueNum": 3, "seccion": "", "sala": "Sala ingresada", "profesor": "Docente ingresado",
         }
+
         response = self.client.post("/api/sync_horario", json={"clases": [original]})
+
         self.assertEqual(response.status_code, 200)
-        expected = dict(original, profesor="")
+        expected = {**original, "profesor": ""}
         self.assertEqual(response.get_json(), [expected])
         get_classes.assert_called_once()
 
@@ -436,8 +461,141 @@ class ScheduleImportEndpointTest(unittest.TestCase):
         response = self.client.post("/api/sync_horario", json={"clases": [original]})
 
         self.assertEqual(response.status_code, 200)
-        expected = dict(original, profesor="")
+        expected = {**original, "profesor": ""}
         self.assertEqual(response.get_json(), [expected])
+        get_classes.assert_called_once()
+
+    @patch("app.blueprints.academic_api.dm.get_classes")
+    def test_schedule_sync_never_replaces_saved_details_with_empty_json_values(self, get_classes):
+        get_classes.return_value = [{"node": {
+            "course": "MECÁNICA", "day": 5, "start": "11:30:00", "finish": "12:50:00",
+            "place": "E441.4.S401", "teacher": "", "section": 13, "code": "CBF1100",
+        }}]
+        original = {
+            "curso": "Mecánica", "dia": 5, "horaInicio": "11:30", "horaFin": "12:50",
+            "bloqueNum": 3, "seccion": "Sección 13", "sala": "E441.4.S401", "profesor": "Docente guardado",
+        }
+
+        response = self.client.post("/api/sync_horario", json={"clases": [original]})
+
+        self.assertEqual(response.status_code, 200)
+        matched = response.get_json()[0]
+        self.assertEqual(matched["sala"], "E441.4.S401")
+        self.assertEqual(matched["seccion"], "Sección 13")
+        self.assertEqual(matched["profesor"], "")
+        get_classes.assert_called_once()
+
+    @patch("app.blueprints.academic_api.dm.get_classes")
+    def test_schedule_sync_preserves_user_entered_details_when_unique_candidate_matches(self, get_classes):
+        get_classes.return_value = [{"node": {
+            "course": "TECNOLOGÍAS INALÁMBRICAS", "day": 1, "start": "11:30:00", "finish": "12:50:00",
+            "place": "E441.2.S205", "teacher": "DOCENTE OFICIAL", "section": 4, "code": "CIT0001",
+        }}]
+        original = {
+            "curso": "Tecnologias inAlambricas", "dia": 1, "horaInicio": "11:30", "horaFin": "12:50",
+            "bloqueNum": 3, "seccion": "Sección 8", "sala": "Sala elegida", "profesor": "Mi profesor",
+        }
+
+        response = self.client.post("/api/sync_horario", json={"clases": [original]})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()[0], {**original, "profesor": ""})
+        get_classes.assert_called_once()
+
+    @patch("app.blueprints.academic_api.dm.get_classes")
+    def test_schedule_sync_corrects_a_fuzzy_teacher_name_from_selector_candidates(self, get_classes):
+        get_classes.return_value = [
+            {"node": {
+                "course": "CÁLCULO DIFERENCIAL", "day": 1, "start": "08:30:00", "finish": "09:50:00",
+                "place": "E441.1.S101", "teacher": "PÉREZ GONZÁLEZ ANA MARÍA", "section": 1, "code": "MAT1001",
+            }},
+            {"node": {
+                "course": "CÁLCULO DIFERENCIAL", "day": 1, "start": "08:30:00", "finish": "09:50:00",
+                "place": "E441.1.S102", "teacher": "ROJAS CONTRERAS JUAN PABLO", "section": 2, "code": "MAT1001",
+            }},
+        ]
+        imported = {
+            "curso": "Cálculo Diferencial", "dia": 1, "horaInicio": "08:30", "horaFin": "09:50",
+            "bloqueNum": 1, "seccion": "", "sala": "", "profesor": "PEREZ GONZALES ANA MARIA",
+        }
+
+        response = self.client.post("/api/sync_horario", json={"clases": [imported]})
+
+        self.assertEqual(response.status_code, 200)
+        corrected = response.get_json()[0]
+        self.assertEqual(corrected["profesor"], "PÉREZ GONZÁLEZ ANA MARÍA")
+        self.assertEqual(corrected["seccion"], "Sección 1")
+        self.assertEqual(corrected["sala"], "E441.1.S101")
+
+    @patch("app.blueprints.academic_api.dm.get_classes")
+    def test_schedule_sync_reconciles_old_lowercase_teachers_and_clears_unknown_names(self, get_classes):
+        get_classes.return_value = [{"node": {
+            "course": "MECÁNICA", "day": 1, "start": "10:00:00", "finish": "11:20:00",
+            "place": "V432.3.S314", "teacher": "ARANCIBIA KARINA ANDREA", "section": 1, "code": "FIS1001",
+        }}]
+        classes = [
+            {
+                "id": "known", "curso": "Mecánica", "dia": 1, "horaInicio": "10:00", "horaFin": "11:20",
+                "bloqueNum": 2, "seccion": "1", "sala": "", "profesor": "Karina Arancibia",
+            },
+            {
+                "id": "unknown", "curso": "Curso antiguo", "dia": 1, "horaInicio": "13:00", "horaFin": "14:20",
+                "bloqueNum": 4, "seccion": "", "sala": "", "profesor": "profesor que no existe",
+            },
+        ]
+
+        response = self.client.post("/api/sync_horario", json={"clases": classes})
+
+        self.assertEqual(response.status_code, 200)
+        synced = response.get_json()
+        self.assertEqual(synced[0]["profesor"], "ARANCIBIA KARINA ANDREA")
+        self.assertEqual(synced[0]["sala"], "V432.3.S314")
+        self.assertEqual(synced[1]["profesor"], "")
+
+    @patch("app.services.schedule.dm.get_classes")
+    def test_professor_selector_search_uses_fuzzy_official_name_candidates(self, get_classes):
+        get_classes.return_value = [{"node": {
+            "course": "CÁLCULO DIFERENCIAL", "day": 1, "start": "08:30:00", "finish": "09:50:00",
+            "place": "E441.1.S101", "teacher": "PÉREZ GONZÁLEZ ANA MARÍA", "section": 1, "code": "MAT1001",
+        }}]
+
+        from app.services.schedule import buscar_profesor
+        results = buscar_profesor("PEREZ GONZALES ANA MARIA")
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["profe"], "PÉREZ GONZÁLEZ ANA MARÍA")
+
+    def test_teacher_distance_ignores_name_order_and_matches_small_spelling_errors(self):
+        from app.services.schedule import distancia_nombre_profesor, mejor_coincidencia_profesor
+
+        official = [{"node": {"teacher": "CALCAGNO JAIME ALBERTO"}}]
+        self.assertEqual(distancia_nombre_profesor("Jaime Calcaño", "CALCAGNO JAIME ALBERTO"), 1)
+        self.assertEqual(mejor_coincidencia_profesor("Jaime Calcaño", official), "CALCAGNO JAIME ALBERTO")
+
+    def test_teacher_match_stays_empty_when_official_candidates_are_tied(self):
+        from app.services.schedule import mejor_coincidencia_profesor
+
+        official = [
+            {"node": {"teacher": "CALCAGNO JAIME ALBERTO"}},
+            {"node": {"teacher": "CALCAGNO JAIME ALEJANDRO"}},
+        ]
+        self.assertEqual(mejor_coincidencia_profesor("Jaime Calcaño", official), "")
+
+    @patch("app.blueprints.academic_api.dm.get_classes")
+    def test_schedule_sync_does_not_fill_from_a_candidate_when_saved_room_does_not_match(self, get_classes):
+        get_classes.return_value = [{"node": {
+            "course": "TECNOLOGÍAS INALÁMBRICAS", "day": 1, "start": "11:30:00", "finish": "12:50:00",
+            "place": "E441.2.S205", "teacher": "DOCENTE OFICIAL", "section": 4, "code": "CIT0001",
+        }}]
+        original = {
+            "curso": "Tecnologias inAlambricas", "dia": 1, "horaInicio": "11:30", "horaFin": "12:50",
+            "bloqueNum": 3, "seccion": "", "sala": "V432.1.S101", "profesor": "",
+        }
+
+        response = self.client.post("/api/sync_horario", json={"clases": [original]})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), [original])
         get_classes.assert_called_once()
 
     @patch("app.blueprints.academic_api.dm.get_classes")
@@ -450,10 +608,13 @@ class ScheduleImportEndpointTest(unittest.TestCase):
             "curso": "Introduccion a la economia", "dia": 2, "horaInicio": "11:30", "horaFin": "12:50",
             "bloqueNum": 3, "seccion": "", "sala": "", "profesor": "",
         }
+
         response = self.client.post("/api/sync_horario", json={"clases": [original]})
+
         self.assertEqual(response.status_code, 200)
         matched = response.get_json()[0]
-        self.assertEqual(matched["curso"], "Introducción a la Economía")
+        self.assertEqual(matched["curso"], "Introduccion a la economia")
+        self.assertNotIn("cursoDisplay", matched)
         self.assertEqual(matched["sala"], "E441.2.S201")
         self.assertEqual(matched["profesor"], "CALCAGNO JAIME ALBERTO")
         self.assertEqual(matched["seccion"], "Sección 1")
@@ -499,11 +660,12 @@ class ScheduleImportEndpointTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         matched = response.get_json()
         self.assertEqual((matched[0]["curso"], matched[0]["seccion"], matched[0]["sala"]),
-                         ("Introducción al Álgebra", "Sección 5", "E306.2.S208"))
+                         ("Intro al Algebra", "Sección 5", "E306.2.S208"))
+        self.assertNotIn("cursoDisplay", matched[0])
         self.assertEqual((matched[1]["curso"], matched[1]["seccion"], matched[1]["sala"]),
-                         ("Introducción al Álgebra", "Sección 3", "E306.1.S101"))
+                         ("Intro al Algebra", "Sección 3", "E306.1.S101"))
         self.assertEqual((matched[2]["seccion"], matched[2]["sala"]), ("Sección 11", "E306.2.S208"))
-        self.assertEqual(matched[3], dict(classes[3], profesor=""))
+        self.assertEqual(matched[3], {**classes[3], "profesor": ""})
         get_classes.assert_called_once()
 
     @patch("app.blueprints.academic_api.dm.get_classes")
@@ -516,66 +678,14 @@ class ScheduleImportEndpointTest(unittest.TestCase):
             "curso": "Arquitectura Emergente", "dia": 3, "horaInicio": "17:25", "horaFin": "18:45",
             "bloqueNum": 7, "seccion": "Sección 2", "sala": "", "profesor": "",
         }
+
         response = self.client.post("/api/sync_horario", json={"clases": [original]})
+
         self.assertEqual(response.status_code, 200)
         matched = response.get_json()[0]
-        self.assertEqual(matched["curso"], "Arquitecturas Emergentes")
+        self.assertEqual(matched["curso"], "Arquitectura Emergente")
+        self.assertNotIn("cursoDisplay", matched)
         self.assertEqual(matched["sala"], "E441.1.S105")
-        get_classes.assert_called_once()
-
-    @patch("app.blueprints.academic_api.dm.get_classes")
-    def test_schedule_sync_matches_architecture_organiz_abbreviation_only_for_that_course(self, get_classes):
-        from app.blueprints.academic_api import _course_name_distance
-
-        full_name = "Arquitectura y Organización de Computadores"
-        official_name = "ARQUITECTURA Y ORGANIZ DE COMPUTADORES"
-        get_classes.return_value = [
-            {"node": {
-                "course": official_name, "day": 3, "start": "13:00:00", "finish": "14:20:00",
-                "place": "E441.2.S201", "teacher": "DOCENTE OFICIAL", "section": 3, "code": "CIT3101",
-            }},
-            {"node": {
-                "course": "ARQUITECTURA Y ORGANIZACIÓN DE SISTEMAS", "day": 3, "start": "13:00:00", "finish": "14:20:00",
-                "place": "E441.2.S205", "teacher": "OTRO DOCENTE", "section": 3, "code": "CIT3999",
-            }},
-        ]
-        original = {
-            "curso": full_name, "dia": 3, "horaInicio": "13:00", "horaFin": "14:20",
-            "bloqueNum": 4, "seccion": "Sección 3", "sala": "", "profesor": "",
-        }
-
-        self.assertEqual(_course_name_distance(full_name, official_name), 0)
-        self.assertIsNone(_course_name_distance(full_name, "ARQUITECTURA Y ORGANIZACIÓN DE SISTEMAS"))
-        response = self.client.post("/api/sync_horario", json={"clases": [original]})
-
-        self.assertEqual(response.status_code, 200)
-        matched = response.get_json()[0]
-        self.assertEqual(matched["curso"], full_name, "matching the JSON abbreviation must preserve the user's full course title")
-        self.assertEqual(matched["sala"], "E441.2.S201")
-        self.assertEqual(matched["profesor"], "DOCENTE OFICIAL")
-        self.assertEqual(matched["seccion"], "Sección 3")
-        get_classes.assert_called_once()
-
-    @patch("app.blueprints.academic_api.dm.get_classes")
-    def test_schedule_sync_does_not_match_a_different_numbered_course_level(self, get_classes):
-        from app.blueprints.academic_api import _course_name_distance
-
-        get_classes.return_value = [{"node": {
-            "course": "CÁLCULO III", "day": 2, "start": "11:30:00", "finish": "12:50:00",
-            "place": "E441.2.S205", "teacher": "DOCENTE DE CÁLCULO III", "section": 3, "code": "CBM1103",
-        }}]
-        original = {
-            "curso": "Cálculo II", "dia": 2, "horaInicio": "11:30", "horaFin": "12:50",
-            "bloqueNum": 3, "seccion": "", "sala": "", "profesor": "",
-        }
-
-        self.assertIsNone(_course_name_distance("Cálculo II", "Cálculo III"))
-        self.assertIsNone(_course_name_distance("Cálculo II", "Cálculo I"))
-        self.assertEqual(_course_name_distance("Cálculo II", "Cálculo 2"), 0)
-        response = self.client.post("/api/sync_horario", json={"clases": [original]})
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.get_json(), [original])
         get_classes.assert_called_once()
 
     @patch("app.blueprints.academic_api.dm.get_classes")
@@ -593,6 +703,7 @@ class ScheduleImportEndpointTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get_json()[0]["curso"], "Evaluación de Proyectos TIC")
+        self.assertNotIn("cursoDisplay", response.get_json()[0])
         get_classes.assert_called_once()
 
     @patch("app.blueprints.academic_api.dm.get_classes")
@@ -606,7 +717,9 @@ class ScheduleImportEndpointTest(unittest.TestCase):
              "seccion": "Sección 2", "sala": "", "profesor": ""}
             for name in ("Arquitectura Emergente", "Arquiteqtura Emerjente", "Arquiqeqtura Emerrjente")
         ]
+
         response = self.client.post("/api/sync_horario", json={"clases": classes})
+
         matched = response.get_json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(matched[0]["sala"], "E441.1.S105")
@@ -624,7 +737,9 @@ class ScheduleImportEndpointTest(unittest.TestCase):
             "curso": "Arquitectura Emergente", "dia": 3, "horaInicio": "17:30", "horaFin": "18:50",
             "bloqueNum": 7, "seccion": "Sección 2", "sala": "", "profesor": "",
         }
+
         response = self.client.post("/api/sync_horario", json={"clases": [legacy_class]})
+
         matched = response.get_json()[0]
         self.assertEqual(response.status_code, 200)
         self.assertEqual(matched["sala"], "E441.1.S105")
@@ -641,26 +756,11 @@ class ScheduleImportEndpointTest(unittest.TestCase):
             "curso": "", "dia": 1, "horaInicio": "16:00", "horaFin": "17:20", "bloqueNum": 6,
             "seccion": "S1", "sala": "", "profesor": "Faivovich Eduardo Jaime",
         }
+
         response = self.client.post("/api/sync_horario", json={"clases": [teacher_only_class]})
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get_json()[0]["sala"], "E441.3.S302")
-
-    @patch("app.blueprints.academic_api.dm.get_classes")
-    def test_schedule_sync_preserves_explicit_empty_section(self, get_classes):
-        get_classes.return_value = [{"node": {
-            "course": "INTRODUCCIÓN A LA ECONOMÍA", "day": 2, "start": "11:30:00", "finish": "12:50:00",
-            "place": "E441.2.S201", "teacher": "CALCAGNO JAIME ALBERTO", "section": 1, "code": "CII2100",
-        }}]
-        original = {
-            "curso": "Introduccion a la economia", "dia": 2, "horaInicio": "11:30", "horaFin": "12:50",
-            "bloqueNum": 3, "seccion": "Sección -", "sala": "", "profesor": "",
-        }
-        response = self.client.post("/api/sync_horario", json={"clases": [original]})
-        self.assertEqual(response.status_code, 200)
-        matched = response.get_json()[0]
-        self.assertEqual(matched["seccion"], "Sección -")
-        self.assertEqual(matched["sala"], "E441.2.S201")
-        self.assertEqual(matched["profesor"], "CALCAGNO JAIME ALBERTO")
 
     @patch("app.blueprints.academic_api.dm.get_classes")
     def test_schedule_sync_can_use_a_unique_section_when_course_and_teacher_are_missing(self, get_classes):
@@ -672,13 +772,15 @@ class ScheduleImportEndpointTest(unittest.TestCase):
             "curso": "", "dia": 1, "horaInicio": "16:00", "horaFin": "17:20", "bloqueNum": 6,
             "seccion": "S1", "sala": "", "profesor": "",
         }
+
         response = self.client.post("/api/sync_horario", json={"clases": [section_only_class]})
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get_json()[0]["sala"], "E441.3.S302")
 
     @patch("app.blueprints.academic_api.dm.get_classes")
     def test_schedule_sync_only_queries_json_for_verified_normal_blocks(self, get_classes):
-        unverified_blocks = [
+        solemn_and_mismatched_blocks = [
             {
                 "curso": "Introduccion a la economia", "dia": 2, "horaInicio": "08:30", "horaFin": "10:30",
                 "bloqueNum": 1, "seccion": "1", "sala": "", "profesor": "",
@@ -691,14 +793,12 @@ class ScheduleImportEndpointTest(unittest.TestCase):
                 "curso": "Introduccion a la economia", "dia": 2, "horaInicio": [], "horaFin": "12:50",
                 "bloqueNum": 3, "seccion": "1", "sala": "", "profesor": "",
             },
-            {
-                "curso": "Introduccion a la economia", "dia": 2, "horaInicio": [], "horaFin": "12:50",
-                "bloqueNum": 3, "seccion": "1", "sala": "", "profesor": "",
-            },
         ]
-        response = self.client.post("/api/sync_horario", json={"clases": unverified_blocks})
+
+        response = self.client.post("/api/sync_horario", json={"clases": solemn_and_mismatched_blocks})
+
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.get_json(), unverified_blocks)
+        self.assertEqual(response.get_json(), solemn_and_mismatched_blocks)
         get_classes.assert_not_called()
 
     @patch("app.blueprints.academic_api.dm.get_classes")
@@ -711,7 +811,9 @@ class ScheduleImportEndpointTest(unittest.TestCase):
             "curso": "Arquitecturas Emergentes", "dia": 3, "horaInicio": "17:25", "horaFin": "18:50",
             "bloqueNum": 7, "seccion": "Sección 2", "sala": "", "profesor": "",
         }
+
         response = self.client.post("/api/sync_horario", json={"clases": [stale_class]})
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get_json(), [stale_class])
         get_classes.assert_not_called()
@@ -722,51 +824,10 @@ class ScheduleImportEndpointTest(unittest.TestCase):
 
     @patch("app.blueprints.academic_api.extract_schedule_from_image")
     @patch("app.blueprints.academic_api.requests.get")
-    def test_import_rejects_target_profile_for_non_admin(self, auth_get, extract):
-        auth_get.return_value = Mock(ok=True, json=lambda: {
-            "id": "ordinary-user", "app_metadata": {"portal_role": "user"}
-        })
-        response = self.client.post(
-            "/api/import_schedule",
-            headers={"Authorization": "Bearer valid-test-session"},
-            data={
-                "target_user_id": "11111111-1111-4111-8111-111111111111",
-                "image": (io.BytesIO(b"\x89PNG\r\n\x1a\nimage"), "horario.png", "image/png"),
-            },
-            content_type="multipart/form-data",
-        )
-        self.assertEqual(response.status_code, 403)
-        extract.assert_not_called()
-
-    @patch("app.blueprints.academic_api.extract_schedule_from_image")
-    @patch("app.blueprints.academic_api.requests.get")
-    def test_admin_can_import_schedule_for_a_target_profile(self, auth_get, extract):
-        auth_get.return_value = Mock(ok=True, json=lambda: {
-            "id": "admin-user", "app_metadata": {"portal_role": "admin"}
-        })
-        extract.return_value = [{
-            "dia": 1, "diaNombre": "Lunes", "horaInicio": "08:30", "horaFin": "09:50",
-            "curso": "Cálculo II", "tipo": "Cátedra", "seccion": "2", "sala": "E201", "profesor": "",
-        }]
-        response = self.client.post(
-            "/api/import_schedule",
-            headers={"Authorization": "Bearer valid-test-session"},
-            data={
-                "target_user_id": "11111111-1111-4111-8111-111111111111",
-                "image": (io.BytesIO(b"\x89PNG\r\n\x1a\nimage"), "horario.png", "image/png"),
-            },
-            content_type="multipart/form-data",
-        )
-        self.assertEqual(response.status_code, 200, response.get_json())
-        self.assertEqual(response.get_json()["clases"][0]["curso"], "Cálculo II")
-        extract.assert_called_once()
-
-    @patch("app.blueprints.academic_api.extract_schedule_from_image")
-    @patch("app.blueprints.academic_api.requests.get")
-    @patch("app.blueprints.academic_api.dm.get_classes", return_value=[])
-    def test_authenticated_upload_matches_normalized_teacher_without_storing_image(self, _get_classes, auth_get, extract):
+    @patch("app.blueprints.academic_api.dm.get_classes")
+    def test_authenticated_upload_returns_canonical_teacher_without_storing_image(self, get_classes, auth_get, extract):
         auth_get.return_value = Mock(ok=True, json=lambda: {"id": "test-user"})
-        _get_classes.return_value = [{"node": {"teacher": "CALCAGNO JAIME ALBERTO"}}]
+        get_classes.return_value = [{"node": {"teacher": "CALCAGNO JAIME ALBERTO"}}]
         extract.return_value = [{
             "dia": 1, "diaNombre": "Lunes", "horaInicio": "08:30", "horaFin": "09:50",
             "curso": "Cálculo", "tipo": "Cátedra", "seccion": "1", "sala": "E-201",

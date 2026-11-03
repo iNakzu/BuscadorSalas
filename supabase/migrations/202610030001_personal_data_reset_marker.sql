@@ -4,6 +4,7 @@ ALTER TABLE public.profiles
   ADD COLUMN IF NOT EXISTS data_reset_at timestamptz NOT NULL DEFAULT 'epoch'::timestamptz;
 
 GRANT SELECT (data_reset_at) ON TABLE public.profiles TO authenticated;
+GRANT UPDATE (data_reset_at) ON TABLE public.profiles TO authenticated;
 
 ALTER TABLE public.user_module_state
   ADD COLUMN IF NOT EXISTS reset_marker timestamptz NOT NULL DEFAULT 'epoch'::timestamptz;

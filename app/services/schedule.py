@@ -113,8 +113,7 @@ class DataManager:
         return False
 
     def sync_from_remote(self):
-        # Manual refreshes and stale-cache refreshes share one lock so two
-        # simultaneous requests in this worker do not download the feed twice.
+        # Coalesce manual and stale-cache refreshes within this worker.
         with self._sync_lock:
             self._last_sync_attempt = time.monotonic()
             return self._download_remote()
@@ -184,8 +183,8 @@ class DataManager:
         if not self.cache:
             self._init_data()
         elif time.monotonic() - self._last_sync_attempt >= self.ttl_seconds:
-            # Recheck after taking the lock: another request may already have
-            # refreshed this worker's in-memory copy while we were waiting.
+            # Recheck after acquiring the lock so concurrent reads don't all
+            # download the same official feed when the cache expires.
             with self._sync_lock:
                 if time.monotonic() - self._last_sync_attempt >= self.ttl_seconds:
                     self._last_sync_attempt = time.monotonic()
@@ -413,10 +412,6 @@ def normalize_str(s):
         return ""
     nfkd = unicodedata.normalize('NFD', str(s))
     return "".join(c for c in nfkd if not unicodedata.combining(c)).lower().strip()
-
-def _normalize_course_title(value):
-    """Normalize punctuation and spacing while preserving full course words."""
-    return " ".join(re.findall(r"[a-z0-9]+", normalize_str(value)))
 
 _TEACHER_TITLE_TOKENS = {"prof", "profesor", "profesora", "dr", "dra", "doctor", "doctora", "ing"}
 
@@ -659,23 +654,23 @@ def obtener_clases_malla(semestre=8, dia_filtro=None, ramo_filtro=None, hora_fil
         elif d_str.isdigit() and 1 <= int(d_str) <= 7:
             dia_int = int(d_str)
 
-    ramo_q = _normalize_course_title(ramo_filtro) if ramo_filtro else None
+    ramo_q = normalize_str(ramo_filtro) if ramo_filtro else None
 
     for c in clases:
         n = c.get('node', {})
         curso_oficial = n.get('course', '')
-        curso_norm = _normalize_course_title(curso_oficial)
+        curso_norm = normalize_str(curso_oficial)
         
         matched_ramo = None
         for r in sem_info['ramos']:
-            if any(_normalize_course_title(k) == curso_norm for k in r['keywords']):
+            if any(k in curso_norm for k in r['keywords']):
                 matched_ramo = r['nombre']
                 break
                 
         if not matched_ramo:
             continue
             
-        if ramo_q and ramo_q not in _normalize_course_title(matched_ramo):
+        if ramo_q and ramo_q not in normalize_str(matched_ramo):
             continue
             
         if dia_int is not None and n.get('day') != dia_int:

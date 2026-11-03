@@ -4,45 +4,35 @@ const vm = require('vm');
 
 const container = { innerHTML: '' };
 const search = { value: '' };
-const toggle = { checked: false };
+const toggle = { checked: false, addEventListener() {} };
 const status = { textContent: '', hidden: false };
 const context = {
-  window: { PortalProfile: { getCareerId: () => 'eit', getSchoolForCareer: () => 'EIT' }, PortalCommunity: { getSelected: () => ({
-    display_name: 'Ana García',
-    careerId: 'eit',
-    modules: { schedule: { clases: [
-      { curso: 'Bases de Datos' },
-      { curso: 'Probabilidades y Estadística' },
-      { curso: 'Cálculo II' },
-      { curso: 'Arquitectura y Organiz de Computadores' },
-      { curso: 'Mecánica', rol: 'assistant' }
-    ] } }
-  }) } },
+  window: {
+    PortalCommunity: { getSelected: () => ({
+      display_name: 'Ana García',
+      careerId: 'informatics',
+      modules: { schedule: { clases: [{ curso: 'Probabilidades y Estadística' }, { curso: 'Cálculo II' }] } }
+    }) },
+    PortalProfile: { getCareerId: () => 'informatics', getSchoolForCareer: () => 'EIT' }
+  },
   document: {
-    getElementById: id => id === 'solemnes-container' ? container : id === 'solemnes-search' ? search : id === 'solemnes-highlight-toggle' ? toggle : id === 'solemnes-highlight-status' ? status : null,
-    querySelector: () => null,
+    getElementById: id => ({
+      'solemnes-container': container,
+      'solemnes-search': search,
+      'solemnes-highlight-toggle': toggle,
+      'solemnes-highlight-status': status
+    })[id] || null,
     addEventListener() {}
   },
   localStorage: { getItem: () => null, setItem() {} },
   SOLEMNES_DATA: [
     { dia: 1, horario: '8:30 a 10:30', ramos: [
-      { nombre: 'Bases de Datos (EIT)' },
       { nombre: 'Probabilidades y Estadística (EIT)' },
       { nombre: 'Probabilidades y Estadística (EII EOC)' },
-      { nombre: 'Química' },
-      { nombre: 'Mecánica (EIT)' },
-      { nombre: 'Mecánica de Fluidos (EIT)' },
-      { nombre: 'Mecánica de Sólidos (EIT)' }
+      { nombre: 'Química' }
     ] },
-    { dia: 2, horario: '10:45 a 12:45', ramos: [
-      { nombre: 'Cálculo Dif. E Integral/Cálculo II' },
-      { nombre: 'Cálculo I (EIT)' },
-      { nombre: 'Cálculo II (EIT)' },
-      { nombre: 'Cálculo III (EIT)' },
-      { nombre: 'Arquitectura y Organización de Computadores (EIT)' }
-    ] }
+    { dia: 2, horario: '10:45 a 12:45', ramos: [{ nombre: 'Cálculo Dif. E Integral/Cálculo II' }] }
   ],
-  localStorage: { getItem: () => null, setItem() {} },
   getChileTime: () => ({ totalMinutes: 0 }),
   timeToMinutes: () => 0,
   setInterval: () => 1,
@@ -54,7 +44,8 @@ assert.match(source, /#tab-solemnes \{[\s\S]*?overflow: visible !important;/);
 assert.match(source, /\.solemnes-scroll-wrapper \{[\s\S]*?overflow-x: auto;/);
 assert.match(source, /@media \(max-width: 1023px\) \{\s*\.solemnes-scroll-wrapper \{\s*width: 100vw;\s*max-width: none;\s*margin-left: calc\(-50vw \+ 50%\);\s*padding-left: 32px;/);
 assert.match(source, /\.solemnes-scroll-wrapper \{[\s\S]*?padding: 0 16px 20px 16px;/);
-assert.doesNotMatch(fs.readFileSync('static/css/community.css', 'utf8'), /#tab-solemnes\.public-profile-active > \.search-field \{ display: none !important; \}/);
+assert.match(fs.readFileSync('templates/views/solemnes.html', 'utf8'), /id="solemnes-highlight-toggle" type="checkbox"/);
+assert.match(fs.readFileSync('static/css/community.css', 'utf8'), /#tab-solemnes\.public-profile-active > \.search-field \{ display: none !important; \}/);
 vm.createContext(context);
 vm.runInContext(source, context);
 
@@ -75,35 +66,20 @@ assert.doesNotMatch(container.innerHTML, /Resaltando las evaluaciones|Se resalta
 assert.strictEqual(status.textContent, '');
 assert.strictEqual(status.hidden, true);
 
-assert.match(container.innerHTML, /<div class="sol-ramo-pill matched" style="[^"]*border-left-color: [^;]+;/);
-assert.strictEqual(status.textContent, '');
-assert.strictEqual(status.hidden, true);
-assert.doesNotMatch(container.innerHTML, /<div class="solemnes-profile-note"/);
-assert.match(container.innerHTML, /Bases de Datos \(EIT\)/);
-toggle.checked = true;
-container.innerHTML = '';
+// Missing career metadata never guesses a school-specific exam.
+context.window.PortalCommunity.getSelected = () => ({
+  display_name: 'Perfil sin carrera',
+  modules: { schedule: { clases: [{ curso: 'Probabilidades y Estadística' }] } }
+});
+context.window.PortalProfile.getSchoolForCareer = () => null;
 vm.runInContext('renderSolemnes()', context);
-assert.doesNotMatch(container.innerHTML, /Resaltando las evaluaciones|Se resaltan las solemnes/);
-assert.strictEqual(status.textContent, '');
-assert.strictEqual(status.hidden, true);
-assert.match(container.innerHTML, /class="sol-ramo-pill matched" style="background: rgba\(255, 255, 255, 0\.15\); border-color: rgba\(255, 255, 255, 0\.7\); border-left-color: #ffffff;"[^>]*>\s*Bases de Datos \(EIT\)/);
-assert.match(container.innerHTML, /class="sol-ramo-pill matched" style="background: rgba\(255, 255, 255, 0\.15\); border-color: rgba\(255, 255, 255, 0\.7\); border-left-color: #ffffff;"[^>]*>\s*Probabilidades y Estadística \(EIT\)/);
-assert.match(container.innerHTML, /class="sol-ramo-pill matched" style="background: linear-gradient\(135deg, rgba\(217, 119, 6, 0\.24\), rgba\(180, 83, 9, 0\.20\)\); border-color: rgba\(251, 191, 36, 0\.48\); border-left-color: #fbbf24;"[^>]*>\s*Mecánica \(EIT\)/);
-assert.match(container.innerHTML, /class="sol-ramo-pill dimmed"[^>]*>\s*Mecánica de Fluidos \(EIT\)/);
-assert.match(container.innerHTML, /class="sol-ramo-pill dimmed"[^>]*>\s*Mecánica de Sólidos \(EIT\)/);
-assert.match(container.innerHTML, /class="sol-ramo-pill dimmed"[^>]*>\s*Probabilidades y Estadística \(EII EOC\)/);
-assert.match(container.innerHTML, /Cálculo Dif\. E Integral\/Cálculo II/);
-assert.match(container.innerHTML, /class="sol-ramo-pill dimmed"[^>]*>\s*Cálculo I \(EIT\)/);
-assert.match(container.innerHTML, /class="sol-ramo-pill matched" style="background: rgba\(255, 255, 255, 0\.15\); border-color: rgba\(255, 255, 255, 0\.7\); border-left-color: #ffffff;"[^>]*>\s*Cálculo II \(EIT\)/);
-assert.match(container.innerHTML, /class="sol-ramo-pill dimmed"[^>]*>\s*Cálculo III \(EIT\)/);
-assert.match(container.innerHTML, /class="sol-ramo-pill matched" style="background: rgba\(255, 255, 255, 0\.15\); border-color: rgba\(255, 255, 255, 0\.7\); border-left-color: #ffffff;"[^>]*>\s*Arquitectura y Organización de Computadores \(EIT\)/);
-assert.match(container.innerHTML, /sol-ramo-pill matched/);
+assert.match(container.innerHTML, /sol-ramo-pill dimmed[^>]*>[\s\S]*?Probabilidades y Estadística \(EIT\)/);
 assert.match(container.innerHTML, /sol-ramo-pill dimmed/);
-assert.match(container.innerHTML, /solemnes-scroll-wrapper/);
-container.innerHTML = '';
+assert.match(status.textContent, /No se pudo identificar la carrera/);
+
 context.SOLEMNES_DATA = null;
 context.console = { error() {} };
 vm.runInContext('renderSolemnes()', context);
 assert.match(container.innerHTML, /No se pudieron cargar las solemnes/);
 assert.doesNotMatch(container.innerHTML, /TypeError|at renderSolemnes|stack/i);
-console.log('community_solemnes: highlight defaults off and filters by selected career and schedule when enabled');
+console.log('community_solemnes: default-off highlight, school-aware matching and missing-career safety');

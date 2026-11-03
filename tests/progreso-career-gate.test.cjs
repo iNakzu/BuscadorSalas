@@ -24,8 +24,11 @@ async function renderFor({ user, careerId, careerName, semesters }) {
 
 (async () => {
   const app = fs.readFileSync('static/js/app.js', 'utf8');
-  assert.match(app, /panelId === 'tab-malla'.*panelId === 'tab-progreso'.*panelId === 'tab-solemnes'/s);
-  assert.match(app, /mostrarAvisoAccesoMalla\(panelId\)/);
+  assert.match(app, /new Set\(\['tab-solemnes', 'tab-malla', 'tab-progreso'\]\)/);
+  assert.match(app, /mostrarAvisoCarrera\(panelId\)/);
+  const index = fs.readFileSync('templates/index.html', 'utf8');
+  assert.match(index, /id="career-gate"/);
+  assert.match(index, /irAPerfilDesdeAvisoCarrera\(\)/);
 
   const noLogin = await renderFor({ user: false, careerId: null, semesters: [] });
   assert.match(noLogin, /Inicia sesión para ver tu malla/);
@@ -67,7 +70,7 @@ async function renderFor({ user, careerId, careerName, semesters }) {
   assert.match(retryContainer.innerHTML, /Curso de prueba/);
 
   const community = fs.readFileSync('static/js/community_schedules.js', 'utf8');
-  assert.match(community, /get_shared_profile_career/);
+  assert.match(community, /rpc\('get_shared_profile_career'/);
   const sql = fs.readFileSync('supabase/migrations/202610060001_shared_profile_career_for_solemnes.sql', 'utf8');
   for (const guard of ['p.share_information', 'public.is_community_member(auth.uid())', 'public.is_community_member(p.id)']) {
     assert(sql.includes(guard), `shared profile career RPC must retain ${guard}`);

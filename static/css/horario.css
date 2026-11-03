@@ -437,22 +437,6 @@
     transition: width 0.5s ease;
 }
 
-.my-hero-progress-bar.catedra {
-    background: linear-gradient(90deg, #0891b2 0%, #22d3ee 52%, #7dd3fc 100%);
-}
-
-.my-hero-progress-bar.laboratorio {
-    background: linear-gradient(90deg, #7e22ce 0%, #a855f7 52%, #c084fc 100%);
-}
-
-.my-hero-progress-bar.ayudantia-student {
-    background: linear-gradient(90deg, #be185d 0%, #db2777 52%, #f472b6 100%);
-}
-
-.my-hero-progress-bar.assistant {
-    background: linear-gradient(90deg, #b45309 0%, #d97706 52%, #fbbf24 100%);
-}
-
 /* GRID SEMANAL (5 COLUMNAS BENTO MODERNO) */
 .my-week-grid {
     display: grid;
@@ -1426,8 +1410,8 @@ body.schedule-modal-open {
     box-shadow: none;
 }
 #dd-modal-tipo.is-locked .dropdown-trigger .dropdown-chevron { display: none; }
-#dd-modal-tipo .modal-type-lock { flex: 0 0 auto; margin-left: 8px; color: #94a3b8; }
-#dd-modal-tipo .modal-type-lock[hidden] { display: none; }
+#dd-modal-tipo .modal-type-lock { display: none; flex: 0 0 15px; width: 15px; height: 15px; margin-left: 8px; color: #94a3b8; opacity: 1; visibility: visible; }
+#dd-modal-tipo.is-locked .modal-type-lock { display: block !important; opacity: 1 !important; visibility: visible !important; }
 
 .my-class-card.is-assistant .my-type-tag,
 .my-timeline-card.is-assistant .my-type-tag {
@@ -1996,12 +1980,4 @@ body.schedule-modal-open {
         rgba(34, 211, 238, 0.26) 0%,
         rgba(56, 189, 248, 0.21) 52%,
         rgba(125, 211, 252, 0.18) 100%) !important;
-}
-
-.my-room-pill.is-unassigned-room,
-.my-room-pill.is-unassigned-room:hover {
-    cursor: default;
-    transform: none;
-    box-shadow: none;
-    color: var(--text-sub);
 }

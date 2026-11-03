@@ -1,9 +1,5 @@
 /* ESTILOS PARA LA AGENDA */
 
-#agenda-container {
-    padding: 24px;
-}
-
 .agenda-card {
     position: relative;
     background: rgba(15, 23, 42, 0.45);
@@ -328,9 +324,6 @@
 }
 
 @media (max-width: 600px) {
-    #agenda-container {
-        padding: 24px 0;
-    }
     .cal-dots-container .cal-dot {
         width: 5px !important;
         height: 5px !important;

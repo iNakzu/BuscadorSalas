@@ -101,10 +101,122 @@ const settle = () => new Promise(resolve => setTimeout(resolve, 20));
   });
   secondUser.context.window.PortalStore.register('agenda', 'mi_agenda_v1', []);
   await settle();
-  assert.strictEqual(secondUser.upserts.length, 0, 'an empty local module needs no redundant remote write');
+  assert.strictEqual(secondUser.upserts.length, 0, 'an empty module should not create a remote row');
   assert.deepStrictEqual(JSON.parse(secondUser.localStorage.getItem('mi_agenda_v1')), []);
   assert.strictEqual(secondUser.events.some(event => event.type === 'portal:remote-state'
     && event.detail.module === 'agenda' && Array.isArray(event.detail.payload)
     && event.detail.payload.length === 0), true);
-  console.log('personal_store: 3 scenarios passed');
+
+  const reset = environment({
+    user: 'user-3',
+    resetAt: '2026-10-03T12:00:00.000Z',
+    initial: {
+      'mi_horario_custom_v1': '{"clases":[{"curso":"Antiguo"}]}',
+      'portal:user-3:schedule': '{"clases":[{"curso":"Antiguo"}]}',
+      'portal:user-3:schedule:updated-at': '2026-10-02T10:00:00.000Z',
+      'mi_notas_v1': '{"CALCULO":[]}',
+      'portal:user-3:grades': '{"CALCULO":[]}'
+    },
+    remote: null
+  });
+  reset.context.window.PortalStore.register('schedule', 'mi_horario_custom_v1', { clases: [] });
+  reset.context.window.PortalStore.register('grades', 'mi_notas_v1', {});
+  await settle();
+  assert.strictEqual(reset.upserts.length, 0, 'a reset must not restore stale local payloads');
+  assert.deepStrictEqual(JSON.parse(reset.localStorage.getItem('mi_horario_custom_v1')), { clases: [] });
+  assert.deepStrictEqual(JSON.parse(reset.localStorage.getItem('mi_notas_v1')), {});
+  assert.strictEqual(reset.localStorage.getItem('portal:user-3:data-reset-at:schedule'), '2026-10-03T12:00:00.000Z');
+
+  const buttonReset = environment({
+    user: 'user-4',
+    initial: {
+      'mi_horario_custom_v1': '{"clases":[{"curso":"Persistente"}]}',
+      'portal:user-4:schedule': '{"clases":[{"curso":"Persistente"}]}',
+      'portal:user-4:schedule:updated-at': '2026-10-03T12:00:00.000Z',
+      'mi_notas_v1': '{"ALGEBRA":{}}'
+    }
+  });
+  buttonReset.context.window.PortalStore.register('schedule', 'mi_horario_custom_v1', { clases: [] });
+  buttonReset.context.window.PortalStore.register('grades', 'mi_notas_v1', {});
+  await settle();
+  await buttonReset.context.window.PortalStore.resetAll();
+  assert.deepStrictEqual(buttonReset.rpcCalls, ['reset_my_personal_data']);
+  assert.strictEqual(buttonReset.localStorage.getItem('mi_horario_custom_v1'), null);
+  assert.strictEqual(buttonReset.localStorage.getItem('portal:user-4:schedule'), null);
+  assert.strictEqual(buttonReset.localStorage.getItem('mi_notas_v1'), null);
+  assert.strictEqual(buttonReset.localStorage.getItem('portal:user-4:data-reset-at:grades'), '2026-10-03T13:00:00.000Z');
+
+  const offlineReset = environment({
+    user: 'user-5', resetFailure: true,
+    initial: {
+      'mi_horario_custom_v1': '{"clases":[{"curso":"Persistente"}]}',
+      'portal:user-5:schedule': '{"clases":[{"curso":"Persistente"}]}',
+      'mi_notas_v1': '{"CALCULO":{}}'
+    }
+  });
+  offlineReset.context.window.PortalStore.register('schedule', 'mi_horario_custom_v1', { clases: [] });
+  offlineReset.context.window.PortalStore.register('grades', 'mi_notas_v1', {});
+  await settle();
+  await assert.rejects(offlineReset.context.window.PortalStore.resetAll(), error => {
+    assert.strictEqual(error.code, 'PGRST002');
+    return true;
+  });
+  assert.deepStrictEqual(JSON.parse(offlineReset.localStorage.getItem('portal:user-5:schedule')),
+    { clases: [{ curso: 'Persistente' }] }, 'keep the local copy when Supabase did not confirm deletion');
+  assert.deepStrictEqual(JSON.parse(offlineReset.localStorage.getItem('mi_horario_custom_v1')),
+    { clases: [{ curso: 'Persistente' }] });
+  assert.deepStrictEqual(JSON.parse(offlineReset.localStorage.getItem('mi_notas_v1')), { CALCULO: {} });
+  assert.strictEqual(offlineReset.events.some(event => event.type === 'portal:remote-state'
+    && event.detail.module === 'schedule' && event.detail.payload.clases.length === 0), false);
+
+  const stalledSync = environment({
+    user: 'user-6', holdSync: true,
+    initial: {
+      'mi_horario_custom_v1': '{"clases":[{"curso":"Bloqueado por sync"}]}',
+      'portal:user-6:schedule': '{"clases":[{"curso":"Bloqueado por sync"}]}'
+    }
+  });
+  stalledSync.context.window.PortalStore.register('schedule', 'mi_horario_custom_v1', { clases: [] });
+  const stalledResetPromise = stalledSync.context.window.PortalStore.resetAll();
+  assert.notStrictEqual(stalledSync.localStorage.getItem('mi_horario_custom_v1'), null,
+    'local schedule stays intact until Supabase confirms the reset');
+  stalledSync.releaseSync();
+  await stalledResetPromise;
+  assert.strictEqual(stalledSync.localStorage.getItem('mi_horario_custom_v1'), null,
+    'local schedule is cleared after Supabase confirms the reset');
+
+  const generation = 'reset-generation-test';
+  const migrated = environment({
+    resetGeneration: generation,
+    initial: {
+      'mi_horario_custom_v1': '{"clases":[{"curso":"Antiguo"}]}',
+      'mi_notas_v1': '{"CALCULO":{}}',
+      'mi_agenda_v1': '[{"titulo":"Antiguo"}]',
+      'mi_progreso_v1': '{"ramo":true}',
+      'portal:user-7:schedule': '{"clases":[{"curso":"Antiguo"}]}',
+      'portal:user-7:grades:updated-at': '2026-10-02T10:00:00.000Z',
+      'portal:user-7:data-reset-at:curriculum': '2026-10-02T10:00:00.000Z',
+      'tema': 'oscuro'
+    }
+  });
+  assert.strictEqual(migrated.localStorage.getItem('mi_horario_custom_v1'), null);
+  assert.strictEqual(migrated.localStorage.getItem('mi_notas_v1'), null);
+  assert.strictEqual(migrated.localStorage.getItem('mi_agenda_v1'), null);
+  assert.strictEqual(migrated.localStorage.getItem('mi_progreso_v1'), null);
+  assert.strictEqual(migrated.localStorage.getItem('portal:user-7:schedule'), null);
+  assert.strictEqual(migrated.localStorage.getItem('tema'), 'oscuro', 'unrelated preferences are preserved');
+  assert.strictEqual(migrated.localStorage.getItem('portal:personal-data-reset-generation'), generation);
+
+  const afterGeneration = environment({
+    resetGeneration: generation,
+    initial: Object.fromEntries(migrated.localStorage.values)
+  });
+  afterGeneration.localStorage.setItem('mi_horario_custom_v1', '{"clases":[{"curso":"Nuevo"}]}');
+  const sameGeneration = environment({
+    resetGeneration: generation,
+    initial: Object.fromEntries(afterGeneration.localStorage.values)
+  });
+  assert.match(sameGeneration.localStorage.getItem('mi_horario_custom_v1'), /Nuevo/,
+    'the one-time reset must preserve data entered after the reset generation');
+  console.log('personal_store: 8 scenarios passed');
 })().catch(error => { console.error(error); process.exit(1); });

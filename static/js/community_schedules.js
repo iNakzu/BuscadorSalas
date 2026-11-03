@@ -6,7 +6,6 @@
     let selectedUserId = '';
     let selectedProfileRecord = null;
     let serverDirectoryMode = false;
-    let adminDirectoryMode = false;
     let profileSearchHasMore = false;
     let profileSearchOffset = 0;
     let visibleProfilePage = 0;
@@ -37,18 +36,13 @@
     function initials(name) {
         const words = String(name || 'Estudiante').trim().split(/\s+/).filter(Boolean);
         if (words.length < 2) return Array.from(words[0] || 'ES').slice(0, 2).join('').toUpperCase();
-        const firstSurname = words.length >= 3 ? words[words.length - 2] : words[1];
-        return `${Array.from(words[0])[0]}${Array.from(firstSurname)[0]}`.toUpperCase();
+        return `${Array.from(words[0])[0]}${Array.from(words[words.length - 1])[0]}`.toUpperCase();
     }
 
-    function scheduleClasses(payload) {
+    function cleanClasses(payload) {
         const classes = Array.isArray(payload) ? payload : payload && payload.clases;
         return Array.isArray(classes)
-            ? classes.map((item, index) => {
-                const viewItem = { ...item };
-                Object.defineProperty(viewItem, '_profileIndex', { value: index });
-                return viewItem;
-            }).filter(item => Number(item.dia) >= 1 && Number(item.dia) <= 5)
+            ? classes.filter(item => item && Number(item.dia) >= 1 && Number(item.dia) <= 5)
             : [];
     }
 
@@ -60,159 +54,6 @@
     function selectedProfile() {
         if (selectedProfileRecord && String(selectedProfileRecord.user_id || '') === selectedUserId) return selectedProfileRecord;
         return loadedUsers.find(item => String(item.user_id || '') === selectedUserId) || null;
-    }
-
-    function cacheProfileModules(profile) {
-        if (!profile || !profile.user_id || !profile.modules) return;
-        const id = String(profile.user_id);
-        const cached = {
-            modules: profile.modules,
-            careerId: profile.careerId || profile.modules.curriculum && profile.modules.curriculum.__careerId || null
-        };
-        profileModulesCache.set(id, cached);
-        if (profileModulesCache.size > MAX_CACHED_PROFILES) {
-            profileModulesCache.delete(profileModulesCache.keys().next().value);
-        }
-    }
-
-    function hasAdminRole() {
-        const user = window.PortalAuth && window.PortalAuth.user;
-        return Boolean(user && user.app_metadata && user.app_metadata.portal_role === 'admin');
-    }
-
-    function saveAdminModule(module, payload) {
-        const profile = selectedProfile();
-        const auth = window.PortalAuth;
-        if (!hasAdminRole() || !profile || !auth || !auth.client) return;
-        if (module === 'schedule') {
-            const occupied = new Set();
-            for (const item of payload && Array.isArray(payload.clases) ? payload.clases : []) {
-                if (item.dia == null || item.bloqueNum == null) continue;
-                const key = `${item.dia}:${item.bloqueNum}`;
-                if (occupied.has(key)) return;
-                occupied.add(key);
-            }
-        }
-        return auth.client.rpc('admin_update_profile_module', {
-            p_user_id: String(profile.user_id), p_module_key: module, p_payload: payload
-        }).then(({ error }) => {
-            if (error) throw error;
-            profile.modules[module] = payload;
-            cacheProfileModules(profile);
-        }).catch(error => {
-            console.error('No se pudieron guardar los cambios del perfil', error);
-            throw error;
-        });
-    }
-
-    function clonePayload(value) {
-        return JSON.parse(JSON.stringify(value == null ? {} : value));
-    }
-
-    function normalizeCourseName(value) {
-        return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-            .toLocaleLowerCase('es').replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
-    }
-
-    function normalizeSection(value) {
-        const match = String(value || '').match(/\d+/);
-        return match ? String(Number.parseInt(match[0], 10)) : '';
-    }
-
-    function isExplicitlyClearedSection(value) {
-        const normalized = String(value == null ? '' : value).normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-            .trim().toLocaleLowerCase('es').replace(/\s+/g, ' ');
-        return normalized === '-' || normalized === 'seccion -';
-    }
-
-    function propagateScheduleSections(classes) {
-        const sectionsByCourse = new Map();
-        classes.forEach(item => {
-            if (isExplicitlyClearedSection(item && item.seccion)) return;
-            const course = normalizeCourseName(item && (item.cursoDisplay || item.curso));
-            const section = normalizeSection(item && item.seccion);
-            if (!course || !section) return;
-            if (!sectionsByCourse.has(course)) sectionsByCourse.set(course, new Map());
-            sectionsByCourse.get(course).set(section, item.seccion);
-        });
-        classes.forEach(item => {
-            if (isExplicitlyClearedSection(item && item.seccion)) return;
-            const course = normalizeCourseName(item && (item.cursoDisplay || item.curso));
-            const current = normalizeSection(item && item.seccion);
-            const candidates = sectionsByCourse.get(course);
-            if (!current && candidates && candidates.size === 1) item.seccion = candidates.values().next().value;
-        });
-    }
-
-    async function enrichAdminSchedule(profile, snapshot) {
-        if (typeof fetch !== 'function' || !profile || !profile.modules) return;
-        const savedPayload = clonePayload(snapshot);
-        const classes = Array.isArray(savedPayload) ? savedPayload : savedPayload.clases;
-        if (!Array.isArray(classes) || !classes.length) return;
-        let response;
-        try {
-            response = await fetch('/api/sync_horario', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ clases: classes })
-            });
-            if (!response.ok) return;
-            const enrichedClasses = await response.json();
-            if (!Array.isArray(enrichedClasses)) return;
-            const enrichedById = new Map(enrichedClasses.filter(item => item && item.id != null).map(item => [String(item.id), item]));
-            const mergedClasses = classes.map((original, index) => {
-                const enriched = original && original.id != null
-                    ? enrichedById.get(String(original.id))
-                    : enrichedClasses[index];
-                if (!enriched || typeof enriched !== 'object') return original;
-                const merged = { ...original, ...enriched };
-                ['curso', 'cursoDisplay', 'sala', 'seccion', 'profesor'].forEach(field => {
-                    const before = String(original[field] == null ? '' : original[field]).trim();
-                    const after = String(enriched[field] == null ? '' : enriched[field]).trim();
-                    if (field === 'seccion' && isExplicitlyClearedSection(original[field])) {
-                        merged[field] = original[field];
-                        return;
-                    }
-                    if (before && (!after || ['-', 'sala no definida', 'sección -', 'seccion -'].includes(after.toLocaleLowerCase('es')))) {
-                        merged[field] = original[field];
-                    }
-                });
-                return merged;
-            });
-            const nextPayload = Array.isArray(savedPayload) ? mergedClasses : { ...savedPayload, clases: mergedClasses };
-            const currentProfile = selectedProfile();
-            if (!currentProfile || String(currentProfile.user_id) !== String(profile.user_id)
-                || JSON.stringify(profile.modules.schedule) !== JSON.stringify(snapshot)) return;
-            if (JSON.stringify(nextPayload) === JSON.stringify(snapshot)) return;
-            profile.modules.schedule = nextPayload;
-            try {
-                await saveAdminModule('schedule', nextPayload);
-                if (typeof window.mostrarHorarioPerfilEnMiHorario === 'function') {
-                    window.mostrarHorarioPerfilEnMiHorario(scheduleClasses(nextPayload));
-                }
-            } catch (_) {
-                profile.modules.schedule = clonePayload(snapshot);
-                cacheProfileModules(profile);
-                if (typeof window.mostrarHorarioPerfilEnMiHorario === 'function') {
-                    window.mostrarHorarioPerfilEnMiHorario(scheduleClasses(snapshot));
-                }
-            }
-        } catch (error) {
-            console.warn('No se pudo completar el horario del perfil desde el JSON oficial.', error);
-        }
-    }
-
-    function saveAdminMutation(profile, module, previous) {
-        const saved = saveAdminModule(module, profile.modules[module]);
-        if (!saved || typeof saved.catch !== 'function') return saved;
-        return saved.catch(() => {
-            profile.modules[module] = previous;
-            cacheProfileModules(profile);
-            if (module === 'schedule' && typeof window.mostrarHorarioPerfilEnMiHorario === 'function') {
-                window.mostrarHorarioPerfilEnMiHorario(scheduleClasses(previous));
-            } else renderGenericViews(profile);
-            return false;
-        });
     }
 
     function ownDisplayName() {
@@ -426,7 +267,7 @@
         profileSearchError = '';
         let response;
         try {
-            response = await auth.client.rpc(adminDirectoryMode ? 'admin_search_profiles' : 'search_shared_profiles', {
+            response = await auth.client.rpc('search_shared_profiles', {
                 p_query: String(query || '').trim(),
                 p_limit: MAX_VISIBLE_PROFILES + 1,
                 p_offset: offset
@@ -496,16 +337,16 @@
         if (!profile || !serverDirectoryMode) return profile;
         const id = String(profile.user_id || '');
         if (profileModulesCache.has(id)) {
-            const cached = profileModulesCache.get(id);
+            const modules = profileModulesCache.get(id);
             profileModulesCache.delete(id);
-            profileModulesCache.set(id, cached);
-            return { ...profile, modules: cached.modules, careerId: cached.careerId || null };
+            profileModulesCache.set(id, modules);
+            return { ...profile, modules: modules.modules, careerId: modules.careerId || null };
         }
         const auth = window.PortalAuth;
         if (!auth || !auth.client) return profile;
         let response;
         try {
-            response = await auth.client.rpc(hasAdminRole() ? 'admin_get_profile_information' : 'get_shared_profile_information', { p_user_id: id });
+            response = await auth.client.rpc('get_shared_profile_information', { p_user_id: id });
         } catch (error) {
             console.error('No se pudo cargar el perfil compartido', error);
             return null;
@@ -516,22 +357,15 @@
         }
         let careerId = null;
         try {
-            const rpcName = hasAdminRole() ? 'admin_get_profile_career' : 'get_shared_profile_career';
-            const careerResponse = await auth.client.rpc(rpcName, { p_user_id: id });
-            if (!careerResponse.error && typeof careerResponse.data === 'string') {
-                const profileApi = window.PortalProfile;
-                careerId = profileApi && profileApi.resolveCareerId
-                    ? profileApi.resolveCareerId(careerResponse.data)
-                    : careerResponse.data;
-            }
+            const careerResponse = await auth.client.rpc('get_shared_profile_career', { p_user_id: id });
+            if (!careerResponse.error && typeof careerResponse.data === 'string') careerId = careerResponse.data;
         } catch (_) {
-            // Other shared views can still render; Solemnes will not infer a missing career.
+            // Career metadata is optional for other views; Solemnes will avoid guessing if unavailable.
         }
         const modules = { ...response.data };
-        if (modules.curriculum && typeof modules.curriculum === 'object' && !Array.isArray(modules.curriculum)) {
-            modules.curriculum = { ...modules.curriculum };
-            if (careerId) modules.curriculum.__careerId = careerId;
-            else delete modules.curriculum.__careerId;
+        if (careerId && modules.curriculum && typeof modules.curriculum === 'object'
+            && !modules.curriculum.__careerId) {
+            modules.curriculum = { ...modules.curriculum, __careerId: careerId };
         }
         profileModulesCache.set(id, { modules, careerId });
         if (profileModulesCache.size > MAX_CACHED_PROFILES) {
@@ -629,12 +463,6 @@
             const module = content.dataset.module;
             content.hidden = !profile;
             if (!profile) { content.innerHTML = ''; return; }
-            if (hasAdminRole()) {
-                if (module === 'grades' && typeof window.renderNotasPublicas === 'function') window.renderNotasPublicas(content, modules.grades || {}, { editable: true });
-                else if (module === 'agenda' && typeof window.renderAgendaPublica === 'function') window.renderAgendaPublica(content, modules.agenda || [], { editable: true });
-                else if (module === 'curriculum' && typeof window.renderMallaPublica === 'function') window.renderMallaPublica(content, modules.curriculum || {}, { editable: true });
-                return;
-            }
             if (module === 'grades') {
                 if (typeof window.renderNotasPublicas === 'function') window.renderNotasPublicas(content, modules.grades);
                 else content.innerHTML = renderGrades(modules.grades);
@@ -670,16 +498,13 @@
         }
         sections.forEach(config => {
             const section = document.getElementById(config.id);
-            if (section) {
-                section.classList.toggle('public-profile-active', Boolean(profile));
-                section.classList.toggle('public-profile-admin-edit', Boolean(profile && hasAdminRole()));
-            }
+            if (section) section.classList.toggle('public-profile-active', Boolean(profile));
         });
         renderGenericViews(profile);
 
         if (typeof window.mostrarHorarioPerfilEnMiHorario === 'function') {
             if (profile) {
-                window.mostrarHorarioPerfilEnMiHorario(scheduleClasses(modulesFor(profile).schedule));
+                window.mostrarHorarioPerfilEnMiHorario(cleanClasses(modulesFor(profile).schedule));
             } else if (typeof window.cerrarHorarioPerfilEnMiHorario === 'function') {
                 window.cerrarHorarioPerfilEnMiHorario();
             }
@@ -705,7 +530,6 @@
             return;
         }
         const authUserId = String(auth.user.id || '');
-        adminDirectoryMode = hasAdminRole();
         if (activeAuthUserId && activeAuthUserId !== authUserId) {
             loadedUsers = [];
             selectedUserId = '';
@@ -717,7 +541,7 @@
         if (loadInProgress) { reloadPending = true; return; }
         loadInProgress = true;
         try {
-            const directory = await auth.client.rpc(adminDirectoryMode ? 'admin_search_profiles' : 'search_shared_profiles', {
+            const directory = await auth.client.rpc('search_shared_profiles', {
                 p_query: '',
                 p_limit: MAX_VISIBLE_PROFILES + 1,
                 p_offset: 0
@@ -770,113 +594,11 @@
     window.PortalCommunity = {
         select: applySelection,
         getSelected: selectedProfile,
-        getUsers: () => loadedUsers.slice(),
-        isAdmin: hasAdminRole,
-        isAdminSelected: () => Boolean(hasAdminRole() && selectedProfile()),
-        saveSelectedModule: module => {
-            const profile = selectedProfile();
-            if (profile && profile.modules && profile.modules[module]) return saveAdminModule(module, profile.modules[module]);
-        },
-        refreshSelectedModule: module => {
-            const profile = selectedProfile();
-            if (!profile) return;
-            if (module === 'schedule' && typeof window.mostrarHorarioPerfilEnMiHorario === 'function') window.mostrarHorarioPerfilEnMiHorario(scheduleClasses(profile.modules.schedule));
-            else renderGenericViews(profile);
-        },
-        updateSelectedGradeItem: (course, index, field, value) => {
-            const profile = selectedProfile();
-            if (!hasAdminRole() || !profile || !profile.modules) return;
-            const previous = clonePayload(profile.modules.grades || {});
-            const grades = profile.modules.grades || (profile.modules.grades = {});
-            const itemData = grades[course] || (grades[course] = { items: [], examGrade: null, examWeight: 30 });
-            const items = Array.isArray(itemData.items) ? itemData.items : (itemData.items = []);
-            if (!items[index]) return;
-            items[index][field] = field === 'grade' ? (value === '' ? null : Math.min(7, Math.max(1, Number(value)))) : (field === 'weight' ? (value === '' ? null : Number(value)) : value);
-            const saved = saveAdminMutation(profile, 'grades', previous);
-            renderGenericViews(profile);
-            return saved;
-        },
-        updateSelectedGradeCourse: (course, field, value) => {
-            const profile = selectedProfile();
-            if (!hasAdminRole() || !profile || !profile.modules) return;
-            const previous = clonePayload(profile.modules.grades || {});
-            const grades = profile.modules.grades || (profile.modules.grades = {});
-            const item = grades[course] || (grades[course] = { items: [], examGrade: null, examWeight: 30 });
-            item[field] = field === 'examGrade' ? (value === '' ? null : Math.min(7, Math.max(1, Number(value)))) : (value === '' ? null : Number(value));
-            const saved = saveAdminMutation(profile, 'grades', previous);
-            renderGenericViews(profile);
-            return saved;
-        },
-        addSelectedGradeItem: course => {
-            const profile = selectedProfile();
-            if (!hasAdminRole() || !profile || !profile.modules) return;
-            const previous = clonePayload(profile.modules.grades || {});
-            const grades = profile.modules.grades || (profile.modules.grades = {});
-            const item = grades[course] || (grades[course] = { items: [], examGrade: null, examWeight: 30 });
-            item.items = Array.isArray(item.items) ? item.items : [];
-            item.items.push({ name: 'Nueva Evaluación', weight: 0, grade: null });
-            const saved = saveAdminMutation(profile, 'grades', previous);
-            renderGenericViews(profile);
-            return saved;
-        },
-        updateSelectedSchedule: mutator => {
-            const profile = selectedProfile();
-            if (!hasAdminRole() || !profile || !profile.modules) return;
-            const previous = clonePayload(profile.modules.schedule || { clases: [] });
-            const schedule = profile.modules.schedule || (profile.modules.schedule = { clases: [] });
-            if (Array.isArray(schedule)) profile.modules.schedule = { clases: schedule };
-            const target = profile.modules.schedule;
-            target.clases = Array.isArray(target.clases) ? target.clases : [];
-            mutator(target.clases);
-            propagateScheduleSections(target.clases);
-            const seen = new Set();
-            const hasDuplicate = target.clases.some(item => {
-                if (item.dia == null || item.bloqueNum == null) return false;
-                const key = `${item.dia}:${item.bloqueNum}`;
-                if (seen.has(key)) return true;
-                seen.add(key);
-                return false;
-            });
-            if (hasDuplicate) {
-                profile.modules.schedule = previous;
-                if (typeof window.mostrarHorarioPerfilEnMiHorario === 'function') window.mostrarHorarioPerfilEnMiHorario(scheduleClasses(previous));
-                return false;
-            }
-            const saved = saveAdminMutation(profile, 'schedule', previous);
-            if (typeof window.mostrarHorarioPerfilEnMiHorario === 'function') window.mostrarHorarioPerfilEnMiHorario(scheduleClasses(target));
-            const snapshot = clonePayload(target);
-            return Promise.resolve(saved).then(result => {
-                if (result === false) return false;
-                return enrichAdminSchedule(profile, snapshot).then(() => true);
-            });
-        },
-        updateSelectedAgenda: mutator => {
-            const profile = selectedProfile();
-            if (!hasAdminRole() || !profile || !profile.modules) return;
-            const previous = clonePayload(profile.modules.agenda || []);
-            profile.modules.agenda = Array.isArray(profile.modules.agenda) ? profile.modules.agenda : [];
-            mutator(profile.modules.agenda);
-            const saved = saveAdminMutation(profile, 'agenda', previous);
-            renderGenericViews(profile);
-            return saved;
-        },
-        toggleCurriculum: courseId => {
-            const profile = selectedProfile();
-            if (!hasAdminRole() || !profile || !profile.modules) return;
-            const previous = clonePayload(profile.modules.curriculum || {});
-            const progress = profile.modules.curriculum || (profile.modules.curriculum = {});
-            const careerId = profile.careerId || progress.__careerId || '';
-            if (!careerId) return;
-            const key = `${careerId}:${String(courseId || '')}`;
-            progress[key] = ((Number(progress[key]) || 0) + 1) % 3;
-            saveAdminMutation(profile, 'curriculum', previous);
-            const content = document.querySelector('#tab-progreso .public-profile-content[data-module="curriculum"]');
-            if (content && typeof window.renderMallaPublica === 'function') window.renderMallaPublica(content, progress, { editable: true });
-        }
+        getUsers: () => loadedUsers.slice()
     };
     window.cargarHorariosComunidad = loadSharedInformation;
     document.addEventListener('portal:section-entered', event => {
-        if (!sections.some(section => section.id === event.detail.panelId) || !selectedUserId || hasAdminRole()) return;
+        if (!sections.some(section => section.id === event.detail.panelId) || !selectedUserId) return;
         applySelection('');
     });
     document.addEventListener('portal:auth-changed', loadSharedInformation);
