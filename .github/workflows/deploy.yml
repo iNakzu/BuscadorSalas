@@ -53,6 +53,6 @@ jobs:
             sudo cp nginx_api_limits.conf /etc/nginx/conf.d/buscadorsalas_api_limits.conf
             sudo cp nginx_buscadorsalas.conf /etc/nginx/sites-available/buscadorsalas
             sudo nginx -t && sudo systemctl reload nginx
-            sudo systemctl reload buscadorsalas
+            sudo systemctl restart buscadorsalas
             sleep 2
             curl --fail --silent --show-error http://127.0.0.1:5000/api/status >/dev/null
