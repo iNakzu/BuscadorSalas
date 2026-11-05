@@ -5,7 +5,7 @@ const vm = require('vm');
 (async () => {
   const listeners = new Map();
   const elements = new Map();
-  for (const id of ['auth-status', 'auth-profile', 'auth-avatar', 'auth-name', 'auth-email', 'auth-login', 'auth-gate']) {
+  for (const id of ['auth-status', 'auth-profile-loading', 'auth-profile', 'auth-avatar', 'auth-name', 'auth-email', 'auth-login', 'auth-gate']) {
     elements.set(id, { hidden: false, textContent: '', disabled: false });
   }
   let completeSessionRead;

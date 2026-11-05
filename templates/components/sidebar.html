@@ -4,7 +4,14 @@
     <div class="brand-status-row">
     </div>
   <div class="auth-card" id="auth-card">
-    <p id="auth-status">Restaurando tu sesión…</p>
+    <div class="auth-profile-loading" id="auth-profile-loading" role="status" aria-label="Restaurando tu sesión">
+      <span class="auth-avatar auth-skeleton-avatar" aria-hidden="true"></span>
+      <span class="auth-profile-copy" aria-hidden="true">
+        <span class="auth-skeleton-line auth-skeleton-name"></span>
+        <span class="auth-skeleton-line auth-skeleton-email"></span>
+      </span>
+    </div>
+    <p id="auth-status" hidden></p>
     <button type="button" class="auth-profile" id="auth-profile" onclick="abrirPerfil()" aria-label="Abrir mi perfil" hidden>
       <span class="auth-avatar" id="auth-avatar" aria-hidden="true"></span>
       <div class="auth-profile-copy">

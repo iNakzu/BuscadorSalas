@@ -6,7 +6,7 @@ const source = fs.readFileSync('static/js/auth.js', 'utf8');
 
 function boot(session, signInError = null, publicOrigin = 'https://horarios.dev') {
   const elements = new Map();
-  for (const id of ['auth-status', 'auth-profile', 'auth-avatar', 'auth-name', 'auth-email', 'auth-login', 'auth-logout']) {
+  for (const id of ['auth-status', 'auth-profile-loading', 'auth-profile', 'auth-avatar', 'auth-name', 'auth-email', 'auth-login', 'auth-logout']) {
     elements.set(id, { hidden: false, disabled: false, textContent: '' });
   }
   const listeners = {};
@@ -48,12 +48,14 @@ function boot(session, signInError = null, publicOrigin = 'https://horarios.dev'
     user_metadata: { given_name: 'Benjamín Alezis', family_name: 'Guzmán Norambuena', picture: 'https://example.invalid/photo.jpg' }
   } });
   const restoring = signedIn.listeners.DOMContentLoaded();
-  assert.strictEqual(signedIn.elements.get('auth-status').textContent, 'Restaurando tu sesión…');
+  assert.strictEqual(signedIn.elements.get('auth-profile-loading').hidden, false, 'show the profile-sized loading capsule during session restoration');
+  assert.strictEqual(signedIn.elements.get('auth-profile').hidden, true);
   assert.strictEqual(signedIn.elements.get('auth-login').hidden, true, 'do not briefly present a saved session as signed out');
   await restoring;
   assert.strictEqual(signedIn.elements.get('auth-name').textContent, 'Benjamín Alezis Guzmán Norambuena');
   assert.strictEqual(signedIn.elements.get('auth-avatar').textContent, 'BG');
   assert.strictEqual(signedIn.elements.get('auth-profile').hidden, false);
+  assert.strictEqual(signedIn.elements.get('auth-profile-loading').hidden, true);
   assert.strictEqual(signedIn.elements.get('auth-status').hidden, true);
   signedIn.authStateCallback()('SIGNED_OUT', null);
   assert.strictEqual(signedIn.calls.reload, 1, 'signed-out users should return to the public page');

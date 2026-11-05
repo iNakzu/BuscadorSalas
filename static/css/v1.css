@@ -5,6 +5,13 @@
 .auth-button-secondary { background: rgba(148,163,184,.18); }
 .auth-profile { display: flex; align-items: center; gap: 11px; min-width: 0; margin: 2px 0 12px; }
 .auth-profile[hidden] { display: none; }
+.auth-profile-loading { display: flex; align-items: center; gap: 11px; box-sizing: border-box; width: calc(100% + 24px); min-height: 82px; margin: -12px; padding: 20px 17px; border-radius: 10px; }
+.auth-profile-loading[hidden] { display: none; }
+.auth-skeleton-avatar { border-color: rgba(255,255,255,.12); background: rgba(148,163,184,.13); box-shadow: none; }
+.auth-skeleton-line { display: block; border-radius: 999px; background: rgba(148,163,184,.2); animation: auth-skeleton-pulse 1.2s ease-in-out infinite alternate; }
+.auth-skeleton-name { width: min(145px, 42vw); height: 12px; }
+.auth-skeleton-email { width: min(105px, 30vw); height: 9px; }
+@keyframes auth-skeleton-pulse { from { opacity: .45; } to { opacity: .9; } }
 .auth-avatar { display: grid; flex: 0 0 42px; width: 42px; height: 42px; place-items: center; border: 1px solid rgba(255,255,255,.28); border-radius: 50%; background: linear-gradient(135deg,#7c3aed,#0891b2); box-shadow: 0 4px 14px rgba(8,145,178,.24); color: #fff; font-size: 14px; font-weight: 800; letter-spacing: .04em; }
 .auth-profile-copy { display: grid; min-width: 0; gap: 3px; }
 .auth-profile-copy strong,.auth-profile-copy span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -14,7 +21,7 @@
 .auth-card { display: flex; flex-direction: column; align-items: center; text-align: center; }
 .auth-card > p { align-self: stretch; }
 .auth-card .auth-button, .auth-card .auth-profile { box-sizing: border-box; width: 100%; }
-.auth-card .auth-profile { justify-content: flex-start; width: calc(100% + 24px); margin: -12px; padding: 20px 17px; border: 0; border-radius: 10px; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; transition: background .18s ease; }
+.auth-card .auth-profile { justify-content: flex-start; width: calc(100% + 24px); min-height: 82px; margin: -12px; padding: 20px 17px; border: 0; border-radius: 10px; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; transition: background .18s ease; }
 .auth-card .auth-profile:hover,.auth-card .auth-profile:active { background: rgba(255,255,255,.06); }
 .auth-card .auth-profile:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
 .auth-card .auth-profile-copy { text-align: left; }

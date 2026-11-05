@@ -35,27 +35,30 @@
 
     function render() {
         const status = document.getElementById('auth-status');
+        const loading = document.getElementById('auth-profile-loading');
         const profile = document.getElementById('auth-profile');
         const avatar = document.getElementById('auth-avatar');
         const name = document.getElementById('auth-name');
         const email = document.getElementById('auth-email');
         const login = document.getElementById('auth-login');
-        if (!status || !profile || !avatar || !name || !email || !login) return;
+        if (!status || !loading || !profile || !avatar || !name || !email || !login) return;
         if (!available) {
+            loading.hidden = true;
             status.textContent = 'El acceso personal estará disponible al conectar Supabase.';
             status.hidden = false;
             login.disabled = true;
             login.hidden = false;
             profile.hidden = true;
         } else if (!initialSessionResolved) {
-            status.hidden = false;
-            status.textContent = 'Restaurando tu sesión…';
+            loading.hidden = false;
+            status.hidden = true;
             profile.hidden = true;
             login.hidden = true;
         } else if (api.user) {
             const gate = document.getElementById('auth-gate');
             if (gate) gate.hidden = true;
             const fullName = displayName(api.user);
+            loading.hidden = true;
             status.hidden = true;
             profile.hidden = false;
             avatar.textContent = initials(fullName);
@@ -63,6 +66,7 @@
             email.textContent = api.user.email || '';
             login.hidden = true;
         } else {
+            loading.hidden = true;
             status.hidden = false;
             status.textContent = 'Inicia sesión para sincronizar tus datos personales.';
             profile.hidden = true;
