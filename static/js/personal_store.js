@@ -4,6 +4,8 @@
     let pendingSync = false;
     let resetting = false;
     let activeSaves = 0;
+    let retryTimer = null;
+    let retryDelay = 5000;
     const resetMarkers = new Map();
     const epochMarker = '1970-01-01T00:00:00.000Z';
     const localResetGeneration = window.PORTAL_CONFIG && window.PORTAL_CONFIG.personalDataResetGeneration;
@@ -45,6 +47,24 @@
         document.dispatchEvent(new CustomEvent('portal:remote-state', { detail: { module, payload } }));
     }
 
+    function scheduleSyncRetry() {
+        if (retryTimer !== null || resetting) return;
+        retryTimer = setTimeout(() => {
+            retryTimer = null;
+            syncAll();
+        }, retryDelay);
+        retryDelay = Math.min(retryDelay * 2, 5 * 60 * 1000);
+    }
+
+    function retrySyncNow() {
+        if (retryTimer !== null) {
+            clearTimeout(retryTimer);
+            retryTimer = null;
+        }
+        retryDelay = 5000;
+        syncAll();
+    }
+
     async function upsert(client, userId, module, payload, clientUpdatedAt, resetMarker) {
         const { error } = await client.from('user_module_state').upsert({
             user_id: userId,
@@ -71,6 +91,7 @@
         if (resetting) return;
         if (syncing) { pendingSync = true; return; }
         syncing = true;
+        let syncSucceeded = false;
         try {
             const currentUserId = auth.user.id;
             const ownerKey = 'portal:legacy-owner';
@@ -167,14 +188,22 @@
                     showPayload(module, registration, userId, data.payload, data.client_updated_at, previousDisplayed);
                 }
             }
+            syncSucceeded = true;
         } catch (error) {
             console.error('No se pudo sincronizar el espacio personal', error);
+            scheduleSyncRetry();
         } finally {
             syncing = false;
             document.dispatchEvent(new CustomEvent('portal:personal-store-ready'));
-            if (pendingSync) {
+            if (pendingSync && !resetting) {
                 pendingSync = false;
-                if (!resetting) syncAll();
+                syncAll();
+            } else if (!pendingSync && syncSucceeded) {
+                retryDelay = 5000;
+                if (retryTimer !== null) {
+                    clearTimeout(retryTimer);
+                    retryTimer = null;
+                }
             }
         }
     }
@@ -197,6 +226,7 @@
         } catch (error) {
             console.error('No se pudo validar el reinicio de datos personales', error);
             localStorage.setItem(registration.legacyKey, JSON.stringify(payload));
+            scheduleSyncRetry();
             return;
         }
         if (Date.parse(resetMarker) > 0 && localStorage.getItem(seenKey) !== resetMarker) {
@@ -218,6 +248,7 @@
             await upsert(auth.client, userId, module, payload, now, resetMarker);
         } catch (error) {
             console.error(`No se pudo guardar ${module}`, error);
+            scheduleSyncRetry();
         } finally {
             activeSaves -= 1;
         }
@@ -295,6 +326,10 @@
     };
     document.addEventListener('portal:auth-changed', syncAll);
     if (window.addEventListener) {
+        window.addEventListener('online', retrySyncNow);
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') retrySyncNow();
+        });
         window.addEventListener('storage', event => {
             const auth = window.PortalAuth;
             const prefix = auth && auth.user ? `portal:${auth.user.id}:data-reset-at:` : '';

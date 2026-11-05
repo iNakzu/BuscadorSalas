@@ -16,12 +16,15 @@ function storage(initial = {}) {
 }
 
 function environment({ initial = {}, user = null, remote = null, resetAt = null, resetFailure = false,
-  resetResult = { reset_at: '2026-10-03T13:00:00.000Z' }, holdSync = false, resetGeneration = null }) {
+  resetResult = { reset_at: '2026-10-03T13:00:00.000Z' }, holdSync = false, resetGeneration = null,
+  failWrites = false }) {
   const localStorage = storage(initial);
   const events = [];
   const upserts = [];
   const rpcCalls = [];
   const listeners = {};
+  let writeFailure = failWrites;
+  let profileFailure = false;
   let releaseSync;
   const syncGate = new Promise(resolve => { releaseSync = () => resolve({ data: null, error: null }); });
   const moduleQuery = {
@@ -29,12 +32,13 @@ function environment({ initial = {}, user = null, remote = null, resetAt = null,
     async maybeSingle() { return { data: remote, error: null }; },
     delete() { return this; },
     async in() { return { error: null }; },
-    async upsert(row) { upserts.push(row); return { error: null }; }
+    async upsert(row) { upserts.push(row); return { error: writeFailure ? { message: 'offline' } : null }; }
   };
   const profileQuery = {
     select() { return this; }, eq() { return this; },
     maybeSingle() {
       if (holdSync) return syncGate;
+      if (profileFailure) return Promise.resolve({ data: null, error: { message: 'offline' } });
       return Promise.resolve({ data: resetAt ? { data_reset_at: resetAt } : null, error: null });
     }
   };
@@ -48,10 +52,12 @@ function environment({ initial = {}, user = null, remote = null, resetAt = null,
   const context = {
     window: {
       PortalAuth: user ? { user: { id: user }, client } : null,
-      PORTAL_CONFIG: resetGeneration ? { personalDataResetGeneration: resetGeneration } : {}
+      PORTAL_CONFIG: resetGeneration ? { personalDataResetGeneration: resetGeneration } : {},
+      addEventListener(name, callback) { listeners[`window:${name}`] = callback; }
     },
     localStorage,
     document: {
+      visibilityState: 'visible',
       addEventListener(name, callback) { listeners[name] = callback; },
       dispatchEvent(event) { events.push(event); }
     },
@@ -60,11 +66,14 @@ function environment({ initial = {}, user = null, remote = null, resetAt = null,
     Date,
     JSON,
     Map,
-    setTimeout
+    setTimeout,
+    clearTimeout
   };
   vm.createContext(context);
   vm.runInContext(source, context);
-  return { context, localStorage, events, upserts, rpcCalls, listeners, releaseSync };
+  return { context, localStorage, events, upserts, rpcCalls, listeners, releaseSync,
+    setWriteFailure(value) { writeFailure = value; },
+    setProfileFailure(value) { profileFailure = value; } };
 }
 
 const settle = () => new Promise(resolve => setTimeout(resolve, 20));
@@ -91,6 +100,32 @@ const settle = () => new Promise(resolve => setTimeout(resolve, 20));
   assert.strictEqual(newerLocal.upserts[0].schema_version, 2);
   assert.strictEqual(newerLocal.upserts[0].reset_marker, '1970-01-01T00:00:00.000Z');
 
+  const reconnecting = environment({ user: 'user-3', failWrites: true });
+  reconnecting.context.window.PortalStore.register('agenda', 'mi_agenda_v1', []);
+  await settle();
+  await reconnecting.context.window.PortalStore.save('agenda', [{ id: 'offline-edit' }]);
+  assert.deepStrictEqual(JSON.parse(reconnecting.localStorage.getItem('mi_agenda_v1')), [{ id: 'offline-edit' }],
+    'a failed remote write must retain the local edit');
+  assert.strictEqual(reconnecting.upserts.length, 1, 'the initial remote write failed');
+  reconnecting.setWriteFailure(false);
+  reconnecting.listeners['window:online']();
+  await settle();
+  assert.strictEqual(reconnecting.upserts.length, 2, 'reconnection should retry pending personal data');
+  assert.strictEqual(reconnecting.upserts[1].payload[0].id, 'offline-edit');
+
+  const resetMarkerRetry = environment({ user: 'user-4' });
+  resetMarkerRetry.context.window.PortalStore.register('agenda', 'mi_agenda_v1', []);
+  await settle();
+  resetMarkerRetry.setProfileFailure(true);
+  await resetMarkerRetry.context.window.PortalStore.save('agenda', [{ id: 'marker-offline-edit' }]);
+  assert.deepStrictEqual(JSON.parse(resetMarkerRetry.localStorage.getItem('mi_agenda_v1')), [{ id: 'marker-offline-edit' }],
+    'if reset validation is unavailable, the edit must remain local');
+  resetMarkerRetry.setProfileFailure(false);
+  resetMarkerRetry.listeners['window:online']();
+  await settle();
+  assert(resetMarkerRetry.upserts.some(row => row.payload[0] && row.payload[0].id === 'marker-offline-edit'),
+    'reconnection should also recover edits made while reset validation failed');
+
   const secondUser = environment({
     user: 'user-2',
     initial: {
@@ -106,5 +141,5 @@ const settle = () => new Promise(resolve => setTimeout(resolve, 20));
   assert.strictEqual(secondUser.events.some(event => event.type === 'portal:remote-state'
     && event.detail.module === 'agenda' && Array.isArray(event.detail.payload)
     && event.detail.payload.length === 0), true);
-  console.log('personal_store: 3 scenarios passed');
+  console.log('personal_store: offline recovery and data-isolation scenarios passed');
 })().catch(error => { console.error(error); process.exit(1); });
