@@ -51,13 +51,13 @@ function renderUiFeedbackCard({ message = '', title = 'Aviso', tone = 'info', it
     if (modal.style.display !== 'flex') modal.__previousFocus = document.activeElement;
     modal.style.display = 'flex';
     modal.innerHTML = `
-        <section class="ui-feedback-card modern-alert tone-${normalizedTone}" role="dialog" aria-modal="true" aria-labelledby="ui-feedback-title">
+        <section class="ui-feedback-card modern-alert tone-${normalizedTone}" role="dialog" aria-modal="true" aria-labelledby="ui-feedback-title" aria-describedby="ui-feedback-description">
             <div class="ui-feedback-header">
                 <span class="ui-feedback-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${iconMarkup}</svg></span>
                 <h2 id="ui-feedback-title">${escapeUiFeedback(title)}</h2>
             </div>
             <div class="ui-feedback-content">
-                <p>${escapeUiFeedback(message)}</p>
+                <p id="ui-feedback-description">${escapeUiFeedback(message)}</p>
                 ${itemMarkup}
             </div>
             ${actionMarkup}
@@ -71,7 +71,28 @@ function renderUiFeedbackCard({ message = '', title = 'Aviso', tone = 'info', it
         secondary.onclick = () => onSecondary ? onSecondary() : cerrarUiFeedback();
     }
     modal.onclick = closeOnBackdrop ? event => { if (event.target === modal) cerrarUiFeedback(); } : null;
-    modal.onkeydown = event => { if (event.key === 'Escape') cerrarUiFeedback(); };
+    modal.onkeydown = event => {
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            cerrarUiFeedback();
+            return;
+        }
+        if (event.key !== 'Tab') return;
+        const focusable = Array.from(modal.querySelectorAll('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'));
+        if (!focusable.length) {
+            event.preventDefault();
+            return;
+        }
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && (document.activeElement === first || !modal.contains(document.activeElement))) {
+            event.preventDefault();
+            last.focus();
+        } else if (!event.shiftKey && (document.activeElement === last || !modal.contains(document.activeElement))) {
+            event.preventDefault();
+            first.focus();
+        }
+    };
     primary.focus();
 }
 

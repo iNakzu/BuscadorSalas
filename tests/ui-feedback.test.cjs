@@ -11,7 +11,11 @@ const document = {
     contains(element) { return element === originalFocus || Object.values(elements).includes(element); },
     getElementById(id) { return elements[id] || null; },
     createElement() {
-        const element = { id: '', className: '', style: {}, onclick: null, onkeydown: null };
+        const element = {
+            id: '', className: '', style: {}, onclick: null, onkeydown: null,
+            contains(target) { return target && Object.values(elements).includes(target); },
+            querySelectorAll() { return ['ui-feedback-secondary-action', 'ui-feedback-primary-action'].map(id => elements[id]).filter(Boolean); }
+        };
         Object.defineProperty(element, 'innerHTML', {
             get() { return this.html || ''; },
             set(html) {
@@ -33,11 +37,22 @@ context.mostrarUiFeedback({
     title: 'Tu espacio personal',
     message: 'Inicia sesión para continuar.',
     primaryLabel: 'Continuar con Google',
+    secondaryLabel: 'Cancelar',
     onPrimary: () => { context.cerrarUiFeedback(); continued = true; },
     closeOnBackdrop: true
 });
 const modal = elements['ui-feedback-modal'];
 assert(modal.innerHTML.includes('role="dialog"'));
+assert(modal.innerHTML.includes('aria-describedby="ui-feedback-description"'));
+assert.strictEqual(document.activeElement, elements['ui-feedback-primary-action']);
+const keyEvent = (key, shiftKey = false) => ({ key, shiftKey, prevented: false, preventDefault() { this.prevented = true; } });
+const tabForward = keyEvent('Tab');
+modal.onkeydown(tabForward);
+assert(tabForward.prevented, 'Tab from the final action should wrap to the first action');
+assert.strictEqual(document.activeElement, elements['ui-feedback-secondary-action']);
+const tabBackward = keyEvent('Tab', true);
+modal.onkeydown(tabBackward);
+assert(tabBackward.prevented, 'Shift+Tab from the first action should wrap to the final action');
 assert.strictEqual(document.activeElement, elements['ui-feedback-primary-action']);
 elements['ui-feedback-primary-action'].onclick();
 assert(continued, 'primary action should run');
@@ -48,6 +63,11 @@ context.mostrarUiFeedback({ title: 'Requisito pendiente', items: ['Termodinámic
 assert(modal.innerHTML.includes('Termodinámica &lt;script&gt;'), 'dynamic text should be escaped');
 
 let confirmed = false;
+context.confirmarWeb('¿Continuar?', () => { confirmed = true; });
+const escapeEvent = keyEvent('Escape');
+elements['ui-feedback-modal'].onkeydown(escapeEvent);
+assert(escapeEvent.prevented, 'Escape should be handled by the open dialog');
+assert.strictEqual(confirmed, false, 'Escape should dismiss a confirmation without confirming its action');
 context.confirmarWeb('¿Continuar?', () => { confirmed = true; });
 elements['ui-feedback-primary-action'].onclick();
 assert(confirmed, 'confirmation action should run');
