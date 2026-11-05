@@ -44,6 +44,55 @@ function parseAssistantListBlock(lines, startIndex) {
     let imageUrl = '';
     let busy = false;
     let keyboardBaselineHeight = null;
+    let highlighterPromise = null;
+    let katexPromise = null;
+
+    function ensureKatex() {
+        if (window.katex) return Promise.resolve(window.katex);
+        if (katexPromise) return katexPromise;
+        katexPromise = new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/katex@0.19.0/dist/katex.min.js';
+            script.integrity = 'sha384-QFFtAGzvvj+bfgCGxXJlNZZR1nXEZgvG8tDLCCY1F19xl20WlfTYgguB4VcNdxYk';
+            script.crossOrigin = 'anonymous';
+            script.async = true;
+            script.onload = () => window.katex ? resolve(window.katex) : reject(new Error('KaTeX no disponible'));
+            script.onerror = () => reject(new Error('No se pudo cargar KaTeX'));
+            document.head.appendChild(script);
+        }).catch(error => {
+            katexPromise = null;
+            throw error;
+        });
+        return katexPromise;
+    }
+
+    function ensureHighlighter() {
+        if (window.hljs) return Promise.resolve(window.hljs);
+        if (highlighterPromise) return highlighterPromise;
+        highlighterPromise = new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = '/static/js/vendor/highlight-full.min.js?v=20261004-highlightjs-11.12.0-1';
+            script.async = true;
+            script.onload = () => window.hljs ? resolve(window.hljs) : reject(new Error('Resaltador no disponible'));
+            script.onerror = () => reject(new Error('No se pudo cargar el resaltador'));
+            document.head.appendChild(script);
+        }).catch(error => {
+            highlighterPromise = null;
+            throw error;
+        });
+        return highlighterPromise;
+    }
+
+    function highlightCode(code, rawCode, language, highlighter) {
+        try {
+            const highlighted = language && highlighter.getLanguage(language)
+                ? highlighter.highlight(rawCode, { language, ignoreIllegals: true })
+                : highlighter.highlightAuto(rawCode);
+            code.innerHTML = highlighted.value;
+        } catch (_error) {
+            code.textContent = rawCode;
+        }
+    }
 
     function setOpen(open) {
         panel.hidden = !open;
@@ -133,9 +182,9 @@ function parseAssistantListBlock(lines, startIndex) {
         const math = document.createElement(displayMode ? 'div' : 'span');
         math.className = displayMode ? 'ai-math-block' : 'ai-math-inline';
         const formula = String(source).trim().slice(0, 2500);
-        try {
-            if (!window.katex || typeof window.katex.render !== 'function') throw new Error('KaTeX no disponible');
-            window.katex.render(formula, math, {
+        const render = katex => {
+            math.replaceChildren();
+            katex.render(formula, math, {
                 displayMode,
                 throwOnError: true,
                 trust: false,
@@ -144,9 +193,21 @@ function parseAssistantListBlock(lines, startIndex) {
                 strict: 'ignore',
                 output: 'htmlAndMathml'
             });
-        } catch (_error) {
+        };
+        const showFallback = () => {
             math.classList.add('ai-math-render-fallback');
             math.textContent = readableLatex(formula);
+        };
+        try {
+            if (!window.katex || typeof window.katex.render !== 'function') throw new Error('KaTeX no disponible');
+            render(window.katex);
+        } catch (_error) {
+            showFallback();
+            ensureKatex().then(katex => {
+                if (!math.isConnected) return;
+                math.classList.remove('ai-math-render-fallback');
+                try { render(katex); } catch (_renderError) { showFallback(); }
+            }).catch(() => {});
         }
         parent.appendChild(math);
     }
@@ -247,19 +308,15 @@ function parseAssistantListBlock(lines, startIndex) {
                 const code = document.createElement('code');
                 const rawCode = codeLines.join('\n');
                 code.className = 'hljs';
-                try {
-                    if (!window.hljs) throw new Error('Resaltador no disponible');
-                    const language = fence[2].toLowerCase();
-                    const highlighted = language && window.hljs.getLanguage(language)
-                        ? window.hljs.highlight(rawCode, { language, ignoreIllegals: true })
-                        : window.hljs.highlightAuto(rawCode);
-                    code.innerHTML = highlighted.value;
-                } catch (_error) {
-                    code.textContent = rawCode;
-                }
+                code.textContent = rawCode;
                 pre.appendChild(code);
                 wrapper.appendChild(pre);
                 element.appendChild(wrapper);
+                const language = fence[2].toLowerCase();
+                if (window.hljs) highlightCode(code, rawCode, language, window.hljs);
+                else ensureHighlighter().then(highlighter => {
+                    if (code.isConnected) highlightCode(code, rawCode, language, highlighter);
+                }).catch(() => {});
                 continue;
             }
 
