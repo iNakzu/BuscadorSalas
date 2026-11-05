@@ -22,6 +22,7 @@
 
     document.addEventListener('portal:personal-sync-status', event => {
         const detail = event.detail || {};
+        if (detail.module === 'schedule') return;
         const subject = moduleNames[detail.module] || {
             label: 'tus datos', synced: 'Datos sincronizados', saved: 'Datos guardados', pronoun: 'se sincronizarán'
         };

@@ -28,8 +28,13 @@ function send(state, module) {
 }
 
 send('syncing', 'schedule');
+assert.strictEqual(toast.hidden, true, 'schedule sync must not create an emerging notification');
+assert.strictEqual(message.textContent, '');
+assert.strictEqual(timers.size, 0);
+
+send('syncing', 'grades');
 assert.strictEqual(toast.hidden, false);
-assert.strictEqual(message.textContent, 'Sincronizando tu horario…');
+assert.strictEqual(message.textContent, 'Sincronizando tus notas…');
 assert.strictEqual(toast.dataset.state, 'syncing');
 assert.strictEqual(timers.size, 0, 'the in-progress state should remain visible until it resolves');
 
@@ -47,7 +52,7 @@ const hideCallback = timers.get(hideId).callback;
 timers.delete(hideId);
 hideCallback();
 const fadeId = Array.from(timers.keys())[0];
-send('syncing', 'schedule');
+send('syncing', 'agenda');
 const fadeCallback = timers.get(fadeId).callback;
 timers.delete(fadeId);
 fadeCallback();
