@@ -239,6 +239,13 @@ class PortalV1Test(unittest.TestCase):
             workflow.index("sudo nginx -t && sudo systemctl reload nginx"),
         )
 
+    def test_deploy_gracefully_reloads_gunicorn(self):
+        workflow = Path(".github/workflows/deploy.yml").read_text()
+        service = Path("buscadorsalas.service").read_text()
+        self.assertIn("sudo systemctl reload buscadorsalas", workflow)
+        self.assertNotIn("sudo systemctl restart buscadorsalas", workflow)
+        self.assertIn("ExecReload=/bin/kill -s HUP $MAINPID", service)
+
     def test_supabase_browser_sdk_is_version_and_integrity_pinned(self):
         template = Path(__file__).parents[1] / "templates/index.html"
         html = template.read_text()
