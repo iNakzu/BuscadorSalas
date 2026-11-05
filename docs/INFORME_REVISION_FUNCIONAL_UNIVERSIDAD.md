@@ -169,12 +169,12 @@ Antes de un piloto universitario, se recomienda: (1) validar este informe con re
 
 ## Auditoría QOL, confiabilidad y rendimiento — 5 de noviembre de 2026
 
-Se revisaron nuevamente la carga inicial, el almacenamiento personal, los diálogos comunes y el flujo de despliegue. Los cambios siguientes se probaron localmente; su publicación y comprobación de producción se registrarán al completar el despliegue de esta auditoría.
+Se revisaron nuevamente la carga inicial, el almacenamiento personal, los diálogos comunes y el flujo de despliegue. Los cambios siguientes se probaron localmente; el estado de publicación y producción se comprobó al finalizar el despliegue de esta auditoría.
 
 ### Correcciones implementadas
 
-- **Carga inicial más liviana.** `templates/index.html` ya no descarga KaTeX ni Highlight.js en cada visita. Ambos se cargan sólo cuando el asistente necesita mostrar fórmulas o bloques de código. Highlight.js ocupa 1.208.701 bytes sin comprimir. Los bloques de código se muestran como texto mientras carga y siguen legibles si falla la red; las fórmulas usan una representación textual de respaldo. KaTeX conserva su verificación SRI. En el primer acceso que necesite estas funciones puede haber una breve carga adicional.
-- **Reintento de sincronización personal.** `static/js/personal_store.js` conserva las ediciones locales y vuelve a intentar enviarlas si falla Supabase. Usa espera creciente de 5 segundos a un máximo de 5 minutos y reintenta también cuando regresa la conexión o la persona vuelve a la pestaña. Se agregó una prueba que simula un fallo y confirma que la edición llega después de reconectar.
+- **Carga inicial más liviana.** `templates/index.html` ya no descarga el JavaScript de KaTeX ni Highlight.js en cada visita. Se cargan sólo cuando el asistente necesita mostrar fórmulas o bloques de código. Highlight.js ocupa 1.208.701 bytes sin comprimir. Los bloques de código se muestran como texto mientras carga y siguen legibles si falla la red; las fórmulas usan una representación textual de respaldo. KaTeX conserva su verificación SRI. En el primer acceso que necesite estas funciones puede haber una breve carga adicional.
+- **Reintento y estado visible de sincronización.** `static/js/personal_store.js` conserva las ediciones locales y vuelve a intentar enviarlas si falla Supabase. Usa espera creciente de 5 segundos a un máximo de 5 minutos y reintenta también cuando regresa la conexión o la persona vuelve a la pestaña. Un aviso discreto informa “sincronizando”, “sincronizado” o que el cambio quedó guardado en este dispositivo y se reintentará. Pruebas simulan el fallo, la reconexión y los estados mostrados.
 - **Foco de diálogos.** `static/js/ui_feedback.js` mantiene Tab y Mayús+Tab dentro del diálogo, permite cerrarlo con Escape sin ejecutar la acción primaria y vincula accesiblemente su descripción. La prueba cubre el foco circular y la cancelación con Escape.
 - **Despliegue sin reinicio completo.** El workflow usa `systemctl reload buscadorsalas`, que envía HUP al master Gunicorn según el `ExecReload` instalado en esta VM. Evita detener todo el servicio durante una publicación de código. Una prueba protege esta configuración.
 
@@ -184,11 +184,11 @@ Se revisaron nuevamente la carga inicial, el almacenamiento personal, los diálo
 - `pip check` no reportó dependencias incompatibles y `pip-audit` no encontró vulnerabilidades conocidas en `requirements.txt`.
 - `nginx -t` pasó ejecutado con permisos administrativos; el servicio `buscadorsalas` estaba activo. Antes de esta publicación, `https://horarios.dev/` y `/api/status` respondieron HTTP 200.
 - Una revisión de patrones de alta confianza no encontró claves API de Google, PAT de Supabase ni bloques de claves privadas en los archivos versionados; los valores no se imprimieron.
-- La carga inicial referencia 419.998 bytes de JavaScript local. Se excluyeron las dos bibliotecas opcionales que ahora se piden sólo bajo demanda; no se hizo una medición sintética de tiempo en dispositivos físicos.
+- La carga inicial referencia 423.192 bytes de JavaScript local. Se excluyeron las dos bibliotecas opcionales que ahora se piden sólo bajo demanda; no se hizo una medición sintética de tiempo en dispositivos físicos.
 
 ### Pendiente de verificación externa o de otra decisión
 
 - Falta comprobar visualmente móvil, tablet y escritorio con navegadores/dispositivos reales, en particular la transición de fórmula textual a render matemático.
-- El guardado local ya se reintenta automáticamente, pero todavía no hay un indicador visual por módulo que distinga “guardado en este dispositivo” de “sincronizado”.
+- La cápsula de sincronización se verificó en pruebas automatizadas y en la respuesta de producción, pero falta revisarla visualmente en dispositivos reales y con lectores de pantalla.
 - No se probó aislamiento entre dos cuentas reales, lector de pantalla ni entrega de push con la aplicación cerrada; estas pruebas requieren cuentas/dispositivos adicionales.
 - Sigue pendiente revisar el horario reconocido antes de sustituir uno existente y comunicar en la interfaz el origen/antigüedad del feed institucional. No se cambiaron esos flujos ni datos académicos en esta auditoría.

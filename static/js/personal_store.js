@@ -7,6 +7,7 @@
     let retryTimer = null;
     let retryDelay = 5000;
     const resetMarkers = new Map();
+    const pendingSyncModules = new Set();
     const epochMarker = '1970-01-01T00:00:00.000Z';
     const localResetGeneration = window.PORTAL_CONFIG && window.PORTAL_CONFIG.personalDataResetGeneration;
 
@@ -45,6 +46,16 @@
     }
     function emit(module, payload) {
         document.dispatchEvent(new CustomEvent('portal:remote-state', { detail: { module, payload } }));
+    }
+
+    function reportSyncStatus(state, module) {
+        document.dispatchEvent(new CustomEvent('portal:personal-sync-status', { detail: { state, module } }));
+    }
+
+    function finishPendingModuleSync(module) {
+        if (!pendingSyncModules.has(module)) return;
+        pendingSyncModules.delete(module);
+        reportSyncStatus('synced', module);
     }
 
     function scheduleSyncRetry() {
@@ -176,6 +187,7 @@
                 if (!data) {
                     if (equal(localPayload, registration.empty)) {
                         showPayload(module, registration, userId, registration.empty, null, previousDisplayed);
+                        finishPendingModuleSync(module);
                         continue;
                     }
                     const timestamp = localUpdatedAt || new Date().toISOString();
@@ -187,10 +199,12 @@
                 } else {
                     showPayload(module, registration, userId, data.payload, data.client_updated_at, previousDisplayed);
                 }
+                finishPendingModuleSync(module);
             }
             syncSucceeded = true;
         } catch (error) {
             console.error('No se pudo sincronizar el espacio personal', error);
+            pendingSyncModules.forEach(module => reportSyncStatus('device', module));
             scheduleSyncRetry();
         } finally {
             syncing = false;
@@ -214,18 +228,22 @@
         const auth = window.PortalAuth;
         if (!auth || !auth.client || !auth.user) {
             localStorage.setItem(registration.legacyKey, JSON.stringify(payload));
+            reportSyncStatus('local', module);
             return;
         }
         while (syncing && !resetting) await new Promise(resolve => setTimeout(resolve, 10));
         if (resetting) return;
         const userId = auth.user.id;
         const seenKey = `portal:${userId}:data-reset-at:${module}`;
+        pendingSyncModules.add(module);
+        reportSyncStatus('syncing', module);
         let resetMarker;
         try {
             resetMarker = resetMarkers.get(userId) || await fetchResetMarker(auth);
         } catch (error) {
             console.error('No se pudo validar el reinicio de datos personales', error);
             localStorage.setItem(registration.legacyKey, JSON.stringify(payload));
+            reportSyncStatus('device', module);
             scheduleSyncRetry();
             return;
         }
@@ -246,8 +264,10 @@
         activeSaves += 1;
         try {
             await upsert(auth.client, userId, module, payload, now, resetMarker);
+            finishPendingModuleSync(module);
         } catch (error) {
             console.error(`No se pudo guardar ${module}`, error);
+            reportSyncStatus('device', module);
             scheduleSyncRetry();
         } finally {
             activeSaves -= 1;

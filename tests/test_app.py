@@ -22,7 +22,10 @@ class PortalV1Test(unittest.TestCase):
             with self.client.get(path) as response:
                 self.assertEqual(response.status_code, 200, path)
                 if path == "/":
-                    self.assertNotIn("Portal Estudiantil UDP", response.get_data(as_text=True))
+                    html = response.get_data(as_text=True)
+                    self.assertNotIn("Portal Estudiantil UDP", html)
+                    self.assertIn('id="personal-sync-status"', html)
+                    self.assertIn("personal_sync_status.js", html)
                     self.assertNotIn('id="pwa-install-btn"', response.get_data(as_text=True))
                 if path == "/manifest.json":
                     self.assertNotIn("UDP", response.get_data(as_text=True))

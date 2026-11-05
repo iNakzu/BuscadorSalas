@@ -26,6 +26,7 @@ jobs:
           pip install -r requirements.txt
           python -m unittest discover -s tests -v
           node tests/personal-store.test.cjs
+          node tests/personal-sync-status.test.cjs
           node tests/app-security.test.cjs
           node tests/auth-ui.test.cjs
           node tests/ui-feedback.test.cjs

@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/notas.css') }}&amp;v=20261002-notes-course-search-style">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/agenda.css') }}&amp;v=20261004-agenda-course-colors-1">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/horario.css') }}&amp;v=20261006-hero-progress-class-colors-1">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/v1.css') }}&amp;v=20261105-profile-loading-capsule-1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/v1.css') }}&amp;v=20261105-personal-sync-status-1">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/community.css') }}?v=20261006-profile-directory-fill-2">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/ai-assistant.css') }}?v=20261004-ai-chat-surface-gradient-3">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/push-notifications.css') }}?v=20261005-profile-notifications-toggle-1">
@@ -46,6 +46,10 @@
     {% include 'views/timer.html' %}
   </main>
 </div>
+<div class="personal-sync-toast" id="personal-sync-status" role="status" aria-live="polite" aria-atomic="true" hidden>
+  <span class="personal-sync-indicator" aria-hidden="true"></span>
+  <span id="personal-sync-message"></span>
+</div>
 {% include 'components/schedule_modal.html' %}
 {% include 'components/agenda_modal.html' %}
 {% include 'components/ai_assistant.html' %}
@@ -56,6 +60,7 @@
 <script src="{{ url_for('static', filename='js/auth.js') }}&amp;v=20261006-shared-feedback-2" defer></script>
 <script src="{{ url_for('static', filename='js/community_schedules.js') }}?v=20261006-selected-profile-career-2" defer></script>
 <script src="{{ url_for('static', filename='js/personal_store.js') }}&amp;v=20261016-reset-remote-first-1" defer></script>
+<script src="{{ url_for('static', filename='js/personal_sync_status.js') }}?v=20261105-sync-state-toast-1" defer></script>
 <script src="{{ url_for('static', filename='js/user_schedule_data.js') }}?v=20261006-no-default-school-1" defer></script>
 <script src="{{ url_for('static', filename='js/horario.js') }}?v=20261006-hide-unassigned-room-placeholders-2" defer></script>
 <script src="{{ url_for('static', filename='js/solemnes_data.js') }}" defer></script>

@@ -83,6 +83,8 @@ const settle = () => new Promise(resolve => setTimeout(resolve, 20));
   offline.context.window.PortalStore.register('agenda', 'mi_agenda_v1', []);
   await offline.context.window.PortalStore.save('agenda', [{ id: 1 }]);
   assert.deepStrictEqual(JSON.parse(offline.localStorage.getItem('mi_agenda_v1')), [{ id: 1 }]);
+  assert(offline.events.some(event => event.type === 'portal:personal-sync-status'
+    && event.detail.state === 'local' && event.detail.module === 'agenda'));
 
   const newerLocal = environment({
     user: 'user-1',
@@ -107,11 +109,15 @@ const settle = () => new Promise(resolve => setTimeout(resolve, 20));
   assert.deepStrictEqual(JSON.parse(reconnecting.localStorage.getItem('mi_agenda_v1')), [{ id: 'offline-edit' }],
     'a failed remote write must retain the local edit');
   assert.strictEqual(reconnecting.upserts.length, 1, 'the initial remote write failed');
+  assert(reconnecting.events.some(event => event.type === 'portal:personal-sync-status'
+    && event.detail.state === 'device' && event.detail.module === 'agenda'));
   reconnecting.setWriteFailure(false);
   reconnecting.listeners['window:online']();
   await settle();
   assert.strictEqual(reconnecting.upserts.length, 2, 'reconnection should retry pending personal data');
   assert.strictEqual(reconnecting.upserts[1].payload[0].id, 'offline-edit');
+  assert(reconnecting.events.some(event => event.type === 'portal:personal-sync-status'
+    && event.detail.state === 'synced' && event.detail.module === 'agenda'));
 
   const resetMarkerRetry = environment({ user: 'user-4' });
   resetMarkerRetry.context.window.PortalStore.register('agenda', 'mi_agenda_v1', []);

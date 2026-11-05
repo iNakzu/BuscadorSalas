@@ -33,6 +33,15 @@
 .auth-reset-data-btn:hover { color: #f8fafc; }
 .auth-reset-data-btn:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
 .auth-reset-data-btn:disabled { opacity: .45; cursor: wait; }
+.personal-sync-toast { position: fixed; z-index: 800; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 9px; box-sizing: border-box; width: max-content; max-width: min(480px, calc(100vw - 28px)); padding: 11px 15px; border: 1px solid rgba(148,163,184,.24); border-radius: 999px; background: rgba(15,23,42,.96); box-shadow: 0 12px 34px rgba(0,0,0,.3); color: #dbeafe; font-size: 12px; line-height: 1.4; opacity: 0; visibility: hidden; transform: translate(-50%, 8px); transition: opacity .18s ease, transform .18s ease, visibility .18s ease; }
+.personal-sync-toast[hidden] { display: none; }
+.personal-sync-toast[data-visible="true"] { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+.personal-sync-indicator { flex: 0 0 8px; width: 8px; height: 8px; border-radius: 50%; background: #60a5fa; }
+.personal-sync-toast[data-state="synced"] .personal-sync-indicator { background: #34d399; }
+.personal-sync-toast[data-state="device"] .personal-sync-indicator { background: #fbbf24; }
+.personal-sync-toast[data-state="local"] .personal-sync-indicator { background: #a78bfa; }
+@media (max-width: 760px) { .personal-sync-toast { bottom: calc(78px + env(safe-area-inset-bottom)); width: max-content; max-width: calc(100vw - 28px); border-radius: 14px; } }
+@media (prefers-reduced-motion: reduce) { .personal-sync-toast { transition: none; } }
 .tabs-wrapper .brand-meta .brand-status-row { display: flex; align-items: center; justify-content: flex-start; flex-wrap: nowrap; gap: 8px; margin: 0; }
 .tabs-wrapper .pwa-install-btn[hidden] { display: none; }
 @media (min-width: 1024px) { .tabs-wrapper { padding-top: 20px; } }
