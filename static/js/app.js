@@ -318,6 +318,7 @@ async function cargarSalas() {
 async function irABloqueActual(tipo = 'salas') {
     const bannerIdMap = {
         'salas': ['banner-alerta-horario', 'texto-alerta-horario'],
+        'horario': ['banner-alerta-horario-sala', 'texto-alerta-horario-sala'],
         'profes': ['banner-alerta-prof', 'texto-alerta-prof'],
         'ramos': ['banner-alerta-ramo', 'texto-alerta-ramo'],
         'malla': ['banner-alerta-malla', 'texto-alerta-malla']
@@ -359,6 +360,12 @@ async function irABloqueActual(tipo = 'salas') {
                 b.classList.toggle('active', coincideHora(b.dataset.val, state.hora));
             });
             cargarSalas();
+        } else if (tipo === 'horario') {
+            state.salaDia = diaStr;
+            document.querySelectorAll('#bar-sala-dia .pill-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.dia === state.salaDia);
+            });
+            if (state.salaActiva) renderizarHorarioSala(state.salaActiva);
         } else if (tipo === 'profes') {
             state.profDia = diaStr;
             document.querySelectorAll('#bar-prof-dia .pill-btn').forEach(b => {
